@@ -216,7 +216,8 @@ def _confirma(db: Session, chat_id: int, cod: str) -> str:
         audit.record(
             db, "telegram.confirmare_gresita", rezultat="refuzat", actor_tip="sistem", obiect_tip="telegram"
         )
-        return "Cod greșit."
+        db.delete(conf)  # o singură încercare: codul are 6 cifre, deci nu lăsăm loc de ghicit
+        return "Cod greșit. Cererea de repornire a fost anulată; cere-o din nou cu /porneste."
     tip = Oprire(conf.tip)
     db.delete(conf)
     opriri.seteaza(db, tip, False, canal="telegram", motiv="confirmat în Telegram", tenant_id=conf.tenant_id)

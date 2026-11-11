@@ -4,6 +4,13 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F1.10 — Botul Telegram și butoanele de oprire
+- Webhook păzit de secret și de lista conversațiilor permise; comenzile `/stare`, `/opreste…`, `/porneste…` (repornirea cere cod de confirmare, o singură încercare), alerte critice. Steagurile de oprire există, dar modulele care le citesc apar din F2.
+
+### F1.7 — Coaja panoului
+- Panou instalabil (PWA) cu bara de jos, ecranul Acasă, temă luminoasă/întunecată, service worker și notificări push; HTMX și Alpine (build CSP) vendorizate.
+- Pagina Operare: promovare în producție și revenire cu confirmare, starea backupului.
+
 ### F1.8–F1.9 — Livrare și backup (infrastructură)
 - Imagine Docker, compose pentru staging și producție, proxy Caddy, instalarea VPS-ului, deployer cu revenire, backup criptat cu test de restaurare.
 

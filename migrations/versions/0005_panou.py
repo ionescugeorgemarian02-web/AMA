@@ -4,7 +4,7 @@ Revizia: 0005
 Anterioara: 0004
 
 Toate tabelele de aici sunt la nivel de agenție sau pe utilizator; singura coloană `tenant_id` este cea din
-`oprituri` (oprirea pe un client), cu politica ei explicită.
+`opriri` (oprirea pe un client), cu politica ei explicită.
 """
 
 from alembic import op
@@ -23,7 +23,7 @@ TABELE = (
     "abonamente_push",
     "cereri_livrare",
     "livrari",
-    "oprituri",
+    "opriri",
     "telegram_actualizari",
     "telegram_confirmari",
 )
@@ -105,7 +105,7 @@ def upgrade() -> None:
 
     # --- Opriri (F1.10, 7.8). `tenant_id` doar pentru oprirea pe client; rândurile globale se văd de toți.
     op.execute(
-        """CREATE TABLE oprituri (
+        """CREATE TABLE opriri (
             id uuid PRIMARY KEY,
             tip text NOT NULL CHECK (tip IN ('publicare', 'reclame', 'invatare', 'apeluri_platite', 'client')),
             tenant_id uuid REFERENCES clienti (id),
@@ -118,18 +118,18 @@ def upgrade() -> None:
         )"""
     )
     op.execute(
-        "CREATE UNIQUE INDEX oprituri_unic ON oprituri (tip, COALESCE(tenant_id, '00000000-0000-0000-0000-000000000000'::uuid))"
+        "CREATE UNIQUE INDEX opriri_unic ON opriri (tip, COALESCE(tenant_id, '00000000-0000-0000-0000-000000000000'::uuid))"
     )
-    activeaza_rls(op.execute, "oprituri")
+    activeaza_rls(op.execute, "opriri")
     op.execute(
-        f"CREATE POLICY oprituri_citire ON oprituri FOR SELECT "
+        f"CREATE POLICY opriri_citire ON opriri FOR SELECT "
         f"USING (tenant_id IS NULL OR tenant_id = {TENANT} OR {AGENTIE})"
     )
-    op.execute(f"CREATE POLICY oprituri_adaugare ON oprituri FOR INSERT WITH CHECK ({AGENTIE})")
+    op.execute(f"CREATE POLICY opriri_adaugare ON opriri FOR INSERT WITH CHECK ({AGENTIE})")
     op.execute(
-        f"CREATE POLICY oprituri_schimbare ON oprituri FOR UPDATE USING ({AGENTIE}) WITH CHECK ({AGENTIE})"
+        f"CREATE POLICY opriri_schimbare ON opriri FOR UPDATE USING ({AGENTIE}) WITH CHECK ({AGENTIE})"
     )
-    op.execute("GRANT SELECT, INSERT, UPDATE ON oprituri TO ama_app")
+    op.execute("GRANT SELECT, INSERT, UPDATE ON opriri TO ama_app")
 
     # --- Telegram (F1.10)
     op.execute(

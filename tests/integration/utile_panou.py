@@ -59,7 +59,7 @@ def _curata_panou(admin_engine: Engine) -> Iterator[None]:
     with admin_engine.begin() as c:
         c.execute(
             text(
-                "TRUNCATE oprituri, cereri_livrare, livrari, telegram_actualizari, telegram_confirmari, "
+                "TRUNCATE opriri, cereri_livrare, livrari, telegram_actualizari, telegram_confirmari, "
                 "abonamente_push"
             )
         )

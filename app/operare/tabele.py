@@ -1,7 +1,7 @@
 """Tabelele operării: abonamente push, livrare, opriri, Telegram (migrarea 0005).
 
-Cheile străine există în bază (migrarea); aici nu se declară, pentru că tabelele `utilizatori` și `clienti` țin
-de alt modul și alt `MetaData`."""
+Cheile străine există în bază (migrarea); aici nu se declară, fiindcă `utilizatori` și `clienti` țin de alt
+modul și alt `MetaData`."""
 
 import uuid
 from datetime import datetime
@@ -65,7 +65,7 @@ class Livrare(BazaOperare):
 
 
 class StareOprire(BazaOperare):
-    __tablename__ = "oprituri"
+    __tablename__ = "opriri"
     id: Mapped[uuid.UUID] = _uuid_pk()
     tip: Mapped[str] = mapped_column(Text)
     tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))

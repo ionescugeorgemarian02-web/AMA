@@ -68,3 +68,14 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 
 ### 12. Reluare programată
 - La cererea proprietarului (cota de utilizare se apropie de limită), programată o trezire automată a sesiunii la ora 2:00, ora României (2026-11-12, 00:00 UTC; mutată de proprietar de la 23:58 UTC), cu instrucțiunea de a continua din `JURNAL.md` și `docs/specs/STARE.md`: revizuirea valului 2, `make check`, CI, actualizarea cererii de integrare. Faza F2 nu începe înainte de validarea fazei F1.
+
+### 13. Valul 2 încheiat și revizuit — F1.7, F1.10, partea din panou pentru F1.8–F1.9
+- Construit de subagentul C (Sonnet): `app/panou` (coaja instalabilă, Acasă, Operare), notificări push (`pywebpush`), rutele interne de livrare `/intern/livrare/*`, citirea stării backupului, `app/connectors/telegram` (webhook, comenzi), `app/operare/opriri.py`, migrarea `0005` (șase tabele, toate cu izolare la nivel de rând). Dependențe: `pywebpush==2.3.0` (nouă), `httpx==0.28.1` (mutată din dezvoltare în rulare).
+- Revizuire făcută de orchestrator (alt model decât autorul): citite migrarea `0005`, `livrare.py`, `opriri.py`, webhook-ul și botul Telegram, rutele din `operare_web.py`, gărzile de rol din `panou/web.py`. Schimbări făcute la revizuire:
+  - confirmarea repornirii din Telegram are acum o singură încercare (un cod greșit anulează cererea); înainte, codul de 6 cifre putea fi încercat nelimitat timp de 5 minute;
+  - tabelul și rutele `oprituri` redenumite `opriri` (cuvântul corect), înainte ca migrarea să ajungă pe vreun server.
+- Teste existente modificate de subagent, verificate și acceptate: lista de excepții CSRF (doar `/intern/livrare/rezultat` și `/telegram/webhook`, ambele păzite de jeton), lista de fișiere care au voie în context de agenție, și o aserțiune despre scripturi (acum „fără script inline”, fiindcă paginile încarcă scripturi externe).
+- Rulat: `make check` verde, 384 de teste (197 înainte).
+- Simulat sau neverificat: trimiterea push reală (marcată `# NEVERIFICAT:`), botul Telegram real, instalarea pe telefon, schimbul cu deployer-ul real. Trecute în `docs/specs/STARE.md`.
+- De știut: steagurile de oprire se înregistrează și se auditează, dar nimic nu le citește încă; publicarea (F2.5) va fi primul consumator.
+- Propuneri notate, nefăcute: preferințe de notificare pe tip și rezumatul zilnic; alertă Telegram când backupul întârzie; redirecționarea după autentificare spre `/`; curățarea jurnalului de audit.

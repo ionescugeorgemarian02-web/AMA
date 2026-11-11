@@ -196,14 +196,17 @@ class RezultatTrimitere:
 
 
 def _trimite_la(
-    db: Session, abonamente: list[AbonamentPush], n: Notificare, send: Trimitator
+    db: Session, abonamente: list[AbonamentPush], n: Notificare, send: Trimitator, *, marcheaza: bool = True
 ) -> RezultatTrimitere:
+    """`marcheaza`: scrie `ultima_trimitere`, doar în contextul utilizatorului însuși. Agenția citește și
+    șterge abonamente moarte, dar nu le modifică (politica RLS pe UPDATE este strict pe utilizator)."""
     payload = n.payload()
     trimise = sterse = esuate = 0
     for a in abonamente:
         try:
             send(Destinatar(a.endpoint, a.p256dh, a.auth), payload)
-            a.ultima_trimitere = func.now()
+            if marcheaza:
+                a.ultima_trimitere = func.now()
             trimise += 1
         except AbonamentMort:
             db.delete(a)
@@ -241,7 +244,7 @@ def notifica(nivel: Nivel, titlu: str, text: str, *, url: str = "/alerte") -> di
             else:
                 with sesiune_agentie() as db:
                     abonamente = list(db.execute(select(AbonamentPush)).scalars())
-                    r = _trimite_la(db, abonamente, n, send)
+                    r = _trimite_la(db, abonamente, n, send, marcheaza=False)
                 rezultat[Canal.PUSH] = r.trimise > 0
         except Exception as exc:
             log.warning("notificare push nereușită", extra={"tip_eroare": type(exc).__name__})

@@ -119,7 +119,7 @@ def test_operatorul_vede_coaja_dar_nu_operare_si_nu_butoanele_de_oprire(
     autentifica(client, op, ceas)
     acasa = client.get("/")
     assert acasa.status_code == 200 and "Doar proprietarul poate folosi butoanele de oprire" in acasa.text
-    assert 'action="/oprituri/opreste"' not in acasa.text
+    assert 'action="/opriri/opreste"' not in acasa.text
     assert "/operare" not in client.get("/meniu").text.replace("/meniu/notificari", "")
     assert client.get("/operare").status_code == 403
 
@@ -157,12 +157,12 @@ def test_oprirea_din_panou_este_imediata_auditata_si_vizibila(
     client: TestClient, proprietar: Cont, admin_engine: Engine
 ) -> None:
     r = client.post(
-        "/oprituri/opreste",
+        "/opriri/opreste",
         data={"tip": "publicare", "motiv": "test", "csrf_token": csrf(client)},
         follow_redirects=False,
     )
     assert r.status_code == 303
-    rand = randuri(admin_engine, "SELECT * FROM oprituri WHERE tip = 'publicare'")[0]
+    rand = randuri(admin_engine, "SELECT * FROM opriri WHERE tip = 'publicare'")[0]
     assert rand["activ"] is True and rand["canal"] == "panou" and rand["schimbat_de"] == proprietar.id
     a = audit_oprire(admin_engine, "oprire.oprit")[-1]
     assert a["utilizator_id"] == proprietar.id and a["detalii"]["motiv"] == "test"  # type: ignore[index]
@@ -173,24 +173,24 @@ def test_repornirea_cere_confirmare_si_nu_porneste_fara_ea(
     client: TestClient, proprietar: Cont, admin_engine: Engine
 ) -> None:
     jeton = csrf(client)
-    client.post("/oprituri/opreste", data={"tip": "reclame", "csrf_token": jeton})
-    pagina = client.get("/oprituri/confirma-pornire?tip=reclame")
+    client.post("/opriri/opreste", data={"tip": "reclame", "csrf_token": jeton})
+    pagina = client.get("/opriri/confirma-pornire?tip=reclame")
     assert (
         pagina.status_code == 200
         and "Da, repornește" in pagina.text
         and 'name="confirmare" value="da"' in pagina.text
     )
     # fără câmpul de confirmare: respins
-    r = client.post("/oprituri/porneste", data={"tip": "reclame", "csrf_token": jeton})
+    r = client.post("/opriri/porneste", data={"tip": "reclame", "csrf_token": jeton})
     assert r.status_code == 422
-    assert randuri(admin_engine, "SELECT activ FROM oprituri WHERE tip = 'reclame'")[0]["activ"] is True
+    assert randuri(admin_engine, "SELECT activ FROM opriri WHERE tip = 'reclame'")[0]["activ"] is True
     r = client.post(
-        "/oprituri/porneste",
+        "/opriri/porneste",
         data={"tip": "reclame", "confirmare": "da", "csrf_token": jeton},
         follow_redirects=False,
     )
     assert r.status_code == 303
-    assert randuri(admin_engine, "SELECT activ FROM oprituri WHERE tip = 'reclame'")[0]["activ"] is False
+    assert randuri(admin_engine, "SELECT activ FROM opriri WHERE tip = 'reclame'")[0]["activ"] is False
     assert audit_oprire(admin_engine, "oprire.repornit")
 
 
@@ -202,12 +202,12 @@ def test_oprirea_pe_client_din_panou(
     html = client.get("/").text
     assert str(titular.tenant_id) in html  # clientul apare în listă
     r = client.post(
-        "/oprituri/opreste",
+        "/opriri/opreste",
         data={"tip": "client", "tenant_id": str(titular.tenant_id), "csrf_token": csrf(client)},
         follow_redirects=False,
     )
     assert r.status_code == 303
-    rand = randuri(admin_engine, "SELECT * FROM oprituri WHERE tip = 'client'")[0]
+    rand = randuri(admin_engine, "SELECT * FROM opriri WHERE tip = 'client'")[0]
     assert rand["tenant_id"] == titular.tenant_id and rand["activ"] is True
     assert audit_oprire(admin_engine, "oprire.oprit")[-1]["tenant_id"] == titular.tenant_id
 
@@ -224,7 +224,7 @@ def test_oprirea_pe_client_din_panou(
 def test_oprire_cu_date_nevalide_este_respinsa(
     client: TestClient, proprietar: Cont, date: dict[str, str]
 ) -> None:
-    r = client.post("/oprituri/opreste", data={**date, "csrf_token": csrf(client)})
+    r = client.post("/opriri/opreste", data={**date, "csrf_token": csrf(client)})
     assert r.status_code == 422
 
 
@@ -236,15 +236,15 @@ def test_oprirea_cere_jeton_csrf_si_permisiune(
     admin_engine: Engine,
 ) -> None:
     assert (
-        client.post("/oprituri/opreste", data={"tip": "publicare", "csrf_token": "gresit"}).status_code == 403
+        client.post("/opriri/opreste", data={"tip": "publicare", "csrf_token": "gresit"}).status_code == 403
     )
-    assert randuri(admin_engine, "SELECT * FROM oprituri") == []
+    assert randuri(admin_engine, "SELECT * FROM opriri") == []
     client.post("/conturi/iesire", data={"csrf_token": csrf(client)})
     op = fabrica_conturi(Rol.OPERATOR, cu_totp=True)
     autentifica(client, op, ceas)
-    r = client.post("/oprituri/opreste", data={"tip": "publicare", "csrf_token": csrf(client)})
+    r = client.post("/opriri/opreste", data={"tip": "publicare", "csrf_token": csrf(client)})
     assert r.status_code == 403
-    assert randuri(admin_engine, "SELECT * FROM oprituri") == []
+    assert randuri(admin_engine, "SELECT * FROM opriri") == []
 
 
 # ---- notificări push ---------------------------------------------------------------------------------------

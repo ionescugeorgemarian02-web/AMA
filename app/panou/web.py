@@ -177,7 +177,7 @@ def _tip(tip: str, tenant_id: str) -> tuple[Oprire, uuid.UUID | None]:
         raise HTTPException(status_code=422, detail="Client invalid.") from None
 
 
-@router.post("/oprituri/opreste", dependencies=[Depends(csrf_protect)])
+@router.post("/opriri/opreste", dependencies=[Depends(csrf_protect)])
 def opreste(
     u: PoateOpri,
     db: DbSession,
@@ -193,7 +193,7 @@ def opreste(
     return RedirectResponse("/?mesaj=oprit", status_code=303)
 
 
-@router.get("/oprituri/confirma-pornire")
+@router.get("/opriri/confirma-pornire")
 def confirma_pornire(
     request: Request, u: PoateOpri, db: DbSession, tip: str, tenant_id: str = ""
 ) -> Response:
@@ -212,7 +212,7 @@ def confirma_pornire(
         titlu="Repornire",
         intrebare=f"Repornești: {eticheta}?",
         detalii="Repornirea reia activitatea oprită (direcția periculoasă). Rămâne în jurnalul de audit.",
-        actiune="/oprituri/porneste",
+        actiune="/opriri/porneste",
         ascunse={"tip": t.value, "tenant_id": str(tenant or "")},
         buton="Da, repornește",
         periculos=True,
@@ -220,7 +220,7 @@ def confirma_pornire(
     )
 
 
-@router.post("/oprituri/porneste", dependencies=[Depends(csrf_protect)])
+@router.post("/opriri/porneste", dependencies=[Depends(csrf_protect)])
 def porneste(
     u: PoateOpri,
     db: DbSession,

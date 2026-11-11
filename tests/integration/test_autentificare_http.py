@@ -400,7 +400,16 @@ def _rute_api(rute: Sequence[object]) -> Iterator[Any]:
 def test_toate_rutele_care_schimba_starea_au_garda_csrf() -> None:
     garzi = {csrf_protect, csrf_prelogin}
     verificate = [r for r in _rute_api(create_app().routes) if r.methods & {"POST", "PUT", "PATCH", "DELETE"}]
-    nepazite = [r.path for r in verificate if not garzi & _apeleaza(r.dependant)]
+    # Singurele excepții, explicite și înguste: apeluri de la mașină la mașină, fără browser și fără cookie, deci
+    # fără ce să falsifice. Se apără prin alt mecanism, verificat în testele lor (jeton comparat în timp
+    # constant; antet-secret + listă de conversații): `tests/integration/test_livrare_panou.py` și `test_telegram.py`.
+    fara_csrf_justificat = {"/intern/livrare/rezultat", "/telegram/webhook"}
+    nepazite = [
+        r.path
+        for r in verificate
+        if not garzi & _apeleaza(r.dependant) and r.path not in fara_csrf_justificat
+    ]
+    assert fara_csrf_justificat <= {r.path for r in verificate}, "lista de excepții nu mai corespunde rutelor"
     assert len(verificate) >= 5, "nu am găsit rutele (testul și-ar pierde sensul)"
     assert not nepazite, f"rute fără protecție CSRF: {nepazite}"
 
@@ -501,7 +510,8 @@ def test_antete_de_securitate(client: TestClient) -> None:
     assert r.headers["referrer-policy"]
     assert r.headers["cache-control"] == "no-store"
     assert "strict-transport-security" not in r.headers  # dev/test
-    assert "<script" not in r.text and "style=" not in r.text  # nimic inline
+    # nimic inline: scripturile sunt doar fișiere externe (CSP `script-src 'self'`)
+    assert not re.search(r"<script(?![^>]*\bsrc=)", r.text) and "style=" not in r.text
 
 
 def test_nicio_parola_cod_sau_jeton_in_jurnale(

@@ -14,9 +14,9 @@
     <span>{{ o.eticheta }}<br>{% if o.oprit %}<span class="insigna pericol">oprit</span>{% else %}<span class="insigna ok">activ</span>{% endif %}</span>
     {% if poate_opri %}
       {% if o.oprit %}
-      <a class="buton secundar" href="/oprituri/confirma-pornire?tip={{ o.tip }}">Repornește</a>
+      <a class="buton secundar" href="/opriri/confirma-pornire?tip={{ o.tip }}">Repornește</a>
       {% else %}
-      <form method="post" action="/oprituri/opreste">
+      <form method="post" action="/opriri/opreste">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <input type="hidden" name="tip" value="{{ o.tip }}">
         <button type="submit" class="pericol">Oprește</button>
@@ -31,9 +31,9 @@
     <span>{{ c.nume }}<br>{% if c.oprit %}<span class="insigna pericol">oprit</span>{% else %}<span class="insigna ok">activ</span>{% endif %}</span>
     {% if poate_opri %}
       {% if c.oprit %}
-      <a class="buton secundar" href="/oprituri/confirma-pornire?tip=client&amp;tenant_id={{ c.id }}">Repornește</a>
+      <a class="buton secundar" href="/opriri/confirma-pornire?tip=client&amp;tenant_id={{ c.id }}">Repornește</a>
       {% else %}
-      <form method="post" action="/oprituri/opreste">
+      <form method="post" action="/opriri/opreste">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <input type="hidden" name="tip" value="client">
         <input type="hidden" name="tenant_id" value="{{ c.id }}">

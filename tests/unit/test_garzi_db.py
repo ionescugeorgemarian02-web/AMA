@@ -8,7 +8,15 @@ APP = ROOT / "app"
 
 # Cine are voie să deschidă un context privilegiat (autentificare, agenție). Orice alt loc cere o decizie explicită.
 CONTEXT_AUTH = {"app/conturi/web.py", "app/conturi/dependente.py", "app/db/motor.py", "app/db/__init__.py"}
-CONTEXT_AGENTIE = {"app/conturi/cli.py", "app/db/motor.py", "app/db/__init__.py"}
+CONTEXT_AGENTIE = {
+    "app/conturi/cli.py",
+    "app/db/motor.py",
+    "app/db/__init__.py",
+    # Procese fără utilizator, deci fără alt context posibil; fiecare e păzit înainte de a deschide contextul:
+    "app/operare/livrare.py",  # rutele interne ale deployer-ului: jeton comparat în timp constant (F1.8)
+    "app/operare/notificari.py",  # trimiterea către abonații agenției (alerte critice), fără cerere de utilizator
+    "app/connectors/telegram/bot.py",  # webhook: antet-secret + chat permis, verificate înainte (F1.10)
+}
 
 
 def _surse() -> dict[str, str]:
