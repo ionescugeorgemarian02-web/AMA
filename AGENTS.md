@@ -26,7 +26,7 @@ izolare multi-tenant la nivel de rând (ADR-14); media pe disc local (ADR-15); V
 3. Scrie întâi testele de acceptare din „Gata când”.
 4. Scrie codul minim care trece testele.
 5. Rulează toate testele și verificările. Raportează exact ce ai rulat și ce a ieșit.
-6. Actualizează documentația atinsă și `CHANGELOG.md`.
+6. Actualizează documentația atinsă, `CHANGELOG.md` și jurnalul de lucru `JURNAL.md` (ce ai făcut, ce ai verificat, ce a rămas deschis).
 7. Deschide cererea de integrare cu șablonul completat.
 8. Nu atinge nimic în afara pasului. Ce observi în plus notezi ca propunere.
 
