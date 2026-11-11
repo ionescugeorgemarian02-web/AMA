@@ -57,7 +57,10 @@ def _keygen(path: Path) -> str:
 def env(tmp_path: Path):
     db = f"ama_bk_{uuid.uuid4().hex[:8]}"
     _psql("postgres", f'CREATE DATABASE "{db}"')
-    _psql(db, "CREATE TABLE marcaj (id int primary key, text text); INSERT INTO marcaj VALUES (1, 'salut backup')")
+    _psql(
+        db,
+        "CREATE TABLE marcaj (id int primary key, text text); INSERT INTO marcaj VALUES (1, 'salut backup')",
+    )
     media = tmp_path / "media"
     (media / "client-a").mkdir(parents=True)
     (media / "client-a" / "poza.bin").write_bytes(b"\x00\x01media")

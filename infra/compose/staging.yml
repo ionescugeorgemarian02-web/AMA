@@ -1,0 +1,26 @@
+# Staging: copie de test, cu bază și secrete proprii. Plafon total 1,5 GB (secțiunea 6.4), vârf la implementare:
+# postgres 0,8 + slot vechi 0,35 + slot nou 0,35 = 1,5 GB (migrate, 0,25 GB, rulează doar cât nu există slotul nou).
+services:
+  postgres:
+    mem_limit: 800m
+    memswap_limit: 800m
+    command: [postgres, -c, shared_buffers=128MB, -c, max_connections=40]
+  migrate:
+    mem_limit: 250m
+    memswap_limit: 250m
+  app_blue:
+    mem_limit: 350m
+    memswap_limit: 350m
+    environment:
+      UVICORN_WORKERS: "1"
+    networks:
+      edge:
+        aliases: [staging-blue]
+  app_green:
+    mem_limit: 350m
+    memswap_limit: 350m
+    environment:
+      UVICORN_WORKERS: "1"
+    networks:
+      edge:
+        aliases: [staging-green]

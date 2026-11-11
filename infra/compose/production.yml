@@ -1,0 +1,75 @@
+# Producție. Limite din secțiunea 6.4: app 1 GB, postgres 3,5 GB. La implementare rulează scurt două sloturi
+# (2 GB); depășirea este acoperită de rezerva de 3 GB a VPS-ului. Backup-ul stă doar aici.
+services:
+  postgres:
+    mem_limit: 3500m
+    memswap_limit: 3500m
+    command: [postgres, -c, shared_buffers=1GB, -c, effective_cache_size=2GB, -c, max_connections=100]
+  migrate:
+    mem_limit: 512m
+    memswap_limit: 512m
+  app_blue:
+    mem_limit: 1g
+    memswap_limit: 1g
+    volumes:
+      - backup_status:/var/lib/ama-backup/status:ro
+    environment:
+      AMA_BACKUP_STATUS_DIR: /var/lib/ama-backup/status
+    networks:
+      edge:
+        aliases: [prod-blue]
+  app_green:
+    mem_limit: 1g
+    memswap_limit: 1g
+    volumes:
+      - backup_status:/var/lib/ama-backup/status:ro
+    environment:
+      AMA_BACKUP_STATUS_DIR: /var/lib/ama-backup/status
+    networks:
+      edge:
+        aliases: [prod-green]
+
+  # Copie zilnică + test săptămânal de restaurare (docs/specs/F1.9.md). Rulează ca root în container, adică
+  # ca utilizatorul fără drepturi al gazdei, cu Docker fără root (vezi infra/vps/bootstrap.sh).
+  backup:
+    build:
+      context: ../backup
+    restart: unless-stopped
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 256m
+    memswap_limit: 256m
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      AMA_BACKUP_ENV: productie
+      AMA_BACKUP_DATABASE_URL: postgresql://ama_backup:${AMA_BACKUP_DB_PASSWORD:?}@postgres:5432/ama
+      AMA_RESTORE_TEST_ADMIN_URL: postgresql://ama_backup:${AMA_BACKUP_DB_PASSWORD:?}@postgres:5432/postgres
+      AMA_BACKUP_DEST: ${AMA_BACKUP_DEST:?}
+      AMA_BACKUP_AGE_RECIPIENTS: ${AMA_BACKUP_AGE_RECIPIENTS:?}
+      AMA_RESTORE_IDENTITY_FILE: /run/ama/backup/verificare.key
+      AMA_BACKUP_MEDIA_DIR: /data/media
+      AMA_BACKUP_CONFIG_PATHS: /data/config/env:/data/config/proxy
+      AMA_BACKUP_WORKDIR: /var/lib/ama-backup/work
+      AMA_BACKUP_STATUS_DIR: /var/lib/ama-backup/status
+      AMA_BACKUP_REPORT_CMD: ${AMA_BACKUP_REPORT_CMD:-}
+      AMA_BACKUP_HOUR: ${AMA_BACKUP_HOUR:-3}
+      AMA_RESTORE_TEST_WEEKDAY: ${AMA_RESTORE_TEST_WEEKDAY:-6}
+      RCLONE_CONFIG: /run/ama/backup/rclone.conf
+      HOME: /tmp
+    volumes:
+      - media:/data/media:ro
+      - ${AMA_ENV_DIR:?}:/data/config/env:ro
+      - ${AMA_INFRA_DIR:?}/proxy:/data/config/proxy:ro
+      - ${AMA_ENV_DIR:?}/backup:/run/ama/backup:ro
+      - backup_work:/var/lib/ama-backup/work
+      - backup_status:/var/lib/ama-backup/status
+    networks:
+      internal: {}
+      edge: {}
+
+volumes:
+  backup_work: {}
+  backup_status: {}
