@@ -61,3 +61,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Lipsesc schimbarea și resetarea parolei și cheile de acces (WebAuthn).
   - Sub încărcare, autentificările simultane pot depăși cu puțin pragul de blocare.
   - Un test de backup a picat o dată într-o rulare completă a subagentului și a trecut la rulările următoare (inclusiv la a mea); de urmărit în CI.
+
+### 11. Valul 2 — pornit subagentul C (Sonnet)
+- Sarcină: F1.7 (coaja panoului instalabil: bara de jos, Acasă, temă, service worker, notificări push), partea din panou pentru F1.8 și F1.9 (promovare, revenire, starea backupului) și F1.10 (botul Telegram, butoanele de oprire din 7.8).
+- Lucrează singur, ca să nu existe două migrări concurente; trebuie să lase `make check` verde.
