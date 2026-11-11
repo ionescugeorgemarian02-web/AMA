@@ -111,3 +111,7 @@ def login(client: TestClient, email: str, parola: str, *, urmeaza: bool = False)
         data={"email": email, "parola": parola, "csrf_token": csrf_din(pagina.text)},
         follow_redirects=urmeaza,
     )
+
+
+# Fixture-urile panoului, livrării și Telegram (F1.7–F1.10), puse la dispoziția tuturor testelor de integrare.
+from tests.integration.utile_panou import _curata_panou, bot_fals, config, push  # noqa: E402, F401

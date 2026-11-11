@@ -67,4 +67,4 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - Lucrează singur, ca să nu existe două migrări concurente; trebuie să lase `make check` verde.
 
 ### 12. Reluare programată
-- La cererea proprietarului (cota de utilizare se apropie de limită), programată o trezire automată a sesiunii peste 4 ore (2026-11-11, 23:58 UTC), cu instrucțiunea de a continua din `JURNAL.md` și `docs/specs/STARE.md`: revizuirea valului 2, `make check`, CI, actualizarea cererii de integrare. Faza F2 nu începe înainte de validarea fazei F1.
+- La cererea proprietarului (cota de utilizare se apropie de limită), programată o trezire automată a sesiunii la ora 2:00, ora României (2026-11-12, 00:00 UTC; mutată de proprietar de la 23:58 UTC), cu instrucțiunea de a continua din `JURNAL.md` și `docs/specs/STARE.md`: revizuirea valului 2, `make check`, CI, actualizarea cererii de integrare. Faza F2 nu începe înainte de validarea fazei F1.

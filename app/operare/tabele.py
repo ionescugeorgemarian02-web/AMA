@@ -1,10 +1,13 @@
-"""Tabelele operării: abonamente push, livrare, opriri, Telegram (migrarea 0005)."""
+"""Tabelele operării: abonamente push, livrare, opriri, Telegram (migrarea 0005).
+
+Cheile străine există în bază (migrarea); aici nu se declară, pentru că tabelele `utilizatori` și `clienti` țin
+de alt modul și alt `MetaData`."""
 
 import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, LargeBinary, Text, func
+from sqlalchemy import BigInteger, Boolean, DateTime, LargeBinary, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -22,7 +25,7 @@ def _uuid_pk() -> Mapped[uuid.UUID]:
 class AbonamentPush(BazaOperare):
     __tablename__ = "abonamente_push"
     id: Mapped[uuid.UUID] = _uuid_pk()
-    utilizator_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("utilizatori.id"))
+    utilizator_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     endpoint: Mapped[str] = mapped_column(Text, unique=True)
     p256dh: Mapped[str] = mapped_column(Text)
     auth: Mapped[str] = mapped_column(Text)
@@ -38,7 +41,7 @@ class CerereLivrare(BazaOperare):
     imagine: Mapped[str | None] = mapped_column(Text)
     versiune: Mapped[str | None] = mapped_column(Text)
     stare: Mapped[str] = mapped_column(Text, default="solicitata")
-    solicitat_de: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("utilizatori.id"))
+    solicitat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     detalii: Mapped[str] = mapped_column(Text, default="")
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.clock_timestamp())
     actualizat_la: Mapped[datetime] = mapped_column(
@@ -65,11 +68,11 @@ class StareOprire(BazaOperare):
     __tablename__ = "oprituri"
     id: Mapped[uuid.UUID] = _uuid_pk()
     tip: Mapped[str] = mapped_column(Text)
-    tenant_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("clienti.id"))
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     activ: Mapped[bool] = mapped_column(Boolean, default=False)
     motiv: Mapped[str] = mapped_column(Text, default="")
     canal: Mapped[str] = mapped_column(Text)
-    schimbat_de: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("utilizatori.id"))
+    schimbat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     schimbat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -84,5 +87,5 @@ class ConfirmareTelegram(BazaOperare):
     chat_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     cod_hash: Mapped[bytes] = mapped_column(LargeBinary)
     tip: Mapped[str] = mapped_column(Text)
-    tenant_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("clienti.id"))
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     expira_la: Mapped[datetime] = mapped_column(DateTime(timezone=True))
