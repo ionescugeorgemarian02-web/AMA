@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Scripturile shell (shellcheck)
-        run: shellcheck -x infra/vps/bootstrap.sh infra/deploy/smoke.sh infra/postgres/init/10-roluri.sh
+        run: shellcheck -x infra/vps/bootstrap.sh infra/deploy/smoke.sh infra/deploy/ci_fum.sh infra/postgres/init/10-roluri.sh
       - name: Configurația proxy-ului (Caddy)
         run: |
           docker run --rm -v "$PWD/infra/proxy/Caddyfile:/etc/caddy/Caddyfile:ro" \
@@ -82,11 +82,8 @@ jobs:
           docker compose -p ama-edge --env-file /tmp/ama-env/edge.env -f edge.yml config -q
       - name: Construirea imaginii aplicației
         run: docker build --build-arg AMA_VERSION="${GITHUB_SHA}" -t ama:ci .
-      - name: Pornire și test de fum (/healthz, /readyz)
-        run: |
-          docker run -d --name ama-ci --read-only --tmpfs /tmp -p 8000:8000 -e AMA_ENV=test ama:ci
-          infra/deploy/smoke.sh http://127.0.0.1:8000 60
-          docker inspect --format '{{.State.Health.Status}}' ama-ci
+      - name: Pornire cu bază reală, migrări și test de fum (/healthz, /readyz)
+        run: infra/deploy/ci_fum.sh ama:ci
       - name: Imaginile serviciilor de livrare și backup se construiesc
         run: |
           docker build -t ama-deployer:ci infra/deployer

@@ -79,3 +79,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - Simulat sau neverificat: trimiterea push reală (marcată `# NEVERIFICAT:`), botul Telegram real, instalarea pe telefon, schimbul cu deployer-ul real. Trecute în `docs/specs/STARE.md`.
 - De știut: steagurile de oprire se înregistrează și se auditează, dar nimic nu le citește încă; publicarea (F2.5) va fi primul consumator.
 - Propuneri notate, nefăcute: preferințe de notificare pe tip și rezumatul zilnic; alertă Telegram când backupul întârzie; redirecționarea după autentificare spre `/`; curățarea jurnalului de audit.
+
+### 14. CI-ul de pe GitHub: două defecte găsite și reparate
+- La prima verificare a rulărilor de pe GitHub, ambele joburi picau (și pe commit-ul revizuit al pașilor F1.3–F1.6, nu doar pe instantanee). Local totul era verde.
+- Cauza 1 (jobul `check`): fixture-ul de test schimba parolele rolurilor `ama_owner`/`ama_app` la fiecare bază nouă. Rolurile sunt ale serverului, deci conexiunile următoare erau refuzate. Local nu se vedea, fiindcă Postgres-ul de test accepta conexiuni fără parolă. Reparat: parolele se generează o dată pe rulare; iar `scripts/pg_test.sh` cere acum parolă (scram) pe TCP, ca în CI. Reprodus local înainte de reparație (7 eșecuri, 36 de erori), apoi 384 de teste trec. Probabil tot asta era „testul de backup care a picat o dată” din intrarea 10.
+- Cauza 2 (jobul `imagine`): testul de fum pornea imaginea fără bază, iar `/readyz` verifică de la F1.3 baza. Reparat cu `infra/deploy/ci_fum.sh`: pornește Postgres cu scriptul real de roluri din `infra/`, rulează migrările din imagine ca proprietar, pornește aplicația ca `ama_app` și verifică `/healthz` și `/readyz`. Rulat local pe Docker: trece.
+- Lecție: „verde local” nu a fost de ajuns; de acum verific rulările de pe GitHub după fiecare împingere a unui pas revizuit.

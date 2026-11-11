@@ -64,11 +64,16 @@ def admin_url() -> str:
     return url
 
 
+# Rolurile sunt ale întregului server, nu ale unei baze: parolele se generează o singură dată pe rulare.
+# Dacă fiecare bază nouă le-ar schimba, conexiunile următoare spre baza de sesiune ar fi refuzate.
+PAROLA_OWNER, PAROLA_APP = secrets.token_hex(16), secrets.token_hex(16)
+
+
 def creeaza_baza_noua(admin: str, migreaza: bool) -> Iterator[BazaTest]:
     from app.db.bootstrap import pregateste_baza, pregateste_roluri
 
     nume = f"ama_test_{uuid.uuid4().hex[:12]}"
-    parola_owner, parola_app = secrets.token_hex(16), secrets.token_hex(16)
+    parola_owner, parola_app = PAROLA_OWNER, PAROLA_APP
     base = make_url(admin)
     pregateste_roluri(_psycopg_dsn(admin), parola_owner=parola_owner, parola_app=parola_app)
     with psycopg.connect(_psycopg_dsn(admin), autocommit=True) as conn:
