@@ -25,6 +25,19 @@ class Settings(BaseSettings):
 
     base_url: str = "http://localhost:8000"
 
+    # Sesiuni și autentificare (21.3). Valorile sunt presupuneri documentate în docs/specs/F1.5.md.
+    session_idle_minutes: int = Field(default=30, ge=1)
+    session_absolute_hours: int = Field(default=12, ge=1)
+    session_pending_minutes: int = Field(default=10, ge=1)  # între parolă și al doilea factor
+    login_max_failures_account: int = Field(default=5, ge=1)
+    login_max_failures_ip: int = Field(default=20, ge=1)
+    login_window_minutes: int = Field(default=15, ge=1)
+
+    @property
+    def cookie_secure(self) -> bool:
+        """Cookie-urile sunt `Secure` (și cu prefix `__Host-`) peste tot în afară de dev/test."""
+        return self.env not in ("dev", "test")
+
     def require_secrets(self) -> None:
         """Refuză pornirea în staging/producție fără secrete setate."""
         if self.env in ("staging", "prod"):
