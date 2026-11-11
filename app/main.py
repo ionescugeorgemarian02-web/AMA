@@ -6,10 +6,11 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 
-from app import __version__, conturi, db
+from app import __version__, conturi, db, panou
 from app.config import get_settings
+from app.connectors.telegram.web import router as router_telegram
 from app.logging import configure_logging, correlation_id, get_logger
-from app.operare import health
+from app.operare import backup, health, livrare
 from app.operare.antete import adauga_antete
 from app.operare.jurnale import ip_cerere
 
@@ -58,8 +59,13 @@ def create_app() -> FastAPI:
 
     adauga_antete(app)
     health.register_check("baza", db.verifica_baza)
+    # Backup-ul NU intră în /readyz (care deschide poarta livrărilor); are un indicator separat.
+    health.register_indicator("backup", backup.indicator)
     app.include_router(health.router)
     conturi.inregistreaza(app)
+    panou.inregistreaza(app)
+    app.include_router(livrare.router)  # /intern/livrare/*: doar cu jeton, blocat în proxy
+    app.include_router(router_telegram)  # /telegram/webhook: doar cu antetul-secret
     return app
 
 

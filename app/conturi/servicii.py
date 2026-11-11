@@ -72,6 +72,23 @@ def creeaza_client(db: Session, nume: str, *, actor: Actor) -> Client:
     return client
 
 
+def lista_clienti(db: Session) -> list[Client]:
+    """Clienții activi pe care contextul sesiunii îi poate vedea (RLS), după nume."""
+    return list(db.execute(select(Client).where(Client.sters_la.is_(None)).order_by(Client.nume)).scalars())
+
+
+def cauta_clienti(db: Session, text: str) -> list[Client]:
+    """Clienți după identificator (UUID) sau după nume exact, fără diferență între litere mari și mici."""
+    text = text.strip()
+    if not text:
+        return []
+    try:
+        id_ = uuid.UUID(text)
+    except ValueError:
+        id_ = None
+    return [c for c in lista_clienti(db) if c.id == id_ or c.nume.casefold() == text.casefold()]
+
+
 def _verifica_rol_si_client(rol: Rol, tenant_id: uuid.UUID | None) -> None:
     if rol in ROLURI_AGENTIE and tenant_id is not None:
         raise DateInvalide("Rolurile de agenție nu aparțin unui client.")

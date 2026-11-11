@@ -1,0 +1,16 @@
+<section id="stare-sistem" class="card" aria-labelledby="t-stare" hx-get="/fragment/stare" hx-trigger="every 30s" hx-swap="outerHTML">
+  <h2 id="t-stare">Starea sistemului</h2>
+  <div class="rand"><span class="eticheta">Versiune</span><span>{{ versiune }} · {{ mediu }}</span></div>
+  <div class="rand"><span class="eticheta">Baza de date</span>
+    {% if baza_ok %}<span class="insigna ok">funcționează</span>{% else %}<span class="insigna pericol">nu răspunde</span>{% endif %}</div>
+  <div class="rand"><span class="eticheta">Backup</span>
+    <span class="insigna {{ 'ok' if backup.backup.bun else ('pericol' if backup.backup.eticheta.value in ('esuat', 'necitibil') else 'atentie') }}">{{ etichete_backup[backup.backup.eticheta.value] }}</span></div>
+  <div class="rand"><span class="eticheta">Test de restaurare</span>
+    <span class="insigna {{ 'ok' if backup.restaurare_test.bun else ('pericol' if backup.restaurare_test.eticheta.value in ('esuat', 'necitibil') else 'atentie') }}">{{ etichete_backup[backup.restaurare_test.eticheta.value] }}</span></div>
+  {% if livrare is not none %}
+  <div class="rand"><span class="eticheta">Livrare</span>
+    <span>{% if livrare.disponibila %}<a href="/operare">versiune nouă pe staging</a>{% elif livrare.cerere_activa %}în curs{% else %}la zi{% endif %}</span></div>
+  {% endif %}
+  <div class="rand"><span class="eticheta">Opriri active</span>
+    {% if opriri_active %}<span class="insigna pericol">{{ opriri_active|length }}</span>{% else %}<span class="insigna ok">niciuna</span>{% endif %}</div>
+</section>

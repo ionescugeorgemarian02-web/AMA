@@ -8,11 +8,13 @@ dependencies = [
     "argon2-cffi==25.1.0",
     "cryptography==50.0.2",
     "fastapi==0.162.4",
+    "httpx==0.28.1",
     "jinja2==3.1.6",
     "psycopg[binary]==3.3.8",
     "pydantic-settings==2.16.2",
     "pyotp==2.10.0",
     "python-multipart==0.0.33",
+    "pywebpush==2.3.0",
     "sqlalchemy==2.1.8",
     "uvicorn==0.54.0",
 ]
@@ -20,7 +22,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "detect-secrets==1.5.0",
-    "httpx==0.28.1",
     "mypy==2.4.1",
     "pip-audit==2.10.1",
     "pytest==9.2.0",
@@ -48,6 +49,10 @@ python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
 files = ["app"]
+
+[[tool.mypy.overrides]]
+module = ["pywebpush"]
+ignore_missing_imports = true  # biblioteca nu are adnotări de tip
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -33,6 +33,37 @@ class Settings(BaseSettings):
     login_max_failures_ip: int = Field(default=20, ge=1)
     login_window_minutes: int = Field(default=15, ge=1)
 
+    # Livrare (F1.8): jetonul comun cu deployer-ul. Sub 32 de caractere = rutele interne dezactivate (404).
+    deploy_token: SecretStr = Field(default=SecretStr(""))
+    # Starea backup-ului, scrisă de serviciul `backup` (F1.9). Nesetat = „necunoscut”.
+    backup_status_dir: str = ""
+
+    # Notificări push (F1.7). Fără chei, push este dezactivat. Cheia privată este secret.
+    vapid_public_key: str = ""
+    vapid_private_key: SecretStr = Field(default=SecretStr(""))
+    vapid_subject: str = "mailto:admin@example.invalid"
+
+    # Telegram (F1.10). Fără jeton, chat și secret de webhook, botul este dezactivat.
+    telegram_bot_token: SecretStr = Field(default=SecretStr(""))
+    telegram_chat_id: str = ""
+    telegram_webhook_secret: SecretStr = Field(default=SecretStr(""))
+
+    @property
+    def push_activ(self) -> bool:
+        return bool(self.vapid_public_key) and len(self.vapid_private_key.get_secret_value()) >= 32
+
+    @property
+    def livrare_activa(self) -> bool:
+        return len(self.deploy_token.get_secret_value()) >= 32
+
+    @property
+    def telegram_activ(self) -> bool:
+        return bool(
+            self.telegram_bot_token.get_secret_value()
+            and self.telegram_chat_id.lstrip("-").isdigit()
+            and len(self.telegram_webhook_secret.get_secret_value()) >= 16
+        )
+
     @property
     def cookie_secure(self) -> bool:
         """Cookie-urile sunt `Secure` (și cu prefix `__Host-`) peste tot în afară de dev/test."""

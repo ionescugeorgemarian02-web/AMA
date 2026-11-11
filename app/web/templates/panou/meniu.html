@@ -1,0 +1,18 @@
+{% extends "panou/baza.html" %}
+{% block title %}Meniu · AMA{% endblock %}
+{% block pagina %}
+<h1>Meniu</h1>
+<p class="slab">{{ utilizator.nume_afisat }} · {{ etichete_rol.get(utilizator.rol.value, utilizator.rol.value) }}</p>
+<div class="card">
+  <ul class="lista-meniu">
+    {% if este_proprietar %}<li><a href="/operare">Operare: versiuni și backup <span aria-hidden="true">›</span></a></li>{% endif %}
+    <li><a href="/meniu/notificari">Notificări <span aria-hidden="true">›</span></a></li>
+    <li><a href="/conturi/eu">Contul meu <span aria-hidden="true">›</span></a></li>
+    <li><a href="/conturi/2fa/inrolare">Autentificare în doi pași (2FA) <span aria-hidden="true">›</span></a></li>
+  </ul>
+</div>
+<form method="post" action="/conturi/iesire">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <button type="submit" class="secundar">Ieșire</button>
+</form>
+{% endblock %}

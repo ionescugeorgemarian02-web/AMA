@@ -1,0 +1,19 @@
+{% extends "panou/baza.html" %}
+{% block title %}{{ titlu }} · AMA{% endblock %}
+{% block pagina %}
+<h1>{{ titlu }}</h1>
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<form method="post" action="{{ actiune }}" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  {% for nume, valoare in ascunse.items() %}<input type="hidden" name="{{ nume }}" value="{{ valoare }}">{% endfor %}
+  <p>{{ intrebare }}</p>
+  {% if detalii %}<p class="slab">{{ detalii }}</p>{% endif %}
+  <label for="motiv">Motiv (opțional, apare în jurnalul de audit)</label>
+  <input type="text" id="motiv" name="motiv" maxlength="300" autocomplete="off">
+  <input type="hidden" name="confirmare" value="da">
+  <div class="actiuni">
+    <button type="submit" class="{{ 'pericol' if periculos else '' }}">{{ buton }}</button>
+    <a class="buton secundar" href="{{ anulare }}">Renunță</a>
+  </div>
+</form>
+{% endblock %}

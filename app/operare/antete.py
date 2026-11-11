@@ -8,7 +8,8 @@ from app.config import get_settings
 
 CSP = (
     "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; "
-    "connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+    "connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; "
+    "form-action 'self'; frame-ancestors 'none'"
 )
 # Documentația interactivă (doar dev/test) încarcă scripturi de pe CDN și are cod inline.
 CALE_DOCUMENTATIE = ("/docs", "/redoc", "/openapi.json")

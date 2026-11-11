@@ -3,11 +3,38 @@
 from collections.abc import Callable
 
 from fastapi import APIRouter, Response
+from pydantic import BaseModel
 
 from app import __version__
 from app.config import get_settings
 
 router = APIRouter(tags=["operare"])
+
+
+class Indicator(BaseModel):
+    """Indicator de sănătate care NU participă la `/readyz` (backup învechit nu blochează livrările)."""
+
+    bun: bool
+    detaliu: str
+
+
+_indicatori: dict[str, Callable[[], Indicator]] = {}
+
+
+def register_indicator(name: str, calcul: Callable[[], Indicator]) -> None:
+    _indicatori[name] = calcul
+
+
+def indicatori() -> dict[str, Indicator]:
+    """Calculează indicatorii; o excepție devine un indicator „nu este bun”, nu o eroare."""
+    rezultat: dict[str, Indicator] = {}
+    for nume, calcul in _indicatori.items():
+        try:
+            rezultat[nume] = calcul()
+        except Exception as exc:
+            rezultat[nume] = Indicator(bun=False, detaliu=f"eroare: {type(exc).__name__}")
+    return rezultat
+
 
 # nume -> funcție care aruncă excepție dacă dependența nu răspunde
 _checks: dict[str, Callable[[], None]] = {}

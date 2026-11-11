@@ -14,7 +14,7 @@ from app.conturi.dependente import (
     tratare_neautentificat,
 )
 from app.conturi.roluri import Permisiune, Rol, este_agentie, poate
-from app.conturi.servicii import Actor, DateInvalide, PermisiuneRefuzata
+from app.conturi.servicii import Actor, DateInvalide, PermisiuneRefuzata, cauta_clienti, lista_clienti
 from app.conturi.sesiuni import SesiuneCurenta
 from app.conturi.web import router
 
@@ -34,11 +34,13 @@ __all__ = [
     "Rol",
     "SesiuneCurenta",
     "UtilizatorCurent",
+    "cauta_clienti",
     "csrf_prelogin",
     "csrf_protect",
     "current_user",
     "este_agentie",
     "inregistreaza",
+    "lista_clienti",
     "poate",
     "require_permission",
     "require_role",

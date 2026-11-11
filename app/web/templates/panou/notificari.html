@@ -1,0 +1,29 @@
+{% extends "panou/baza.html" %}
+{% block title %}Notificări · AMA{% endblock %}
+{% block pagina %}
+<h1>Notificări</h1>
+<section class="card" aria-labelledby="t-push" x-data="notificari" data-vapid="{{ vapid_public }}">
+  <h2 id="t-push">Pe acest dispozitiv</h2>
+  {% if not push_configurat %}
+  <p class="mesaj atentie" role="status">Notificările push sunt dezactivate: lipsesc cheile VAPID din configurare (<code>AMA_VAPID_PUBLIC_KEY</code>, <code>AMA_VAPID_PRIVATE_KEY</code>).</p>
+  {% endif %}
+  <p x-show="nesuportat" x-cloak class="mesaj atentie">Acest browser nu suportă notificări push. Pe iPhone, instalează mai întâi aplicația pe ecranul principal.</p>
+  <p class="slab">Dispozitive abonate pentru contul tău: <strong>{{ abonamente }}</strong></p>
+  <div class="actiuni">
+    <button type="button" x-on:click="aboneaza" x-bind:disabled="blocatAbonare" {% if not push_configurat %}disabled{% endif %}>Pornește notificările</button>
+    <button type="button" class="secundar" x-on:click="testeaza" x-bind:disabled="blocatTest">Trimite o notificare de test</button>
+    <button type="button" class="secundar" x-on:click="dezaboneaza" x-bind:disabled="blocatDezabonare">Oprește</button>
+  </div>
+  <p role="status" aria-live="polite" x-text="mesaj"></p>
+</section>
+<section class="card" aria-labelledby="t-niveluri">
+  <h2 id="t-niveluri">Cine primește ce</h2>
+  <table>
+    <tr><th>Nivel</th><th>Canal</th></tr>
+    <tr><td>Critic (bani, cont restricționat, sistem oprit)</td><td>Push și Telegram, imediat</td></tr>
+    <tr><td>Important (aprobări care expiră, canal pe pauză)</td><td>Push</td></tr>
+    <tr><td>Informativ</td><td>Rezumat zilnic (încă neimplementat)</td></tr>
+  </table>
+  <p class="slab">Alegerea pe tip de notificare vine într-un pas ulterior. Telegram: {% if telegram_activ %}<span class="insigna ok">configurat</span>{% else %}<span class="insigna atentie">neconfigurat</span>{% endif %}</p>
+</section>
+{% endblock %}
