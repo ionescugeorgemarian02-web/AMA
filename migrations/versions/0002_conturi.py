@@ -57,7 +57,9 @@ def upgrade() -> None:
             )
         )"""
     )
-    op.execute("CREATE UNIQUE INDEX apartenente_o_singura_activa ON apartenente (utilizator_id) WHERE sters_la IS NULL")
+    op.execute(
+        "CREATE UNIQUE INDEX apartenente_o_singura_activa ON apartenente (utilizator_id) WHERE sters_la IS NULL"
+    )
     op.execute("CREATE INDEX apartenente_tenant ON apartenente (tenant_id)")
     op.execute(
         """CREATE TABLE alocari (
@@ -88,7 +90,9 @@ def upgrade() -> None:
         f"OR id IN (SELECT tenant_id FROM alocari WHERE utilizator_id = {UTILIZATOR}))"
     )
     op.execute(f"CREATE POLICY clienti_inserare ON clienti FOR INSERT WITH CHECK ({AGENTIE})")
-    op.execute(f"CREATE POLICY clienti_modificare ON clienti FOR UPDATE USING ({AGENTIE}) WITH CHECK ({AGENTIE})")
+    op.execute(
+        f"CREATE POLICY clienti_modificare ON clienti FOR UPDATE USING ({AGENTIE}) WITH CHECK ({AGENTIE})"
+    )
     op.execute("GRANT SELECT, INSERT, UPDATE ON clienti TO ama_app")
 
     # utilizatori: identitate globală (fără tenant_id). Rândul propriu, agenția sau fluxul de autentificare.

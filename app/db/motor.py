@@ -1,8 +1,7 @@
 """Motorul și sesiunile. Singura cale spre bază: fiecare sesiune poartă un context de client."""
 
 from collections.abc import Iterator
-from contextlib import contextmanager
-from typing import Any
+from contextlib import AbstractContextManager, contextmanager
 from uuid import UUID
 
 from sqlalchemy import Connection, Engine, create_engine, event, text
@@ -70,15 +69,17 @@ def sesiune(ctx: ContextDb | None = None) -> Iterator[Session]:
         session.close()
 
 
-def sesiune_tenant(tenant_id: UUID, user_id: UUID | None = None) -> Any:
+def sesiune_tenant(tenant_id: UUID, user_id: UUID | None = None) -> AbstractContextManager[Session]:
     return sesiune(ContextDb(tenant_id=tenant_id, user_id=user_id))
 
 
-def sesiune_agentie(user_id: UUID | None = None, tenant_id: UUID | None = None) -> Any:
+def sesiune_agentie(
+    user_id: UUID | None = None, tenant_id: UUID | None = None
+) -> AbstractContextManager[Session]:
     return sesiune(ContextDb(tenant_id=tenant_id, user_id=user_id, agency=True))
 
 
-def sesiune_auth() -> Any:
+def sesiune_auth() -> AbstractContextManager[Session]:
     """Doar pentru fluxul de autentificare (căutarea utilizatorului/sesiunii înainte de context)."""
     return sesiune(ContextDb(auth=True))
 

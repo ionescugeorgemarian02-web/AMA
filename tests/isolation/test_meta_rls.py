@@ -22,7 +22,9 @@ def test_tabelele_cu_tenant_id_au_rls_activ_fortat_si_politica(admin_engine: Eng
         rows = c.execute(text(CATALOG)).all()
     tabele = [r for r in rows if r.are_tenant]
     assert {r.relname for r in tabele} >= {"apartenente", "alocari"}, "catalogul nu arată tabelele așteptate"
-    gresite = [r.relname for r in tabele if not (r.relrowsecurity and r.relforcerowsecurity and r.politici > 0)]
+    gresite = [
+        r.relname for r in tabele if not (r.relrowsecurity and r.relforcerowsecurity and r.politici > 0)
+    ]
     assert not gresite, f"tabele cu tenant_id fără RLS activ+forțat+politică: {gresite}"
 
 
@@ -45,7 +47,11 @@ def test_nicio_politica_nu_este_literal_adevarata(admin_engine: Engine) -> None:
                 "pg_get_expr(polwithcheck, polrelid) AS w FROM pg_policy"
             )
         ).all()
-    deschise = [(r.tabel, r.polname) for r in rows if (r.q or "").strip("() ") == "true" or (r.w or "").strip("() ") == "true"]
+    deschise = [
+        (r.tabel, r.polname)
+        for r in rows
+        if (r.q or "").strip("() ") == "true" or (r.w or "").strip("() ") == "true"
+    ]
     assert not deschise, f"politici care permit tot: {deschise}"
 
 

@@ -1,4 +1,6 @@
-"""Pregătirea clusterului (o dată, ca superutilizator): rolurile și extensiile. Migrările rulează apoi ca `ama_owner`.
+"""Pregătirea clusterului (o dată, ca superutilizator): rolurile și extensiile.
+
+Migrările rulează apoi ca `ama_owner`.
 
 Folosit de fixture-ul de test și de pregătirea VPS-ului. Nu rulează niciodată în aplicație.
 """
@@ -22,7 +24,9 @@ def _rol(cur: psycopg.Cursor[tuple[object, ...]], nume: str, parola: str | None,
     cur.execute(stmt)
 
 
-def pregateste_roluri(admin_dsn: str, *, parola_owner: str | None = None, parola_app: str | None = None) -> None:
+def pregateste_roluri(
+    admin_dsn: str, *, parola_owner: str | None = None, parola_app: str | None = None
+) -> None:
     """Creează (idempotent) cele două roluri: proprietarul tabelelor și rolul de execuție al aplicației."""
     with psycopg.connect(admin_dsn, autocommit=True) as conn, conn.cursor() as cur:
         _rol(cur, ROL_OWNER, parola_owner, "NOINHERIT")
@@ -34,7 +38,9 @@ def pregateste_baza(admin_dsn_baza: str, nume_baza: str) -> None:
     with psycopg.connect(admin_dsn_baza, autocommit=True) as conn, conn.cursor() as cur:
         cur.execute(sql.SQL("REVOKE ALL ON DATABASE {} FROM PUBLIC").format(sql.Identifier(nume_baza)))
         cur.execute(
-            sql.SQL("GRANT CONNECT ON DATABASE {} TO {}").format(sql.Identifier(nume_baza), sql.Identifier(ROL_APP))
+            sql.SQL("GRANT CONNECT ON DATABASE {} TO {}").format(
+                sql.Identifier(nume_baza), sql.Identifier(ROL_APP)
+            )
         )
         for ext in EXTENSII_SUPERUSER:
             cur.execute("SELECT 1 FROM pg_available_extensions WHERE name = %s", (ext,))

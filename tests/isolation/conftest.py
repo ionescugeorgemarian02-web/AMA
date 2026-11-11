@@ -37,7 +37,9 @@ def sonda(baza: BazaTest) -> Iterator[str]:
                 "valoare text NOT NULL)"
             )
         )
-        activeaza_rls_tenant(lambda sql: c.execute(text(sql)), "sonda_izolare", drepturi="SELECT, INSERT, UPDATE, DELETE")
+        activeaza_rls_tenant(
+            lambda sql: c.execute(text(sql)), "sonda_izolare", drepturi="SELECT, INSERT, UPDATE, DELETE"
+        )
     yield "sonda_izolare"
     with engine.begin() as c:
         c.execute(text("DROP TABLE sonda_izolare"))
@@ -57,7 +59,9 @@ def date(admin_engine: Engine, sonda: str) -> Date:
             (d.operator_a, "operator", None),
         ):
             c.execute(
-                text("INSERT INTO utilizatori (id, email, nume_afisat, parola_hash) VALUES (:i, :e, 'x', :p)"),
+                text(
+                    "INSERT INTO utilizatori (id, email, nume_afisat, parola_hash) VALUES (:i, :e, 'x', :p)"
+                ),
                 {"i": uid, "e": f"{uid}@exemplu.test", "p": PAROLA_HASH},
             )
             c.execute(

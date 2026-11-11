@@ -12,7 +12,9 @@ from tests.conftest import BazaTest, alembic_config
 pytestmark = pytest.mark.db
 
 TABELE = "SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND tablename <> 'alembic_version'"
-FUNCTII = "SELECT count(*) FROM pg_proc WHERE proname LIKE 'ama\\_%' AND pronamespace = 'public'::regnamespace"
+FUNCTII = (
+    "SELECT count(*) FROM pg_proc WHERE proname LIKE 'ama\\_%' AND pronamespace = 'public'::regnamespace"
+)
 
 
 def test_migrarea_urca_coboara_si_urca_din_nou(baza_goala: BazaTest) -> None:
@@ -38,14 +40,16 @@ def test_fiecare_migrare_poate_fi_coborata_pe_rand(baza_goala: BazaTest) -> None
     revizii = [r.revision for r in reversed(list(ScriptDirectory.from_config(cfg).walk_revisions()))]
     for rev in revizii:
         command.upgrade(cfg, rev)
-    for rev in reversed(revizii):
+    for _ in revizii:
         command.downgrade(cfg, "-1")
 
 
 def test_rolul_aplicatiei_nu_poate_ocoli_izolarea(admin_engine: Engine, baza: BazaTest) -> None:
     with admin_engine.connect() as c:
         rol = c.execute(
-            text("SELECT rolsuper, rolbypassrls, rolcreaterole, rolcreatedb FROM pg_roles WHERE rolname = 'ama_app'")
+            text(
+                "SELECT rolsuper, rolbypassrls, rolcreaterole, rolcreatedb FROM pg_roles WHERE rolname = 'ama_app'"
+            )
         ).one()
         assert tuple(rol) == (False, False, False, False)
         proprietar = c.execute(
@@ -53,7 +57,9 @@ def test_rolul_aplicatiei_nu_poate_ocoli_izolarea(admin_engine: Engine, baza: Ba
         ).one()
         assert tuple(proprietar) == (False, False)
         detinute = c.execute(
-            text("SELECT count(*) FROM pg_class c JOIN pg_roles r ON r.oid = c.relowner WHERE r.rolname = 'ama_app'")
+            text(
+                "SELECT count(*) FROM pg_class c JOIN pg_roles r ON r.oid = c.relowner WHERE r.rolname = 'ama_app'"
+            )
         ).scalar_one()
         assert detinute == 0
 

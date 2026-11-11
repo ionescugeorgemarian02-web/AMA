@@ -16,7 +16,7 @@ EXTENSII = ("pg_trgm", "citext", "vector")
 
 
 def upgrade() -> None:
-    # pg_trgm și citext sunt „trusted”; `vector` îl creează pregătirea bazei (superutilizator) când e disponibil.
+    # pg_trgm și citext sunt „trusted”; `vector` îl creează pregătirea bazei (superutilizator), dacă există.
     for ext in EXTENSII:
         op.execute(
             f"DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = '{ext}') THEN "

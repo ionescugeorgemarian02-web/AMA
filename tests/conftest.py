@@ -15,11 +15,22 @@ from sqlalchemy import Engine, create_engine
 from sqlalchemy.engine import make_url
 
 os.environ.setdefault("AMA_ENV", "test")
-# Chei de test construite la rulare (nu sunt secrete reale; scanerul de secrete nu trebuie slăbit).
-os.environ.setdefault("AMA_MASTER_KEY", "test-" + "m" * 40)
-os.environ.setdefault("AMA_SECRET_KEY", "test-" + "s" * 40)
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture
+def chei_de_test(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """Chei de test construite la rulare (nu sunt secrete reale). Nu sunt globale: testele de configurare
+    verifică tocmai lipsa lor."""
+    from app.config import get_settings
+
+    monkeypatch.setenv("AMA_MASTER_KEY", "test-" + "m" * 40)
+    monkeypatch.setenv("AMA_SECRET_KEY", "test-" + "s" * 40)
+    get_settings.cache_clear()
+    yield
+    monkeypatch.undo()
+    get_settings.cache_clear()
 
 
 def alembic_config(owner_url: str) -> Config:
@@ -46,7 +57,9 @@ def admin_url() -> str:
     url = os.environ.get("AMA_TEST_DATABASE_ADMIN_URL")
     if not url:
         if os.environ.get("CI"):
-            pytest.fail("AMA_TEST_DATABASE_ADMIN_URL lipsește în CI: testele de bază nu au voie să fie sărite")
+            pytest.fail(
+                "AMA_TEST_DATABASE_ADMIN_URL lipsește în CI: testele de bază nu au voie să fie sărite"
+            )
         pytest.skip("AMA_TEST_DATABASE_ADMIN_URL lipsește (rulează `make test`)")
     return url
 
@@ -66,7 +79,10 @@ def creeaza_baza_noua(admin: str, migreaza: bool) -> Iterator[BazaTest]:
         owner = base.set(database=nume, username="ama_owner", password=parola_owner)
         app = base.set(database=nume, username="ama_app", password=parola_app)
         baza = BazaTest(
-            nume, admin_baza, owner.render_as_string(hide_password=False), app.render_as_string(hide_password=False)
+            nume,
+            admin_baza,
+            owner.render_as_string(hide_password=False),
+            app.render_as_string(hide_password=False),
         )
         if migreaza:
             command.upgrade(alembic_config(baza.owner_url), "head")

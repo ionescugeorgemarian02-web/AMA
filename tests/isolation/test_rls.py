@@ -23,7 +23,9 @@ def ids(s: object, sql: str) -> set[object]:
 
 def valoare_admin(admin: Engine, sid: uuid.UUID) -> str:
     with admin.connect() as c:
-        return str(c.execute(text("SELECT valoare FROM sonda_izolare WHERE id = :i"), {"i": sid}).scalar_one())
+        return str(
+            c.execute(text("SELECT valoare FROM sonda_izolare WHERE id = :i"), {"i": sid}).scalar_one()
+        )
 
 
 def test_a_nu_citeste_datele_lui_b(date: Date) -> None:
@@ -64,7 +66,9 @@ def test_a_nu_poate_insera_pentru_b(date: Date) -> None:
 
 def test_a_nu_poate_muta_un_rand_la_b(admin_engine: Engine, date: Date) -> None:
     with pytest.raises(DBAPIError, match="row-level security"), sesiune(ContextDb(tenant_id=date.a)) as s:
-        s.execute(text("UPDATE sonda_izolare SET tenant_id = :b WHERE id = :i"), {"b": date.b, "i": date.sonda_a})
+        s.execute(
+            text("UPDATE sonda_izolare SET tenant_id = :b WHERE id = :i"), {"b": date.b, "i": date.sonda_a}
+        )
 
 
 def test_a_nu_poate_crea_apartenente_agentie_sau_pentru_b(date: Date) -> None:
@@ -104,10 +108,15 @@ def test_sql_brut_fara_context_zero_randuri(baza: BazaTest, date: Date, tabel: s
         assert conn.execute(f"SELECT count(*) FROM {tabel}").fetchone() == (0,)  # type: ignore[arg-type]
 
 
-@pytest.mark.parametrize("valoare", ["", "nu-este-uuid", "00000000-0000-0000-0000-000000000000", "' OR 1=1 --"])
+@pytest.mark.parametrize(
+    "valoare", ["", "nu-este-uuid", "00000000-0000-0000-0000-000000000000", "' OR 1=1 --"]
+)
 def test_context_invalid_zero_randuri_fara_erori(date: Date, valoare: str) -> None:
     with sesiune() as s:
-        s.execute(text("SELECT set_config('app.tenant_id', :v, true), set_config('app.user_id', :v, true)"), {"v": valoare})
+        s.execute(
+            text("SELECT set_config('app.tenant_id', :v, true), set_config('app.user_id', :v, true)"),
+            {"v": valoare},
+        )
         for tabel in TABELE_CU_DATE:
             assert s.execute(text(f"SELECT count(*) FROM {tabel}")).scalar_one() == 0
 
@@ -155,9 +164,12 @@ def test_operatorul_nu_isi_poate_adauga_alocari(date: Date) -> None:
 
 def test_drepturile_rolului_aplicatiei_sunt_minime(baza: BazaTest, admin_engine: Engine) -> None:
     with admin_engine.connect() as c:
+
         def are(tabel: str, drept: str) -> bool:
             return bool(
-                c.execute(text("SELECT has_table_privilege('ama_app', :t, :d)"), {"t": tabel, "d": drept}).scalar_one()
+                c.execute(
+                    text("SELECT has_table_privilege('ama_app', :t, :d)"), {"t": tabel, "d": drept}
+                ).scalar_one()
             )
 
         for tabel in ("clienti", "utilizatori", "apartenente"):

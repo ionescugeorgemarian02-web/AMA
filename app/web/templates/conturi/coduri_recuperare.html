@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Coduri de recuperare · AMA{% endblock %}
+{% block content %}
+<h1>Coduri de recuperare</h1>
+<p>Păstrează-le într-un loc sigur. Fiecare cod poate fi folosit o singură dată și nu va mai fi afișat.</p>
+<ul id="coduri">
+  {% for cod in coduri %}<li><code>{{ cod }}</code></li>{% endfor %}
+</ul>
+<p><a href="/conturi/eu">Continuă</a></p>
+{% endblock %}

@@ -2,7 +2,7 @@
 
 Un tabel nou cu date de client se face așa, într-o migrare:
 
-    op.create_table("exemplu", sa.Column("id", ...), sa.Column("tenant_id", ..., sa.ForeignKey("clienti.id")), ...)
+    op.execute("CREATE TABLE exemplu (id uuid PRIMARY KEY, tenant_id uuid NOT NULL REFERENCES clienti (id))")
     activeaza_rls_tenant(op.execute, "exemplu")
 
 Meta-testul din `tests/isolation/test_meta_rls.py` pică dacă un tabel cu `tenant_id` nu are RLS.

@@ -31,7 +31,7 @@ class Permisiune(StrEnum):
 
 ROLURI_AGENTIE = frozenset({Rol.PROPRIETAR, Rol.OPERATOR, Rol.ANALIST})
 ROLURI_CLIENT = frozenset({Rol.CLIENT_TITULAR, Rol.CLIENT_APROBATOR, Rol.CLIENT_VIZITATOR})
-# Doar proprietarul vede toți clienții. Operatorul vede clienții alocați (tabelul `alocari`), analistul: de decis.
+# Doar proprietarul vede toți clienții. Operatorul vede clienții alocați (`alocari`); analistul: de decis.
 ROLURI_SCOP_AGENTIE = frozenset({Rol.PROPRIETAR})
 
 P = Permisiune

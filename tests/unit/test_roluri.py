@@ -19,7 +19,7 @@ P = Permisiune
 
 def test_fiecare_rol_are_intrare_in_matrice() -> None:
     assert set(MATRICE) == set(Rol)
-    assert ROLURI_AGENTIE | ROLURI_CLIENT == set(Rol)
+    assert set(Rol) == ROLURI_AGENTIE | ROLURI_CLIENT
     assert not (ROLURI_AGENTIE & ROLURI_CLIENT)
 
 

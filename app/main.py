@@ -6,10 +6,12 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 
-from app import __version__
+from app import __version__, conturi, db
 from app.config import get_settings
 from app.logging import configure_logging, correlation_id, get_logger
 from app.operare import health
+from app.operare.antete import adauga_antete
+from app.operare.jurnale import ip_cerere
 
 log = get_logger("app.http")
 
@@ -38,6 +40,7 @@ def create_app() -> FastAPI:
             else str(uuid.uuid4())
         )
         token = correlation_id.set(cid)
+        ip_token = ip_cerere.set(request.client.host if request.client else None)
         start = time.perf_counter()
         try:
             response = await call_next(request)
@@ -49,10 +52,14 @@ def create_app() -> FastAPI:
                     extra={"method": request.method, "path": request.url.path, "duration_ms": duration_ms},
                 )
             correlation_id.reset(token)
+            ip_cerere.reset(ip_token)
         response.headers["x-request-id"] = cid
         return response
 
+    adauga_antete(app)
+    health.register_check("baza", db.verifica_baza)
     app.include_router(health.router)
+    conturi.inregistreaza(app)
     return app
 
 
