@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres  # pragma: allowlist secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      AMA_ENV: test
+      AMA_TEST_DATABASE_ADMIN_URL: postgresql+psycopg://postgres:postgres@127.0.0.1:5432/postgres  # pragma: allowlist secret
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: true
+      - name: Instalare din fișierul de blocare (cu hash-uri)
+        run: uv sync --locked
+      - name: Stil
+        run: make lint
+      - name: Tipuri
+        run: make types
+      - name: Gărzi (dependențe fixate, secrete)
+        run: make guards
+      - name: Vulnerabilități în dependențe
+        run: make audit
+      - name: Teste
+        run: uv run pytest
