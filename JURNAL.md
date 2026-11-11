@@ -48,3 +48,16 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - Neverificat (cere VPS sau GitHub): `bootstrap.sh` pe un server real, Docker rootless pe porturile 80/443, certificatele Let's Encrypt, citirea din GHCR, fluxul `entrega.yml`, stocarea externă reală. Trecute în `docs/specs/STARE.md`.
 - Abatere: imaginea oficială `uv` nu a putut fi citită din mediul de lucru, așa că `uv` se instalează din PyPI cu hash-uri fixate. Pachetele `apt` din imaginea de backup nu au versiuni fixate.
 - Contracte definite pentru partea de aplicație (de implementat în valul 2): `GET /intern/livrare/cerere`, `POST /intern/livrare/rezultat` (antet `X-Livrare-Token`) și fișierele JSON de stare a backupului (`ama.backup/1`).
+
+### 10. F1.3–F1.6 — Bază, izolare, autentificare, audit: subagentul A a terminat (Sonnet)
+- Construit: 4 migrări (extensii; conturi; autentificare; jurnale), `app/db` (sesiuni cu context de client aplicat la fiecare tranzacție), `app/conturi` (roluri și matricea de permisiuni, parole argon2id, TOTP cu secret criptat și protecție la reluare, coduri de recuperare, sesiuni pe server, CSRF, limitarea încercărilor în Postgres, CLI pentru primul proprietar), `app/operare` (jurnal de audit și de evenimente, doar cu adăugare, impus în bază), antete de securitate cu CSP strict.
+- Dependențe noi, fixate: `sqlalchemy`, `alembic`, `psycopg[binary]`, `argon2-cffi`, `pyotp`, `cryptography`, `jinja2`, `python-multipart`.
+- pgvector instalat și local (pachet apt), deci testul extensiei rulează, nu este sărit.
+- Revizuire făcută de orchestrator (alt model decât autorul): citite `app/db/rls.py`, `contexte.py`, `motor.py`, migrarea de conturi, politicile din migrările 3 și 4, `dependente.py`, `limitare.py`, părțile de cookie din `sesiuni.py`. Fără obiecții care să blocheze.
+- Reverificat de orchestrator: `make check` verde, 197 de teste. În plus, probă de integrare între cei doi subagenți: pornită imaginea reală pgvector cu scriptul de roluri din `infra/`, rulat `alembic upgrade head` ca `ama_owner`, verificat că `ama_app` vede 0 rânduri și că o inserare fără context este refuzată de bază, apoi `alembic downgrade base`. Toate au trecut.
+- Observații notate, nerezolvate acum (propuneri):
+  - Izolarea din bază separă clienții între ei; drepturile dintre rolurile aceluiași client (titular / aprobator / vizitator) sunt impuse în aplicație, nu în bază.
+  - Un utilizator are o singură apartenență activă; mai multe firme pe același cont vin mai târziu, dacă e nevoie.
+  - Lipsesc schimbarea și resetarea parolei și cheile de acces (WebAuthn).
+  - Sub încărcare, autentificările simultane pot depăși cu puțin pragul de blocare.
+  - Un test de backup a picat o dată într-o rulare completă a subagentului și a trecut la rulările următoare (inclusiv la a mea); de urmărit în CI.

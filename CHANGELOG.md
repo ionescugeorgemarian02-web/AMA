@@ -4,6 +4,21 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F1.8–F1.9 — Livrare și backup (infrastructură)
+- Imagine Docker, compose pentru staging și producție, proxy Caddy, instalarea VPS-ului, deployer cu revenire, backup criptat cu test de restaurare.
+
+### F1.6 — Jurnalul de audit și de evenimente
+- Două jurnale doar cu adăugare, impuse în bază; fiecare acțiune sensibilă este înregistrată cu utilizator, moment și identificator de corelare.
+
+### F1.5 — Autentificare
+- Parolă (argon2id), al doilea factor TOTP obligatoriu pentru agenție, coduri de recuperare, sesiuni pe server, CSRF, limitarea încercărilor, antete de securitate.
+
+### F1.4 — Clienți, utilizatori, roluri
+- Modelul de conturi, cele șase roluri, izolare la nivel de rând forțată pe toate tabelele cu date de client.
+
+### F1.3 — Baza de date și migrările
+- Postgres cu `pg_trgm`, `citext`, `vector`; Alembic; roluri separate pentru migrări și pentru aplicație.
+
 ### F1.1 — Aplicația de bază
 - Aplicație FastAPI modulară, `/healthz`, configurare din variabile de mediu, jurnale JSON cu identificator de corelare.
 
