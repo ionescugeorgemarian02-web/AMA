@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F2 — Motorul
+- Test cap-coadă cu procese reale (`tests/chaos/test_poarta_f2.py`): un livrabil de probă parcurge toate stările normale, supraviețuiește la două SIGKILL (la mijloc și în jurul publicării) și produce un singur efect la conectorul fals, fără tranziții dublate.
+
 ### F2.9 — Ecranele Producție și Operare
 - Producție: lista livrabilelor (filtre pe client, stare și excepții, paginare) și „urma” fiecăruia: mutările inclusiv refuzurile, pașii fluxului durabil cu stare, durată și eroare, cererile de aprobare, efectele externe, contoarele de limite. Acțiuni cu CSRF, permisiune, motiv și audit: reia livrabilul din coada de erori (și efectul extern eșuat), reia un pas eșuat, anulează. Operare, motorul: workerii și cozile (adâncime, în lucru), joburile programate (pauză, reluare, „rulează acum”), efectele în așteptare sau oprite și canalele pe pauză, întrerupătorul și opririle. Un operator vede doar clientul la care are acces.
 
