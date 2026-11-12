@@ -1,0 +1,102 @@
+# Definițiile comune ale unei stive (staging sau producție). Nu se pornește singur:
+#   docker compose -p ama-staging --env-file /srv/ama/env/staging.env -f base.yml -f staging.yml ...
+# Serviciile interne (postgres, migrate) stau doar în rețeaua internă; nimic nu publică porturi pe gazdă.
+# Imaginile aplicației vin din deployer: AMA_IMAGE_BLUE / AMA_IMAGE_GREEN / AMA_IMAGE_MIGRATE (depozit@sha256:…).
+
+x-app: &app
+  restart: unless-stopped
+  read_only: true
+  tmpfs: ["/tmp"]
+  cap_drop: ["ALL"]
+  security_opt: ["no-new-privileges:true"]
+  stop_grace_period: 20s
+  depends_on:
+    postgres: { condition: service_healthy }
+    migrate: { condition: service_completed_successfully }
+  environment:
+    AMA_ENV: ${AMA_ENV:?}
+    AMA_BASE_URL: ${AMA_BASE_URL:?}
+    AMA_DATABASE_URL: postgresql+psycopg://ama_app:${AMA_APP_DB_PASSWORD:?}@postgres:5432/ama
+    AMA_SECRET_KEY: ${AMA_SECRET_KEY:?}
+    AMA_MASTER_KEY: ${AMA_MASTER_KEY:?}
+    AMA_DEPLOY_TOKEN: ${AMA_DEPLOY_TOKEN:-}
+    # Notificări push și Telegram (F1.7, F1.10). Goale = dezactivate.
+    AMA_VAPID_PUBLIC_KEY: ${AMA_VAPID_PUBLIC_KEY:-}
+    AMA_VAPID_PRIVATE_KEY: ${AMA_VAPID_PRIVATE_KEY:-}
+    AMA_VAPID_SUBJECT: ${AMA_VAPID_SUBJECT:-mailto:admin@example.invalid}
+    AMA_TELEGRAM_BOT_TOKEN: ${AMA_TELEGRAM_BOT_TOKEN:-}
+    AMA_TELEGRAM_CHAT_ID: ${AMA_TELEGRAM_CHAT_ID:-}
+    AMA_TELEGRAM_WEBHOOK_SECRET: ${AMA_TELEGRAM_WEBHOOK_SECRET:-}
+    AMA_MEDIA_DIR: /var/lib/ama/media
+    UVICORN_WORKERS: ${UVICORN_WORKERS:-2}
+  volumes:
+    - media:/var/lib/ama/media
+  networks:
+    internal: {}
+    edge: {}
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16@sha256:0dd3149a06e4579a0d70d8fef9945636cd514005e7237deb27f9b67886f8dc4f
+    restart: unless-stopped
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?}
+      POSTGRES_DB: ama
+      AMA_OWNER_DB_PASSWORD: ${AMA_OWNER_DB_PASSWORD:?}
+      AMA_APP_DB_PASSWORD: ${AMA_APP_DB_PASSWORD:?}
+      AMA_BACKUP_DB_PASSWORD: ${AMA_BACKUP_DB_PASSWORD:?}
+    command:
+      - postgres
+      - -c
+      - shared_buffers=${PG_SHARED_BUFFERS:-128MB}
+      - -c
+      - max_connections=${PG_MAX_CONNECTIONS:-60}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ${AMA_INFRA_DIR:?}/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ama"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      internal: {}
+
+  # Pas unic: migrările rulează ca proprietar al bazei, înaintea oricărui slot de aplicație.
+  migrate:
+    image: ${AMA_IMAGE_MIGRATE:-${AMA_IMAGE_BLUE:-${AMA_IMAGE_GREEN:-ama-unset:none}}}
+    restart: "no"
+    command: ["alembic", "upgrade", "head"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    environment:
+      AMA_ENV: ${AMA_ENV:?}
+      AMA_DATABASE_OWNER_URL: postgresql+psycopg://ama_owner:${AMA_OWNER_DB_PASSWORD:?}@postgres:5432/ama
+      AMA_DATABASE_URL: postgresql+psycopg://ama_owner:${AMA_OWNER_DB_PASSWORD:?}@postgres:5432/ama
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks:
+      internal: {}
+
+  app_blue:
+    <<: *app
+    image: ${AMA_IMAGE_BLUE:-ama-unset:none}
+
+  app_green:
+    <<: *app
+    image: ${AMA_IMAGE_GREEN:-ama-unset:none}
+
+volumes:
+  pgdata: {}
+  media: {}
+
+networks:
+  internal:
+    internal: true
+  edge:
+    name: ama-edge
+    external: true

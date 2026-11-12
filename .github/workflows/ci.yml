@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16@sha256:0dd3149a06e4579a0d70d8fef9945636cd514005e7237deb27f9b67886f8dc4f
+        env:
+          POSTGRES_PASSWORD: postgres  # pragma: allowlist secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      AMA_ENV: test
+      AMA_REQUIRE_PGVECTOR: "1"
+      AMA_TEST_DATABASE_ADMIN_URL: postgresql+psycopg://postgres:postgres@127.0.0.1:5432/postgres  # pragma: allowlist secret
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: true
+      - name: Instalare din fișierul de blocare (cu hash-uri)
+        run: uv sync --locked
+      - name: Stil
+        run: make lint
+      - name: Tipuri
+        run: make types
+      - name: Gărzi (dependențe fixate, secrete)
+        run: make guards
+      - name: Vulnerabilități în dependențe
+        run: make audit
+      - name: Unelte pentru testele de backup (pg_dump 16, age, rclone)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends postgresql-client-16 age rclone
+      - name: Teste
+        run: uv run pytest
+
+  # F1.8: imaginea se construiește și pornește la fiecare cerere de integrare; configurările de infrastructură se validează.
+  imagine:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Scripturile shell (shellcheck)
+        run: shellcheck -x infra/vps/bootstrap.sh infra/deploy/smoke.sh infra/deploy/ci_fum.sh infra/postgres/init/10-roluri.sh
+      - name: Configurația proxy-ului (Caddy)
+        run: |
+          docker run --rm -v "$PWD/infra/proxy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            -e AMA_ACME_EMAIL=ops@example.com -e AMA_DOMAIN_SITE=example.com -e AMA_DOMAIN_APP=app.example.com \
+            -e AMA_DOMAIN_MEDIA=media.example.com -e AMA_DOMAIN_STAGING=staging.example.com \
+            -e AMA_STAGING_BASIC_USER=ama -e 'AMA_STAGING_BASIC_HASH=$2a$14$ehmN1pwDUCTWNkqSEm0CyuJ4vKpM4U/Ke2IJOaNtje2CCNplWdYEK' \
+            caddy:2-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9 \
+            caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+      - name: Fișierele Compose
+        env:
+          AMA_IMAGE_BLUE: ama:ci
+        run: |
+          mkdir -p /tmp/ama-env
+          for f in staging production edge; do
+            sed -e "s|/srv/ama/repo/infra|$PWD/infra|; s|/srv/ama/env|/tmp/ama-env|" infra/env/$f.env.example > /tmp/ama-env/$f.env
+          done
+          cd infra/compose
+          docker compose -p ama-staging --env-file /tmp/ama-env/staging.env -f base.yml -f staging.yml config -q
+          docker compose -p ama-prod --env-file /tmp/ama-env/production.env -f base.yml -f production.yml config -q
+          docker compose -p ama-edge --env-file /tmp/ama-env/edge.env -f edge.yml config -q
+      - name: Construirea imaginii aplicației
+        run: docker build --build-arg AMA_VERSION="${GITHUB_SHA}" -t ama:ci .
+      - name: Pornire cu bază reală, migrări și test de fum (/healthz, /readyz)
+        run: infra/deploy/ci_fum.sh ama:ci
+      - name: Imaginile serviciilor de livrare și backup se construiesc
+        run: |
+          docker build -t ama-deployer:ci infra/deployer
+          docker build -t ama-backup:ci infra/backup

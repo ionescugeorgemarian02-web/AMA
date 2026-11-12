@@ -1,0 +1,71 @@
+# Marginea serverului, o singură dată per VPS: proxy-ul (singurul care publică porturi) și deployer-ul.
+#   docker compose -p ama-edge --env-file /srv/ama/env/edge.env -f edge.yml up -d --build
+# Rețeaua `ama-edge` este creată aici și folosită de stivele de staging și producție.
+services:
+  proxy:
+    image: caddy:2-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9
+    restart: unless-stopped
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: ["ALL"]
+    cap_add: ["NET_BIND_SERVICE"]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 100m
+    memswap_limit: 100m
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      AMA_DOMAIN_SITE: ${AMA_DOMAIN_SITE:?}
+      AMA_DOMAIN_APP: ${AMA_DOMAIN_APP:?}
+      AMA_DOMAIN_MEDIA: ${AMA_DOMAIN_MEDIA:?}
+      AMA_DOMAIN_STAGING: ${AMA_DOMAIN_STAGING:?}
+      AMA_ACME_EMAIL: ${AMA_ACME_EMAIL:?}
+      AMA_STAGING_BASIC_USER: ${AMA_STAGING_BASIC_USER:?}
+      AMA_STAGING_BASIC_HASH: ${AMA_STAGING_BASIC_HASH:?}
+    volumes:
+      - ${AMA_INFRA_DIR:?}/proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      edge: {}
+
+  # Serviciul intern de livrare. Fără porturi publicate, fără rută în proxy. Are acces la socketul Docker al
+  # utilizatorului fără drepturi (Docker fără root), deci poate controla doar containerele acestuia.
+  deployer:
+    build:
+      context: ../deployer
+    restart: unless-stopped
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 128m
+    memswap_limit: 128m
+    environment:
+      AMA_DEPLOYER_REPO: ${AMA_DEPLOYER_REPO:?}
+      AMA_DEPLOYER_STAGING_TAG: ${AMA_DEPLOYER_STAGING_TAG:-main}
+      AMA_DEPLOYER_REGISTRY_USER: ${AMA_DEPLOYER_REGISTRY_USER:-}
+      AMA_DEPLOYER_REGISTRY_TOKEN: ${AMA_DEPLOYER_REGISTRY_TOKEN:-}
+      AMA_DEPLOY_TOKEN: ${AMA_DEPLOY_TOKEN:?}
+      AMA_INFRA_DIR: ${AMA_INFRA_DIR:?}
+      AMA_ENV_DIR: ${AMA_ENV_DIR:?}
+      DOCKER_CONFIG: ${AMA_ENV_DIR:?}/docker  # opțional: autentificare la registru (docker login)
+    volumes:
+      - ${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock
+      # aceeași cale ca pe gazdă: Compose rezolvă căile relative pe gazdă, nu în container
+      - ${AMA_INFRA_DIR:?}:${AMA_INFRA_DIR:?}:ro
+      - ${AMA_ENV_DIR:?}:${AMA_ENV_DIR:?}:ro
+      - deployer_state:/var/lib/ama-deployer
+    networks:
+      edge: {}
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}
+  deployer_state: {}
+
+networks:
+  edge:
+    name: ama-edge

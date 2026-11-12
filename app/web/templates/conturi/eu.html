@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Contul meu · AMA{% endblock %}
+{% block content %}
+<h1>Contul meu</h1>
+<p id="utilizator">{{ utilizator.nume_afisat }} ({{ utilizator.email }})</p>
+<p id="rol">{{ etichete_rol.get(utilizator.rol.value, utilizator.rol.value) }}</p>
+{% if nume_client %}<p id="client">Client: {{ nume_client }}</p>{% endif %}
+<form method="post" action="/conturi/iesire">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <button type="submit">Ieșire</button>
+</form>
+{% endblock %}

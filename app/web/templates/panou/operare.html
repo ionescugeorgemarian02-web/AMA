@@ -1,0 +1,48 @@
+{% extends "panou/baza.html" %}
+{% block title %}Operare · AMA{% endblock %}
+{% block pagina %}
+<h1>Operare</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+<section class="card" aria-labelledby="t-livrare">
+  <h2 id="t-livrare">Livrare</h2>
+  <div class="rand"><span class="eticheta">În producție acum</span>
+    <span>{% if livrare.productie %}<code>{{ livrare.productie.versiune or livrare.productie.imagine[-12:] }}</code>{% else %}necunoscută încă{% endif %}</span></div>
+  <div class="rand"><span class="eticheta">Pe staging, gata de promovat</span>
+    <span>{% if livrare.disponibila %}<code>{{ livrare.disponibila.versiune or livrare.disponibila.imagine[-12:] }}</code>{% else %}nimic nou{% endif %}</span></div>
+  <div class="rand"><span class="eticheta">Versiunea anterioară</span>
+    <span>{% if livrare.anterioara %}<code>{{ livrare.anterioara.versiune or livrare.anterioara.imagine[-12:] }}</code>{% else %}nu se cunoaște{% endif %}</span></div>
+  {% if livrare.cerere_activa %}
+  <p class="mesaj atentie" role="status">Cerere în curs: {{ etichete_cerere[livrare.cerere_activa.tip] }} ({{ etichete_stare[livrare.cerere_activa.stare] }}).</p>
+  {% endif %}
+  <div class="actiuni">
+    {% if livrare.disponibila and not livrare.cerere_activa %}
+    <a class="buton" href="/operare/confirma?actiune=promovare">Promovează în producție</a>
+    {% endif %}
+    {% if livrare.anterioara and not livrare.cerere_activa %}
+    <a class="buton secundar" href="/operare/confirma?actiune=revenire">Revino la versiunea anterioară</a>
+    {% endif %}
+  </div>
+  <h2>Istoric</h2>
+  {% if livrare.istoric %}
+  <div class="defilare"><table>
+    <tr><th>Când</th><th>Mediu</th><th>Stare</th><th>Versiune</th></tr>
+    {% for x in livrare.istoric %}
+    <tr><td>{{ x.moment|moment }}</td><td>{{ x.mediu }}</td><td>{{ etichete_stare[x.stare] }}</td><td><code>{{ x.versiune or '–' }}</code>{% if x.detalii %}<br><span class="slab">{{ x.detalii }}</span>{% endif %}</td></tr>
+    {% endfor %}
+  </table></div>
+  {% else %}<p class="slab">Încă nu a sosit niciun raport de la deployer.</p>{% endif %}
+</section>
+
+<section class="card" aria-labelledby="t-backup">
+  <h2 id="t-backup">Backup</h2>
+  {% if not backup.configurat %}<p class="mesaj atentie">Directorul de stare nu este configurat (<code>AMA_BACKUP_STATUS_DIR</code>).</p>{% endif %}
+  {% for nume, ev, regula in [("Ultimul backup", backup.backup, "se învechește după 26 de ore"), ("Ultimul test de restaurare", backup.restaurare_test, "se învechește după 8 zile")] %}
+  <div class="rand"><span><span class="eticheta">{{ nume }}</span><br>
+    <span class="slab">{% if ev.ultim %}{{ ev.ultim.inceput|moment }}{% if ev.ultim.stare == 'esuat' and ev.ultim.eroare %} · {{ ev.ultim.eroare }}{% endif %}{% else %}{{ ev.detaliu }}{% endif %}</span></span>
+    <span class="insigna {{ 'ok' if ev.bun else ('pericol' if ev.eticheta.value in ('esuat', 'necitibil') else 'atentie') }}">{{ etichete_backup[ev.eticheta.value] }}</span></div>
+  <p class="slab">Regula: {{ regula }}.{% if ev.ultim_reusit and ev.ultim and ev.ultim.stare == 'esuat' %} Ultimul reușit: {{ ev.ultim_reusit.inceput|moment }}.{% endif %}</p>
+  {% endfor %}
+</section>
+{% endblock %}

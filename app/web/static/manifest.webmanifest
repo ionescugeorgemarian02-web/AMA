@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "AMA — Agenția Autonomă de Marketing",
+  "short_name": "AMA",
+  "description": "Panoul de control al agenției: aprobări, producție, alerte.",
+  "lang": "ro",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0b5d6b",
+  "background_color": "#f6f8f9",
+  "icons": [
+    {"src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/static/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

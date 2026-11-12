@@ -1,0 +1,111 @@
+# Proxy-ul platformei (F1.8). Certificate automate (Let's Encrypt). Variabilele vin din infra/env/edge.env.
+# Doar acest serviciu publică porturi (80, 443). Către servicii merge doar prin aliasurile din rețeaua ama-edge.
+{
+	email {$AMA_ACME_EMAIL}
+	# Jurnal de acces JSON pe stdout (fără corpul cererilor și fără anteturi de autentificare)
+	log {
+		output stdout
+		format json
+	}
+	servers {
+		timeouts {
+			read_header 10s
+			idle 2m
+		}
+	}
+}
+
+(antete_securitate) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		# Politică restrictivă implicită; aplicația o poate înlocui cu una proprie (prefixul ? = doar dacă lipsește)
+		?Content-Security-Policy "default-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+		-Server
+	}
+}
+
+# Calea /intern/* este rezervată comunicării între servicii (livrare, backup): nu se expune niciodată.
+(blocheaza_intern) {
+	@intern path /intern /intern/*
+	respond @intern 404
+}
+
+(upstream_productie) {
+	reverse_proxy prod-blue:8000 prod-green:8000 {
+		lb_policy first
+		lb_try_duration 5s
+		lb_try_interval 250ms
+		health_uri /readyz
+		health_interval 3s
+		health_timeout 2s
+		health_status 2xx
+		header_up X-Forwarded-Proto {scheme}
+	}
+}
+
+(upstream_staging) {
+	reverse_proxy staging-blue:8000 staging-green:8000 {
+		lb_policy first
+		lb_try_duration 5s
+		lb_try_interval 250ms
+		health_uri /readyz
+		health_interval 3s
+		health_timeout 2s
+		health_status 2xx
+		header_up X-Forwarded-Proto {scheme}
+	}
+}
+
+# Site public
+{$AMA_DOMAIN_SITE} {
+	import antete_securitate
+	import blocheaza_intern
+	encode zstd gzip
+	request_body {
+		max_size 1MB
+	}
+	import upstream_productie
+}
+
+# Aplicația (panou și portal): încărcări de fișiere de până la 50 MB
+{$AMA_DOMAIN_APP} {
+	import antete_securitate
+	import blocheaza_intern
+	encode zstd gzip
+	request_body {
+		max_size 50MB
+	}
+	import upstream_productie
+}
+
+# Fișiere media semnate: doar citire
+{$AMA_DOMAIN_MEDIA} {
+	import antete_securitate
+	import blocheaza_intern
+	@scriere not method GET HEAD OPTIONS
+	respond @scriere 405
+	request_body {
+		max_size 1KB
+	}
+	import upstream_productie
+}
+
+# Staging: parolă obligatorie înaintea oricărei cereri către aplicație
+{$AMA_DOMAIN_STAGING} {
+	import antete_securitate
+	import blocheaza_intern
+	basic_auth {
+		{$AMA_STAGING_BASIC_USER} {$AMA_STAGING_BASIC_HASH}
+	}
+	header X-Robots-Tag "noindex, nofollow"
+	encode zstd gzip
+	request_body {
+		max_size 50MB
+	}
+	import upstream_staging
+}

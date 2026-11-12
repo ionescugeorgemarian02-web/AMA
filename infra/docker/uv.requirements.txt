@@ -1,0 +1,6 @@
+# uv instalat din PyPI cu hash-uri (imaginea ghcr.io/astral-sh/uv nu a putut fi trasă în mediul de dezvoltare).
+# Hash-urile sunt cele publicate de PyPI pentru uv 0.11.32 (verificate prin https://pypi.org/pypi/uv/0.11.32/json).
+uv==0.11.32 \
+    --hash=sha256:3da76cd4e2697de30928b8a8524bd39183ac1e08cb7e72833807c022b7cba6c4 \
+    --hash=sha256:125c142363d0842c8506a057da56bae182e2aa3957344f57dd9ef20ea10f06b0 \
+    --hash=sha256:be0799f1ad70c755d10de5aaf46af94199d4f16a992f90278f2662350cd3f4fe

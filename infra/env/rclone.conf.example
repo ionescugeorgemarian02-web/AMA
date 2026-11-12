@@ -1,0 +1,9 @@
+# Se copiază în /srv/ama/env/backup/rclone.conf (mod 600). Exemplu pentru o destinație compatibilă S3.
+# Alte destinații: https://rclone.org/docs/ . Un director local funcționează ca destinație pentru teste:
+# AMA_BACKUP_DEST=/cale/locala
+[externa]
+type = s3
+provider = Other
+access_key_id = CHANGE_ME
+secret_access_key = CHANGE_ME  # pragma: allowlist secret
+endpoint = https://CHANGE_ME.example.com

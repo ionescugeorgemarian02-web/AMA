@@ -1,0 +1,33 @@
+# Jurnalul de schimbări
+
+Format: o intrare pe pas, cea mai nouă sus.
+
+## Nelansat
+
+### F1.10 — Botul Telegram și butoanele de oprire
+- Webhook păzit de secret și de lista conversațiilor permise; comenzile `/stare`, `/opreste…`, `/porneste…` (repornirea cere cod de confirmare, o singură încercare), alerte critice. Steagurile de oprire există, dar modulele care le citesc apar din F2.
+
+### F1.7 — Coaja panoului
+- Panou instalabil (PWA) cu bara de jos, ecranul Acasă, temă luminoasă/întunecată, service worker și notificări push; HTMX și Alpine (build CSP) vendorizate.
+- Pagina Operare: promovare în producție și revenire cu confirmare, starea backupului.
+
+### F1.8–F1.9 — Livrare și backup (infrastructură)
+- Imagine Docker, compose pentru staging și producție, proxy Caddy, instalarea VPS-ului, deployer cu revenire, backup criptat cu test de restaurare.
+
+### F1.6 — Jurnalul de audit și de evenimente
+- Două jurnale doar cu adăugare, impuse în bază; fiecare acțiune sensibilă este înregistrată cu utilizator, moment și identificator de corelare.
+
+### F1.5 — Autentificare
+- Parolă (argon2id), al doilea factor TOTP obligatoriu pentru agenție, coduri de recuperare, sesiuni pe server, CSRF, limitarea încercărilor, antete de securitate.
+
+### F1.4 — Clienți, utilizatori, roluri
+- Modelul de conturi, cele șase roluri, izolare la nivel de rând forțată pe toate tabelele cu date de client.
+
+### F1.3 — Baza de date și migrările
+- Postgres cu `pg_trgm`, `citext`, `vector`; Alembic; roluri separate pentru migrări și pentru aplicație.
+
+### F1.1 — Aplicația de bază
+- Aplicație FastAPI modulară, `/healthz`, configurare din variabile de mediu, jurnale JSON cu identificator de corelare.
+
+### F0.2 — Repo și reguli
+- `AGENTS.md`, `DECIZII.md`, structura de directoare, documentul de arhitectură împărțit pe secțiuni în `docs/`, cele 16 ADR-uri, șablonul de cerere de integrare, CI.

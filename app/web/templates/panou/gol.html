@@ -1,0 +1,11 @@
+{% extends "panou/baza.html" %}
+{% block title %}{{ titlu }} · AMA{% endblock %}
+{% block pagina %}
+<h1>{{ titlu }}</h1>
+<div class="card gol">
+  <span class="pictograma" aria-hidden="true">{{ pictograma }}</span>
+  <p><strong>Încă nimic aici.</strong></p>
+  <p>{{ text }}</p>
+  <p class="slab">Apare în faza F2.</p>
+</div>
+{% endblock %}
