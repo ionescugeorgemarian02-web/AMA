@@ -1,7 +1,10 @@
 """Fixture-uri comune. Testele de bază de date rulează ca `ama_app`, pe o bază nouă pe sesiune."""
 
+import atexit
 import os
 import secrets
+import shutil
+import tempfile
 import uuid
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
@@ -18,6 +21,14 @@ from app.operare.motor.migrare import migreaza_sistem
 
 os.environ.setdefault("AMA_ENV", "test")
 os.environ.setdefault("AMA_EFECTE_PAUZA_SEC", "0.05")  # reîncercările efectelor, fără pauze lungi în teste
+
+# Mediile din teste merg într-un director temporar, nu în `/var/lib/ama/media` (implicitul din producție:
+# în CI rulăm fără drepturi de root și scrierea acolo pică cu PermissionError). Testele care vor alt loc
+# îl suprascriu cu `monkeypatch.setenv("AMA_MEDIA_DIR", ...)`.
+if "AMA_MEDIA_DIR" not in os.environ:
+    _MEDIA_TEST = tempfile.mkdtemp(prefix="ama-media-test-")
+    os.environ["AMA_MEDIA_DIR"] = _MEDIA_TEST
+    atexit.register(shutil.rmtree, _MEDIA_TEST, ignore_errors=True)
 
 ROOT = Path(__file__).resolve().parents[1]
 

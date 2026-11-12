@@ -318,3 +318,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Un job lunar pentru „vocea clientului” și trimestrial pentru harta pieței (12.7) — folosesc aceleași fluxuri `onboarding.extrage`.
   - O garda statică pentru `sesiune_agentie` în `app/creier/pregatire.py` e acum în lista cunoscută din `tests/unit/test_garzi_db.py`.
 
+
+- **Reparatie CI `check` (commit `0516c9d`).** 36 de teste de integrare (creier_*, onboarding_*, campanii_panou) picau în CI cu `PermissionError: [Errno 13] Permission denied: '/var/lib/ama'`. Cauza: `AMA_MEDIA_DIR` avea implicit `/var/lib/ama/media`, iar testele care salvează surse nu îl suprascriau; local rulam ca root (directorul exista deja), în CI ca utilizator fără drepturi. Reparatie: `tests/conftest.py` fixează `AMA_MEDIA_DIR` pe un director temporar (șters la ieșire) dacă variabila nu e setată; testele care o suprascriu explicit rămân neschimbate. Nicio verificare slăbită.
