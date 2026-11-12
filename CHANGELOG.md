@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.1 — Modelul Creierului
+- `app/creier`: cele zece compartimente din 10.1 ca date, intrări cu versiuni (`ciornă → propus → aprobat → retras`), sursă obligatorie, valabilitate, cine și când a aprobat, nivelurile de cunoaștere din 10.2. API: `creeaza_intrare`, `propune_schimbare`, `aproba`, `retrage`, `citeste`, `la_data`, `istoric`, `diferenta_versiuni`.
+- Migrarea `0021` (`creier_intrari`, `creier_versiuni`, RLS): conținutul unei versiuni nu se mai poate schimba (declanșator în bază), cel mult o versiune aprobată pe intrare.
+
 ### Poarta F3 — Gateway de modele
 - Test cap-coadă cu furnizori falși (`tests/integration/test_poarta_f3.py`): testul comparativ rulat pe modelele de text din configurarea de probă, iar cu fiecare dintre cei cinci furnizori oprit pe rând un flux de probă pe fiecare profil se termină (degradare marcată la modelul local pe coada `greu`, trecere pe alt furnizor sau amânare curată, fără eșecuri). Testul comparativ pe modele reale rămâne deschis până la migrare.
 

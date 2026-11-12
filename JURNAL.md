@@ -237,3 +237,13 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - Am rulat integral `make check` pe ramura F3: 1805 teste trec.
 - Testul `tests/chaos/test_programare.py` cădea sub încărcare (reprodus cu procesorul ocupat: 4 din 5 rulări). Cauze, ambele în test, nu în planificator: (1) ticul aflat în lucru la SIGKILL își scrisese urma, dar nu fusese notat ca terminat, deci pasul se reia („cel puțin o dată” la cădere) și apare de două ori în fișierul de probă; (2) ticurile recuperate rulează în paralel, iar testul citea fișierul înainte să se așeze toate. Testul așteaptă acum șirul fără goluri și acceptă o dublură doar pentru ticul aflat în lucru la cădere. Verificat: 6 rulări la rând sub încărcare, fără eșec.
 - De reținut pentru fazele următoare: un pas cu efect în afara bazei trebuie să fie idempotent (executorul de efecte din F2.5 respectă deja regula prin „verifică înainte de reîncercare”).
+
+## 2026-11-12 — Sesiunea 6: faza F4, Creierul de brand (F4.1, F4.2, F4.3, F4.6, F4.7)
+
+### 20. Pașii F4.1, F4.2, F4.3, F4.6, F4.7 — un agent de cod (Sonnet), pe ramura `claude/amazing-volta-ou9t2u`
+- Un commit pe pas, `make check` verde înainte de fiecare. F4.4, F4.5, F4.8–F4.11 rămân pentru agenții următori.
+- **F4.1 — Modelul Creierului.**
+  - Construit: `app/creier` (`compartimente`, `diferenta`, `modele`, `versiuni`), migrarea `0021`, `docs/specs/F4.1.md`.
+  - Hotărâri: un singur depozit versionat pentru toate compartimentele (intrări + versiuni), cu scheme Pydantic înregistrate per compartiment, în loc de un tabel per compartiment; „retras” acoperă și respingerea / înlocuirea / expirarea, distinse prin `retras_cauza`; imutabilitatea e un declanșator în bază (și proprietarul e refuzat), nu o convenție; aplicația nu are UPDATE pe `creier_intrari`, deci serializarea schimbărilor folosește un lacăt consultativ pe tranzacție, nu `FOR UPDATE`; nivelurile `nisa` / `platforma` sunt rânduri fără client, citibile de orice context autentificat.
+  - Găsit: auditul refuză chei care conțin „cod”, „hash”, „cheie”, „key”, deci detaliile folosesc `compartiment`, `versiune`, `intrare`.
+  - Verificat: vezi spec. NEVERIFICAT: nimic simulat.
