@@ -37,7 +37,7 @@
 {% for s in surse %}
 <section class="card">
   <p><strong>{{ s.nume }}</strong> <span class="insigna">{{ statute[s.statut].eticheta }}</span></p>
-  <p class="slab">{{ s.tip }}{% if s.url %} · {{ s.url }}{% endif %}{% if not statute[s.statut].reutilizare_text %} · doar pentru analiză, textul nu se reutilizează{% endif %}</p>
+  <p class="slab">{{ s.tip }}{% if s.url_radacina %} · {{ s.url_radacina }}{% endif %}{% if not statute[s.statut].reutilizare_text %} · doar pentru analiză, textul nu se reutilizează{% endif %}</p>
 </section>
 {% else %}
 <p class="slab">Nicio sursă încă. Surse noi se adaugă din colector.</p>

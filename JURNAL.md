@@ -306,4 +306,15 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Verificat în plus: șase pagini în Chrome headless, într-un `iframe` de 390 px (fereastra headless nu coboară sub 500 px): nicio derulare orizontală; capturi în scratchpad.
   - Găsit: un analist de agenție nealocat nu vede niciun client (RLS), deci testele de permisiuni verifică refuzul acțiunilor, nu conținutul paginilor.
   - NEVERIFICAT: telefon real; editarea JSON pe telefon.
+- **Poarta F4 — lanțul verificat local.**
+  - Construit: `tests/integration/test_poarta_f4.py` (un test cap-coadă), `app/creier/pregatire.py` (comanda de pregătire a unui brand propriu) cu `tests/integration/test_creier_pregatire.py`, `docs/specs/F4-poarta.md`.
+  - Starea: **poarta propriu-zisă este DESCHISĂ** (cere materialele și aprobarea proprietarului). Local s-a dovedit doar că lanțul funcționează cu modele false.
+  - Găsit pe parcurs: un test al F4.10 depindea de ordinea (UUIDv7) în care afirmațiile erau oferite modelului fals (stabilizat în commitul F4.8); `SursaColectare` are `url_radacina`, nu `url` (un șablon nu l-ar fi afișat fără eroare).
+- **Propuneri în afara pasului (pentru F5, F6, F13).**
+  - F6 (producția): să ceară `context.construieste(..., sectiuni_extra=("strategie",))`; secțiunea nu e implicită ca să nu schimbe pachetele F4.7.
+  - Documentul 10.1 trebuie actualizat cu cele trei compartimente adăugate (D-005).
+  - Nișa clientului (constrângeri de nișă) și cine fixează țintele strategiei.
+  - Portalul clientului (F7) poate refolosi `app.onboarding.sesiuni` (interviul) și aprobările din `creier.aproba`.
+  - Un job lunar pentru „vocea clientului” și trimestrial pentru harta pieței (12.7) — folosesc aceleași fluxuri `onboarding.extrage`.
+  - O garda statică pentru `sesiune_agentie` în `app/creier/pregatire.py` e acum în lista cunoscută din `tests/unit/test_garzi_db.py`.
 

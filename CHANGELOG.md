@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F4 — lanțul verificat local
+- Test cap-coadă cu brandul fictiv (colectare → fapte → interviu → brief → ghid → citate și public → insight → strategie → aprobări → pachet de context) și comanda `python -m app.creier.pregatire --client <nume>` care creează clientul și sursele unui brand propriu. Poarta propriu-zisă (CariereAI și BigBrain) rămâne deschisă până la materialele și aprobarea proprietarului.
+
 ### F4.8 — Ecranul „Creierul de brand”
 - Pe client: compartimentele cu intrările lor, versiunea aprobată și propunerile în așteptare, diferența între versiuni, editare (creează propunere nouă, nu suprascrie; trece prin schema și poarta compartimentului), aprobare / respingere / retragere cu motiv, sursele, concurenții și pașii de pregătire; faptele rămân pe `/creier/fapte` (legate, nu dublate). Întâi pentru telefon: carduri și formulare, fără tabele. `creier.rezumat_pe_compartimente`, `creier.propuneri_in_asteptare`.
 
