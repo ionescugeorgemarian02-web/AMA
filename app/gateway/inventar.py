@@ -18,9 +18,14 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-TIPURI_API = ("openai_compat", "gemini", "anthropic")  # cele implementate în F3.2; "local" vine cu F3.5
+TIPURI_API = (
+    "openai_compat",
+    "gemini",
+    "anthropic",
+    "local",
+)  # F3.2; „local” din F3.5 (sămânța lui: inventar_local)
 NIVELURI = ("T1", "T2", "T3", "T4", "local")
-CAPABILITATI = ("iesire_structurata", "unelte", "viziune")
+CAPABILITATI = ("iesire_structurata", "unelte", "viziune", "embeddings")
 MARCAJE = ("V", "S", "I")
 FERESTRE = ("minut", "zi")
 NUME_VARIABILA = re.compile(r"^AMA_CHEIE_[A-Z0-9_]{1,40}$")

@@ -66,3 +66,4 @@ class RaspunsModel:
     antete: AntetLimita = field(default_factory=AntetLimita)
     durata_ms: int = 0
     motiv_oprire: str = ""
+    tokeni_pe_sec: float | None = None  # viteza de generare raportată de serverul local (llama.cpp `timings`)

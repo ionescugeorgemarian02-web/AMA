@@ -41,6 +41,13 @@ class Candidat:
     context_tokeni: int = 0
     erori_consecutive: int = 0
     intrerupt_pana_la: dt.datetime | None = None  # întrerupătorul furnizorului (F3.4)
+    tokeni_pe_secunda: float | None = None  # viteza măsurată (modele locale, F3.5)
+    dimensiune_vector: int | None = None  # modelele de vectori (F3.5)
+
+    @property
+    def fara_cheie(self) -> bool:
+        """Serverul local (llama.cpp / Ollama) rulează în rețeaua internă și nu cere cheie."""
+        return self.tip_api == "local"
 
     @property
     def cod(self) -> str:
@@ -89,4 +96,6 @@ def din_randuri(f: Furnizor, m: ModelLlm) -> Candidat:
         context_tokeni=m.context_tokeni,
         erori_consecutive=f.erori_consecutive,
         intrerupt_pana_la=f.intrerupt_pana_la,
+        tokeni_pe_secunda=None if m.tokeni_pe_secunda is None else float(m.tokeni_pe_secunda),
+        dimensiune_vector=m.dimensiune_vector,
     )

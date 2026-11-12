@@ -43,6 +43,7 @@ from app.gateway.erori import Amanat, ApelRefuzat, FurnizoriIndisponibili, Iesir
 from app.gateway.iesire import Iesire, cheie_schema
 from app.ids import new_id
 from app.logging import correlation_id, get_logger
+from app.operare import motor
 from app.operare.motor import Prioritate
 
 log = get_logger("app.gateway")
@@ -82,6 +83,7 @@ def apeleaza(
     date_confidentiale: bool = False,
     mascheaza_cui: bool = False,
     demasca: bool = False,
+    model: str | None = None,
 ) -> Rezultat:
     """Un apel la un model, prin profilul lui. Ridică `Amanat`, `ApelRefuzat`, `IesireInvalida` sau
     `FurnizoriIndisponibili`; orice apel (și orice eșec) se scrie în jurnal.
@@ -93,6 +95,7 @@ def apeleaza(
     - `accepta_provizoriu`: profilul „consiliu” poate coborî la T3 marcat `provizoriu`;
     - `date_confidentiale`: furnizorii care antrenează pe date sau cu termeni necunoscuți nu primesc apelul
       (8.9);
+    - `model`: doar acest model (`furnizor/identificator`), fără lanțul profilului (evaluare, diagnostic);
     - `mascheaza_cui`: maschează și CUI/CIF (implicit nu); `demasca`: răspunsul revine cu valorile originale.
       Datele personale se maschează ÎNTOTDEAUNA înainte de apel (F3.9); jurnalul păstrează varianta mascată.
 
@@ -132,6 +135,7 @@ def apeleaza(
             schema=schema, componenta=componenta, prioritate=prioritate, livrabil_id=livrabil_id,
             max_tokeni=max_tokeni, temperatura=temperatura, alt_model_decat=alt_model_decat,
             accepta_provizoriu=accepta_provizoriu, date_confidentiale=date_confidentiale,
+            coada=motor.coada_curenta(), model_fixat=model,
             mascheaza_cui=mascheaza_cui, demasca=demasca, prompt_nume=reperat.nume,
             prompt_versiune=reperat.versiune,
             corelare_id=corelare,

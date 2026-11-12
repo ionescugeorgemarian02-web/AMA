@@ -36,6 +36,16 @@ def seteaza_transport(transport: httpx.BaseTransport | None) -> None:
     _transport = transport
 
 
+def _timeout(dest: Destinatie, implicit: float) -> float:
+    """Pe procesor, un model local poate genera minute: timpul maxim vine din parametrii furnizorului."""
+    valoare = dest.parametri.get("timeout_sec")
+    return (
+        float(valoare)
+        if isinstance(valoare, int | float) and not isinstance(valoare, bool) and valoare > 0
+        else implicit
+    )
+
+
 def trimite(
     dest: Destinatie,
     cheie: str | None,
@@ -47,6 +57,7 @@ def trimite(
     continut)."""
     adaptor = adaptor_pentru(dest.tip_api)
     cerere_http = adaptor.cerere(dest, cheie, cerere)
+    timeout_sec = _timeout(dest, timeout_sec)
     start = time.monotonic()
     try:
         with httpx.Client(transport=_transport, timeout=timeout_sec) as http:
@@ -60,6 +71,26 @@ def trimite(
         raise clasifica(r, json_sau_gol(r), acum)
     raspuns = adaptor.raspuns(r, acum)
     return replace(raspuns, durata_ms=int((time.monotonic() - start) * 1000))
+
+
+def trimite_vectori(
+    dest: Destinatie, texte: list[str], *, timeout_sec: float = TIMEOUT_IMPLICIT_SEC
+) -> tuple[list[list[float]], int]:
+    """Vectorii unor texte, de la un server `local`: (vectori, tokeni de intrare). Ridică `EroareFurnizor`."""
+    adaptor = adaptor_pentru(dest.tip_api)
+    if not hasattr(adaptor, "cerere_vectori"):
+        raise EroareFurnizor("cerere", detaliu="tipul de API nu are vectori")
+    cerere_http = adaptor.cerere_vectori(dest, texte)
+    try:
+        with httpx.Client(transport=_transport, timeout=_timeout(dest, timeout_sec)) as http:
+            r = http.send(cerere_http)
+    except httpx.TimeoutException:
+        raise EroareFurnizor("retea", detaliu="timeout") from None
+    except httpx.HTTPError as exc:
+        raise EroareFurnizor("retea", detaliu=type(exc).__name__) from None
+    if r.status_code >= 400:
+        raise clasifica(r, json_sau_gol(r), ceas.acum())
+    return adaptor.raspuns_vectori(r, len(texte))  # type: ignore[attr-defined,no-any-return]
 
 
 def apeleaza_structurat(

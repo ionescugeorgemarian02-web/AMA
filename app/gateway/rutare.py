@@ -34,10 +34,12 @@ class Motiv(StrEnum):
     T4_CALE_CRITICA = "t4_pe_calea_critica"
     APELURI_PLATITE = "apeluri_platite_oprite"
     ACELASI_MODEL = "acelasi_model_ca_autorul"
+    LOCAL_COADA = "local_doar_pe_coada_greu"  # modelul local se apelează doar din joburi de pe coada `greu`
+    MODEL_DE_VECTORI = "model_de_vectori"  # modelele de vectori nu generează text
 
 
 # Motive care înseamnă „nu are voie”, nu „nu e disponibil acum”: nu se rezolvă așteptând.
-INTERZIS = frozenset({Motiv.T4_CALE_CRITICA, Motiv.APELURI_PLATITE})
+INTERZIS = frozenset({Motiv.T4_CALE_CRITICA, Motiv.APELURI_PLATITE, Motiv.LOCAL_COADA})
 
 
 @dataclass(frozen=True)
@@ -48,6 +50,10 @@ class Cerinte:
     date_confidentiale: bool = False
     alt_model_decat: str | None = None  # `furnizor/identificator` al autorului (judecată)
     apeluri_platite_oprite: bool = False
+    coada: str | None = (
+        None  # coada jobului apelant (`greu` pentru modelul local); `None` = în afara unui job
+    )
+    model_fixat: str | None = None  # evaluare / diagnostic: doar acest model, fără lanțul profilului
     chei_configurate: frozenset[str] | None = None  # codurile furnizorilor cu cheie; `None` = nu se verifică
     sanatate: dict[str, StareSanatate] = field(default_factory=dict)  # pe cod de furnizor
 
@@ -57,6 +63,7 @@ class Selectie:
     principal: tuple[Candidat, ...]
     degradare: tuple[Candidat, ...]
     excluse: tuple[tuple[str, Motiv], ...]  # (cod model, motiv), din lanțul principal
+    excluse_degradare: tuple[tuple[str, Motiv], ...] = ()  # la fel, din lanțul de degradare
 
     def motive(self) -> set[Motiv]:
         return {m for _, m in self.excluse}
@@ -66,6 +73,8 @@ def motiv_excludere(c: Candidat, profil: Profil, cer: Cerinte, *, degradare: boo
     """De ce NU poate fi folosit modelul în acest apel (primul motiv), sau `None`. Nivelul minim al
     profilului se
     aplică doar lanțului principal: lanțul de degradare există tocmai ca să coboare."""
+    if "embeddings" in c.capabilitati:
+        return Motiv.MODEL_DE_VECTORI
     if c.stare_furnizor != "activ":
         return Motiv.FURNIZOR_OPRIT
     if not c.model_activ:
@@ -80,6 +89,8 @@ def motiv_excludere(c: Candidat, profil: Profil, cer: Cerinte, *, degradare: boo
         return Motiv.CAPABILITATE
     if not degradare and c.rang < RANG_NIVEL[profil.nivel_min]:
         return Motiv.NIVEL
+    if c.fara_cheie and cer.coada != "greu":
+        return Motiv.LOCAL_COADA
     if c.nivel == "T4" and cer.prioritate in (Prioritate.P0, Prioritate.P1):
         return Motiv.T4_CALE_CRITICA
     if c.platit and cer.apeluri_platite_oprite:
@@ -115,6 +126,15 @@ def _ordoneaza(lant: list[Candidat], profil: str) -> list[Candidat]:
 
 
 def alege(profil: Profil, candidati: list[Candidat], cer: Cerinte) -> Selectie:
+    if cer.model_fixat is not None:
+        # Evaluare / diagnostic: un singur model, fără lanț și degradare; nivelul minim nu se aplică
+        # (testul comparativ măsoară și modele mai slabe), celelalte reguli da.
+        fixat = [c for c in candidati if c.cod == cer.model_fixat]
+        ok = [c for c in fixat if motiv_excludere(c, profil, cer, degradare=True) is None]
+        excluse_fix = tuple(
+            (c.cod, m) for c in fixat if (m := motiv_excludere(c, profil, cer, degradare=True)) is not None
+        )
+        return Selectie(tuple(ok), (), excluse_fix)
     principal: list[Candidat] = []
     excluse: list[tuple[str, Motiv]] = []
     for c in _expandeaza(profil.lant, candidati):
@@ -123,11 +143,17 @@ def alege(profil: Profil, candidati: list[Candidat], cer: Cerinte) -> Selectie:
             principal.append(c)
         else:
             excluse.append((c.cod, motiv))
-    degradare = [
-        c
-        for c in _expandeaza(profil.lant_degradare, candidati)
-        if motiv_excludere(c, profil, cer, degradare=True) is None
-    ]
+    degradare: list[Candidat] = []
+    excluse_degradare: list[tuple[str, Motiv]] = []
+    for c in _expandeaza(profil.lant_degradare, candidati):
+        motiv = motiv_excludere(c, profil, cer, degradare=True)
+        if motiv is None:
+            degradare.append(c)
+        else:
+            excluse_degradare.append((c.cod, motiv))
     return Selectie(
-        tuple(_ordoneaza(principal, profil.nume)), tuple(_ordoneaza(degradare, profil.nume)), tuple(excluse)
+        tuple(_ordoneaza(principal, profil.nume)),
+        tuple(_ordoneaza(degradare, profil.nume)),
+        tuple(excluse),
+        tuple(excluse_degradare),
     )

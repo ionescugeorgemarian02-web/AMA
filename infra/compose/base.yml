@@ -128,6 +128,53 @@ services:
       internal: {}
       edge: {}
 
+  # Modelul local de text (F3.5, 6.3–6.4): server llama.cpp separat, model ținut încărcat (`--mlock`), UN singur slot
+  # (`--parallel 1`): cât generează, ocupă un culoar greu al cozii `greu`. Aplicația îl cheamă prin gateway
+  # (`http://local-llm:8080/v1`, furnizorul `local` din registru), doar din joburi de pe coada `greu`.
+  # NEVERIFICAT: imaginea (llama.cpp, varianta `server`) NU este fixată pe amprentă — digestul se află la migrarea pe VPS
+  # și se pune în AMA_IMAGE_LOCAL_LLM (depozit@sha256:…); până atunci serviciul e în profilul `local-llm` și nu pornește
+  # (COMPOSE_PROFILES=local-llm). Fișierul modelului (.gguf) se pune în volumul `modele`; limita de memorie (6,5 GB) e din 6.4.
+  # NEVERIFICAT: comanda, steagurile și healthcheck-ul nu au rulat pe o imagine reală.
+  local-llm:
+    image: ${AMA_IMAGE_LOCAL_LLM:-ama-unset:none}
+    profiles: ["local-llm"]
+    restart: unless-stopped
+    command: ["--model", "/modele/${AMA_MODEL_LOCAL:-model-local.gguf}", "--host", "0.0.0.0", "--port", "8080",
+              "--ctx-size", "8192", "--parallel", "1", "--mlock", "--threads", "${AMA_LOCAL_FIRE:-4}"]
+    mem_limit: 6500m
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    volumes:
+      - modele:/modele:ro
+    networks:
+      internal: {}
+
+  # Modelul de vectori (F3.5, 10.5): același tip de server, alt model (multilingv mic), în afara culoarelor grele.
+  # Aceleași NEVERIFICAT-uri ca mai sus; memorie mică, fără rezervare de culoar.
+  embeddings:
+    image: ${AMA_IMAGE_LOCAL_LLM:-ama-unset:none}
+    profiles: ["local-llm"]
+    restart: unless-stopped
+    command: ["--model", "/modele/${AMA_MODEL_VECTORI:-model-vectori.gguf}", "--host", "0.0.0.0", "--port", "8081",
+              "--embedding", "--ctx-size", "512", "--parallel", "2", "--threads", "2"]
+    mem_limit: 700m
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    volumes:
+      - modele:/modele:ro
+    networks:
+      internal: {}
+
   app_blue:
     <<: *app
     image: ${AMA_IMAGE_BLUE:-ama-unset:none}
@@ -138,6 +185,7 @@ services:
 
 volumes:
   pgdata: {}
+  modele: {}
   media: {}
 
 networks:

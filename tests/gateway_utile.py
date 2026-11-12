@@ -98,7 +98,7 @@ class FabricaModele:
                 ),
                 valori,
             )
-        self.furnizori.append(cod)
+        self.furnizori.append(valori["cod"])
         return valori["id"]  # type: ignore[no-any-return]
 
     def model(

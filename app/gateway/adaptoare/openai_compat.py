@@ -32,7 +32,8 @@ def adresa(dest: Destinatie, cale: str) -> str:
 class OpenAICompat:
     tip_api: ClassVar[str] = "openai_compat"
 
-    def cerere(self, dest: Destinatie, cheie: str | None, cerere: CerereModel) -> httpx.Request:
+    def corp(self, dest: Destinatie, cerere: CerereModel) -> dict[str, Any]:
+        """Corpul cererii; adaptoarele derivate adaugă câmpuri proprii."""
         corp: dict[str, Any] = {
             "model": dest.model,
             "messages": [{"role": m.rol, "content": m.continut} for m in cerere.mesaje],
@@ -44,8 +45,13 @@ class OpenAICompat:
                 "type": "json_schema",
                 "json_schema": {"name": cerere.schema_nume, "schema": cerere.schema_json, "strict": False},
             }
+        return corp
+
+    def cerere(self, dest: Destinatie, cheie: str | None, cerere: CerereModel) -> httpx.Request:
         antete = {"Authorization": f"Bearer {cheie}"} if cheie else {}
-        return httpx.Request("POST", adresa(dest, "/chat/completions"), headers=antete, json=corp)
+        return httpx.Request(
+            "POST", adresa(dest, "/chat/completions"), headers=antete, json=self.corp(dest, cerere)
+        )
 
     def raspuns(self, raspuns: httpx.Response, acum: dt.datetime) -> RaspunsModel:
         corp = json_sau_gol(raspuns)

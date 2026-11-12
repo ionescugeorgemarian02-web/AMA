@@ -16,6 +16,7 @@ Cuvinte: `ok` · `429` (cu antetele de limită ale API-ului) · `5xx` (500; 529 
 Se păstrează toate cererile primite (`fals.cereri`), cu antetele și corpul, pentru testele de contract.
 """
 
+import hashlib
 import json
 import re
 from collections import defaultdict
@@ -46,6 +47,8 @@ class FurnizorFals:
     text: str | Callable[[CerereInregistrata], str] = TEXT_IMPLICIT
     tokeni: tuple[int, int] | None = None  # (intrare, ieșire) fixe; altfel din lungimi
     antete_limita: bool = True
+    dim_vectori: int = 8  # dimensiunea vectorilor întorși la `/embeddings`
+    timings: dict[str, float] | None = None  # câmpul `timings` al serverului local (llama.cpp)
     antete_ok: dict[str, str] | None = None  # înlocuiește antetele de limită ale unui răspuns reușit
     cereri: list[CerereInregistrata] = field(default_factory=list)
     _liste: dict[str, list[str]] = field(default_factory=lambda: defaultdict(list))
@@ -81,6 +84,8 @@ class FurnizorFals:
         self.cereri.append(inreg)
         lista = self._liste[gazda]
         cuvant = lista.pop(0) if lista else self._permanent.get(gazda, "ok")
+        if cale.endswith("/embeddings"):
+            return self._vectori(inreg, cuvant, cerere)
         if cuvant == "timeout":
             raise httpx.ReadTimeout("timeout simulat", request=cerere)
         if cuvant in ("429", "5xx", "401", "400"):
@@ -96,6 +101,20 @@ class FurnizorFals:
         if text is None:
             text = self.text(inreg) if callable(self.text) else self.text
         return self._ok(api, inreg, text)
+
+    def _vectori(self, inreg: CerereInregistrata, cuvant: str, cerere: httpx.Request) -> httpx.Response:
+        if cuvant == "timeout":
+            raise httpx.ReadTimeout("timeout simulat", request=cerere)
+        if cuvant in ("5xx", "429", "401", "400"):
+            return self._eroare("openai", cuvant)
+        texte = inreg.corp.get("input", [])
+        date = [
+            {"object": "embedding", "index": i, "embedding": _vector(t, self.dim_vectori)}
+            for i, t in enumerate(texte)
+        ]
+        corp = {"object": "list", "data": date, "model": inreg.corp.get("model", "model"),
+                "usage": {"prompt_tokens": sum(max(1, len(t) // 4) for t in texte), "total_tokens": 0}}  # fmt: skip
+        return httpx.Response(200, json=corp)
 
     def _tokeni(self, inreg: CerereInregistrata, text: str) -> tuple[int, int]:
         if self.tokeni is not None:
@@ -130,6 +149,8 @@ class FurnizorFals:
                     "total_tokens": intrare + iesire,
                 },
             }
+            if self.timings is not None:
+                corp["timings"] = self.timings
         elif api == "gemini":
             corp = {
                 "candidates": [
@@ -271,6 +292,12 @@ def _este_json(text: str) -> bool:
     except ValueError:
         return False
     return True
+
+
+def _vector(text: str, dim: int) -> list[float]:
+    """Un vector determinist din text (același text, același vector)."""
+    h = hashlib.sha256(text.encode()).digest()
+    return [round((h[i % len(h)] - 128) / 128, 4) for i in range(dim)]
 
 
 def numere_din(text: str) -> list[int]:

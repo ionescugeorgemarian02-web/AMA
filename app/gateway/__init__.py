@@ -37,6 +37,8 @@ from app.gateway.registru import (
     poate_fi_activat,
 )
 from app.gateway.serviciu import apeleaza
+from app.gateway.vectori import dimensiune as dimensiune_vectori
+from app.gateway.vectori import vectorizeaza
 
 bugete.inregistreaza()
 garda.inregistreaza()
@@ -65,6 +67,7 @@ __all__ = [
     "cheie_configurata",
     "cheie_reluare",
     "dezactiveaza",
+    "dimensiune_vectori",
     "elimina_interceptor",
     "furnizor",
     "furnizori",
@@ -76,4 +79,5 @@ __all__ = [
     "prompturi",
     "registru",
     "reprogrameaza",
+    "vectorizeaza",
 ]

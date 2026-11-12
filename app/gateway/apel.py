@@ -55,6 +55,7 @@ PAUZA_FARA_FURNIZOR_SEC = (
 COD_INTERZIS = {
     Motiv.T4_CALE_CRITICA: "t4_in_afara_caii_critice",
     Motiv.APELURI_PLATITE: "apeluri_platite_oprite",
+    Motiv.LOCAL_COADA: "local_doar_pe_coada_greu",
 }
 
 
@@ -85,6 +86,8 @@ class ContextApel:
     alt_model_decat: str | None = None
     accepta_provizoriu: bool = False
     date_confidentiale: bool = False
+    coada: str | None = None  # coada jobului apelant (rutarea cere `greu` pentru modelul local)
+    model_fixat: str | None = None  # `furnizor/identificator`: doar acest model (evaluare, diagnostic)
     mascheaza_cui: bool = False  # CUI/CIF se maschează doar când apelul o cere (F3.9)
     demasca: bool = False  # răspunsul revine apelantului cu valorile originale (jurnalul rămâne mascat)
     prompt_nume: str = ""
@@ -277,7 +280,7 @@ def _parcurge(
         try:
             iesire = incearca_model(
                 c,
-                registru.citeste_cheie_env(c.cheie_env),
+                None if c.fara_cheie else registru.citeste_cheie_env(c.cheie_env),
                 ctx.mesaje,
                 ctx.schema,
                 prioritate=ctx.prioritate,
@@ -421,8 +424,14 @@ def alege_si_ruleaza(ctx: ContextApel) -> Rezultat:
         date_confidentiale=ctx.date_confidentiale,
         alt_model_decat=ctx.alt_model_decat,
         apeluri_platite_oprite=opriri.este_oprit(db, opriri.Oprire.APELURI_PLATITE, tenant_id=ctx.tenant_id),
+        coada=ctx.coada,
+        model_fixat=ctx.model_fixat,
         chei_configurate=frozenset(
-            {c.furnizor for c in candidati if registru.citeste_cheie_env(c.cheie_env) is not None}
+            {
+                c.furnizor
+                for c in candidati
+                if c.fara_cheie or registru.citeste_cheie_env(c.cheie_env) is not None
+            }
         ),
         sanatate={c.furnizor: StareSanatate(c.erori_consecutive, c.intrerupt_pana_la) for c in candidati},
     )
@@ -452,6 +461,13 @@ def alege_si_ruleaza(ctx: ContextApel) -> Rezultat:
     degradare_permisa = profil.la_epuizare == "degradeaza" or (
         profil.la_epuizare == "amana_sau_provizoriu" and ctx.accepta_provizoriu
     )
+    local_blocat = any(m == Motiv.LOCAL_COADA for _, m in sel.excluse_degradare)
+    if degradare_permisa and not sel.degradare and local_blocat:
+        # Degradarea ar merge pe modelul local, dar jobul nu e pe coada `greu`: o reîncercare pe aceeași
+        # coadă nu ajută. Fluxul își mută pasul pe `greu` (vezi docs/specs/F3.5.md).
+        raise ApelRefuzat(
+            COD_INTERZIS[Motiv.LOCAL_COADA], "modelul local se apelează doar din joburi de pe coada `greu`"
+        )
     if degradare_permisa and sel.degradare:
         succes = _parcurge(ctx, sel.degradare, esecuri)
         if succes is not None:

@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F3.5 — Modelul local și modelul de embeddings
+- Adaptorul `local` (server compatibil OpenAI separat, fără cheie, ieșire structurată prin schemă); modelul local se apelează doar din joburi de pe coada `greu` (în afara ei: `ApelRefuzat("local_doar_pe_coada_greu")`); `motor.coada_curenta()`. Sămânța în registru (3 mărimi + model de vectori de 384 dimensiuni, inactive, neverificate; migrarea `0018`) și serviciile `local-llm` / `embeddings` în compose (profil, fără digest: NEVERIFICAT).
+- `gateway.vectorizeaza(texte, tenant_id=…)` și `gateway.dimensiune_vectori`: vectori fără coada `greu`, dimensiunea ca dată în registru. `python -m app.gateway.masurare`: viteza (tokeni/s) a modelelor locale, scrisă în registru. `gateway.apeleaza(…, model=…)` pentru un singur model (evaluare).
+
 ### F3.9 — Garda de date personale și garda de injecții
 - Mascare deterministă înainte de orice apel (email, IBAN, CNP cu cifră de control, card cu Luhn, telefon românesc, IP; CUI doar la cerere), cu marcaje stabile `[EMAIL_1]`, demascare opțională a răspunsului, jurnal și conținut păstrat în varianta mascată. `date_confidentiale` ajunge în rutare; fără model permis, apelul este refuzat.
 - `gateway.marcheaza_extern(text, sursa=…)`: funcția unică pentru orice text venit din afară (delimitatori cu id aleator, delimitatori falși neutralizați, caractere invizibile eliminate) și instrucțiunea „date, nu instrucțiuni” în mesajul de sistem; detecție euristică de tentative de injecție ca semnal în jurnalul de apeluri (migrarea `0017`), fără blocare. Garda `check_gateway` interzice `eval`/`exec`/`subprocess` în gateway.

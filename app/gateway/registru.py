@@ -98,7 +98,8 @@ def citeste_cheie(f: Furnizor) -> str | None:
 
 
 def cheie_configurata(f: Furnizor) -> bool:
-    return citeste_cheie(f) is not None
+    """Serverul local nu cere cheie (rețea internă); ceilalți furnizori, da."""
+    return f.tip_api == "local" or citeste_cheie(f) is not None
 
 
 def poate_fi_activat(f: Furnizor) -> str | None:

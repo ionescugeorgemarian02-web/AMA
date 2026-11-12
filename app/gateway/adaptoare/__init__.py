@@ -7,6 +7,7 @@ Punct de extensie: `inregistreaza(Adaptor)` adaugă un tip de API (de exemplu `l
 from app.gateway.adaptoare.anthropic import Anthropic
 from app.gateway.adaptoare.baza import Adaptor
 from app.gateway.adaptoare.gemini import Gemini
+from app.gateway.adaptoare.local import Local
 from app.gateway.adaptoare.openai_compat import OpenAICompat
 
 _ADAPTOARE: dict[str, Adaptor] = {}
@@ -27,7 +28,7 @@ def tipuri() -> list[str]:
     return sorted(_ADAPTOARE)
 
 
-for _a in (OpenAICompat(), Gemini(), Anthropic()):
+for _a in (OpenAICompat(), Gemini(), Anthropic(), Local()):
     inregistreaza(_a)
 
 __all__ = ["Adaptor", "adaptor_pentru", "inregistreaza", "tipuri"]
