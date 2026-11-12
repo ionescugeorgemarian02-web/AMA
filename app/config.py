@@ -72,6 +72,26 @@ class Settings(BaseSettings):
     watchdog_fereastra_min: int = Field(default=60, ge=1)
     erori_prag_crestere: int = Field(default=5, ge=2)  # câte joburi deschise cu aceeași cauză urcă alerta
     programare_polling_sec: float = Field(default=5.0, gt=0.0, le=60.0)  # cât de des caută programări noi
+    # Producția livrabilelor (F2.3–F2.4, 7.3): limitele anti-buclă (valori de pornire).
+    productie_runde_reparatie: int = Field(default=2, ge=0)  # a treia rundă merge la om
+    productie_predari_max: int = Field(default=12, ge=1)  # intrări în stări de lucru ale componentelor
+    productie_buget_apeluri_llm: int = Field(default=40, ge=1)  # per livrabil
+    productie_buget_timp_sec: int = Field(default=3600, ge=1)  # timp de lucru acumulat, per livrabil
+    intrerupator_prag_esec: float = Field(
+        default=0.30, gt=0.0, le=1.0
+    )  # rata de eșec peste care producția se oprește
+    intrerupator_fereastra_min: int = Field(default=60, ge=1)
+    intrerupator_volum_min: int = Field(
+        default=10, ge=1
+    )  # sub atâtea rezultate în fereastră nu se judecă rata
+    # Cererile de aprobare (F2.8, 19.4): termen de 48 h, reamintire cu 24 h înainte de termen.
+    aprobare_termen_ore: int = Field(default=48, ge=1)
+    aprobare_reamintire_ore: int = Field(default=24, ge=1)
+    # Autonomia (F2.10, 7.4): ponderea livrabilelor care merg totuși la om la L2 (10–20%) și la L3+ (5–10%).
+    autonomie_esantion_l2: float = Field(default=0.15, ge=0.0, le=1.0)
+    autonomie_esantion_l3: float = Field(default=0.075, ge=0.0, le=1.0)
+    # Canale cu consimțământ per postare: rămân la cel mult L1 (TikTok, 7.4). Separate prin virgulă.
+    canale_consimtamant: str = "tiktok"
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

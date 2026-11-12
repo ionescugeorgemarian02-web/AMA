@@ -1,0 +1,63 @@
+"""Tabelele producției (migrările 0007 și următoarele). Cheile străine există în bază, nu se declară aici."""
+
+import uuid
+from datetime import datetime
+from typing import Any
+
+from sqlalchemy import DateTime, Float, Integer, Text, func
+from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+from app.ids import new_id
+
+
+class BazaProductie(DeclarativeBase):
+    pass
+
+
+def _uuid_pk() -> Mapped[uuid.UUID]:
+    return mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+
+
+class Livrabil(BazaProductie):
+    """O postare, un articol, un video, o reclamă. Fără conținut (vine în F4–F6): doar identitate, stare,
+    versiune și contoare. `stare` se schimbă DOAR prin `tranzitii.muta` (declanșator în bază + gardă)."""
+
+    __tablename__ = "livrabile"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    tip: Mapped[str] = mapped_column(Text)
+    canal: Mapped[str] = mapped_column(Text)
+    clasa_actiune: Mapped[str] = mapped_column(Text, default="publicare_continut")
+    termen_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    stare: Mapped[str] = mapped_column(Text, default="planificat")
+    stare_anterioara: Mapped[str | None] = mapped_column(Text)
+    versiune: Mapped[int] = mapped_column(Integer, default=1)
+    runde_reparatie: Mapped[int] = mapped_column(Integer, default=0)
+    predari: Mapped[int] = mapped_column(Integer, default=0)
+    apeluri_llm: Mapped[int] = mapped_column(Integer, default=0)
+    timp_sec: Mapped[float] = mapped_column(Float, default=0.0)
+    buget_apeluri_llm: Mapped[int] = mapped_column(Integer)
+    buget_timp_sec: Mapped[int] = mapped_column(Integer)
+    escaladari: Mapped[int] = mapped_column(Integer, default=0)
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    actualizat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Tranzitie(BazaProductie):
+    """Istoric doar-adăugare: tranzițiile aplicate ȘI cele refuzate (`rezultat`)."""
+
+    __tablename__ = "livrabile_tranzitii"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    rezultat: Mapped[str] = mapped_column(Text)
+    din: Mapped[str | None] = mapped_column(Text)
+    in_stare: Mapped[str] = mapped_column(Text)
+    componenta: Mapped[str] = mapped_column(Text)
+    actor_tip: Mapped[str] = mapped_column(Text)
+    utilizator_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    detalii: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    versiune: Mapped[int] = mapped_column(Integer)
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.clock_timestamp())

@@ -21,6 +21,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F2.2 Cozile | verificat local (executor în proces, Postgres real); mai mulți workeri și ferestre lungi de rată rămân la migrare | `tests/integration/test_motor_cozi.py`, `tests/unit/test_motor_cozi.py` |
 | F2.6 Planificatorul de timp | verificat local (timp real cu cron de o secundă, ceas controlat, SIGKILL); „la minut pe staging” rămâne la migrare | `tests/integration/test_motor_programare.py`, `tests/chaos/test_programare.py` |
 | F2.7 Watchdog și coada de erori | verificat local cu procese reale (SIGKILL cu supervizor simulat, job care strică workerul), Postgres real și ecranul în teste HTTP; politica de restart/healthcheck din compose și canalele de notificare rămân la migrare | `tests/chaos/test_watchdog.py`, `tests/integration/test_watchdog.py`, `tests/integration/test_alerte_panou.py`, `tests/isolation/test_motor_rls.py` |
+| F2.3 Mașina de stări a livrabilului | verificat local (Postgres real, două conexiuni concurente); componentele reale care mută starea apar din F3 | `tests/unit/test_productie_stari.py`, `tests/integration/test_productie_tranzitii.py`, `tests/isolation/test_productie_rls.py` |
 
 ## De verificat la migrarea pe VPS
 

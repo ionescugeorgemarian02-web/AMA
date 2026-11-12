@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F2.3 — Mașina de stări a livrabilului
+- Cele 22 de stări din 7.2 (16 normale + 6 de excepție) și tabelul de tranziții ca date; tabelele `livrabile` și `livrabile_tranzitii` (istoric doar-adăugare); o singură funcție, `productie.muta`, schimbă starea (blocare pe rând, stare așteptată, versiune opțională), cu declanșator în bază care refuză orice altă cale. Tranziția nepermisă este refuzată și înregistrată într-o tranzacție separată, deci rămâne după rollback-ul apelantului. Migrarea `0007`.
+
 ### F2.7 — Watchdog și coada de erori
 - Workerul bate în `worker_semnale`; căderile și repornirile se văd (a treia într-o oră anunță); un job blocat se oprește și se reîncearcă o dată; joburile eșuate, epuizate sau blocate intră în coada de erori cu context complet, grupate pe cauză și triate (minor / major). Ecranul Alerte din panou: listă, detaliu, „Reia” (de la pasul eșuat sau ales) și „Închide” (cu motiv), cu CSRF și audit; numărul alertelor și starea workerului pe Acasă. Migrarea `0006`, permisiunea `alerte.gestioneaza`, healthcheck pe serviciul `worker`.
 
