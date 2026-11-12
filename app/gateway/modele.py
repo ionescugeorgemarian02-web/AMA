@@ -151,6 +151,7 @@ class Apel(BazaGateway):
     verificare_suplimentara: Mapped[bool] = mapped_column(Boolean, default=False)
     incercari: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     corelare_id: Mapped[str] = mapped_column(Text, default="")
+    semnale: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

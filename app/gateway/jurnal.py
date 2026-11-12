@@ -63,6 +63,7 @@ class IntrareJurnal:
     corelare_id: str = ""
     mesaje: list[dict[str, str]] = field(default_factory=list)
     raspuns: dict[str, Any] | None = None
+    semnale: list[dict[str, Any]] = field(default_factory=list)  # F3.9: date mascate, tentative de injecție
 
 
 def scrie(intrare: IntrareJurnal) -> bool:
@@ -85,7 +86,7 @@ def scrie(intrare: IntrareJurnal) -> bool:
                     reparatii=intrare.reparatii,
                     pret_umbra=intrare.pret_umbra, degradat=intrare.degradat, provizoriu=intrare.provizoriu,
                     verificare_suplimentara=intrare.verificare_suplimentara, incercari=intrare.incercari,
-                    corelare_id=intrare.corelare_id[:100], creat_la=acum,
+                    corelare_id=intrare.corelare_id[:100], creat_la=acum, semnale=intrare.semnale,
                 )
             )  # fmt: skip
             db.flush()

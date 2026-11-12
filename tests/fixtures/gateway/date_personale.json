@@ -1,0 +1,297 @@
+{
+ "_nota": "Date SINTETICE: nicio persoană reală. CNP cu S=9 (nu se atribuie cetățenilor) și județul 51; carduri de test publice; IP-uri din blocurile rezervate documentației (RFC 5737/3849); adrese pe domenii rezervate.",
+ "pozitive": [
+  {
+   "id": "email_1",
+   "text": "Scrie-ne la contact.test@exemplu.test pentru oferta.",
+   "asteptat": [
+    {
+     "tip": "EMAIL",
+     "valoare": "contact.test@exemplu.test"
+    }
+   ]
+  },
+  {
+   "id": "email_2",
+   "text": "Trimite factura către Plati.Demo+tag@firma-demo.example.com, copie la arhiva@exemplu.test.",
+   "asteptat": [
+    {
+     "tip": "EMAIL",
+     "valoare": "Plati.Demo+tag@firma-demo.example.com"
+    },
+    {
+     "tip": "EMAIL",
+     "valoare": "arhiva@exemplu.test"
+    }
+   ]
+  },
+  {
+   "id": "telefon_mobil",
+   "text": "Sună la 0712 345 678 după ora 10.",
+   "asteptat": [
+    {
+     "tip": "TELEFON",
+     "valoare": "0712 345 678"
+    }
+   ]
+  },
+  {
+   "id": "telefon_prefix",
+   "text": "Telefon: +40 722 000 111 sau 0040733000222.",
+   "asteptat": [
+    {
+     "tip": "TELEFON",
+     "valoare": "+40 722 000 111"
+    },
+    {
+     "tip": "TELEFON",
+     "valoare": "0040733000222"
+    }
+   ]
+  },
+  {
+   "id": "telefon_fix",
+   "text": "Secretariat: 021.300.00.00 și 0264 000 000.",
+   "asteptat": [
+    {
+     "tip": "TELEFON",
+     "valoare": "021.300.00.00"
+    },
+    {
+     "tip": "TELEFON",
+     "valoare": "0264 000 000"
+    }
+   ]
+  },
+  {
+   "id": "cnp_1",
+   "text": "Clientul sintetic are CNP 9880517511016 în fișă.",
+   "asteptat": [
+    {
+     "tip": "CNP",
+     "valoare": "9880517511016"
+    }
+   ]
+  },
+  {
+   "id": "cnp_2",
+   "text": "Clientul sintetic are CNP 9951130512026 în fișă.",
+   "asteptat": [
+    {
+     "tip": "CNP",
+     "valoare": "9951130512026"
+    }
+   ]
+  },
+  {
+   "id": "cnp_3",
+   "text": "Clientul sintetic are CNP 9020228513033 în fișă.",
+   "asteptat": [
+    {
+     "tip": "CNP",
+     "valoare": "9020228513033"
+    }
+   ]
+  },
+  {
+   "id": "cnp_4",
+   "text": "Clientul sintetic are CNP 9710809514043 în fișă.",
+   "asteptat": [
+    {
+     "tip": "CNP",
+     "valoare": "9710809514043"
+    }
+   ]
+  },
+  {
+   "id": "iban_1",
+   "text": "Plata în contul RO93ABCD1234567890123456 până vineri.",
+   "asteptat": [
+    {
+     "tip": "IBAN",
+     "valoare": "RO93ABCD1234567890123456"
+    }
+   ]
+  },
+  {
+   "id": "iban_2",
+   "text": "Plata în contul RO96WXYZ0000111122223333 până vineri.",
+   "asteptat": [
+    {
+     "tip": "IBAN",
+     "valoare": "RO96WXYZ0000111122223333"
+    }
+   ]
+  },
+  {
+   "id": "iban_grupat",
+   "text": "IBAN: RO93 ABCD 1234 5678 9012 3456",
+   "asteptat": [
+    {
+     "tip": "IBAN",
+     "valoare": "RO93 ABCD 1234 5678 9012 3456"
+    }
+   ]
+  },
+  {
+   "id": "card_1",
+   "text": "Card de test: 4111 1111 1111 1111, expiră 12/30.",
+   "asteptat": [
+    {
+     "tip": "CARD",
+     "valoare": "4111 1111 1111 1111"
+    }
+   ]
+  },
+  {
+   "id": "card_2",
+   "text": "Card de test: 5555-5555-5555-4444, expiră 12/30.",
+   "asteptat": [
+    {
+     "tip": "CARD",
+     "valoare": "5555-5555-5555-4444"
+    }
+   ]
+  },
+  {
+   "id": "card_3",
+   "text": "Card de test: 378282246310005, expiră 12/30.",
+   "asteptat": [
+    {
+     "tip": "CARD",
+     "valoare": "378282246310005"
+    }
+   ]
+  },
+  {
+   "id": "card_4",
+   "text": "Card de test: 6011111111111117, expiră 12/30.",
+   "asteptat": [
+    {
+     "tip": "CARD",
+     "valoare": "6011111111111117"
+    }
+   ]
+  },
+  {
+   "id": "ip_v4",
+   "text": "Cererea a venit de la 192.0.2.44 și 198.51.100.7.",
+   "asteptat": [
+    {
+     "tip": "IP",
+     "valoare": "192.0.2.44"
+    },
+    {
+     "tip": "IP",
+     "valoare": "198.51.100.7"
+    }
+   ]
+  },
+  {
+   "id": "ip_v6",
+   "text": "Adresa 2001:db8::8a2e:370:7334 a fost blocată.",
+   "asteptat": [
+    {
+     "tip": "IP",
+     "valoare": "2001:db8::8a2e:370:7334"
+    }
+   ]
+  },
+  {
+   "id": "amestec",
+   "text": "Ana Test (CNP 9880517511016, tel 0700 111 222, ana.test@exemplu.test) plătește din RO93ABCD1234567890123456 cu cardul 4111 1111 1111 1111 de pe IP 203.0.113.9.",
+   "asteptat": [
+    {
+     "tip": "CNP",
+     "valoare": "9880517511016"
+    },
+    {
+     "tip": "TELEFON",
+     "valoare": "0700 111 222"
+    },
+    {
+     "tip": "EMAIL",
+     "valoare": "ana.test@exemplu.test"
+    },
+    {
+     "tip": "IBAN",
+     "valoare": "RO93ABCD1234567890123456"
+    },
+    {
+     "tip": "CARD",
+     "valoare": "4111 1111 1111 1111"
+    },
+    {
+     "tip": "IP",
+     "valoare": "203.0.113.9"
+    }
+   ]
+  },
+  {
+   "id": "repetat",
+   "text": "Scrie la dem@exemplu.test. Repet: dem@exemplu.test.",
+   "asteptat": [
+    {
+     "tip": "EMAIL",
+     "valoare": "dem@exemplu.test"
+    }
+   ]
+  }
+ ],
+ "cui": [
+  {
+   "id": "cui_1",
+   "text": "Firma are CUI RO12345674 și e plătitoare de TVA.",
+   "valoare": "CUI RO12345674"
+  },
+  {
+   "id": "cui_2",
+   "text": "Firma are CUI RO987654 și e plătitoare de TVA.",
+   "valoare": "CUI RO987654"
+  },
+  {
+   "id": "cui_3",
+   "text": "Firma are CUI RO44444412 și e plătitoare de TVA.",
+   "valoare": "CUI RO44444412"
+  },
+  {
+   "id": "cui_cuvant",
+   "text": "Cod fiscal: 12345674.",
+   "valoare": "Cod fiscal: 12345674"
+  }
+ ],
+ "negative": [
+  {
+   "id": "cnp_control_gresit",
+   "text": "Numărul 2900101400018 nu are cifra de control corectă."
+  },
+  {
+   "id": "card_fara_luhn",
+   "text": "Comanda 4111 1111 1111 1112 a fost livrată."
+  },
+  {
+   "id": "versiune",
+   "text": "Versiunea 1.2.3 a aplicației și build 4567."
+  },
+  {
+   "id": "data",
+   "text": "Livrare pe 12.11.2026 între 9:00 și 17:30."
+  },
+  {
+   "id": "pret",
+   "text": "Prețul este 1.299,00 lei, TVA inclus; stoc 0712."
+  },
+  {
+   "id": "ip_invalid",
+   "text": "Valoarea 300.1.1.1 și 1.2.3.456 nu sunt adrese."
+  },
+  {
+   "id": "iban_invalid",
+   "text": "Codul RO49 AAAA 1B31 0075 9384 0001 nu e un IBAN valid."
+  },
+  {
+   "id": "cui_fara_semn",
+   "text": "Referința 12345674 apare într-un număr de comandă."
+  }
+ ]
+}

@@ -79,6 +79,9 @@ def apeleaza(
     temperatura: float = 0.2,
     alt_model_decat: str | None = None,
     accepta_provizoriu: bool = False,
+    date_confidentiale: bool = False,
+    mascheaza_cui: bool = False,
+    demasca: bool = False,
 ) -> Rezultat:
     """Un apel la un model, prin profilul lui. Ridică `Amanat`, `ApelRefuzat`, `IesireInvalida` sau
     `FurnizoriIndisponibili`; orice apel (și orice eșec) se scrie în jurnal.
@@ -87,7 +90,11 @@ def apeleaza(
     - `schema`: moștenește `Iesire` și trebuie să fie cea cu care a fost înregistrat promptul;
     - `livrabil_id`: apelul se contorizează în bugetul lui; cu bugetul epuizat apelul se refuză;
     - `alt_model_decat`: `furnizor/identificator` al autorului (profilul „judecată”);
-    - `accepta_provizoriu`: profilul „consiliu” poate coborî la T3 marcat `provizoriu`.
+    - `accepta_provizoriu`: profilul „consiliu” poate coborî la T3 marcat `provizoriu`;
+    - `date_confidentiale`: furnizorii care antrenează pe date sau cu termeni necunoscuți nu primesc apelul
+      (8.9);
+    - `mascheaza_cui`: maschează și CUI/CIF (implicit nu); `demasca`: răspunsul revine cu valorile originale.
+      Datele personale se maschează ÎNTOTDEAUNA înainte de apel (F3.9); jurnalul păstrează varianta mascată.
 
     Jurnalul se scrie într-o tranzacție proprie, dar consumul din bugetul livrabilului se scrie în
     sesiunea `db` a
@@ -124,12 +131,14 @@ def apeleaza(
             db=db, tenant_id=tenant_id, profil=profil or reperat.profil, mesaje=mesaje,
             schema=schema, componenta=componenta, prioritate=prioritate, livrabil_id=livrabil_id,
             max_tokeni=max_tokeni, temperatura=temperatura, alt_model_decat=alt_model_decat,
-            accepta_provizoriu=accepta_provizoriu, prompt_nume=reperat.nume, prompt_versiune=reperat.versiune,
+            accepta_provizoriu=accepta_provizoriu, date_confidentiale=date_confidentiale,
+            mascheaza_cui=mascheaza_cui, demasca=demasca, prompt_nume=reperat.nume,
+            prompt_versiune=reperat.versiune,
             corelare_id=corelare,
         )  # fmt: skip
         rezultat = ruleaza(ctx)
         rezultat = dataclasses.replace(rezultat, apel_id=apel_id)
-        return rezultat
+        return _demasca(ctx, rezultat) if demasca else rezultat
     except BaseException as exc:
         eroare = exc
         raise
@@ -140,6 +149,29 @@ def apeleaza(
             profil=(ctx.profil if ctx else (profil or "")), prompt=prompt, reperat=reperat, ctx=ctx,
             rezultat=rezultat, eroare=eroare,
         )  # fmt: skip
+
+
+def _demasca(ctx: ContextApel, rezultat: Rezultat) -> Rezultat:
+    """Răspunsul pentru apelant, cu valorile originale în loc de marcaje (jurnalul rămâne mascat)."""
+    masca = ctx.extra.get("masca")
+    if masca is None:
+        return rezultat
+    try:
+        iesire = type(rezultat.iesire).model_validate(
+            masca.demasca_json(rezultat.iesire.model_dump(mode="json"))
+        )
+    except ValueError:  # valoarea originală nu respectă un tip al schemei: se întoarce varianta mascată
+        return rezultat
+    return dataclasses.replace(rezultat, iesire=iesire)
+
+
+def _raspuns_mascat(ctx: ContextApel | None, rezultat: Rezultat | None) -> dict[str, Any] | None:
+    """Răspunsul se salvează mascat (8.8: datele personale se maschează înainte de salvare)."""
+    if rezultat is None:
+        return None
+    brut = rezultat.iesire.model_dump(mode="json")
+    masca = ctx.extra.get("masca") if ctx else None
+    return masca.json(brut, raspuns=True) if masca is not None else brut
 
 
 def _incheie(
@@ -191,7 +223,7 @@ def _incheie(
         verificare_suplimentara=bool(rezultat and rezultat.verificare_suplimentara),
         incercari=[dataclasses.asdict(i) for i in incercari],
         mesaje=[{"rol": m.rol, "continut": m.continut} for m in (ctx.mesaje if ctx else ())],
-        raspuns=rezultat.iesire.model_dump(mode="json") if rezultat else None,
+        raspuns=_raspuns_mascat(ctx, rezultat), semnale=list(ctx.extra.get("semnale", [])) if ctx else [],
     )  # fmt: skip
     jurnal.scrie(intrare)
     if livrabil_id is not None and any(i.rezultat != "cota" for i in incercari):

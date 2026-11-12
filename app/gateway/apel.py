@@ -85,6 +85,8 @@ class ContextApel:
     alt_model_decat: str | None = None
     accepta_provizoriu: bool = False
     date_confidentiale: bool = False
+    mascheaza_cui: bool = False  # CUI/CIF se maschează doar când apelul o cere (F3.9)
+    demasca: bool = False  # răspunsul revine apelantului cu valorile originale (jurnalul rămâne mascat)
     prompt_nume: str = ""
     prompt_versiune: int | None = None
     corelare_id: str = ""
@@ -353,6 +355,11 @@ def _eroare_finala(
         interzise = sel.motive() & INTERZIS
         if interzise:  # nu e o problemă de moment: nu are voie. Prima în ordinea de la 8.x / ADR-06.
             return ApelRefuzat(COD_INTERZIS[sorted(interzise)[0]], "profilul nu are niciun model permis")
+    nimic_permis = bool(sel.excluse) and all(m == Motiv.ANTRENARE_PE_DATE for _, m in sel.excluse)
+    if not incercat and ctx.date_confidentiale and nimic_permis and not sel.degradare:
+        return ApelRefuzat(  # 8.9: niciun model din lanț nu are voie să primească aceste date
+            "date_confidentiale", "niciun model din lanț nu are voie să primească date confidențiale"
+        )
     if esecuri.amanari:
         return Amanat(min(esecuri.amanari), "cota sau sănătatea furnizorilor")
     if esecuri.prea_mari and not esecuri.iesiri_invalide and not esecuri.alte:

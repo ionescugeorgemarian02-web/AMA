@@ -9,6 +9,8 @@ Pică dacă un fișier Python din repo:
    gazdă ca `api.anthropic.com`, `openrouter.ai`) într-un literal text;
 3. oriunde: importă SDK-ul unui furnizor (`openai`, `anthropic`, `groq`, `google.generativeai`, `litellm`, …):
    gateway-ul vorbește cu furnizorii doar prin `httpx`.
+4. în `app/gateway/` (F3.9): `eval`, `exec`, `subprocess`, `os.system` — ieșirea unui model este doar date
+   validate de schemă; gateway-ul nu execută nimic din ce spune un model.
 Folosire: check_gateway.py [rădăcina repo-ului]
 """
 
@@ -117,6 +119,8 @@ def probleme(rel: str, sursa: str, ascunse: set[str]) -> list[str]:
                 erori.append(f"{rel}:{linie}: SDK de furnizor `{nume}`: gateway-ul folosește doar `httpx`")
             elif _submodul_gateway(nume) and in_afara:
                 erori.append(f"{rel}:{linie}: `{nume}` este intern gateway-ului: importă din `app.gateway`")
+        if rel.startswith(INTERN):
+            erori.extend(_executie(rel, nod))
         if (
             isinstance(nod, ast.Constant)
             and isinstance(nod.value, str)
@@ -128,6 +132,24 @@ def probleme(rel: str, sursa: str, ascunse: set[str]) -> list[str]:
                 "trec doar prin gateway"
             )
     return erori
+
+
+def _executie(rel: str, nod: ast.AST) -> list[str]:
+    """Nimic din `app/gateway/` nu execută cod sau comenzi (ieșirea unui model nu poate declanșa acțiuni)."""
+    linie = getattr(nod, "lineno", 0)
+    if isinstance(nod, ast.Call):
+        f = nod.func
+        if isinstance(f, ast.Name) and f.id in ("eval", "exec"):
+            return [f"{rel}:{linie}: `{f.id}` în gateway: ieșirea unui model nu se execută"]
+        if (
+            isinstance(f, ast.Attribute)
+            and f.attr in ("system", "popen")
+            and getattr(f.value, "id", "") == "os"
+        ):
+            return [f"{rel}:{linie}: `os.{f.attr}` în gateway: ieșirea unui model nu se execută"]
+    if any(n == "subprocess" or n.startswith("subprocess.") for n in _nume_importate(nod)):
+        return [f"{rel}:{linie}: `subprocess` în gateway: ieșirea unui model nu se execută"]
+    return []
 
 
 def fisiere_python(root: Path) -> list[str]:

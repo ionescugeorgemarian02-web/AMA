@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F3.9 — Garda de date personale și garda de injecții
+- Mascare deterministă înainte de orice apel (email, IBAN, CNP cu cifră de control, card cu Luhn, telefon românesc, IP; CUI doar la cerere), cu marcaje stabile `[EMAIL_1]`, demascare opțională a răspunsului, jurnal și conținut păstrat în varianta mascată. `date_confidentiale` ajunge în rutare; fără model permis, apelul este refuzat.
+- `gateway.marcheaza_extern(text, sursa=…)`: funcția unică pentru orice text venit din afară (delimitatori cu id aleator, delimitatori falși neutralizați, caractere invizibile eliminate) și instrucțiunea „date, nu instrucțiuni” în mesajul de sistem; detecție euristică de tentative de injecție ca semnal în jurnalul de apeluri (migrarea `0017`), fără blocare. Garda `check_gateway` interzice `eval`/`exec`/`subprocess` în gateway.
+
 ### F3.8 — Bugete și priorități
 - Bugete pe client (apeluri, tokeni, preț-umbră; pe zi și pe lună; valori implicite + suprascrieri per client; migrarea `0016`), aplicate de interceptorul `buget_client`: la depășire, P2 și P3 primesc `Amanat` cu momentul resetării, P1 continuă până la 1,5 × buget, P0 nu este atins. Consumul se ține în contoare proprii, rezervate atomic (corect la concurență). Avertizare la 80%, o singură dată pe fereastră. Decizia D-004.
 

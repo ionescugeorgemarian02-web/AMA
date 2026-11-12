@@ -318,7 +318,7 @@ def test_interceptorul_de_mascare_schimba_ce_se_trimite_si_ce_se_pastreaza(
 
         def inainte(self, ctx: ContextApel) -> None:
             ctx.mesaje = tuple(
-                type(m)(m.rol, m.continut.replace("0722123456", "[TELEFON]")) for m in ctx.mesaje
+                type(m)(m.rol, m.continut.replace("cod-intern-77", "[ASCUNS]")) for m in ctx.mesaje
             )
 
         def dupa(self, ctx: ContextApel, rezultat: object, eroare: BaseException | None) -> None:
@@ -326,13 +326,13 @@ def test_interceptorul_de_mascare_schimba_ce_se_trimite_si_ce_se_pastreaza(
 
     gateway.adauga_interceptor(Masca())
     try:
-        r = apeleaza(tenant, mediu.prompt, variabile={"text": "sună-mă la 0722123456"})
+        r = apeleaza(tenant, mediu.prompt, variabile={"text": "referința este cod-intern-77"})
     finally:
         gateway.elimina_interceptor("masca")
-    assert "0722123456" not in fals.cereri_la(gazda(mediu.a))[0].text_prompt
+    assert "cod-intern-77" not in fals.cereri_la(gazda(mediu.a))[0].text_prompt
     assert r.apel_id is not None
     c = continut(admin_engine, r.apel_id)
-    assert c is not None and "0722123456" not in str(c["mesaje"]) and "[TELEFON]" in str(c["mesaje"])
+    assert c is not None and "cod-intern-77" not in str(c["mesaje"]) and "[ASCUNS]" in str(c["mesaje"])
 
 
 def test_interogarile_ocolesc_alt_client(tenant: uuid.UUID, fabrica_clienti: Any, mediu: Mediu) -> None:

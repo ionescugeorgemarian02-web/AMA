@@ -9,7 +9,7 @@ furnizorilor în afara acestui pachet. Puncte de extensie: interceptori înainte
 profiluri și lanțuri ca date, adaptoare noi pe tip de API (F3.5), scorurile modelelor (F3.6).
 """
 
-from app.gateway import bugete, inventar, jurnal, prompturi, registru
+from app.gateway import bugete, garda, inventar, jurnal, prompturi, registru
 from app.gateway.amanare import cheie_reluare, reprogrameaza
 from app.gateway.apel import ContextApel, Rezultat
 from app.gateway.erori import (
@@ -20,6 +20,8 @@ from app.gateway.erori import (
     IesireInvalida,
     NuSePoateActiva,
 )
+from app.gateway.extern import INSTRUCTIUNE as INSTRUCTIUNE_DATE_EXTERNE
+from app.gateway.extern import marcheaza_extern
 from app.gateway.iesire import Iesire
 from app.gateway.interceptori import Interceptor
 from app.gateway.interceptori import adauga as adauga_interceptor
@@ -37,8 +39,10 @@ from app.gateway.registru import (
 from app.gateway.serviciu import apeleaza
 
 bugete.inregistreaza()
+garda.inregistreaza()
 
 __all__ = [
+    "INSTRUCTIUNE_DATE_EXTERNE",
     "Amanat",
     "Apel",
     "ApelContinut",
@@ -66,6 +70,7 @@ __all__ = [
     "furnizori",
     "inventar",
     "jurnal",
+    "marcheaza_extern",
     "modele",
     "poate_fi_activat",
     "prompturi",

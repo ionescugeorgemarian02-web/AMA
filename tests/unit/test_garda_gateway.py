@@ -100,3 +100,14 @@ def test_garda_lasa_gateway_ul_si_testele_sa_foloseasca_ce_le_trebuie(tmp_path: 
     )
     r = _ruleaza(tmp_path)
     assert r.returncode == 0, r.stderr
+
+
+@pytest.mark.parametrize(
+    "linie",
+    ["eval(x)", "exec(x)", "import subprocess", "from subprocess import run", "import os\nos.system('ls')"],
+)
+def test_gateway_ul_nu_executa_nimic_din_ce_spune_un_model(tmp_path: Path, linie: str) -> None:
+    _gateway_minimal(tmp_path)
+    _fisier(tmp_path, "app/gateway/rau.py", linie + "\n")
+    r = _ruleaza(tmp_path)
+    assert r.returncode == 1 and "ieșirea unui model nu se execută" in r.stderr

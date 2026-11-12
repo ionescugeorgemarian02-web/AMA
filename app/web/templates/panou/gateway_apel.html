@@ -13,6 +13,10 @@
   <div class="rand"><span class="eticheta">Prompt</span><span>{% if a.prompt_nume %}{{ a.prompt_nume }}{% if a.prompt_versiune %} v{{ a.prompt_versiune }}{% endif %}{% else %}–{% endif %}</span></div>
   <div class="rand"><span class="eticheta">Model ales</span><span>{{ a.model or '–' }}{% if a.nivel %} ({{ a.nivel }}){% endif %}</span></div>
   <div class="rand"><span class="eticheta">De ce</span><span>{{ a.motiv_alegere or '–' }}</span></div>
+  {% for sem in a.semnale %}<div class="rand"><span class="eticheta">Semnal</span><span>
+    {% if sem.tip == 'date_personale_mascate' %}date personale mascate înainte de apel: {% for t, n in sem.pe_tip.items() %}{{ t }} × {{ n }}{{ ', ' if not loop.last }}{% endfor %}
+    {% elif sem.tip == 'injectie_suspecta' %}<span class="insigna atentie">posibilă injecție</span> <code>{{ sem.cod }}</code> în {{ sem.sursa }}
+    {% else %}{{ sem.tip }}{% endif %}</span></div>{% endfor %}
   {% if a.cod_eroare %}<div class="rand"><span class="eticheta">Cod</span><span><code>{{ a.cod_eroare }}</code></span></div>{% endif %}
   <div class="rand"><span class="eticheta">Tokeni (intrare / ieșire)</span><span>{{ a.tokeni_intrare }} / {{ a.tokeni_iesire }}</span></div>
   <div class="rand"><span class="eticheta">Durată</span><span>{{ a.durata_ms }} ms</span></div>
