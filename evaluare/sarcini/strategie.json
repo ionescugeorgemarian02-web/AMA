@@ -1,0 +1,245 @@
+{
+ "profil": "strategie",
+ "sarcini": [
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru o cafenea de cartier cu 40 de clienți zilnici care vrea să crească vânzările de dimineață cu 20% în 90 de zile. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "indicator",
+     "prag"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-01",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru un atelier de reparat biciclete care vrea mai multe programări în sezonul rece. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "indicator",
+     "sezon"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-02",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru o clinică veterinară nouă, fără recenzii online, care vrea primii 100 de clienți fideli. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "recenzii",
+     "indicator"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-03",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru un magazin online de ceaiuri cu coș mediu mic, care vrea să crească valoarea medie a comenzii. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "coș",
+     "indicator"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-04",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru un cabinet de contabilitate pentru IMM-uri care vrea clienți noi fără reclame plătite. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "clienți",
+     "indicator"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-05",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru o școală de limbi străine pentru adulți cu rată mare de abandon după prima lună. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "abandon",
+     "indicator"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-06",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru o florărie cu vânzări concentrate în trei sărbători pe an, care vrea venit stabil. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "sărbători",
+     "indicator"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-07",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru un restaurant cu terasă, dependent de vreme, care vrea rezervări mai previzibile. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "rezervări",
+     "indicator"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-08",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru un producător de mere dulci care vrea să vândă direct, fără intermediari. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "vânzare directă",
+     "indicator"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-09",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru o sală de fitness de cartier aflată la 300 de metri de un lanț mare. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "diferențiere",
+     "indicator"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-10",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru un salon de coafură care vrea să reducă numărul de programări ratate. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "programări",
+     "indicator"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-11",
+   "profil": "strategie"
+  },
+  {
+   "instructiune": "Redactează în română, cu diacritice corecte, o strategie pe 90 de zile pentru o librărie independentă care vrea să construiască o comunitate de cititori. Include: o ipoteză clară, un indicator principal, un prag minim de succes, o fereastră de măsurare și un criteriu de oprire. Pune textul în câmpul `text`, între 600 și 1800 de caractere.",
+   "intrare": "Context: IMM din România, buget redus, fără echipă de marketing.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 600,
+    "lungime_max": 1800,
+    "cuvinte_obligatorii": [
+     "ipoteză",
+     "comunitate",
+     "indicator"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "strategie-12",
+   "profil": "strategie"
+  }
+ ]
+}

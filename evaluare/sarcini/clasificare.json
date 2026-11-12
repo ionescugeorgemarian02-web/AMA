@@ -1,0 +1,149 @@
+{
+ "profil": "clasificare",
+ "sarcini": [
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "Mulțumesc pentru livrarea rapidă, cafeaua e excelentă! Revin cu drag.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "pozitiv"
+    }
+   },
+   "id": "clasificare-01",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "Am comandat acum o săptămână și nu a venit nimic. Nimeni nu răspunde la telefon, sunt foarte nemulțumit.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "reclamatie"
+    }
+   },
+   "id": "clasificare-02",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "La ce oră închideți duminica?",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "intrebare"
+    }
+   },
+   "id": "clasificare-03",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "Ambalajul a fost deteriorat, iar prețul nu mai e cel din anunț. Dezamăgitor.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "negativ"
+    }
+   },
+   "id": "clasificare-04",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "Am primit coletul azi. Conține ce am comandat.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "neutru"
+    }
+   },
+   "id": "clasificare-05",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "CÂȘTIGĂ 5000 DE LEI ACUM!!! Intră pe linkul din profil și fă-ți cont gratuit.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "spam"
+    }
+   },
+   "id": "clasificare-06",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "Aveți și varianta fără lactoză pentru tiramisu? Cât costă?",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "intrebare"
+    }
+   },
+   "id": "clasificare-07",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "Cel mai bun serviciu pe care l-am avut vreodată, echipa e minunată și prețurile corecte.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "pozitiv"
+    }
+   },
+   "id": "clasificare-08",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "Produsul s-a stricat după două zile și garanția mi-a fost refuzată. Vreau banii înapoi.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "reclamatie"
+    }
+   },
+   "id": "clasificare-09",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "Vă urmăresc de câteva luni. Postările sunt ok, nimic special.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "neutru"
+    }
+   },
+   "id": "clasificare-10",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "Cumpărați followeri ieftini, 10000 pentru 5 lei, scrieți-mi în privat!",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "spam"
+    }
+   },
+   "id": "clasificare-11",
+   "profil": "clasificare"
+  },
+  {
+   "instructiune": "Clasifică intenția comentariului unui client. Etichete permise: pozitiv, negativ, neutru, intrebare, reclamatie, spam. Alege exact una, pentru câmpul `eticheta`.",
+   "intrare": "Nu recomand. Am așteptat o oră la coadă și personalul a fost nepoliticos.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "eticheta",
+     "valoare": "negativ"
+    }
+   },
+   "id": "clasificare-12",
+   "profil": "clasificare"
+  }
+ ]
+}

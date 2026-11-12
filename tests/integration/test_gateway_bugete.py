@@ -185,11 +185,16 @@ def test_valorile_implicite_se_aplica_si_suprascrierea_clientului_le_bate(
         assert implicit.zi.apeluri == 400 and implicit.prag_avertizare == pytest.approx(0.8)
         assert implicit.plafon_p1 == pytest.approx(1.5)
         assert bugete.efectiv(db, tenant) == implicit  # fără suprascriere
-        bugete.seteaza_client(db, tenant, {"apeluri_zi": 7, "pret_umbra_luna": "12.50"}, utilizator_id=om)
+        bugete.seteaza_client(
+            db, tenant, {"apeluri_zi": 7, "tokeni_luna": 99, "pret_umbra_luna": "12.50"}, utilizator_id=om
+        )
+        bugete.seteaza_implicite(
+            db, {"tokeni_zi": 1_500_000}, prag_avertizare=0.8, plafon_p1=1.5, utilizator_id=om
+        )
     with sesiune_tenant(tenant) as db:
         efectiv = bugete.efectiv(db, tenant)
     assert efectiv.zi.apeluri == 7 and efectiv.zi.tokeni == implicit.zi.tokeni  # restul rămâne implicit
-    assert efectiv.luna.pret_umbra == Decimal("12.5000")
+    assert efectiv.luna.pret_umbra == Decimal("12.5000") and efectiv.luna.tokeni == 99
     with sesiune_agentie() as db:  # revenire la valoarea implicită
         bugete.seteaza_client(db, tenant, {"apeluri_zi": None}, utilizator_id=om)
         assert bugete.efectiv(db, tenant).zi.apeluri == 400

@@ -30,6 +30,8 @@ CONTEXT_AGENTIE = {
     "app/gateway/limitator.py",
     "app/gateway/sanatate.py",
     "app/gateway/bugete.py",
+    "app/gateway/evaluare.py",
+    "app/gateway/fluxuri.py",
     "app/gateway/jurnal.py",
     "app/gateway/masurare.py",  # curățarea zilnică a conținutului expirat, pentru toți clienții
 }

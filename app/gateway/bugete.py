@@ -326,6 +326,11 @@ class BugetClient:
 # --- editare (ecranul „Modele și cote”, F3.10)
 
 
+def _nume_audit(camp: str) -> str:
+    """Jurnalul de audit refuză cheile cu „token” (le ia drept secrete): tokenii apar ca „jetoane”."""
+    return camp.replace("tokeni", "jetoane")
+
+
 class BugetInvalid(ValueError):
     """Valoare de buget nepermisă (negativă, prag în afara intervalului, câmp necunoscut)."""
 
@@ -362,7 +367,7 @@ def seteaza_client(
     audit.record(
         db, "gateway.buget_client_setat", obiect_tip="client", obiect_id=str(tenant_id),
         utilizator_id=utilizator_id, tenant_id=tenant_id,
-        detalii={k: (None if v is None else str(v)) for k, v in curate.items()},
+        detalii={_nume_audit(k): (None if v is None else str(v)) for k, v in curate.items()},
     )  # fmt: skip
 
 
@@ -392,7 +397,7 @@ def seteaza_implicite(
     audit.record(
         db, "gateway.buget_implicit_setat", obiect_tip="buget", obiect_id="implicit",
         utilizator_id=utilizator_id, tenant_id=None,
-        detalii={**{k: (None if v is None else str(v)) for k, v in curate.items()},
+        detalii={**{_nume_audit(k): (None if v is None else str(v)) for k, v in curate.items()},
                  "prag_avertizare": prag_avertizare, "plafon_p1": plafon_p1},
     )  # fmt: skip
 

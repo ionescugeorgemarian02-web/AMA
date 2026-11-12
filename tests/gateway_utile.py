@@ -203,6 +203,17 @@ class FabricaModele:
                 ),
                 {"c": self.furnizori},
             )
+            modele_lor = "SELECT id FROM gateway_modele WHERE furnizor_id IN (SELECT id FROM gateway_furnizori WHERE cod = ANY(:c))"
+            c.execute(
+                text(
+                    f"DELETE FROM gateway_evaluari_rezultate WHERE rulare_id IN (SELECT id FROM gateway_evaluari_rulari WHERE model_id IN ({modele_lor}))"
+                ),
+                {"c": self.furnizori},
+            )
+            c.execute(
+                text(f"DELETE FROM gateway_evaluari_rulari WHERE model_id IN ({modele_lor})"),
+                {"c": self.furnizori},
+            )
             c.execute(
                 text(
                     "DELETE FROM gateway_modele WHERE furnizor_id IN (SELECT id FROM gateway_furnizori WHERE cod = ANY(:c))"

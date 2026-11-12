@@ -209,3 +209,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit: registrul nu are politică de DELETE, deci `downgrade` a migrării șterge sămânța cu RLS oprit doar în migrare; fabrica de teste nu curăța furnizorii cu cod ales explicit (reparat); un test cu socket real trebuie să dezactiveze transportul simulat.
   - Verificat: clasificare prin adaptorul local pe coada `greu`, refuz pe `io` și în afara jobului, viteze notate în registru pentru trei mărimi, vector calculat cu culoarele grele ocupate, dimensiunea verificată, server căzut → `Amanat`.
   - NEVERIFICAT: orice model real, memoria, viteza pe procesorul real, steagurile și digestul imaginii.
+- **F3.6 — Testul comparativ pe română.**
+  - Construit: `criterii`, `evaluare`, setul `evaluare/sarcini/` (72) și `evaluare/prompturi/` (6), migrarea `0019`, fluxurile `gateway.evaluare` / `gateway.evaluare_lunara`, `docs/specs/F3.6.md`.
+  - Hotărâri: un model pe rulare prin `gateway.apeleaza(model=…)` (lanțul profilului nu contează la evaluare, nici nivelul minim); apelurile de evaluare se scriu pentru un client intern cu buget propriu, ca jurnalul (care cere client) să rămână uniform; sarcinile și rezultatele sunt la nivel de agenție (date sintetice); ieșirea în afara schemei înseamnă scor 0, nu rulare eșuată; amânarea oprește rularea și o reia fără refacere; modelul local se evaluează pe coada `greu` (regula din F3.5).
+  - Găsit: auditul refuză chei cu „token”, deci `bugete.seteaza_client` cu `tokeni_zi` ar fi picat (nepăzit de testele F3.8): cheile apar acum ca „jetoane”, cu test; fabrica de teste trebuia să curețe și rulările de evaluare.
+  - Verificat: vezi spec; scoruri 1,0 / mediu / slab pe toate profilurile; rutarea alege modelul bun.
+  - NEVERIFICAT: orice model real; evaluarea umană.

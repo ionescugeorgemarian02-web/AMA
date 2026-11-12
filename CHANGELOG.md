@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F3.6 — Testul comparativ pe română
+- Set de 72 de sarcini în română (`evaluare/sarcini/`, 12 pe fiecare profil din 8.2) cu criterii automate (schemă, lungime, cuvinte obligatorii / interzise, răspuns exact, diacritice), hamul de rulare prin gateway (P3, un model pe rulare, cote și bugete respectate, continuare după amânare), scorul pe (model, profil) scris în `gateway_modele.scor` și folosit de rutare, nota umană importată din CSV, istoric de rulări (migrarea `0019`), flux și job lunar, comandă `python -m app.gateway.evaluare`.
+
 ### F3.5 — Modelul local și modelul de embeddings
 - Adaptorul `local` (server compatibil OpenAI separat, fără cheie, ieșire structurată prin schemă); modelul local se apelează doar din joburi de pe coada `greu` (în afara ei: `ApelRefuzat("local_doar_pe_coada_greu")`); `motor.coada_curenta()`. Sămânța în registru (3 mărimi + model de vectori de 384 dimensiuni, inactive, neverificate; migrarea `0018`) și serviciile `local-llm` / `embeddings` în compose (profil, fără digest: NEVERIFICAT).
 - `gateway.vectorizeaza(texte, tenant_id=…)` și `gateway.dimensiune_vectori`: vectori fără coada `greu`, dimensiunea ca dată în registru. `python -m app.gateway.masurare`: viteza (tokeni/s) a modelelor locale, scrisă în registru. `gateway.apeleaza(…, model=…)` pentru un singur model (evaluare).

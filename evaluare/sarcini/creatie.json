@@ -1,0 +1,231 @@
+{
+ "profil": "creatie",
+ "sarcini": [
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, un hook de cel mult 120 de caractere pentru o postare despre un atelier de ceramică pentru începători. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 120,
+    "cuvinte_obligatorii": [
+     "ceramică"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-01",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, o postare Facebook de 300–500 de caractere despre o promoție de toamnă la o librărie de cartier, cu reducere de 15% la cărțile de poveste. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 500,
+    "cuvinte_obligatorii": [
+     "librărie",
+     "15%"
+    ],
+    "cuvinte_interzise": [
+     "cel mai bun"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-02",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, un script de 20 de secunde pentru un video despre cum se alege o saltea potrivită, cu trei sfaturi. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "cuvinte_obligatorii": [
+     "saltea",
+     "sfaturi"
+    ],
+    "cuvinte_interzise": [
+     "miraculos"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-03",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, trei idei de titluri pentru un articol de blog despre economisirea energiei într-un apartament vechi, ca listă într-un singur text. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 400,
+    "cuvinte_obligatorii": [
+     "energie",
+     "apartament"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-04",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, o descriere de produs de 250–400 de caractere pentru un săpun natural cu lavandă, făcut manual. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 400,
+    "cuvinte_obligatorii": [
+     "lavandă",
+     "săpun"
+    ],
+    "cuvinte_interzise": [
+     "vindecă"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-05",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, un mesaj de întâmpinare pentru clienții noi ai unei clinici veterinare, prietenos, de cel mult 300 de caractere. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 300,
+    "cuvinte_obligatorii": [
+     "clinica",
+     "bine ați venit"
+    ],
+    "cuvinte_interzise": [
+     "gratuit"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-06",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, o postare Instagram despre deschiderea unei brutării de cartier, cu program și un îndemn la acțiune, maximum 350 de caractere. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 350,
+    "cuvinte_obligatorii": [
+     "brutărie",
+     "program"
+    ],
+    "cuvinte_interzise": [
+     "cea mai bună"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-07",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, un hook de cel mult 100 de caractere pentru un videoclip despre greșelile frecvente la montarea unui parchet laminat. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 100,
+    "cuvinte_obligatorii": [
+     "parchet"
+    ],
+    "cuvinte_interzise": [
+     "secret"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-08",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, un text scurt de newsletter despre o reducere de Black Friday la un magazin de biciclete, 300–500 de caractere. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 500,
+    "cuvinte_obligatorii": [
+     "Black Friday",
+     "biciclete"
+    ],
+    "cuvinte_interzise": [
+     "ultima șansă"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-09",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, un răspuns politicos pentru un client care a întârziat plata unei facturi cu zece zile, 200–400 de caractere. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 400,
+    "cuvinte_obligatorii": [
+     "factura",
+     "plata"
+    ],
+    "cuvinte_interzise": [
+     "amenințăm"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-10",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, un script de 30 de secunde pentru prezentarea unui curs online de limba engleză pentru adulți. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 800,
+    "cuvinte_obligatorii": [
+     "curs",
+     "engleză"
+    ],
+    "cuvinte_interzise": [
+     "în doar o săptămână"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-11",
+   "profil": "creatie"
+  },
+  {
+   "instructiune": "Scrie în română, cu diacritice corecte, o postare LinkedIn de 400–600 de caractere despre importanța recenziilor oneste pentru un salon de înfrumusețare. Pune rezultatul în câmpul `text`.",
+   "intrare": "Brief: brand local din România, ton cald și cinstit, fără promisiuni nerealiste.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_min": 60,
+    "lungime_max": 600,
+    "cuvinte_obligatorii": [
+     "recenzii",
+     "salon"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "creatie-12",
+   "profil": "creatie"
+  }
+ ]
+}
