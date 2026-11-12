@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F3 — Gateway de modele
+- Test cap-coadă cu furnizori falși (`tests/integration/test_poarta_f3.py`): testul comparativ rulat pe modelele de text din configurarea de probă, iar cu fiecare dintre cei cinci furnizori oprit pe rând un flux de probă pe fiecare profil se termină (degradare marcată la modelul local pe coada `greu`, trecere pe alt furnizor sau amânare curată, fără eșecuri). Testul comparativ pe modele reale rămâne deschis până la migrare.
+
 ### F3.11 — Planificatorul de capacitate (A4)
 - Planificatorul zilnic (și la cerere) compară munca planificată (costuri pe tip de livrabil, ca date) cu cotele rămase pe profil și cu timpul de CPU al culoarelor grele; ce nu încape se amână, termenul cel mai îndepărtat întâi, iar P0 și termenele sub 48 de ore rămân neatinse. Decizia se scrie (`planificare_planuri`, `planificare_decizii`, migrarea `0020`) și o alertă spune ce nu a încăput.
 - `productie.amana` / `productie.elibereaza` și câmpul `livrabile.nu_inainte_de`: `productie.muta` refuză pornirea unui livrabil amânat până la acel moment (cod `amanat`, în istoric).
