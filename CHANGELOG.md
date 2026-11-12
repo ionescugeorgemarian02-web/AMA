@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F3.8 — Bugete și priorități
+- Bugete pe client (apeluri, tokeni, preț-umbră; pe zi și pe lună; valori implicite + suprascrieri per client; migrarea `0016`), aplicate de interceptorul `buget_client`: la depășire, P2 și P3 primesc `Amanat` cu momentul resetării, P1 continuă până la 1,5 × buget, P0 nu este atins. Consumul se ține în contoare proprii, rezervate atomic (corect la concurență). Avertizare la 80%, o singură dată pe fereastră. Decizia D-004.
+
 ### F3.7 — Registrul de prompturi și jurnalul de apeluri
 - `gateway.apeleaza(db, prompt=…, variabile=…, schema=…, tenant_id=…, componenta=…, prioritate=…)`: API-ul public unic. Prompturile sunt versionate (`gateway_prompturi`, migrarea `0015`; ciornă / activ / retras; versiunea activă nu se modifică, impus în bază; o singură versiune activă pe nume) și pot veni din fișiere `prompts/<nume>.v<N>.md`. Variabilele trebuie să se potrivească exact cu locurile din șablon; un secret al aplicației nu poate intra într-un prompt.
 - Jurnalul de apeluri (`gateway_apeluri`, cu `tenant_id` și RLS): cine, prompt și versiune, model ales și de ce, tokeni, durată, reparații, preț-umbră, traseul încercărilor; scris și pentru apelurile amânate, refuzate sau eșuate. Conținutul (mesajele trimise, răspunsul) stă separat, cu RLS, 30 de zile (`gateway_apeluri_continut`, ștergere zilnică); nu intră în tabelele motorului sau în jurnalele aplicației. Fiecare apel se contorizează în bugetul livrabilului.

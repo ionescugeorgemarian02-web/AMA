@@ -4,7 +4,7 @@
 import datetime as dt
 from typing import Any
 
-from app.gateway import jurnal, limitator
+from app.gateway import bugete, jurnal, limitator
 from app.operare import motor
 
 NUME_CURATARE = "gateway.curatare"
@@ -14,7 +14,8 @@ NUME_CURATARE = "gateway.curatare"
 def _curata() -> str:
     contoare = limitator.curata()
     continut = jurnal.curata_continut()
-    return f"contoare={contoare} continut={continut}"
+    consum = bugete.curata_vechi()
+    return f"contoare={contoare} continut={continut} consum={consum}"
 
 
 @motor.flux(NUME_CURATARE)

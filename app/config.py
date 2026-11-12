@@ -109,6 +109,8 @@ class Settings(BaseSettings):
     gateway_continut_zile: int = Field(
         default=30, ge=1, le=365
     )  # cât se păstrează conținutul apelurilor (20.4)
+    # Bugetele pe client (F3.8, 8.5): ora UTC la care începe „ziua” bugetului (și luna, în prima zi a lunii).
+    gateway_buget_reset_ora: int = Field(default=0, ge=0, le=23)
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

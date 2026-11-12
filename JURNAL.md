@@ -188,3 +188,12 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **Rezultat general F3.1–F3.4 și F3.7:** vezi raportul. Specificațiile sunt `docs/specs/F3.1.md`, `F3.2.md`, `F3.3.md`, `F3.4.md`, `F3.7.md`; starea pașilor în `docs/specs/STARE.md`.
 - Propuneri notate, nefăcute: coada pe furnizor din motor (`coada_furnizor`) nu e legată, fiindcă gateway-ul nu știe furnizorul înainte de rutare; alertă când un profil rămâne fără niciun furnizor (acum se amână cu 5 minute, fără alertă); ecran de editare a termenilor, limitelor și profilurilor (F3.10); `inregistreaza_consum` poate primi `diagnostic` cu modelul și profilul, pentru ecranul de producție.
 
+## 2026-11-12 — Sesiunea 5: închiderea fazei F3 (F3.8, F3.9, F3.5, F3.6, F3.10, F3.11, poarta F3)
+
+### 19. Pașii F3.8, F3.9, F3.5, F3.6, F3.10, F3.11 și poarta F3 — un agent de cod (Sonnet), pe ramura `claude/amazing-volta-ou9t2u`
+- Un commit pe pas, `make check` verde înainte de fiecare.
+- **F3.8 — Bugete și priorități.**
+  - Construit: `bugete` (consum, interceptor, editare), `reguli_buget` (nucleu pur), migrarea `0016` (`gateway_bugete_implicite`, `gateway_bugete_client`, `gateway_consum_client`), `docs/specs/F3.8.md`, D-004.
+  - Hotărâri: consumul stă în contoare proprii, nu în jurnal (jurnalul se scrie după apel, într-o tranzacție separată: două apeluri simultane ar fi citit același total); apelul se rezervă atomic pe zi și pe lună în aceeași tranzacție, iar tokenii și prețul-umbră se adaugă după apel; apelul care nu a ajuns la niciun furnizor eliberează rezervarea; P1 continuă până la 1,5 × buget (8.5 nu spune cât), P0 niciodată oprit; „avertizat” este o coloană setată atomic, ca notificarea să plece o singură dată.
+  - Verificat: client de test peste buget: P2 și P3 amânate (cu momentul resetării zilei / lunii), P1 la plafonul lui, P0 trece; 24 de fire pe un buget de 10 → exact 10 apeluri; cota furnizorului nu consumă din bugetul clientului; izolare pe client.
+  - Neverificat: valorile implicite (de pornire), notificarea pe canale reale, doi workeri.

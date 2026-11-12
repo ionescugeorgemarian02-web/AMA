@@ -29,3 +29,9 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
 - Manager de pachete: `uv`, cu `uv.lock` (versiuni exacte și hash-uri). Python 3.13 în imagini și CI (cerința este ≥ 3.12).
 - Acces sincron la bază (SQLAlchemy 2 + psycopg 3): mai simplu de izolat pe client și compatibil cu biblioteca de workflow-uri.
 - Scanarea repo-ului după chei scăpate: `detect-secrets`; vulnerabilități: `pip-audit`. Ambele rulează în CI, fixate în `uv.lock`.
+
+### D-004 (2026-11-12) — Bugetele de modele pe client: consum din contoare proprii, P1 cu plafon
+
+- **Context:** 8.5 cere bugete pe client și spune „P0 și P1 au cotă garantată; P2 și P3 se amână la epuizare; P0 continuă”, dar nu spune ce se întâmplă cu P1 peste buget.
+- **Hotărâre (propusă de agentul de cod, de confirmat de proprietar):** consumul se ține în contoare proprii (nu se citește din jurnal: jurnalul se scrie după apel, deci nu este corect la concurență). P0 nu este atins niciodată; P1 continuă până la 1,5 × bugetul (configurabil), apoi se amână; P2 și P3 se amână la atingerea bugetului. Valorile implicite de buget sunt de pornire, nemăsurate.
+- **Consecințe:** `gateway.Amanat(pana_la)` cu momentul resetării (miezul nopții UTC, ora este setare). Se revizuiește după primele luni de consum real.

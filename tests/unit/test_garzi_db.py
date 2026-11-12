@@ -29,6 +29,7 @@ CONTEXT_AGENTIE = {
     # agenție (nu țin date de client) și se scriu din orice proces care face un apel, în tranzacții proprii și scurte.
     "app/gateway/limitator.py",
     "app/gateway/sanatate.py",
+    "app/gateway/bugete.py",
     "app/gateway/jurnal.py",  # curățarea zilnică a conținutului expirat, pentru toți clienții
 }
 
