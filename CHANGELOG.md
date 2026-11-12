@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F2.10 — Nivelurile de autonomie
+- Matricea pe client × cinci clase de acțiuni, niveluri L0–L4, implicit L1; funcția pură de decizie „cere aprobare?” (umbră / aprobare / automat) cu eșantion determinist la L2 și L3; canalele cu consimțământ per postare (TikTok) rămân la L1, ca date; schimbarea nivelului doar de proprietar (permisiunea `autonomie.seteaza`, motiv, audit); retrogradare cu un nivel la incident critic; poarta din `productie.muta` recalculează decizia (L0 produce, nu publică). Migrarea `0010`.
+
 ### F2.8 — Cererile de aprobare
 - Obiectul de aprobare (client, livrabil și versiunea lui, clasa de acțiune, decident operator/client, termen de 48 h, reamintire la 24 h, stare, decident, moment); decizia se leagă de versiune (o aprobare pe o versiune veche nu aprobă versiunea nouă); poarta „fără aprobare automată” în `productie.muta`; expirare prin jobul programat (o cerere neprimită la timp devine `expirat`, nu se publică); notificări la creare și înainte de termen; punctul minim din panou (listă, „Aprobă”, „Respinge” cu motiv, CSRF, permisiune, audit). Migrarea `0009`.
 

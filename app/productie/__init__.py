@@ -8,16 +8,24 @@ Restul aplicației folosește doar ce se exportă aici:
     rez = productie.muta(db, l.id, productie.Stare.PLANIFICAT, productie.Stare.BRIEFAT, componenta="D5")
 """
 
-from app.productie import aprobari, intrerupator, limite
+from app.productie import aprobari, autonomie, intrerupator, limite
 from app.productie.bugete import Consum, inregistreaza_consum, poate_consuma
 from app.productie.limite import Depasire, Limite
-from app.productie.modele import Aprobare, Livrabil, Tranzitie
+from app.productie.modele import Aprobare, Livrabil, NivelAutonomie, SchimbareAutonomie, Tranzitie
 from app.productie.reguli_aprobare import (
     MOTIVE_RESPINGERE,
     Decident,
     Hotarare,
     StareAprobare,
     poate_decide,
+)
+from app.productie.reguli_autonomie import (
+    ETICHETE_CLASA,
+    ETICHETE_NIVEL,
+    Clasa,
+    Decizie,
+    Nivel,
+    cere_aprobare,
 )
 from app.productie.stari import (
     ETICHETE,
@@ -49,14 +57,18 @@ from app.productie.tranzitii import (
 
 __all__ = [
     "ETICHETE",
+    "ETICHETE_CLASA",
+    "ETICHETE_NIVEL",
     "EXCEPTII",
     "MOTIVE_RESPINGERE",
     "NORMALE",
     "STARI_FINALE",
     "Aprobare",
+    "Clasa",
     "ConflictStare",
     "Consum",
     "Decident",
+    "Decizie",
     "Depasire",
     "EroareProductie",
     "Hotarare",
@@ -64,8 +76,11 @@ __all__ = [
     "Limite",
     "Livrabil",
     "LivrabilInexistent",
+    "Nivel",
+    "NivelAutonomie",
     "ProductieOprita",
     "Rezultat",
+    "SchimbareAutonomie",
     "Stare",
     "StareAprobare",
     "Temei",
@@ -74,6 +89,8 @@ __all__ = [
     "TranzitieRefuzata",
     "VersiuneNepotrivita",
     "aprobari",
+    "autonomie",
+    "cere_aprobare",
     "citeste",
     "creeaza",
     "este_permisa",

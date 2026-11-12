@@ -35,11 +35,12 @@ from app.logging import get_logger
 from app.operare import audit, coada_erori, evenimente, opriri
 from app.operare.notificari import Nivel
 from app.operare.opriri import Oprire
-from app.productie import aprobari_baza, limite, stari
+from app.productie import aprobari_baza, autonomie, limite, stari
 from app.productie.anunturi import anunta
 from app.productie.limite import Depasire
 from app.productie.modele import Livrabil, Tranzitie
 from app.productie.reguli_aprobare import Decident, StareAprobare
+from app.productie.reguli_autonomie import Decizie
 from app.productie.stari import Stare
 
 log = get_logger("app.productie")
@@ -414,10 +415,22 @@ def _motiv_fara_temei(db: Session, livrabil: Livrabil, cerere: Cerere, temei: Te
     if nevoie is None:
         return None
     unde = f"din „{stari.ETICHETE[cerere.din]}” în „{stari.ETICHETE[cerere.la]}”"
+    # L0 (umbră): livrabilul se produce, dar nu merge spre aprobare sau publicare, nici cu o aprobare în mână
+    if (
+        cerere.la in (Stare.ASTEAPTA_APROBARE, Stare.APROBAT)
+        and autonomie.decide(db, livrabil) is Decizie.UMBRA
+    ):
+        return f"mutarea {unde} e oprită: nivelul de autonomie L0 (umbră) produce, dar nu publică"
     if temei is None:
         return f"mutarea {unde} cere o aprobare (fără aprobare automată)"
     if temei.tip is TipTemei.AUTONOMIE:
-        return f"mutarea {unde} nu se poate sprijini pe nivelul de autonomie"
+        # Singura mutare care poate sta pe autonomie: din „validat” direct în „aprobat”, și doar dacă funcția
+        # de decizie spune „automat” (nivelul clientului, eșantionul, canalul) pentru ACEST livrabil.
+        if (cerere.din, cerere.la) != (Stare.VALIDAT, Stare.APROBAT):
+            return f"mutarea {unde} nu se poate sprijini pe nivelul de autonomie"
+        if autonomie.decide(db, livrabil) is not Decizie.AUTOMAT:
+            return f"mutarea {unde}: la nivelul de autonomie al clientului acest livrabil cere aprobare"
+        return None
     ap = aprobari_baza.gaseste(db, temei.aprobare_id) if temei.aprobare_id else None
     if ap is None or ap.livrabil_id != livrabil.id:
         return f"mutarea {unde}: cererea de aprobare nu aparține acestui livrabil"

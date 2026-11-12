@@ -26,10 +26,11 @@ from app.conturi.roluri import Rol
 from app.logging import get_logger
 from app.operare import audit, evenimente
 from app.operare.notificari import Nivel
-from app.productie import aprobari_baza, reguli_aprobare
+from app.productie import aprobari_baza, autonomie, reguli_aprobare
 from app.productie.anunturi import anunta
 from app.productie.modele import Aprobare, Livrabil
 from app.productie.reguli_aprobare import Decident, Hotarare, StareAprobare
+from app.productie.reguli_autonomie import Decizie
 from app.productie.stari import Stare
 from app.productie.tranzitii import EroareProductie, Temei, blocheaza, muta
 
@@ -61,6 +62,10 @@ class VersiuneVeche(EroareAprobare):
 
 class MotivLipsa(EroareAprobare):
     """Respingerea cere un motiv (cel puțin 3 caractere)."""
+
+
+class NivelUmbra(EroareAprobare):
+    """Nivelul de autonomie al clientului este L0 (umbră): livrabilul nu merge spre aprobare sau publicare."""
 
 
 class NuSeCereAprobare(EroareAprobare):
@@ -143,6 +148,10 @@ def cere(
         raise NuSeCereAprobare(f"aprobarea se cere pentru un livrabil validat, nu „{stare.value}”")
     if aprobari_baza.in_asteptare(db, livrabil.id) is not None:
         raise NuSeCereAprobare("livrabilul are deja o cerere de aprobare în așteptare")
+    if autonomie.decide(db, livrabil) is Decizie.UMBRA:
+        raise NivelUmbra(
+            "nivelul de autonomie L0 (umbră): livrabilul se produce, dar nu se aprobă și nu se publică"
+        )
     termen, reamintire = reguli_aprobare.calculeaza_termene(
         acum, livrabil.termen_la, termen_ore=s.aprobare_termen_ore, reamintire_ore=s.aprobare_reamintire_ore
     )
@@ -226,6 +235,10 @@ def decide(
     if motiv_standard is not None and motiv_standard not in reguli_aprobare.MOTIVE_RESPINGERE:
         raise MotivLipsa("motiv standard necunoscut")
     livrabil = blocheaza(db, initiala.livrabil_id)  # întâi livrabilul, apoi cererea: aceeași ordine peste tot
+    if hotarare is Hotarare.APROBAT and autonomie.decide(db, livrabil) is Decizie.UMBRA:
+        raise NivelUmbra(
+            "nivelul de autonomie al clientului a coborât la L0 (umbră): nu se aprobă pentru publicare"
+        )
     ap = aprobari_baza.gaseste(db, aprobare_id, blocheaza=True)
     if ap is None:  # pragmatic: nu dispare, dar tipurile o cer
         raise AprobareInexistenta(str(aprobare_id))

@@ -83,3 +83,31 @@ class Aprobare(BazaProductie):
     decis_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class NivelAutonomie(BazaProductie):
+    """Nivelul de autonomie (0–4) al unui client pentru o clasă de acțiune. Fără rând = implicit L1."""
+
+    __tablename__ = "autonomie_niveluri"
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    clasa: Mapped[str] = mapped_column(Text, primary_key=True)
+    nivel: Mapped[int] = mapped_column(Integer)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    schimbat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    schimbat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class SchimbareAutonomie(BazaProductie):
+    """Istoric doar-adăugare al schimbărilor de nivel (setări ale proprietarului și retrogradări automate)."""
+
+    __tablename__ = "autonomie_istoric"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    clasa: Mapped[str] = mapped_column(Text)
+    de_la: Mapped[int] = mapped_column(Integer)
+    la: Mapped[int] = mapped_column(Integer)
+    tip: Mapped[str] = mapped_column(Text)
+    utilizator_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    referinta: Mapped[str] = mapped_column(Text, default="")
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.clock_timestamp())

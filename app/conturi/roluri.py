@@ -19,6 +19,7 @@ class Permisiune(StrEnum):
     PLAFOANE_SETEAZA = "plafoane.seteaza"
     JURNAL_CITESTE = "jurnal.citeste"
     ALERTE_GESTIONEAZA = "alerte.gestioneaza"  # reia și închide intrări din coada de erori (22.5)
+    AUTONOMIE_SETEAZA = "autonomie.seteaza"  # nivelurile L0–L4 pe client și clasă: doar proprietarul (7.4)
     LIVRABIL_CITESTE = "livrabil.citeste"
     LIVRABIL_APROBA = "livrabil.aproba"
     LIVRABIL_EDITEAZA = "livrabil.editeaza"

@@ -120,7 +120,7 @@ def _decide(
         raise HTTPException(status_code=403, detail="Nu ai dreptul să decizi această cerere.") from None
     except aprobari.MotivLipsa as exc:
         return _pagina(request, u, db, status=422, eroare=str(exc))
-    except (aprobari.DejaDecisa, aprobari.VersiuneVeche) as exc:
+    except (aprobari.DejaDecisa, aprobari.VersiuneVeche, aprobari.NivelUmbra) as exc:
         return _pagina(request, u, db, status=409, eroare=str(exc))
     if not r.aplicat:
         return _pagina(

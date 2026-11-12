@@ -56,12 +56,13 @@ def avanseaza(tenant_id: str, livrabil_id: str, scenariu: str) -> str:
             return "inexistent"
         stare = Stare(livrabil.stare)
         try:
-            return _urmatorul(db, livrabil, stare, scenariu).value
+            rezultat = _urmatorul(db, livrabil, stare, scenariu)
+            return rezultat.value if isinstance(rezultat, Stare) else rezultat
         except productie.ProductieOprita:
             return "oprita"
 
 
-def _urmatorul(db, livrabil, stare: Stare, scenariu: str) -> Stare:  # type: ignore[no-untyped-def]
+def _urmatorul(db, livrabil, stare: Stare, scenariu: str) -> Stare | str:  # type: ignore[no-untyped-def]
     lid = livrabil.id
 
     def muta(la: Stare, componenta: str, **kw):  # type: ignore[no-untyped-def]
@@ -92,7 +93,18 @@ def _urmatorul(db, livrabil, stare: Stare, scenariu: str) -> Stare:  # type: ign
         productie.versiune_noua(db, lid, componenta="E1", motiv="reparație simulată")
         return muta(Stare.IN_VALIDARE, "E1")
     if stare == Stare.VALIDAT:
-        productie.aprobari.cere(db, lid)  # la L1: fiecare livrabil se aprobă; fluxul se oprește aici
+        # Autonomia (F2.10) hotărăște: L0 umbră (parcat), L1 / eșantion aprobare (se oprește la un om), altfel automat.
+        decizie = productie.autonomie.decide(db, livrabil)
+        if decizie is productie.Decizie.UMBRA:
+            return "umbra"  # L0 produce, dar nu publică: livrabilul rămâne „validat”
+        if decizie is productie.Decizie.AUTOMAT:
+            return muta(
+                Stare.APROBAT,
+                "autonomie",
+                temei=productie.Temei.autonomie(),
+                detalii={"autonomie": "automat"},
+            )
+        productie.aprobari.cere(db, lid)
         return Stare.ASTEAPTA_APROBARE
     if stare == Stare.APROBAT:
         # SIMULAT: un video trece prin randare și controlul media; un text merge direct la programare
