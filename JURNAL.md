@@ -165,4 +165,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri: cheile NU stau în bază, nici criptate: doar numele variabilei de mediu `AMA_CHEIE_*` (8.1 și 21.2 le vor în mediul serverului; baza refuză orice alt nume, deci gateway-ul nu poate fi îndreptat spre `AMA_MASTER_KEY`); registrul e la nivel de agenție dar citibil din orice context cu identitate, fiindcă lucrătorii deschid sesiuni de client; „uz comercial” se impune în bază (`CHECK`), nu doar în cod; sămânța pornește totul `inactiv`.
   - Găsit: RLS este FORȚAT și pentru proprietarul migrării, deci sămânța trebuie scrisă cu `app.agency` setat în tranzacția migrării.
   - Neverificat: toate valorile `[I]` din inventar (termeni, limite, identificatori de modele) sunt presupuneri.
+- **F3.2 — Clientul unificat.**
+  - Construit: `adaptoare/` (`openai_compat`, `gemini`, `anthropic`), `client`, `iesire`, `structurat`, `antete`, `tipuri`, `ceas`, garda `scripts/check_gateway.py`, furnizorul fals `tests/furnizor_fals.py`.
+  - Hotărâri: adaptor pe TIP de API, nu pe furnizor (OpenRouter, Groq și Cloudflare diferă prin date: adresă cu parametri, capabilități); Anthropic cere ieșirea structurată printr-o unealtă forțată; cheia Gemini merge în antet, nu în adresă (adresele ajung în jurnale); mesajul de eroare al furnizorului nu se păstrează niciodată (poate repeta promptul); `IesireInvalida` nu poartă conținutul răspunsului, fiindcă o excepție dintr-un pas durabil ajunge în tabelele motorului, fără RLS.
+  - Găsit: garda trebuie să prindă și `from app.gateway import client` (submodul importat prin pachet) și `gateway.client` ca atribut; lista submodulelor „interne” se deduce din ce nu e în `__all__`.
+  - Neverificat: formele cererilor / răspunsurilor sunt după documentațiile publice, din memorie; nimic nu a ajuns la un furnizor real.
 

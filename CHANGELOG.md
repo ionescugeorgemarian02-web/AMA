@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F3.2 — Clientul unificat
+- Un singur mod de a apela orice furnizor, cu `httpx` și transport injectabil (fără SDK-uri): adaptoare pe tip de API (compatibil OpenAI, Gemini, Anthropic), erori clasificate după 7.5, citirea antetelor de limită, ieșiri structurate (schemă JSON nativă sau instrucțiune, validare Pydantic, o singură reparație, apoi eroare tipizată). Cheia nu apare în erori sau jurnale (testat).
+- Garda `scripts/check_gateway.py` în `make guards`: niciun import intern al gateway-ului și nicio adresă de furnizor în afara `app/gateway`; fără SDK-uri de furnizori. Furnizorul fals pentru teste (`tests/furnizor_fals.py`, SIMULAT).
+
 ### F3.1 — Registrul de furnizori și modele
 - Tabelele `gateway_furnizori` și `gateway_modele` (migrarea `0012`), la nivel de agenție, cu RLS: furnizor (tip de API, adresă `https`, stare, termeni: uz comercial, antrenare pe date, regiuni; marcaj `V`/`S`/`I` și dată de verificare; limite pe minut și pe zi) și model (nivel T1–T4/local, context, capabilități, limite, preț-umbră, scor pe profil). Cheia de API nu stă în bază: doar numele variabilei de mediu `AMA_CHEIE_*` (baza refuză alt nume). Un furnizor fără uz comercial confirmat nu poate fi activat (impus și în bază).
 - Sămânța din `app/gateway/inventar.py` (OpenRouter, Groq, Gemini, Cloudflare, Claude), totul `inactiv`. Ecranul `/gateway/registru` (limite, termeni, „cheie configurată / lipsește”), cu activare / dezactivare de către proprietar (CSRF, audit).

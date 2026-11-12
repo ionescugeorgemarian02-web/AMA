@@ -15,6 +15,7 @@ from app.gateway.erori import (
     IesireInvalida,
     NuSePoateActiva,
 )
+from app.gateway.iesire import Iesire
 from app.gateway.modele import Furnizor, ModelLlm
 from app.gateway.registru import (
     activeaza,
@@ -32,6 +33,7 @@ __all__ = [
     "EroareGateway",
     "Furnizor",
     "FurnizoriIndisponibili",
+    "Iesire",
     "IesireInvalida",
     "ModelLlm",
     "NuSePoateActiva",
