@@ -14,6 +14,8 @@ from alembic.config import Config
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.engine import make_url
 
+from app.operare.motor.migrare import migreaza_sistem
+
 os.environ.setdefault("AMA_ENV", "test")
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -91,6 +93,7 @@ def creeaza_baza_noua(admin: str, migreaza: bool) -> Iterator[BazaTest]:
         )
         if migreaza:
             command.upgrade(alembic_config(baza.owner_url), "head")
+            migreaza_sistem(baza.owner_url)  # schema bibliotecii de workflow-uri (F2.1), tot ca proprietar
         yield baza
     finally:
         with psycopg.connect(_psycopg_dsn(admin), autocommit=True) as conn:
@@ -129,3 +132,47 @@ def admin_engine(baza: BazaTest) -> Iterator[Engine]:
     engine = create_engine(baza.admin_url)
     yield engine
     engine.dispose()
+
+
+TABELE_MOTOR = (
+    "workflow_status",
+    "workflow_schedules",
+)
+
+
+@pytest.fixture
+def motor_curat(baza: BazaTest, admin_engine: Engine) -> Iterator[None]:
+    """Joburile bibliotecii sunt comune întregii baze de test: fiecare test pornește fără joburi și fără programări.
+    La final se închide clientul web (are motor propriu de conexiuni, legat de configurarea testului)."""
+    from sqlalchemy import text
+
+    from app.operare import motor
+
+    def goleste() -> None:
+        with admin_engine.begin() as c:
+            c.execute(text("TRUNCATE dbos.workflow_status CASCADE"))
+            c.execute(text("DELETE FROM dbos.workflow_schedules"))
+
+    motor.inchide_client()
+    goleste()
+    yield
+    motor.inchide_client()
+    goleste()
+
+
+@pytest.fixture
+def executor(baza: BazaTest, motor_curat: None, monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """Executorul pornit ÎN procesul testului (rapid), pentru teste care nu au nevoie de un proces separat.
+    Testele de avarie (SIGKILL, SIGTERM) folosesc procese reale din `tests/chaos`."""
+    from app.config import get_settings
+    from app.operare import motor
+
+    monkeypatch.setenv("AMA_MOTOR_POLLING_SEC", "0.1")
+    monkeypatch.setenv("AMA_WORKER_ID", "worker-local")
+    get_settings.cache_clear()
+    motor.porneste()
+    try:
+        yield
+    finally:
+        motor.opreste(0)
+        get_settings.cache_clear()

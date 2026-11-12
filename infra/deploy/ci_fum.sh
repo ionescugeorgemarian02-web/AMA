@@ -14,7 +14,7 @@ rand() { od -An -N24 -tx1 /dev/urandom | tr -d ' \n'; }
 pw_super="$(rand)"; pw_owner="$(rand)"; pw_app="$(rand)"; pw_backup="$(rand)"
 
 cleanup() {
-  docker rm -f "$net-app" "$net-pg" >/dev/null 2>&1 || true
+  docker rm -f "$net-app" "$net-worker" "$net-pg" >/dev/null 2>&1 || true
   docker network rm "$net" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -35,7 +35,8 @@ done
 
 owner_url="postgresql+psycopg://ama_owner:${pw_owner}@postgres:5432/ama"
 docker run --rm --network "$net" --read-only --tmpfs /tmp -e AMA_ENV=test \
-  -e AMA_DATABASE_OWNER_URL="$owner_url" -e AMA_DATABASE_URL="$owner_url" "$image" alembic upgrade head
+  -e AMA_DATABASE_OWNER_URL="$owner_url" -e AMA_DATABASE_URL="$owner_url" "$image" \
+  sh -c "alembic upgrade head && python -m app.operare.motor.migrare"
 
 docker run -d --name "$net-app" --network "$net" --read-only --tmpfs /tmp -p "127.0.0.1:$port:8000" \
   -e AMA_ENV=test -e AMA_DATABASE_URL="postgresql+psycopg://ama_app:${pw_app}@postgres:5432/ama" \
@@ -45,3 +46,21 @@ if ! "$root/infra/deploy/smoke.sh" "http://127.0.0.1:$port" 60; then
   docker logs "$net-app" 2>&1 | tail -40 >&2
   exit 1
 fi
+
+# Executorul (F2.1): pornește ca `ama_app` pe schema pregătită de proprietar și se oprește curat la SIGTERM.
+docker run -d --name "$net-worker" --network "$net" --read-only --tmpfs /tmp \
+  -e AMA_ENV=test -e AMA_DATABASE_URL="postgresql+psycopg://ama_app:${pw_app}@postgres:5432/ama" \
+  -e AMA_SECRET_KEY="$(rand)" -e AMA_MASTER_KEY="$(rand)" "$image" python -m app.worker >/dev/null
+for _ in $(seq 1 60); do
+  if docker logs "$net-worker" 2>&1 | grep -q '"msg": "worker pornit"'; then wok=1; break; fi
+  sleep 1
+done
+if [ "${wok:-0}" != 1 ]; then
+  echo "ESEC: workerul nu a pornit" >&2; docker logs "$net-worker" 2>&1 | tail -40 >&2; exit 1
+fi
+docker stop --timeout 40 "$net-worker" >/dev/null
+code="$(docker inspect --format '{{.State.ExitCode}}' "$net-worker")"
+if [ "$code" != 0 ]; then
+  echo "ESEC: workerul a ieșit cu codul $code la SIGTERM" >&2; docker logs "$net-worker" 2>&1 | tail -40 >&2; exit 1
+fi
+echo "worker: pornit și oprit curat"

@@ -48,6 +48,24 @@ class Settings(BaseSettings):
     telegram_chat_id: str = ""
     telegram_webhook_secret: SecretStr = Field(default=SecretStr(""))
 
+    # Motorul de execuție (F2.1–F2.2, 7.5). Biblioteca de workflow-uri stă în aceeași bază, schema `dbos`.
+    # `worker_id` trebuie să fie stabil între reporniri: workerul reluat își recuperează joburile după el.
+    worker_id: str = Field(default="worker-1", pattern=r"^[a-z0-9][a-z0-9_.-]{0,62}$")
+    motor_schema: str = Field(default="dbos", pattern=r"^[a-z][a-z0-9_]{0,40}$")
+    motor_versiune: str = Field(
+        default="f2", pattern=r"^[A-Za-z0-9_.-]{1,60}$"
+    )  # versiunea joburilor (vezi F2.1)
+    motor_polling_sec: float = Field(default=1.0, gt=0.0, le=60.0)  # cât de des caută o coadă joburi noi
+    motor_pool: int = Field(default=6, ge=2, le=20)  # conexiuni ale bibliotecii (worker)
+    worker_oprire_sec: int = Field(default=20, ge=0, le=600)  # cât așteaptă joburile în curs la SIGTERM
+    culoare_greu: int = Field(
+        default=2, ge=1, le=16
+    )  # culoare pentru joburile grele (7.5): câte un job pe culoar
+    io_paralel: int = Field(default=24, ge=1, le=200)  # coada de intrări și ieșiri
+    invatare_paralel: int = Field(default=1, ge=1, le=8)
+    # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
+    worker_module_test: str = ""
+
     @property
     def push_activ(self) -> bool:
         return bool(self.vapid_public_key) and len(self.vapid_private_key.get_secret_value()) >= 32

@@ -86,3 +86,14 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - Cauza 2 (jobul `imagine`): testul de fum pornea imaginea fără bază, iar `/readyz` verifică de la F1.3 baza. Reparat cu `infra/deploy/ci_fum.sh`: pornește Postgres cu scriptul real de roluri din `infra/`, rulează migrările din imagine ca proprietar, pornește aplicația ca `ama_app` și verifică `/healthz` și `/readyz`. Rulat local pe Docker: trece.
 - Lecție: „verde local” nu a fost de ajuns; de acum verific rulările de pe GitHub după fiecare împingere a unui pas revizuit.
 - Confirmat pe GitHub: ambele joburi (`check`, `imagine`) trec pe commit-ul `2326ab6`. Faza F1 așteaptă validarea proprietarului; F2 nu pornește până atunci.
+
+## 2026-11-12 — Sesiunea 2: faza F2 „Motorul” (F2.1, F2.2, F2.6, F2.7)
+
+### 15. Pașii F2.1, F2.2, F2.6, F2.7 — un agent de cod (Sonnet), pe ramura `claude/amazing-volta-ou9t2u`
+- Alți pași din F2 (F2.3–F2.5, F2.8–F2.10) nu au fost atinși. Un commit pe pas, `make check` verde înainte de fiecare.
+- **F2.1 — Execuția durabilă.**
+  - Verificat pe PyPI: `dbos` 3.5.0 este ultima versiune stabilă (2026-11-10; după ea doar pre-lansări 3.6.0aN); cere Python ≥ 3.10, SQLAlchemy ≥ 2.0.43, psycopg ≥ 3.1; aduce `croniter`, `greenlet`, `python-dateutil` (+ `tzdata`). Fixată cu `==`, `uv lock` / `uv sync --locked` curate. API-ul s-a citit din `.venv` (DBOS 3.x nu mai are baza de aplicație și are cozi „în bază”, `DBOSClient`, `run_migrations=False`).
+  - Construit: `app/operare/motor/` (flux, pas, trimite, stare, regula argumentelor, migrarea sistemului), `app/worker.py`, garda `scripts/check_motor.py`, serviciul `worker` în compose, mutarea workerului de către deployer.
+  - Verificat: SIGKILL în mijlocul pasului 2 → al doilea proces cu aceeași identitate termină jobul (pas 1 o dată, pas 2 reluat, pas 3 o dată); SIGTERM cu job nesfârșit → ieșire 0, jobul se reia; `ama_app` fără drept de DDL pe schema bibliotecii; web fără executor.
+  - Găsit: `resume` nu reia un flux `ERROR`; recuperarea cere același `executor_id` și aceeași versiune; un proces Python cu fire ne-daemon nu iese singur la SIGTERM (iese forțat, cod 0). Detalii în `docs/specs/F2.1.md`.
+  - Neverificat local: imaginea Docker, `restart: unless-stopped`, deployer-ul real (CI / migrare).

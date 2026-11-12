@@ -4,7 +4,7 @@ Totul se validează în repo și în CI (D-001); VPS-ul vine la final. Specifica
 
 | Director | Ce conține |
 | --- | --- |
-| `compose/` | `base.yml` (postgres, migrate, sloturile `app_blue`/`app_green`), `staging.yml`, `production.yml` (+ `backup`), `edge.yml` (`proxy`, `deployer`) |
+| `compose/` | `base.yml` (postgres, migrate, `worker`, sloturile `app_blue`/`app_green`), `staging.yml`, `production.yml` (+ `backup`), `edge.yml` (`proxy`, `deployer`) |
 | `proxy/Caddyfile` | trei nume publice + staging cu parolă, certificate automate, antete, `/intern/*` blocat |
 | `postgres/init/` | rolurile `ama_owner`, `ama_app`, `ama_backup` și extensia `vector` |
 | `deployer/` | serviciul intern de livrare (stdlib) |
@@ -24,7 +24,7 @@ Limitele rezervate vin din tabelul 6.4 (24 GB, 8 nuclee). Totalul curent (proxy 
 
 | Serviciu | Rol | Limită de memorie | Faza |
 | --- | --- | --- | --- |
-| worker-light | Apeluri LLM, conectori, validatori ușori, embeddings (24 joburi) | 2 GB | F2.1 |
+| worker-light | Apeluri LLM, conectori, validatori ușori, embeddings (24 joburi). Din F2.1 există serviciul `worker` (`python -m app.worker`, `restart: unless-stopped`, mutat de deployer odată cu aplicația); celelalte capabilități se adaugă în F3 | 2 GB | F2.1 |
 | worker-heavy | Randare, voce, transcriere, OCR (2 culoare grele) | 5 GB | F3 |
 | local-llm | Model local de text, încărcat permanent | 6,5 GB | F3.5 |
 | browser | Chromium headless, 3 pagini în paralel | 1,5 GB | F4 |

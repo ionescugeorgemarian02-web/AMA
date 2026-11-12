@@ -68,7 +68,9 @@ services:
   migrate:
     image: ${AMA_IMAGE_MIGRATE:-${AMA_IMAGE_BLUE:-${AMA_IMAGE_GREEN:-ama-unset:none}}}
     restart: "no"
-    command: ["alembic", "upgrade", "head"]
+    # Două pași, în ordine, ambii ca proprietar: schema aplicației (Alembic), apoi schema bibliotecii de
+    # workflow-uri (F2.1). Aplicația rulează ca `ama_app` și nu are drept de DDL.
+    command: ["sh", "-c", "alembic upgrade head && python -m app.operare.motor.migrare"]
     read_only: true
     tmpfs: ["/tmp"]
     cap_drop: ["ALL"]
@@ -81,6 +83,44 @@ services:
       postgres: { condition: service_healthy }
     networks:
       internal: {}
+
+  # Executorul fluxurilor durabile (F2.1). Procesul web doar pune joburi în coadă; execuția are loc aici.
+  # `restart: unless-stopped` este mecanismul din 22.3: dacă workerul cade, Docker îl repornește, iar la pornire
+  # își reia (cu același AMA_WORKER_ID) joburile rămase în lucru, de la ultimul pas salvat.
+  # Imaginea o mută deployer-ul odată cu slotul activ (AMA_IMAGE_WORKER).
+  worker:
+    image: ${AMA_IMAGE_WORKER:-ama-unset:none}
+    command: ["python", "-m", "app.worker"]
+    restart: unless-stopped
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    stop_grace_period: 40s  # peste AMA_WORKER_OPRIRE_SEC (20): joburile în curs își termină pasul
+    depends_on:
+      postgres: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    environment:
+      AMA_ENV: ${AMA_ENV:?}
+      AMA_BASE_URL: ${AMA_BASE_URL:?}
+      AMA_DATABASE_URL: postgresql+psycopg://ama_app:${AMA_APP_DB_PASSWORD:?}@postgres:5432/ama
+      AMA_SECRET_KEY: ${AMA_SECRET_KEY:?}
+      AMA_MASTER_KEY: ${AMA_MASTER_KEY:?}
+      AMA_WORKER_ID: ${AMA_WORKER_ID:-worker-1}
+      AMA_WORKER_OPRIRE_SEC: "20"
+      AMA_CULOARE_GREU: ${AMA_CULOARE_GREU:-2}
+      # Alertele (push, Telegram) pleacă și din worker (F2.7).
+      AMA_VAPID_PUBLIC_KEY: ${AMA_VAPID_PUBLIC_KEY:-}
+      AMA_VAPID_PRIVATE_KEY: ${AMA_VAPID_PRIVATE_KEY:-}
+      AMA_VAPID_SUBJECT: ${AMA_VAPID_SUBJECT:-mailto:admin@example.invalid}
+      AMA_TELEGRAM_BOT_TOKEN: ${AMA_TELEGRAM_BOT_TOKEN:-}
+      AMA_TELEGRAM_CHAT_ID: ${AMA_TELEGRAM_CHAT_ID:-}
+      AMA_TELEGRAM_WEBHOOK_SECRET: ${AMA_TELEGRAM_WEBHOOK_SECRET:-}
+    volumes:
+      - media:/var/lib/ama/media
+    networks:
+      internal: {}
+      edge: {}
 
   app_blue:
     <<: *app

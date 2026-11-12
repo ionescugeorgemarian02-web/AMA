@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F2.1 — Execuția durabilă
+- Biblioteca de workflow-uri DBOS Transact (`dbos==3.5.0`) în aceeași bază, schema `dbos`, ascunsă în `app/operare/motor/` (garda `scripts/check_motor.py`); decoratorii `flux` și `pas`, `trimite` din procesul web, procesul `worker` cu oprire curată, schema creată de `ama_owner` (`python -m app.operare.motor.migrare`), drepturi minime pentru `ama_app`, serviciul `worker` în compose, mutat de deployer odată cu aplicația. Un flux oprit forțat reia de la ultimul pas.
+
 ### F1.10 — Botul Telegram și butoanele de oprire
 - Webhook păzit de secret și de lista conversațiilor permise; comenzile `/stare`, `/opreste…`, `/porneste…` (repornirea cere cod de confirmare, o singură încercare), alerte critice. Steagurile de oprire există, dar modulele care le citesc apar din F2.
 

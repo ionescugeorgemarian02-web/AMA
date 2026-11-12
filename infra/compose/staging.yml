@@ -8,6 +8,9 @@ services:
   migrate:
     mem_limit: 250m
     memswap_limit: 250m
+  worker:
+    mem_limit: 350m
+    memswap_limit: 350m
   app_blue:
     mem_limit: 350m
     memswap_limit: 350m

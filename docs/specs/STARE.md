@@ -17,6 +17,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F1.8 Livrarea | infrastructura și partea din panou verificate local; schimbul cu deployer-ul real rămâne la migrare | `tests/unit/test_infra_deployer.py`, `tests/integration/test_livrare_panou.py`, jobul CI `imagine` |
 | F1.9 Backup | verificat local, inclusiv afișarea în panou | `tests/integration/test_backup_restore.py`, `tests/unit/test_operare_backup.py` |
 | F1.10 Botul Telegram și opririle | verificat cu un client Telegram simulat; botul real rămâne la migrare. Steagurile de oprire nu sunt încă citite de nimic (modulele apar din F2) | `tests/integration/test_telegram.py`, `tests/contract/test_telegram_contract.py` |
+| F2.1 Execuția durabilă | verificat local cu Postgres real și procese reale (SIGKILL, SIGTERM); imaginea și politica de restart din compose rămân la CI/migrare | `tests/chaos/test_recuperare.py`, `tests/integration/test_motor_executie.py`, `scripts/check_motor.py` |
 
 ## De verificat la migrarea pe VPS
 
@@ -27,3 +28,4 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F1.7: instalarea panoului pe telefon (Android și iOS), abonarea și primirea unei notificări push reale (cheile VAPID se generează cu `scripts/genereaza_vapid.py`); apelul real `pywebpush` nu a rulat niciodată.
 - F1.8 (panou): promovare și revenire cap-coadă cu deployer-ul real; citirea volumului real `backup_status`.
 - F1.10: crearea botului, `setWebhook` cu secretul, comenzile din conversația reală a proprietarului.
+- F2.1: serviciul `worker` din compose pe un VPS real (politica `restart: unless-stopped` după o cădere reală, `stop_grace_period`); mutarea workerului de către deployer-ul real; limita de memorie a workerului sub joburi reale; numărul de conexiuni la Postgres sub încărcare; promovarea `AMA_MOTOR_VERSIUNE` la un flux modificat cu joburi în lucru.
