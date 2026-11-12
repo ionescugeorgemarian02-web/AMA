@@ -1,0 +1,106 @@
+{% extends "panou/baza.html" %}
+{% block title %}Onboarding {{ client.nume }} · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/onboarding">← Onboarding</a> · <a href="/creier/client/{{ client.id }}">Creierul de brand</a></p>
+<h1>Onboarding · {{ client.nume }}</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+{% if not s %}
+<div class="card">
+  {% if ultima_trimisa %}<p>Brieful a fost trimis spre aprobare. Îl găsești în <a href="/creier/client/{{ client.id }}">Creierul de brand</a>.</p>{% endif %}
+  <p>Nu există un interviu deschis.</p>
+  {% if poate_completa %}
+  <form method="post" action="/onboarding/{{ client.id }}/porneste">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Pornește interviul</button>
+  </form>
+  {% endif %}
+</div>
+{% else %}
+<div class="card">
+  <p><strong>Progres:</strong> {{ progres.raspunse }} din {{ progres.total }} întrebări <progress max="{{ progres.total }}" value="{{ progres.raspunse }}">{{ progres.procent }}%</progress></p>
+  <p class="slab">Interviul se poate relua oricând, de unde a rămas. Stare: {{ s.stare }}.{% if progres.clarificari_puse %} Clarificări puse: {{ progres.clarificari_puse }}.{% endif %}</p>
+</div>
+
+{% if s.stare == 'interviu' %}
+  {% if urmatoarea %}
+  <section class="card" aria-labelledby="q">
+    <p class="slab">{{ sectiune }}{% if urmatoarea.tip == 'clarificare' %} · clarificare{% endif %}</p>
+    <h2 id="q">{{ urmatoarea.text_intrebare }}</h2>
+    <p class="slab">{{ ajutor }}</p>
+    {% if poate_completa %}
+    <form method="post" action="/onboarding/{{ client.id }}/raspunde">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="intrebare_id" value="{{ urmatoarea.id }}">
+      <label for="raspuns">Răspunsul clientului</label>
+      <textarea id="raspuns" name="raspuns" rows="6" maxlength="6000" required></textarea>
+      <button type="submit">Salvează răspunsul</button>
+    </form>
+    {% endif %}
+  </section>
+  {% else %}
+  <section class="card">
+    <h2>Interviul este terminat</h2>
+    <p>Toate întrebările au răspuns. Poți compune brieful din răspunsuri și din materialele colectate.</p>
+    {% if poate_completa %}
+    <form method="post" action="/onboarding/{{ client.id }}/compune">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit">Compune brieful</button>
+    </form>
+    {% endif %}
+  </section>
+  {% endif %}
+{% elif s.stare == 'compune' %}
+  <div class="card"><p>Brieful se compune.{% if s.amanat_pana %} Modelul este ocupat; se reia după {{ s.amanat_pana|moment }}.{% endif %} Reîncarcă pagina peste câteva secunde.</p></div>
+{% endif %}
+
+{% if s.stare == 'brief_gata' %}
+<h2>Brief propus</h2>
+{% if probleme %}
+<div class="mesaj atentie" role="status">
+  <strong>Brieful nu e complet și nu poate fi trimis:</strong>
+  <ul>{% for p in probleme %}<li>{{ p }}</li>{% endfor %}</ul>
+</div>
+{% else %}
+<p class="mesaj" role="status">Brieful este complet: toate câmpurile au conținut și sursă.</p>
+{% endif %}
+{% for cod, nume in campuri.items() %}
+{% set c = brief.get(cod) %}
+<section class="card" aria-labelledby="c-{{ cod }}">
+  <h2 id="c-{{ cod }}">{{ nume }}</h2>
+  <p>{{ c.valoare if c else '–' }}</p>
+  {% if c %}<p class="slab">Surse: {% for x in c.surse %}{{ x.tip }}{% if x.citat %} („{{ x.citat[:80] }}”){% endif %}{% if not loop.last %}; {% endif %}{% else %}nicio sursă{% endfor %}</p>{% endif %}
+  {% if poate_completa %}
+  <details>
+    <summary>Corectează</summary>
+    <form method="post" action="/onboarding/{{ client.id }}/camp">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="camp" value="{{ cod }}">
+      <label for="v-{{ cod }}">Valoarea câmpului</label>
+      <textarea id="v-{{ cod }}" name="valoare" rows="4" maxlength="2500" required>{{ c.valoare if c else '' }}</textarea>
+      <button type="submit" class="secundar">Salvează câmpul</button>
+    </form>
+  </details>
+  {% endif %}
+</section>
+{% endfor %}
+{% if poate_completa %}
+<form method="post" action="/onboarding/{{ client.id }}/trimite">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <button type="submit">Trimite brieful spre aprobare</button>
+</form>
+{% endif %}
+{% endif %}
+
+{% if raspunse %}
+<h2>Răspunsurile de până acum</h2>
+{% for r in raspunse %}
+<section class="card">
+  <p class="slab">{{ r.text_intrebare }}{% if r.tip == 'clarificare' %} (clarificare){% endif %}</p>
+  <p>{{ r.raspuns }}</p>
+</section>
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endblock %}

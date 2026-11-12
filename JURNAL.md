@@ -270,3 +270,14 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit: `Decimal("50").normalize()` se serializa „5E+1” (F4.6): ar fi trimis cifra greșită în prompt; corectat în `Valoare` cu test de regresie. Nivelurile de nișă / platformă primesc doar sursa „agregat”; nivelul platformei e comun întregii baze de test, deci testul care îl folosește îl retrage la final.
   - Verificat: vezi spec. NEVERIFICAT: vectori reali, calitatea relevanței lexicale, estimatorul de tokeni față de tokenizatori reali, consumul de către autori (F6).
   - Propuneri: nișa clientului (pentru constrângerile de nișă); legarea constructorului de primul pas al producției de text (F6.x); `ca_text` ar putea primi un plafon de caractere pe secțiune.
+
+## 2026-11-12 — Sesiunea 7: închiderea fazei F4 (F4.4, F4.5, F4.9, F4.10, F4.11, F4.8, poarta F4)
+
+### 21. Un agent de cod (Sonnet), pe ramura `claude/amazing-volta-ou9t2u`
+- Un commit pe pas, `make check` verde înainte de fiecare. Poarta F4 propriu-zisă (CariereAI și BigBrain) rămâne a proprietarului.
+- **F4.4 — Asistentul de onboarding.**
+  - Construit: `app/onboarding` (`interviu`, `brief`, `clarificare`, `completare`, `sesiuni`, `fluxuri`, `modele`, `prompturi`), migrarea `0026`, două prompturi, ecranul `/onboarding`, `docs/specs/F4.4.md`, DECIZII D-005.
+  - Hotărâri: poarta de aprobare e a COMPARTIMENTULUI (în `creier.versiuni`), nu a ecranului, ca niciun serviciu să nu poată ocoli completitudinea; trei compartimente noi în loc de tabele paralele; clarificarea cade pe șablonul din interviu dacă gateway-ul nu răspunde; câmpul respins de verificator cade pe răspunsul clientului, nu rămâne gol.
+  - Găsit: auditul refuză cheia `cod`; cheia de idempotență a jobului trebuie să fie unică pe sesiune în teste; o valoare repetată „Nu știu” după clarificări trebuia tratată ca substitut.
+  - NEVERIFICAT: orice model real.
+

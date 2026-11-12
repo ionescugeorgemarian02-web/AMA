@@ -17,7 +17,10 @@ from app.creier.compartimente import _SCHEME, text_de_cautare
 
 
 def test_cele_zece_compartimente_din_10_1_exista_ca_date() -> None:
-    assert len(COMPARTIMENTE) == 10 and set(COMPARTIMENTE) == set(Compartiment)
+    # cele zece din 10.1 + cele trei adăugate în F4 (D-005: brief, insight de piață, strategie)
+    adaugate = {Compartiment.BRIEF, Compartiment.INSIGHT_PIATA, Compartiment.STRATEGIE}
+    assert len(COMPARTIMENTE) == 13 and set(COMPARTIMENTE) == set(Compartiment)
+    assert len(set(Compartiment) - adaugate) == 10
     assert all(i.nume and i.contine and i.cine_schimba and i.niveluri for i in COMPARTIMENTE.values())
     # tot ce e al clientului are nivelul „client”; nișa și platforma sunt doar pentru tipare agregate
     assert all(Nivel.CLIENT in i.niveluri for i in COMPARTIMENTE.values())
@@ -31,6 +34,7 @@ def test_doar_compartimentele_automate_accepta_aprobarea_de_sistem() -> None:
         Compartiment.EXEMPLE_AUR,
         Compartiment.EXEMPLE_NEGATIVE,
         Compartiment.INSIGHT_PUBLIC,
+        Compartiment.INSIGHT_PIATA,  # afirmațiile concurenței, după verificarea citatului (F4.10)
         Compartiment.MEMORIE_PERFORMANTA,
     }
     for c in (Compartiment.REGISTRU_FAPTE, Compartiment.CATALOG_OFERTE, Compartiment.PROFIL_BRAND):

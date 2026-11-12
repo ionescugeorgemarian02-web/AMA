@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.4 — Asistentul de onboarding
+- Interviul din 19.3 ca date (5 secțiuni, 11 întrebări), sesiune persistentă și reluabilă (`onboarding_sesiuni`, `onboarding_intrebari`, migrarea `0026`), întrebări de clarificare generate prin gateway și limitate (2 pe întrebare, 6 pe sesiune), brief cu 11 câmpuri obligatorii (schemă Pydantic) compus ca flux durabil din răspunsuri + materialele colectate, cu sursă și citat verificat literal pe fiecare câmp.
+- Poarta de aprobare a Creierului (`creier.inregistreaza_poarta`): un brief cu câmpuri goale nu poate deveni „propus” sau „aprobat” pe nicio cale. Compartimente noi `brief`, `insight_piata`, `strategie` (DECIZII D-005). Permisiunea `onboarding.completeaza` (operator, proprietar). Ecranul `/onboarding`.
+
 ### F4.7 — Constructorul de context
 - Pachetul de context al unei sarcini (client, tip, canal, întrebare, livrabil): reguli și interdicții (obligatorii), fapte aprobate și valabile relevante (doar prin `fapte.pentru_context`), oferte valabile, ghidul de brand aprobat (lipsa lui e spusă explicit) și pasaje din materialele clientului prin căutarea hibridă (doar din surse reutilizabile; în prompt doar marcate ca externe). Fiecare element poartă identificatorul și versiunea sursei.
 - Buget de tokeni cu priorități între secțiuni și trunchiere deterministă (un element intră întreg sau deloc; regulile intră mereu); aceleași intrări dau aceeași amprentă.

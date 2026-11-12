@@ -7,6 +7,8 @@ import. Un compartiment fără schemă înregistrată primește doar verificarea
 """
 
 import json
+import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
@@ -27,6 +29,11 @@ class Compartiment(StrEnum):
     MEMORIE_PERFORMANTA = "memorie_performanta"
     PLAYBOOK = "playbook"
     CONSTRANGERI = "constrangeri"
+    # Adăugate în F4 (D-005): documentul 10.1 are zece compartimente; onboardingul, harta pieței și strategia
+    # au nevoie de depozitul versionat și de aprobarea lui, deci nu sunt reținute în afara Creierului.
+    BRIEF = "brief"
+    INSIGHT_PIATA = "insight_piata"
+    STRATEGIE = "strategie"
 
 
 class Nivel(StrEnum):
@@ -166,6 +173,30 @@ COMPARTIMENTE: dict[Compartiment, InfoCompartiment] = {
             False,
             frozenset({_C, _N, _P}),
         ),
+        InfoCompartiment(
+            Compartiment.BRIEF,
+            "Brief de onboarding",
+            "Ce vinde firma, cui, la ce preț, de ce o aleg clienții, obiecții, concurenți, interdicții, ton, obiectiv",  # noqa: E501
+            "Agenția, cu clientul (F4.4)",
+            False,
+            frozenset({_C}),
+        ),
+        InfoCompartiment(
+            Compartiment.INSIGHT_PIATA,
+            "Insight de piață",
+            "Afirmațiile concurenței (oferte, prețuri, mesaje) cu sursă și brieful de insight cu trimiteri",
+            "C7, C8 (F4.10)",
+            True,  # afirmațiile concurenței se aprobă de sistem după verificarea citatului; brieful, de un om
+            frozenset({_C}),
+        ),
+        InfoCompartiment(
+            Compartiment.STRATEGIE,
+            "Strategie",
+            "Strategia pe 90 de zile: ipoteză, plan, indicator, prag, fereastră, criteriu de oprire",
+            "A2 propune, omul aprobă (F4.11)",
+            False,
+            frozenset({_C}),
+        ),
     )
 }
 
@@ -180,6 +211,45 @@ _SCHEME: dict[Compartiment, type[BaseModel]] = {}
 def inregistreaza_schema(compartiment: Compartiment, schema: type[BaseModel]) -> None:
     """Schema Pydantic a conținutului unui compartiment (apelată la import de modulul care îl deține)."""
     _SCHEME[compartiment] = schema
+
+
+class PoartaInchisa(ValueError):
+    """Conținutul nu poate fi trimis spre aprobare sau aprobat: poarta compartimentului a găsit probleme."""
+
+    def __init__(self, probleme: list[str]) -> None:
+        super().__init__("; ".join(probleme))
+        self.probleme = probleme
+
+
+_POARTA: dict[Compartiment, Callable[[Any, uuid.UUID | None, dict[str, Any]], list[str]]] = {}
+_RANDARE: dict[Compartiment, Callable[[dict[str, Any]], str]] = {}
+
+
+def inregistreaza_poarta(
+    compartiment: Compartiment, verifica: Callable[[Any, uuid.UUID | None, dict[str, Any]], list[str]]
+) -> None:
+    """Poarta de aprobare a unui compartiment: `verifica(db, tenant_id, continut)` întoarce problemele
+    (listă goală =
+    poate trece). Se aplică ORICĂREI versiuni care devine `propus` sau `aprobat`, indiferent pe unde
+    vine (serviciu,
+    panou). Primește sesiunea, ca poarta să poată verifica și trimiteri către alte intrări sau surse."""
+    _POARTA[compartiment] = verifica
+
+
+def probleme_poarta(
+    db: Any, tenant_id: uuid.UUID | None, compartiment: Compartiment, continut: dict[str, Any]
+) -> list[str]:
+    f = _POARTA.get(compartiment)
+    return f(db, tenant_id, continut) if f else []
+
+
+def inregistreaza_randare(compartiment: Compartiment, randeaza: Callable[[dict[str, Any]], str]) -> None:
+    """Cum se scrie conținutul unui compartiment în pachetul de context (altfel, `citire.text_intrare`)."""
+    _RANDARE[compartiment] = randeaza
+
+
+def randare(compartiment: Compartiment) -> Callable[[dict[str, Any]], str] | None:
+    return _RANDARE.get(compartiment)
 
 
 def schema(compartiment: Compartiment) -> type[BaseModel] | None:

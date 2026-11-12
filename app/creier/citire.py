@@ -19,7 +19,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.creier.compartimente import Compartiment
+from app.creier.compartimente import Compartiment, randare
 from app.creier.modele import IntrareCreier, VersiuneCreier
 from app.creier.versiuni import RegulaCreier
 
@@ -56,6 +56,11 @@ def text_intrare(continut: dict[str, Any]) -> str:
     if len(campuri) == 1:
         return campuri[0][1]
     return "; ".join(f"{k.replace('_', ' ')}: {v}" for k, v in campuri)
+
+
+def _text(compartiment: Compartiment, continut: dict[str, Any]) -> str:
+    randeaza = randare(compartiment)
+    return randeaza(continut) if randeaza else text_intrare(continut)
 
 
 def pentru_context(
@@ -95,7 +100,14 @@ def pentru_context(
     )
     return [
         IntrareContext(
-            i.id, v.nr, i.nivel, i.cheie, v.continut, text_intrare(v.continut), v.sursa_tip, v.aprobat_la
+            i.id,
+            v.nr,
+            i.nivel,
+            i.cheie,
+            v.continut,
+            _text(compartiment, v.continut),
+            v.sursa_tip,
+            v.aprobat_la,
         )
         for i, v in db.execute(q).all()
     ]

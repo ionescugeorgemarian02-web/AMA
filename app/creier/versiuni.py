@@ -28,6 +28,7 @@ from app.creier.compartimente import (
     Compartiment,
     ContinutInvalid,
     Nivel,
+    PoartaInchisa,
     Stare,
     SursaTip,
 )
@@ -202,6 +203,14 @@ def lista(
 # --- scriere
 
 
+def _poarta(
+    db: Session, tenant_id: uuid.UUID | None, compartiment: Compartiment, continut: dict[str, Any]
+) -> None:
+    probleme = cmp.probleme_poarta(db, tenant_id, compartiment, continut)
+    if probleme:
+        raise cmp.PoartaInchisa(probleme)
+
+
 def _urma(
     db: Session,
     actiune: str,
@@ -242,6 +251,8 @@ def _adauga_versiune(
 ) -> VersiuneCreier:
     comp = Compartiment(i.compartiment)
     continut = cmp.valideaza_continut(comp, continut)
+    if propus:
+        _poarta(db, i.tenant_id, comp, continut)
     _verifica_sursa(sursa, utilizator_id)
     _verifica_valabilitate(de_la, pana_la)
     ultima = db.execute(
@@ -359,6 +370,7 @@ def trimite_spre_aprobare(
         raise TranzitieNepermisa(
             f"doar o ciornă se trimite spre aprobare (versiunea {versiune} e „{v.stare}”)"
         )
+    _poarta(db, i.tenant_id, Compartiment(i.compartiment), v.continut)
     v.stare = Stare.PROPUS.value
     v.propus_la = _acum(acum)
     db.flush()
@@ -389,6 +401,7 @@ def aproba(
     v = citeste(db, intrare_id, versiune)
     if v.stare != Stare.PROPUS.value:
         raise TranzitieNepermisa(f"doar o versiune propusă se aprobă (versiunea {versiune} e „{v.stare}”)")
+    _poarta(db, i.tenant_id, Compartiment(i.compartiment), v.continut)
     for veche in istoric(db, intrare_id):
         if veche.nr < v.nr and veche.stare in (Stare.APROBAT.value, Stare.PROPUS.value, Stare.CIORNA.value):
             veche.stare = Stare.RETRAS.value
@@ -454,6 +467,7 @@ __all__ = [
     "ContinutInvalid",
     "EroareCreier",
     "IntrareInexistenta",
+    "PoartaInchisa",
     "RegulaCreier",
     "Sursa",
     "TranzitieNepermisa",

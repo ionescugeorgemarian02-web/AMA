@@ -28,6 +28,7 @@ class Permisiune(StrEnum):
     RAPOARTE_CITESTE = "rapoarte.citeste"
     INVATARE_CITESTE = "invatare.citeste"
     CREIER_EDITEAZA = "creier.editeaza"
+    ONBOARDING_COMPLETEAZA = "onboarding.completeaza"  # interviul și brieful, pentru client (F4.4)
     FACTURI_VEDE = "facturi.vede"
 
 
@@ -48,6 +49,7 @@ MATRICE: dict[Rol, frozenset[Permisiune]] = {
             P.INBOX_RASPUNDE,
             P.RAPOARTE_CITESTE,
             P.ALERTE_GESTIONEAZA,
+            P.ONBOARDING_COMPLETEAZA,
         }
     ),
     Rol.ANALIST: frozenset({P.RAPOARTE_CITESTE, P.INVATARE_CITESTE, P.LIVRABIL_CITESTE}),

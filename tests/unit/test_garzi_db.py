@@ -38,6 +38,7 @@ CONTEXT_AGENTIE = {
     "app/planificare/capacitate.py",
     "app/creier/extragere.py",
     "app/creier/fluxuri.py",
+    "app/onboarding/prompturi.py",  # prompturile versionate se aduc în registrul global al gateway-ului (F4.4)
 }
 
 

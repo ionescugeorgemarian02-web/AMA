@@ -27,6 +27,7 @@ from app.gateway.iesire import Iesire
 from app.gateway.interceptori import Interceptor
 from app.gateway.interceptori import adauga as adauga_interceptor
 from app.gateway.interceptori import elimina as elimina_interceptor
+from app.gateway.mascare import detecteaza as detecteaza_date_personale
 from app.gateway.modele import Apel, ApelContinut, Furnizor, ModelLlm, PromptGateway
 from app.gateway.registru import (
     activeaza,
@@ -70,6 +71,7 @@ __all__ = [
     "bugete",
     "cheie_configurata",
     "cheie_reluare",
+    "detecteaza_date_personale",
     "dezactiveaza",
     "dimensiune_vectori",
     "elimina_interceptor",
