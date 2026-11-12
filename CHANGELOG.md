@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.10 — Harta pieței și brieful de insight
+- Concurenți ca surse (3–5 pe client, citire cu colectorul existent, text lipit altfel; textul lor nu se reutilizează), afirmațiile lor (ofertă, preț, mesaj) extrase pe pasaje cu citat verificat literal în `insight_piata`, brief de insight pe o pagină cu trimitere la sursă pe fiecare afirmație (profilul `strategie`, se amână), poarta care blochează afirmațiile fără trimitere, trimiterile fără sursă și sondajul de citate picat; sondaj cu eșantion determinist (`sondaj.esantion`).
+
 ### F4.9 — Profilul de public și vocea clientului
 - Citate reale din recenzii, comentarii și întrebări (flux durabil pe pasaje, gateway cu schemă strictă): fiecare citat verificat LITERAL în pasaj, fără date personale (garda din F3.9) și fără numele autorului, cu sursă și poziție, în `insight_public` (aprobat de sistem). Profilul clientului ideal (segmente, nevoi, obiecții, declanșatori, canale, limbaj, dovezi) propus din brief și citate, cu poartă (≥ 20 de citate aprobate, dovezi reale) și aprobat doar de un om.
 - `gateway.detecteaza_date_personale` (export). Mecanism comun de extragere pe pasaje (`onboarding.extractie`).

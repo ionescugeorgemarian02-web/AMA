@@ -13,7 +13,7 @@ from sqlalchemy import update
 from app import creier, gateway
 from app.db import sesiune_tenant
 from app.logging import get_logger
-from app.onboarding import citate, completare, extractie, ghid, prompturi, public
+from app.onboarding import citate, completare, extractie, ghid, piata, prompturi, public
 from app.onboarding.modele import Sesiune
 from app.operare import motor
 from app.operare.motor import Coada, Prioritate
@@ -88,6 +88,8 @@ def _propune_ton(tenant_id: str, utilizator_id: str) -> str:
         return f"amanat:{amanat.pana_la.isoformat()}"
     except ghid.VariantaInvalida:
         return "refuzat:variante_invalide"
+    except gateway.EroareGateway as exc:  # ieșire invalidă, furnizori indisponibili, apel refuzat
+        return f"refuzat:{type(exc).__name__}"
     return "gata"
 
 
@@ -122,6 +124,7 @@ PAUZA_INDISPONIBIL_SEC = 600
 LOTURI_MAXIME = 500
 TIPURI_EXTRAGERE = {
     "citate": (citate.REFERINTA_PROMPT, citate.extrage_din_pasaj),
+    "afirmatii": (piata.REFERINTA_AFIRMATII, piata.extrage_din_pasaj),
 }
 
 
@@ -218,6 +221,8 @@ def _profil_public(tenant_id: str, utilizator_id: str) -> str:
     except creier.RegulaCreier as exc:
         log.warning("profilul de public nu s-a putut propune", extra={"motiv": str(exc)[:200]})
         return "refuzat:profil_invalid"
+    except gateway.EroareGateway as exc:
+        return f"refuzat:{type(exc).__name__}"
     return "gata"
 
 
@@ -241,6 +246,55 @@ def profil_public(tenant_id: str, utilizator_id: str) -> str:
 def trimite_profilul_de_public(tenant_id: uuid.UUID, utilizator_id: uuid.UUID, *, cheie: str) -> str:
     return motor.trimite(
         profil_public,
+        str(tenant_id),
+        str(utilizator_id),
+        coada=Coada.IO,
+        prioritate=Prioritate.P2,
+        cheie=cheie,
+    )
+
+
+# --- brieful de insight al pieței (F4.10)
+
+NUME_INSIGHT = "onboarding.brief_insight"
+
+
+@motor.pas(nume="onboarding.brief_insight_pas", reincercari=1)
+def _brief_insight(tenant_id: str, utilizator_id: str) -> str:
+    try:
+        with sesiune_tenant(uuid.UUID(tenant_id)) as db:
+            piata.propune_brief(db, tenant_id=uuid.UUID(tenant_id), utilizator_id=uuid.UUID(utilizator_id))
+    except gateway.Amanat as amanat:
+        return f"amanat:{amanat.pana_la.isoformat()}"
+    except creier.RegulaCreier as exc:
+        log.warning("brieful de insight nu s-a putut propune", extra={"motiv": str(exc)[:200]})
+        return "refuzat:insight_invalid"
+    except gateway.EroareGateway as exc:
+        return f"refuzat:{type(exc).__name__}"
+    return "gata"
+
+
+@motor.flux(NUME_INSIGHT, timp_maxim_sec=900)
+def brief_insight(tenant_id: str, utilizator_id: str) -> str:
+    """Profilul `strategie` se amână, nu se degradează: la `Amanat` fluxul se reprogramează."""
+    r = _brief_insight(tenant_id, utilizator_id)
+    if r.startswith("amanat:"):
+        gateway.reprogrameaza(
+            gateway.Amanat(dt.datetime.fromisoformat(r.split(":", 1)[1]), "insight"),
+            brief_insight,
+            tenant_id,
+            utilizator_id,
+            cheie=f"insight:{tenant_id}:reluare",
+            coada=Coada.IO,
+            prioritate=Prioritate.P2,
+        )
+        return "amanat"
+    return r
+
+
+def trimite_brief_insight(tenant_id: uuid.UUID, utilizator_id: uuid.UUID, *, cheie: str) -> str:
+    return motor.trimite(
+        brief_insight,
         str(tenant_id),
         str(utilizator_id),
         coada=Coada.IO,

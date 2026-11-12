@@ -290,4 +290,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri: citatul e respins de reguli deterministe (literal, date personale, nume de autor, lungime), nu judecat de model; profilul de public se aprobă doar de om chiar dacă compartimentul permite aprobarea de sistem (`inregistreaza_cere_om`); poarta cere 20 de citate, deci „Gata când” e impus de cod, nu doar de test; extragerile refolosesc `creier_extrageri` (aceeași idempotență ca la fapte).
   - Găsit: garda de date personale nu maschează numele proprii (decizie F3.9 deschisă), deci semnăturile de autor se resping la verificare, nu la gateway.
   - NEVERIFICAT: orice model real; recenzii reale; aprobarea reală pentru CariereAI / BigBrain.
+- **F4.10 — Harta pieței și brieful de insight.**
+  - Construit: `app/onboarding/{piata,sondaj}.py`, două prompturi, fluxurile `onboarding.extrage` (tip `afirmatii`) și `onboarding.brief_insight`, concurenți inventați, `docs/specs/F4.10.md`.
+  - Hotărâri: poarta brieful rulează și sondajul (nu doar ecranul), deci nicio cale nu aprobă un brief cu trimiteri false; un brief cu o afirmație fără trimitere se salvează ca ciornă, nu se pierde; numele concurentului vine din sursă, nu din model; eșantionul depinde de amprenta conținutului (reproductibil, nu „norocos” la a doua rulare); afirmațiile concurenței se aprobă de sistem după verificare, brieful doar de om (`inregistreaza_cere_om`).
+  - Găsit: o trimitere către un identificator inexistent trebuia raportată, nu să arunce `IntrareInexistenta`; un test trebuie să încerce aprobarea de sistem ÎNAINTE de cea umană (după aprobare, tranziția e refuzată pe altă cale).
+  - NEVERIFICAT: modele reale; site-uri reale de concurență.
 

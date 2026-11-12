@@ -215,3 +215,23 @@ def recenzii_ca_material() -> dict[str, list[str]]:
         "Comentarii la postări": linii[9:18],
         "Întrebări primite de la clienți": linii[18:],
     }
+
+
+# --- F4.10: concurenți INVENTAȚI (nume, prețuri și oferte fictive) pentru harta pieței.
+CONCURENTI: dict[str, list[str]] = {
+    "Cafeneaua Brumei": [
+        "Cafea de specialitate în boabe, 250 g: 45 lei. Livrare gratuită peste 200 lei.",
+        "Abonament lunar de cafea la 95 lei pe lună, cu două pachete de 250 g și livrare inclusă.",
+        "Cea mai proaspătă cafea din Transilvania, prăjită în fiecare dimineață.",
+    ],
+    "Prăjitoria Nordului": [
+        "Amestecul Nordului, 1 kg: 115 lei. Potrivit pentru cafenele și birouri.",
+        "Workshop de latte art, 150 lei de persoană, două ore, grup de maximum zece persoane.",
+        "Prima comandă are reducere de 10%, fără alte condiții.",
+    ],
+    "Boabe de Munte": [
+        "Cafea de origine unică, 250 g: 52 lei. Note de ciocolată și alune.",
+        "Abonament pentru birouri la 280 lei pe lună, cu trei kilograme de cafea.",
+        "Garantăm gustul sau îți returnăm banii în 30 de zile.",
+    ],
+}

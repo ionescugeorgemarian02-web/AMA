@@ -20,8 +20,10 @@ from app.onboarding import (
     fluxuri,
     ghid,
     interviu,
+    piata,
     public,
     sesiuni,
+    sondaj,
 )
 from app.onboarding.sesiuni import EroareOnboarding, SesiuneInchisa
 
@@ -36,6 +38,8 @@ __all__ = [
     "fluxuri",
     "ghid",
     "interviu",
+    "piata",
     "public",
     "sesiuni",
+    "sondaj",
 ]
