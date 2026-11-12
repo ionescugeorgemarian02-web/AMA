@@ -309,7 +309,8 @@ def test_colectarea_ruleaza_ca_flux_durabil_pe_coada_io_si_anunta_abonatii(
     tenant: uuid.UUID, mediu: SiteFals, executor: None, motor_curat: None
 ) -> None:
     anuntate: list[tuple[uuid.UUID, uuid.UUID, uuid.UUID]] = []
-    colectare.dupa_colectare(lambda t, s, c: anuntate.append((t, s, c)))
+    abonat = lambda t, s, c: anuntate.append((t, s, c))  # noqa: E731
+    colectare.dupa_colectare(abonat)
     try:
         sid = sursa_site(tenant, mediu)
         cid = colectare.porneste_colectare(tenant, sid, limite=LIMITE)
@@ -324,7 +325,7 @@ def test_colectarea_ruleaza_ca_flux_durabil_pe_coada_io_si_anunta_abonatii(
         # aceeași cheie de idempotență: a doua pornire nu dublează jobul
         assert fluxuri.trimite(tenant, cid) == job
     finally:
-        colectare._dupa_colectare.clear()
+        colectare._dupa_colectare.remove(abonat)
 
 
 # --- statutul surselor (12.1) și materialele încărcate manual

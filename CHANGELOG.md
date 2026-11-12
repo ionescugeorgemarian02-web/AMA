@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.3 — Vectori și căutare hibridă
+- Materialele colectate se taie în pasaje (paragrafe întregi, suprapunere, legătură pasaj → document → sursă → URL / poziție), se vectorizează în loturi prin gateway (flux durabil `creier.indexeaza_sursa`, cu reprogramare la `Amanat`; pornește singur după fiecare colectare) și se caută hibrid: vectori (pgvector) + text fără diacritice + trigrame, combinate prin fuziune de ranguri, cu filtrare pe client (RLS) și opțional pe sursă / compartiment. Fiecare vector poartă modelul care l-a produs: la schimbarea modelului pasajele se re-vectorizează.
+- Migrarea `0023` (`pasaje`, RLS). Gateway: `vectorizeaza_cu_model`, `model_vectori`. Setări: `AMA_VECTORI_PREFIX_PASAJ`, `AMA_VECTORI_PREFIX_INTREBARE`.
+
 ### F4.2 — Colectorul de surse
 - `app/cercetare`: crawl politicos al site-urilor (robots.txt cu `Crawl-delay`, User-Agent propriu, o cerere odată pe gazdă cu pauză, doar același domeniu înregistrat, sitemap, fără formulare și fără autentificare), cu apărare SSRF (doar http / https, adrese private / loopback / link-local / metadate refuzate la fiecare redirecționare, limită de octeți în flux, tipuri permise) și limite de pagini, adâncime, octeți, timp, capcane de linkuri. Text extras cu parserul din biblioteca standard; originalul pe disc (`AMA_MEDIA_DIR`) cu hash; deduplicare; re-colectare incrementală; flux durabil pe coada `io` cu stare vizibilă (găsite / citite / sărite și de ce).
 - Statutul surselor din 12.1 ca date; materiale manuale (text lipit, `.txt`, `.md`; PDF amânat); `ca_continut_extern` pentru prompturi.

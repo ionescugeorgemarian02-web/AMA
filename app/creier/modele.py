@@ -1,4 +1,4 @@
-"""Tabelele Creierului (migrarea 0021). Cheile străine există în bază, nu se declară aici."""
+"""Tabelele Creierului (migrările 0021 și 0023). Cheile străine există în bază, nu se declară aici."""
 
 import uuid
 from datetime import datetime
@@ -58,3 +58,25 @@ class VersiuneCreier(BazaCreier):
     retras_cauza: Mapped[str | None] = mapped_column(Text)
     retras_motiv: Mapped[str] = mapped_column(Text, default="")
     inlocuita_de: Mapped[int | None] = mapped_column(Integer)
+
+
+class Pasaj(BazaCreier):
+    """O bucată dintr-un document colectat, cu textul normalizat pentru căutare. Coloanele `embedding`
+    (pgvector) și
+    `fts` (tsvector generat) nu se mapează: se ating doar prin SQL (`indexare`, `cautare`)."""
+
+    __tablename__ = "pasaje"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    sursa_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    document_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    pozitie: Mapped[int] = mapped_column(Integer)
+    car_inceput: Mapped[int] = mapped_column(Integer)
+    car_sfarsit: Mapped[int] = mapped_column(Integer)
+    text: Mapped[str] = mapped_column(Text)
+    text_normalizat: Mapped[str] = mapped_column(Text)
+    hash_document: Mapped[str] = mapped_column(Text)
+    compartiment: Mapped[str | None] = mapped_column(Text)
+    model_vectori: Mapped[str | None] = mapped_column(Text)
+    vectorizat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

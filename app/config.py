@@ -131,6 +131,12 @@ class Settings(BaseSettings):
         ),
         pattern=r"^[\x20-\x7e]{10,300}$",  # antet HTTP: ASCII vizibil
     )
+    # Modelul de vectori (F4.3): unele modele (familia E5) cer prefixe diferite pentru pasaje și pentru
+    # întrebări
+    # („passage: ” / „query: ”). Goale = fără prefix. NEVERIFICAT: modelul real și prefixele lui se aleg la
+    # migrare.
+    vectori_prefix_pasaj: str = ""
+    vectori_prefix_intrebare: str = ""
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

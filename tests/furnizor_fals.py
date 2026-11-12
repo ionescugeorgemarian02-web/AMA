@@ -48,6 +48,9 @@ class FurnizorFals:
     tokeni: tuple[int, int] | None = None  # (intrare, ieșire) fixe; altfel din lungimi
     antete_limita: bool = True
     dim_vectori: int = 8  # dimensiunea vectorilor întorși la `/embeddings`
+    vectorizator: Callable[[str, int], list[float]] | None = (
+        None  # înlocuiește vectorii hash (F4.3: sac de cuvinte)
+    )
     timings: dict[str, float] | None = None  # câmpul `timings` al serverului local (llama.cpp)
     antete_ok: dict[str, str] | None = None  # înlocuiește antetele de limită ale unui răspuns reușit
     cereri: list[CerereInregistrata] = field(default_factory=list)
@@ -109,7 +112,11 @@ class FurnizorFals:
             return self._eroare("openai", cuvant)
         texte = inreg.corp.get("input", [])
         date = [
-            {"object": "embedding", "index": i, "embedding": _vector(t, self.dim_vectori)}
+            {
+                "object": "embedding",
+                "index": i,
+                "embedding": (self.vectorizator or _vector)(t, self.dim_vectori),
+            }
             for i, t in enumerate(texte)
         ]
         corp = {"object": "list", "data": date, "model": inreg.corp.get("model", "model"),

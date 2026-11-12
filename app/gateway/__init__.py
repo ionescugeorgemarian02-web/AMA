@@ -38,8 +38,9 @@ from app.gateway.registru import (
     poate_fi_activat,
 )
 from app.gateway.serviciu import apeleaza
+from app.gateway.vectori import ModelVectori, vectorizeaza, vectorizeaza_cu_model
 from app.gateway.vectori import dimensiune as dimensiune_vectori
-from app.gateway.vectori import vectorizeaza
+from app.gateway.vectori import model_activ as model_vectori
 
 bugete.inregistreaza()
 garda.inregistreaza()
@@ -59,6 +60,7 @@ __all__ = [
     "IesireInvalida",
     "Interceptor",
     "ModelLlm",
+    "ModelVectori",
     "NuSePoateActiva",
     "PromptGateway",
     "Rezultat",
@@ -77,6 +79,7 @@ __all__ = [
     "inventar",
     "jurnal",
     "marcheaza_extern",
+    "model_vectori",
     "modele",
     "poate_fi_activat",
     "prompturi",
@@ -84,4 +87,5 @@ __all__ = [
     "reprogrameaza",
     "situatie",
     "vectorizeaza",
+    "vectorizeaza_cu_model",
 ]
