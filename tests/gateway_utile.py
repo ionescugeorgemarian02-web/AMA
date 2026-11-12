@@ -16,7 +16,7 @@ from app.gateway.modele import Furnizor, ModelLlm
 from app.ids import new_id
 from tests.furnizor_fals import FurnizorFals
 
-CHEIE_PROBA = "cheie-de-proba-NU-ESTE-REALA-0123456789"
+CHEIE_PROBA = "cheie-de-proba-" + "x" * 30  # construită la rulare: nu este o cheie reală
 T0 = dt.datetime(2026, 11, 12, 12, 0, 10, tzinfo=dt.UTC)
 
 
@@ -65,6 +65,7 @@ class FabricaModele:
     def __init__(self, admin: Engine) -> None:
         self.admin = admin
         self.furnizori: list[str] = []
+        self.profiluri: list[str] = []
 
     def furnizor(self, *, tip_api: str = "openai_compat", stare: str = "activ", **campuri: Any) -> uuid.UUID:
         cod = f"p{uuid.uuid4().hex[:8]}"
@@ -115,6 +116,30 @@ class FabricaModele:
             )
         return self.candidat(valori["id"])
 
+    def profil(
+        self,
+        lant: list[str],
+        *,
+        nivel_min: str = "T2",
+        la_epuizare: str = "amana",
+        lant_degradare: list[str] | None = None,
+        verificare_in_plus: bool = False,
+        capabilitati: list[str] | None = None,
+    ) -> str:
+        """Un profil de probă (nume unic). Lanțurile conțin coduri `furnizor/identificator` sau `nivel:X`."""
+        nume = f"pr_{uuid.uuid4().hex[:8]}"
+        with self.admin.begin() as c:
+            c.execute(
+                text(
+                    "INSERT INTO gateway_profiluri (nume, eticheta, nivel_min, capabilitati, lant, la_epuizare, "
+                    "lant_degradare, verificare_in_plus) VALUES (:n, :n, :nm, :cap, :l, :le, :ld, :v)"
+                ),
+                {"n": nume, "nm": nivel_min, "cap": capabilitati or [], "l": lant, "le": la_epuizare,
+                 "ld": lant_degradare or [], "v": verificare_in_plus},
+            )  # fmt: skip
+        self.profiluri.append(nume)
+        return nume
+
     def candidat(self, model_id: uuid.UUID) -> Candidat:
         with sesiune_agentie() as db:
             m = db.get(ModelLlm, model_id)
@@ -124,6 +149,10 @@ class FabricaModele:
             return din_randuri(f, m)
 
     def curata(self) -> None:
+        if self.profiluri:
+            with self.admin.begin() as c:
+                c.execute(text("DELETE FROM gateway_profiluri WHERE nume = ANY(:n)"), {"n": self.profiluri})
+            self.profiluri.clear()
         if not self.furnizori:
             return
         with self.admin.begin() as c:
@@ -176,3 +205,12 @@ def contor(admin: Engine, cheie: str, fereastra: str) -> tuple[int, int]:
 
 
 Fabrica = Callable[..., Candidat]
+
+
+def sanatate(admin: Engine, furnizor_id: uuid.UUID) -> tuple[str, int, dt.datetime | None]:
+    with admin.connect() as c:
+        r = c.execute(
+            text("SELECT stare, erori_consecutive, intrerupt_pana_la FROM gateway_furnizori WHERE id = :i"),
+            {"i": furnizor_id},
+        ).one()
+    return r[0], int(r[1]), r[2]

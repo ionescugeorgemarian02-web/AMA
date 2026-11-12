@@ -2,8 +2,9 @@
 """Garda gateway-ului (F3.2, ADR-04, AGENTS.md: „Apeluri la modele în afara `app/gateway`”).
 
 Pică dacă un fișier Python din repo:
-1. în afara `app/gateway/` și `tests/`: importă un submodul al gateway-ului (`app.gateway.client`,
-   `app.gateway.adaptoare`, …; se folosește doar `from app import gateway` / `from app.gateway import …`);
+1. în afara `app/gateway/`, `tests/` și `migrations/` (sămânța): importă un submodul al gateway-ului
+   (`app.gateway.client`, `app.gateway.adaptoare`, …; se folosește doar `from app import gateway` /
+   `from app.gateway import …`);
 2. în afara `app/gateway/`, `tests/` și `migrations/`: conține adresa unui furnizor de modele (nume de
    gazdă ca `api.anthropic.com`, `openrouter.ai`) într-un literal text;
 3. oriunde: importă SDK-ul unui furnizor (`openai`, `anthropic`, `groq`, `google.generativeai`, `litellm`, …):
@@ -18,7 +19,7 @@ from pathlib import Path
 
 PACHET = "app.gateway"
 INTERN = "app/gateway/"
-PERMISE_IMPORT = ("app/gateway/", "tests/")
+PERMISE_IMPORT = ("app/gateway/", "tests/", "migrations/")  # migrările își citesc sămânța (date)
 PERMISE_ADRESE = ("app/gateway/", "tests/", "migrations/")
 GAZDE = (
     "api.openai.com",

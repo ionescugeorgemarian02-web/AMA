@@ -4,6 +4,11 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F3.4 — Rutarea și lanțurile de rezervă
+- Profilurile de sarcină din 8.2 ca date (`gateway_profiluri`, migrarea `0014`): nivel minim, capabilități, lanț ordonat de modele, ce se întâmplă când lanțul s-a epuizat (`amana` / `degradeaza` / `amana_sau_provizoriu`), lanț de degradare. Alegerea modelului (nucleu pur): furnizor oprit, fără cheie, fără uz comercial, antrenare pe date, capabilități, nivel minim, întrerupător deschis, T4 pe calea critică (ADR-06), apeluri plătite oprite, „alt model decât autorul”; ordine după scor (gol până la F3.6) și lanț.
+- Reacțiile din 7.5: 429 → alt furnizor; eroare de server → 3 reîncercări cu pauză crescătoare, apoi alt furnizor; ieșire în afara schemei → o reparație, apoi alt model; autentificare → furnizor pe pauză cu audit și alertă. Întrerupător pe furnizor (3 eșecuri la rând → scos 120 s, apoi cerere de probă). Strategia se amână, nu se degradează; clasificarea și rescrierea degradează la modelul local.
+- Interceptori înainte și după apel (`gateway.adauga_interceptor`), punctul de extensie pentru bugete (F3.8) și gărzile de date (F3.9).
+
 ### F3.3 — Limitatoarele de cotă
 - Contoare persistente în Postgres (`gateway_contoare`, `gateway_blocaje`, migrarea `0013`) pe (model sau cont de furnizor, minut / zi), cu rezervare atomică înainte de apel (o instrucțiune SQL sub plafon, corectă la concurență), regularizare cu tokenii reali, antetele furnizorului ca sursă de adevăr (`x-ratelimit-*`, `retry-after`), blocaj după 429 și rezerva de 10% din limita zilnică pentru P0.
 - Cota epuizată devine `Amanat(pana_la)`; un flux durabil se reprogramează prin motor cu `gateway.reprogrameaza` pentru momentul resetării (fără `sleep`).

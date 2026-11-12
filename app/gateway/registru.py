@@ -22,7 +22,8 @@ from sqlalchemy.orm import Session
 
 from app.gateway.candidat import Candidat, din_randuri
 from app.gateway.erori import NuSePoateActiva
-from app.gateway.modele import Furnizor, ModelLlm
+from app.gateway.modele import Furnizor, ModelLlm, ProfilSarcina
+from app.gateway.profiluri import Profil
 from app.operare import audit
 
 NUME_VARIABILA = re.compile(r"^AMA_CHEIE_[A-Z0-9_]{1,40}$")
@@ -60,13 +61,40 @@ def candidat(db: Session, model_id: uuid.UUID) -> Candidat | None:
     return None if f is None else din_randuri(f, m)
 
 
+def profil(db: Session, nume: str) -> Profil | None:
+    p = db.get(ProfilSarcina, nume)
+    if p is None:
+        return None
+    return Profil(
+        nume=p.nume,
+        eticheta=p.eticheta,
+        descriere=p.descriere,
+        nivel_min=p.nivel_min,
+        capabilitati=frozenset(p.capabilitati or ()),
+        lant=tuple(p.lant),
+        la_epuizare=p.la_epuizare,
+        lant_degradare=tuple(p.lant_degradare or ()),
+        verificare_in_plus=p.verificare_in_plus,
+    )
+
+
+def nume_profiluri(db: Session) -> list[str]:
+    return list(db.execute(select(ProfilSarcina.nume).order_by(ProfilSarcina.nume)).scalars())
+
+
+def citeste_cheie_env(nume_variabila: str) -> str | None:
+    """Valoarea cheii dintr-o variabilă `AMA_CHEIE_*`; orice alt nume e refuzat (nu se citește mediul la
+    întâmplare)."""
+    if not NUME_VARIABILA.match(nume_variabila):
+        return None
+    valoare = os.environ.get(nume_variabila, "").strip()
+    return valoare or None
+
+
 def citeste_cheie(f: Furnizor) -> str | None:
     """Valoarea cheii din mediu, sau `None` dacă lipsește. DOAR pentru client: nu se loghează, nu se "
     "afișează."""
-    if not NUME_VARIABILA.match(f.cheie_env):  # a doua plasă după CHECK-ul din bază
-        return None
-    valoare = os.environ.get(f.cheie_env, "").strip()
-    return valoare or None
+    return citeste_cheie_env(f.cheie_env)
 
 
 def cheie_configurata(f: Furnizor) -> bool:
@@ -114,6 +142,8 @@ def _schimba(db: Session, f: Furnizor, stare: str, motiv: str, utilizator_id: uu
     anterior = f.stare
     f.stare, f.stare_motiv = stare, motiv.strip()[:MOTIV_MAXIM]
     f.actualizat_la = func.now()
+    if stare == "activ":  # o activare de om ridică și întrerupătorul
+        f.erori_consecutive, f.intrerupt_pana_la = 0, None
     db.flush()
     audit.record(
         db, "gateway.furnizor_activat" if stare == "activ" else "gateway.furnizor_dezactivat",

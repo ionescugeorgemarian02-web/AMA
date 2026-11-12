@@ -99,6 +99,13 @@ class Settings(BaseSettings):
     efecte_redistribuire_sec: int = Field(
         default=600, ge=1
     )  # un efect în așteptare fără job viu se repune în coadă
+    # Gateway-ul de modele (F3.4, 7.5): reîncercări la erori de server, întrerupătorul pe furnizor
+    # (valori de pornire).
+    gateway_reincercari: int = Field(default=3, ge=0, le=10)  # reîncercări pe același model, apoi alt model
+    gateway_pauza_sec: float = Field(default=1.0, gt=0.0, le=60.0)  # prima pauză; apoi × factorul
+    gateway_factor_pauza: float = Field(default=2.0, ge=1.0, le=10.0)
+    gateway_intrerupator_prag: int = Field(default=3, ge=1)  # eșecuri consecutive care scot furnizorul
+    gateway_intrerupator_pauza_sec: float = Field(default=120.0, gt=0.0)  # cât stă scos, până la prima probă
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

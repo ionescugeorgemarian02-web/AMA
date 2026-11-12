@@ -46,6 +46,10 @@ class Furnizor(BazaGateway):
     tokeni_minut: Mapped[int | None] = mapped_column(Integer)
     tokeni_zi: Mapped[int | None] = mapped_column(Integer)
     reset_zi_ora: Mapped[int] = mapped_column(SmallInteger, default=0)
+    erori_consecutive: Mapped[int] = mapped_column(Integer, default=0)
+    intrerupt_pana_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    ultima_eroare_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    ultimul_succes_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
     parametri: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     actualizat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -78,3 +82,20 @@ class ModelLlm(BazaGateway):
     @property
     def cheie(self) -> str:
         return str(self.id)
+
+
+class ProfilSarcina(BazaGateway):
+    """Un profil de sarcină (8.2): lanțul de modele și ce se întâmplă când se epuizează."""
+
+    __tablename__ = "gateway_profiluri"
+    nume: Mapped[str] = mapped_column(Text, primary_key=True)
+    eticheta: Mapped[str] = mapped_column(Text)
+    descriere: Mapped[str] = mapped_column(Text, default="")
+    nivel_min: Mapped[str] = mapped_column(Text)
+    capabilitati: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
+    lant: Mapped[list[str]] = mapped_column(ARRAY(Text))
+    la_epuizare: Mapped[str] = mapped_column(Text)
+    lant_degradare: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
+    verificare_in_plus: Mapped[bool] = mapped_column(Boolean, default=False)
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    actualizat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

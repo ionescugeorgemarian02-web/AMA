@@ -3,6 +3,7 @@ registru.
 
 Nu poartă cheia: aceasta se citește la trimitere (`registru.citeste_cheie`)."""
 
+import datetime as dt
 import uuid
 from dataclasses import dataclass, field
 from typing import Any
@@ -38,7 +39,8 @@ class Candidat:
     pret_umbra_intrare: float = 0.0
     pret_umbra_iesire: float = 0.0
     context_tokeni: int = 0
-    intrerupt_pana_la: Any = None  # F3.4: întrerupătorul furnizorului
+    erori_consecutive: int = 0
+    intrerupt_pana_la: dt.datetime | None = None  # întrerupătorul furnizorului (F3.4)
 
     @property
     def cod(self) -> str:
@@ -85,4 +87,6 @@ def din_randuri(f: Furnizor, m: ModelLlm) -> Candidat:
         pret_umbra_intrare=float(m.pret_umbra_intrare),
         pret_umbra_iesire=float(m.pret_umbra_iesire),
         context_tokeni=m.context_tokeni,
+        erori_consecutive=f.erori_consecutive,
+        intrerupt_pana_la=f.intrerupt_pana_la,
     )
