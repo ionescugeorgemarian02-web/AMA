@@ -181,7 +181,7 @@ def test_stare_nu_contine_secrete_si_comanda_cu_numele_botului_merge(
     assert stare.startswith("AMA — stare") and TOKEN_BOT not in stare and SECRET_WEBHOOK not in stare
 
 
-@pytest.mark.parametrize("tip", ["publicare", "reclame", "invatare", "apeluri_platite"])
+@pytest.mark.parametrize("tip", ["publicare", "productie", "reclame", "invatare", "apeluri_platite"])
 def test_opreste_seteaza_steagul_si_scrie_auditul_cu_canalul(
     client: TestClient, bot_fals: BotFals, admin_engine: Engine, tip: str
 ) -> None:

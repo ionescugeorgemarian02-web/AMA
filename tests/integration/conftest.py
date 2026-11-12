@@ -117,4 +117,4 @@ def login(client: TestClient, email: str, parola: str, *, urmeaza: bool = False)
 from tests.integration.utile_panou import _curata_panou, bot_fals, config, push  # noqa: E402, F401
 
 # Clienți și utilizatori pentru testele producției (F2.3+).
-from tests.integration.utile_productie import fabrica_clienti, om, tenant  # noqa: E402, F401
+from tests.integration.utile_productie import anunturi, fabrica_clienti, om, tenant  # noqa: E402, F401

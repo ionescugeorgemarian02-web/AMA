@@ -26,6 +26,34 @@
   {% endif %}
 </section>
 
+{% if intrare.context.get('tip_sursa') == 'livrabil' %}
+{% set d = intrare.context %}
+<section class="card" aria-labelledby="t-diagnostic">
+  <h2 id="t-diagnostic">Diagnostic: livrabil oprit la o limită</h2>
+  <div class="rand"><span class="eticheta">Livrabil</span><code>{{ d.livrabil_id }}</code></div>
+  <div class="rand"><span class="eticheta">Tip · canal</span><span>{{ d.tip }} · {{ d.canal }}</span></div>
+  <div class="rand"><span class="eticheta">Limita</span><span>{{ d.limita }}</span></div>
+  <div class="rand"><span class="eticheta">Oprit în</span><code>{{ d.stare_la_oprire }}</code></div>
+  <div class="rand"><span class="eticheta">Mutarea cerută</span><code>{{ d.mutare_ceruta }}</code></div>
+  <div class="rand"><span class="eticheta">Reparații · predări</span>
+    <span>{{ d.contoare.runde_reparatie }}/{{ d.limite.runde_reparatie }} · {{ d.contoare.predari }}/{{ d.limite.predari }}</span></div>
+  <div class="rand"><span class="eticheta">Apeluri · timp</span>
+    <span>{{ d.contoare.apeluri_llm }}/{{ d.limite.buget_apeluri_llm }} · {{ d.contoare.timp_sec }}/{{ d.limite.buget_timp_sec }} s</span></div>
+  {% if d.de_la_componenta %}
+  <h2>De la componentă</h2>
+  <ul>{% for k, v in d.de_la_componenta.items() %}<li><code>{{ k }}</code>: {{ v }}</li>{% endfor %}</ul>
+  {% endif %}
+  <h2>Ultimele mutări</h2>
+  <div class="defilare"><table>
+    <tr><th>Când</th><th>Din → în</th><th>Cine</th><th>Motiv</th></tr>
+    {% for t in d.ultimele_tranzitii %}
+    <tr><td>{{ t.la[:19] }}</td><td>{{ t.din or '–' }} → {{ t["in"] }}{% if t.rezultat == 'refuzata' %} <span class="insigna pericol">refuzată</span>{% endif %}</td>
+      <td>{{ t.componenta }}</td><td>{{ t.motiv }}</td></tr>
+    {% endfor %}
+  </table></div>
+  <p class="slab">Un om reia livrabilul din Producție (primește rânduri noi de reparație, predări și buget) sau îl anulează. Aici poți închide intrarea cu un motiv.</p>
+</section>
+{% else %}
 <section class="card" aria-labelledby="t-pasi">
   <h2 id="t-pasi">Pașii jobului</h2>
   <div class="defilare"><table>
@@ -46,6 +74,7 @@
   <p class="slab">Doar identificatori (nu conținut).</p>
   <p><code>{{ intrare.context.get('argumente', [])|join(', ') or '–' }}</code></p>
 </section>
+{% endif %}
 
 {% if inrudite %}
 <section class="card" aria-labelledby="t-inrudite">
@@ -60,6 +89,7 @@
 {% if poate_gestiona and intrare.stare != 'inchisa' %}
 <section class="card" aria-labelledby="t-actiuni">
   <h2 id="t-actiuni">Ce faci</h2>
+  {% if intrare.context.get('tip_sursa') != 'livrabil' %}
   <form method="post" action="/alerte/{{ intrare.id }}/reia">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     {% if intrare.stare_job == 'esuat' %}
@@ -72,6 +102,7 @@
     <p class="slab">Pașii deja încheiați nu se repetă. Pasul reluat poate repeta efectele lui: efectele externe au chei de idempotență.</p>
     <button type="submit">Reia</button>
   </form>
+  {% endif %}
   <form method="post" action="/alerte/{{ intrare.id }}/inchide">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <label for="motiv">Motivul închiderii (rămâne în jurnalul de audit)</label>

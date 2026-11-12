@@ -8,7 +8,7 @@
 <section class="card" aria-labelledby="t-oprire">
   <h2 id="t-oprire">Butoane de oprire</h2>
   <p class="slab">Oprirea este imediată și rămâne în jurnalul de audit; repornirea cere confirmare.
-    Atenție: deocamdată steagurile doar se înregistrează. Publicarea (F2.5), reclamele și învățarea nu le citesc încă.</p>
+    Atenție: deocamdată steagurile doar se înregistrează, cu o excepție: „Producția nouă” (și oprirea pe client) este citită deja de mașina de stări a livrabilelor. Publicarea (F2.5), reclamele și învățarea nu le citesc încă.</p>
   {% for o in globale %}
   <div class="rand">
     <span>{{ o.eticheta }}<br>{% if o.oprit %}<span class="insigna pericol">oprit</span>{% else %}<span class="insigna ok">activ</span>{% endif %}</span>

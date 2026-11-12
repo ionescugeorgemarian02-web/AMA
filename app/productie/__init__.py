@@ -8,6 +8,9 @@ Restul aplicației folosește doar ce se exportă aici:
     rez = productie.muta(db, l.id, productie.Stare.PLANIFICAT, productie.Stare.BRIEFAT, componenta="D5")
 """
 
+from app.productie import intrerupator, limite
+from app.productie.bugete import Consum, inregistreaza_consum, poate_consuma
+from app.productie.limite import Depasire, Limite
 from app.productie.modele import Livrabil, Tranzitie
 from app.productie.stari import (
     ETICHETE,
@@ -21,7 +24,9 @@ from app.productie.stari import (
 from app.productie.tranzitii import (
     ConflictStare,
     EroareProductie,
+    LimitaDepasita,
     LivrabilInexistent,
+    ProductieOprita,
     Rezultat,
     TranzitieNepermisa,
     TranzitieRefuzata,
@@ -30,6 +35,7 @@ from app.productie.tranzitii import (
     creeaza,
     istoric,
     muta,
+    reia_de_om,
     versiune_noua,
 )
 
@@ -39,9 +45,14 @@ __all__ = [
     "NORMALE",
     "STARI_FINALE",
     "ConflictStare",
+    "Consum",
+    "Depasire",
     "EroareProductie",
+    "LimitaDepasita",
+    "Limite",
     "Livrabil",
     "LivrabilInexistent",
+    "ProductieOprita",
     "Rezultat",
     "Stare",
     "Tranzitie",
@@ -51,8 +62,13 @@ __all__ = [
     "citeste",
     "creeaza",
     "este_permisa",
+    "inregistreaza_consum",
+    "intrerupator",
     "istoric",
+    "limite",
     "motiv_refuz",
     "muta",
+    "poate_consuma",
+    "reia_de_om",
     "versiune_noua",
 ]

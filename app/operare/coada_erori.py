@@ -239,6 +239,55 @@ def inregistreaza(
     return Rezultat(intrare, nou=True, cauza_noua=cauza_noua, prag_atins=prag_atins)
 
 
+def inregistreaza_escaladare(
+    db: Session,
+    *,
+    tenant_id: uuid.UUID,
+    cheie: str,
+    flux: str,
+    pas: str | None,
+    eroare_tip: str,
+    mesaj: str,
+    context: dict[str, object],
+) -> IntrareEroare:
+    """O intrare care NU vine dintr-un job eșuat, ci dintr-o oprire la o limită (F2.4: reparații, predări,
+    buget). `cheie` ține locul identificatorului de job și este unică (a doua înregistrare cu aceeași cheie
+    pică pe constrângere). Intrarea are severitate „major” (cere un om) și poartă diagnosticul în `context`,
+    cu `tip_sursa = "livrabil"`: ecranul Alerte nu oferă „Reia” (nu există job de reluat), ci doar
+    „Închide”."""
+    mesaj = mesaj[:LUNGIME_MESAJ]
+    intrare = IntrareEroare(
+        id=new_id(),
+        tenant_id=tenant_id,
+        workflow_id=cheie,
+        flux=flux,
+        pas=pas,
+        stare_job="escaladat",
+        eroare_tip=eroare_tip,
+        eroare_mesaj=mesaj,
+        cauza=amprenta_cauzei(flux, pas, eroare_tip, mesaj),
+        severitate=Severitate.MAJOR.value,
+        stare=Stare.NOUA.value,
+        context=context,
+    )
+    db.add(intrare)
+    db.flush()
+    evenimente.emite(
+        db,
+        "livrabil.in_coada_de_erori",
+        sursa="productie",
+        obiect_tip="coada_erori",
+        obiect_id=intrare.id,
+        tenant_id=tenant_id,
+        date={"flux": flux, "pas": pas, "cauza": intrare.cauza, "severitate": intrare.severitate},
+    )
+    return intrare
+
+
+def dupa_cheie(db: Session, cheie: str) -> IntrareEroare | None:
+    return db.execute(select(IntrareEroare).where(IntrareEroare.workflow_id == cheie)).scalar_one_or_none()
+
+
 # --- citire, pentru ecranul Alerte --------------------------------------------------------------------------
 
 

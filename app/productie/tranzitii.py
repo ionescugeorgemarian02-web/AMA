@@ -9,6 +9,10 @@
   obișnuit după o excepție), refuzul rămâne.
 - În bază, un declanșator refuză orice UPDATE al stării care nu e în tabel sau nu trece pe aici.
 - Fiecare mutare aplicată scrie istoricul (din, în, componentă, motiv, când) și un eveniment (22.1).
+- Limitele anti-buclă (F2.4, 7.3) trăiesc tot aici, ca să nu existe ocolire: intrarea într-o a treia rundă de
+  reparație sau într-a 13-a predare nu se face; livrabilul trece în `coada_de_erori`, cu diagnostic și o
+  intrare în coada de erori (`escaleaza`). Pornirea producției noi (`planificat → briefat`) respectă
+  oprirea globală a producției (întrerupătorul) și oprirea pe client.
 """
 
 import uuid
@@ -23,8 +27,12 @@ from app.db import ContextDb, sesiune
 from app.db.motor import CTX_KEY
 from app.ids import new_id
 from app.logging import get_logger
-from app.operare import evenimente
-from app.productie import stari
+from app.operare import audit, coada_erori, evenimente, opriri
+from app.operare.notificari import Nivel
+from app.operare.opriri import Oprire
+from app.productie import limite, stari
+from app.productie.anunturi import anunta
+from app.productie.limite import Depasire
 from app.productie.modele import Livrabil, Tranzitie
 from app.productie.stari import Stare
 
@@ -60,6 +68,15 @@ class ConflictStare(TranzitieRefuzata):
 
 class VersiuneNepotrivita(TranzitieRefuzata):
     pass
+
+
+class LimitaDepasita(TranzitieRefuzata):
+    """O limită anti-buclă s-a depășit, iar livrabilul nu poate fi trimis la om din starea în care e."""
+
+
+class ProductieOprita(EroareProductie):
+    """Producția nouă este oprită (global sau pe client): livrabilul rămâne `planificat`, nu se pierde nimic.
+    Nu se scrie în istoric (nu e o tranziție greșită, ci o pauză); reîncearcă după repornire."""
 
 
 @dataclass(frozen=True)
@@ -115,7 +132,8 @@ def istoric(db: Session, livrabil_id: uuid.UUID, *, si_refuzuri: bool = True) ->
     return list(db.execute(q).scalars())
 
 
-def _blocheaza(db: Session, livrabil_id: uuid.UUID) -> Livrabil:
+def blocheaza(db: Session, livrabil_id: uuid.UUID) -> Livrabil:
+    """Rândul livrabilului, blocat pentru restul tranzacției (cu valorile proaspete din bază)."""
     rand = db.execute(
         select(Livrabil)
         .where(Livrabil.id == livrabil_id)
@@ -285,7 +303,7 @@ def muta(
 
     Aruncă `LivrabilInexistent`, `ConflictStare`, `VersiuneNepotrivita` sau `TranzitieNepermisa`; ultimele
     trei sunt înregistrate în istoric înainte de a fi aruncate."""
-    livrabil = _blocheaza(db, livrabil_id)
+    livrabil = blocheaza(db, livrabil_id)
     cerere = Cerere(din, la, componenta, utilizator_id)
     curenta = Stare(livrabil.stare)
     if curenta != din:
@@ -319,12 +337,53 @@ def muta(
             f"din „{stari.ETICHETE[curenta]}” iese doar un om",
             cerere,
         )
+    if curenta == Stare.PLANIFICAT and la == Stare.BRIEFAT:
+        _respecta_opririle(db, livrabil)
+    depasire = limite.depasire_la_intrare(
+        la, livrabil.runde_reparatie, livrabil.predari, _limite_configurate()
+    )
+    if depasire is not None:
+        if not stari.este_permisa(curenta, Stare.COADA_DE_ERORI):
+            raise refuza(
+                db,
+                livrabil,
+                LimitaDepasita,
+                "limita",
+                f"{limite.ETICHETE[depasire]} e depășită; din „{stari.ETICHETE[curenta]}” nu se escaladează",
+                cerere,
+            )
+        return escaleaza(
+            db,
+            livrabil,
+            depasire,
+            cerut=la,
+            componenta=componenta,
+            utilizator_id=utilizator_id,
+            diagnostic=detalii,
+        )
     _aplica(db, livrabil, cerere, motiv=motiv, detalii=detalii)
     return Rezultat(livrabil=livrabil, cerut=la, stare=la)
 
 
+def _limite_configurate() -> limite.Limite:
+    s = get_settings()
+    return limite.Limite(runde_reparatie=s.productie_runde_reparatie, predari=s.productie_predari_max)
+
+
+def _respecta_opririle(db: Session, livrabil: Livrabil) -> None:
+    """Pornirea de lucru nou respectă oprirea globală a producției (întrerupătorul) și oprirea pe client."""
+    if opriri.este_oprit(db, Oprire.PRODUCTIE, tenant_id=livrabil.tenant_id):
+        raise ProductieOprita("producția nouă este oprită (global sau pentru acest client)")
+
+
 def _aplica(
-    db: Session, livrabil: Livrabil, cerere: Cerere, *, motiv: str, detalii: dict[str, Any] | None
+    db: Session,
+    livrabil: Livrabil,
+    cerere: Cerere,
+    *,
+    motiv: str,
+    detalii: dict[str, Any] | None,
+    escaladare: bool = False,
 ) -> None:
     """Scrie mutarea (stare, istoric, eveniment). Presupune rândul blocat și verificările făcute."""
     din, la = cerere.din, cerere.la
@@ -339,6 +398,12 @@ def _aplica(
             livrabil.stare_anterioara = None
         livrabil.stare = la.value
         livrabil.actualizat_la = func.now()
+        if la == Stare.IN_REPARATIE:
+            livrabil.runde_reparatie += 1
+        if la in stari.STARI_DE_LUCRU:
+            livrabil.predari += 1
+        if escaladare:
+            livrabil.escaladari += 1
         db.flush()
     finally:
         db.execute(text("SELECT set_config('app.muta_livrabil', '', true)"))
@@ -370,6 +435,171 @@ def _aplica(
     )
 
 
+# --- escaladarea la om (F2.4) -----------------------------------------------------------------
+
+
+def _text_scurt(valoare: object) -> str:
+    return str(valoare)[:200]
+
+
+def _diagnostic(
+    db: Session,
+    livrabil: Livrabil,
+    depasire: Depasire,
+    *,
+    din: Stare,
+    cerut: Stare,
+    suplimentar: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Ce are nevoie un om ca să decidă: ce limită, unde era livrabilul, contoarele, ultimele mutări și ce a
+    adăugat componenta (verdictul validatorului, de exemplu). Fără conținut și fără date personale."""
+    limite_cfg = _limite_configurate()
+    ultimele = istoric(db, livrabil.id)[-10:]
+    return {
+        "tip_sursa": "livrabil",
+        "livrabil_id": str(livrabil.id),
+        "tip": livrabil.tip,
+        "canal": livrabil.canal,
+        "clasa_actiune": livrabil.clasa_actiune,
+        "versiune": livrabil.versiune,
+        "limita_depasita": depasire.value,
+        "limita": limite.ETICHETE[depasire],
+        "stare_la_oprire": din.value,
+        "mutare_ceruta": cerut.value,
+        "contoare": {
+            "runde_reparatie": livrabil.runde_reparatie,
+            "predari": livrabil.predari,
+            "apeluri_llm": livrabil.apeluri_llm,
+            "timp_sec": round(livrabil.timp_sec, 1),
+            "escaladari_anterioare": livrabil.escaladari,
+        },
+        "limite": {
+            "runde_reparatie": limite_cfg.runde_reparatie,
+            "predari": limite_cfg.predari,
+            "buget_apeluri_llm": livrabil.buget_apeluri_llm,
+            "buget_timp_sec": livrabil.buget_timp_sec,
+        },
+        "ultimele_tranzitii": [
+            {
+                "din": t.din,
+                "in": t.in_stare,
+                "rezultat": t.rezultat,
+                "componenta": t.componenta,
+                "motiv": _text_scurt(t.motiv),
+                "la": t.creat_la.isoformat() if t.creat_la else None,
+            }
+            for t in ultimele
+        ],
+        "de_la_componenta": {
+            _text_scurt(k): _text_scurt(v) for k, v in list((suplimentar or {}).items())[:20]
+        },
+    }
+
+
+def escaleaza(
+    db: Session,
+    livrabil: Livrabil,
+    depasire: Depasire,
+    *,
+    cerut: Stare,
+    componenta: str,
+    utilizator_id: uuid.UUID | None = None,
+    diagnostic: dict[str, Any] | None = None,
+) -> Rezultat:
+    """Trimite livrabilul la om: `coada_de_erori` + o intrare în coada de erori existentă, cu diagnostic +
+    un anunț (după commit). Presupune rândul blocat și mutarea în `coada_de_erori` permisă."""
+    din = Stare(livrabil.stare)
+    motiv = f"limită depășită: {limite.ETICHETE[depasire]}"
+    context = _diagnostic(db, livrabil, depasire, din=din, cerut=cerut, suplimentar=diagnostic)
+    cerere = Cerere(din, Stare.COADA_DE_ERORI, componenta, utilizator_id)
+    _aplica(
+        db,
+        livrabil,
+        cerere,
+        motiv=motiv,
+        detalii={"cerut": cerut.value, "limita": depasire.value},
+        escaladare=True,
+    )
+    intrare = coada_erori.inregistreaza_escaladare(
+        db,
+        tenant_id=livrabil.tenant_id,
+        cheie=cheie_escaladare(livrabil.id, livrabil.escaladari),
+        flux="livrabil",
+        pas=din.value,
+        eroare_tip=f"Limita:{depasire.value}",
+        mesaj=f"{motiv}; livrabilul ({livrabil.tip}, {livrabil.canal}) oprit în „{stari.ETICHETE[din]}”",
+        context=context,
+    )
+    anunta(
+        db,
+        Nivel.IMPORTANT,
+        "Un livrabil cere intervenție",
+        f"Un livrabil ({livrabil.tip}, {livrabil.canal}) s-a oprit la {limite.ETICHETE[depasire]}.",
+        url=f"/alerte/{intrare.id}",
+    )
+    return Rezultat(
+        livrabil=livrabil,
+        cerut=cerut,
+        stare=Stare.COADA_DE_ERORI,
+        escaladat=depasire.value,
+        intrare_eroare_id=intrare.id,
+    )
+
+
+def cheie_escaladare(livrabil_id: uuid.UUID, numar: int) -> str:
+    """Cheia intrării din coada de erori pentru a `numar`-a escaladare a livrabilului."""
+    return f"livrabil:{livrabil_id}:{numar}"
+
+
+def reia_de_om(
+    db: Session,
+    livrabil_id: uuid.UUID,
+    *,
+    utilizator_id: uuid.UUID,
+    motiv: str,
+    componenta: str = "om",
+) -> Rezultat:
+    """Un om reia un livrabil din `coada_de_erori` în starea de dinainte. Primește rânduri noi: rundele de
+    reparație și predările se resetează, iar bugetul crește cu încă unul implicit (altfel s-ar opri imediat la
+    aceeași limită). Intrarea din coada de erori se închide; decizia intră în istoric și în audit."""
+    motiv = motiv.strip()
+    if len(motiv) < 3:
+        raise ValueError("reluarea de către om cere un motiv (cel puțin 3 caractere)")
+    livrabil = blocheaza(db, livrabil_id)
+    curenta = Stare(livrabil.stare)
+    tinta = Stare(livrabil.stare_anterioara) if livrabil.stare_anterioara else None
+    cerere = Cerere(curenta, tinta or Stare.BRIEFAT, componenta, utilizator_id)
+    if curenta != Stare.COADA_DE_ERORI or tinta is None:
+        raise refuza(
+            db,
+            livrabil,
+            TranzitieNepermisa,
+            "nepermisa",
+            f"se reia doar din coada de erori; livrabilul e în „{stari.ETICHETE[curenta]}”",
+            cerere,
+        )
+    cfg = get_settings()
+    # Contoarele se resetează în aceeași mutare (declanșatorul permite UPDATE-ul pe marcajul din `_aplica`).
+    livrabil.runde_reparatie = 0
+    livrabil.predari = 0
+    livrabil.buget_apeluri_llm += cfg.productie_buget_apeluri_llm
+    livrabil.buget_timp_sec += cfg.productie_buget_timp_sec
+    _aplica(db, livrabil, cerere, motiv=motiv, detalii={"reluat_de_om": True})
+    intrare = coada_erori.dupa_cheie(db, cheie_escaladare(livrabil.id, livrabil.escaladari))
+    if intrare is not None and intrare.stare != coada_erori.Stare.INCHISA.value:
+        coada_erori.inchide(db, intrare, motiv=f"reluat de om: {motiv}", utilizator_id=utilizator_id)
+    audit.record(
+        db,
+        "livrabil.reluat_de_om",
+        obiect_tip="livrabil",
+        obiect_id=livrabil.id,
+        utilizator_id=utilizator_id,
+        tenant_id=livrabil.tenant_id,
+        detalii={"in_starea": tinta.value, "motiv": motiv},
+    )
+    return Rezultat(livrabil=livrabil, cerut=tinta, stare=tinta)
+
+
 # --- versiunea conținutului ------------------------------------------
 
 STARI_CU_CONTINUT_MUTABIL = frozenset(
@@ -387,7 +617,7 @@ def versiune_noua(
 ) -> int:
     """Conținutul s-a schimbat: versiunea crește. Orice decizie legată de versiunea veche (o aprobare) nu mai
     este valabilă pentru cea nouă. Conținutul vine în F4–F6; aici doar legătura de versiune."""
-    livrabil = _blocheaza(db, livrabil_id)
+    livrabil = blocheaza(db, livrabil_id)
     curenta = Stare(livrabil.stare)
     if curenta not in STARI_CU_CONTINUT_MUTABIL:
         raise TranzitieNepermisa(

@@ -1,7 +1,8 @@
 """Butoanele de oprire (docs 7.8): steaguri de sistem, citite de modulele care fac efecte.
 
-Atenție: în F1.10 NIMIC nu citește încă aceste steaguri. Publicarea (F2.5), reclamele (F13) și învățarea (F12)
-vor apela `este_oprit` înaintea oricărui efect. Implicit nimic nu este oprit.
+Cine le citește: producția nouă de livrabile (`Oprire.PRODUCTIE` și oprirea pe client, F2.4: `productie.muta`
+refuză pornirea unui livrabil nou). Publicarea (F2.5), reclamele (F13) și învățarea (F12) vor apela
+`este_oprit` înaintea oricărui efect. Implicit nimic nu este oprit.
 
     from app.operare import opriri
     if opriri.este_oprit(db, opriri.Oprire.PUBLICARE, tenant_id=client_id):
@@ -21,21 +22,25 @@ from app.operare.tabele import StareOprire
 
 class Oprire(StrEnum):
     PUBLICARE = "publicare"  # oprirea globală a publicării
+    PRODUCTIE = (
+        "productie"  # oprirea producției NOI (întrerupătorul din 7.3 o pune singur; repornirea: doar om)
+    )
     RECLAME = "reclame"  # oprirea tuturor reclamelor
     INVATARE = "invatare"  # înghețarea învățării: nicio promovare nouă
     APELURI_PLATITE = "apeluri_platite"
     CLIENT = "client"  # oprirea pe un client (oprește orice efect pentru el)
 
 
-GLOBALE = (Oprire.PUBLICARE, Oprire.RECLAME, Oprire.INVATARE, Oprire.APELURI_PLATITE)
+GLOBALE = (Oprire.PUBLICARE, Oprire.PRODUCTIE, Oprire.RECLAME, Oprire.INVATARE, Oprire.APELURI_PLATITE)
 ETICHETE: dict[Oprire, str] = {
     Oprire.PUBLICARE: "Publicarea (global)",
+    Oprire.PRODUCTIE: "Producția nouă (global)",
     Oprire.RECLAME: "Toate reclamele",
     Oprire.INVATARE: "Învățarea (înghețată)",
     Oprire.APELURI_PLATITE: "Apelurile plătite",
     Oprire.CLIENT: "Un client",
 }
-Canal = Literal["panou", "telegram"]
+Canal = Literal["panou", "telegram", "sistem"]  # „sistem”: doar întrerupătorul global (7.3)
 MOTIV_MAXIM = 300
 
 
@@ -43,6 +48,11 @@ def _rand(db: Session, tip: Oprire, tenant_id: uuid.UUID | None) -> StareOprire 
     q = select(StareOprire).where(StareOprire.tip == tip.value)
     q = q.where(StareOprire.tenant_id.is_(None) if tenant_id is None else StareOprire.tenant_id == tenant_id)
     return db.execute(q).scalar_one_or_none()
+
+
+def citeste(db: Session, tip: Oprire, *, tenant_id: uuid.UUID | None = None) -> StareOprire | None:
+    """Rândul de stare al unei opriri (cu motivul, canalul și momentul ultimei schimbări), sau `None`."""
+    return _rand(db, tip, tenant_id)
 
 
 def este_oprit(db: Session, tip: Oprire, *, tenant_id: uuid.UUID | None = None) -> bool:

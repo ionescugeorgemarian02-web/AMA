@@ -12,39 +12,9 @@ from app.config import get_settings
 from app.db import sesiune_agentie, sesiune_tenant
 from app.productie import stari
 from app.productie.stari import Stare
+from tests.integration.utile_productie import livrabil, muta, randuri, stare
 
 pytestmark = pytest.mark.db
-
-
-def livrabil(tenant: uuid.UUID, **kw: object) -> uuid.UUID:
-    with sesiune_tenant(tenant) as db:
-        return productie.creeaza(db, tenant_id=tenant, tip="postare", canal="facebook", **kw).id  # type: ignore[arg-type]
-
-
-def muta(tenant: uuid.UUID, lid: uuid.UUID, din: Stare, la: Stare, **kw: object) -> productie.Rezultat:
-    with sesiune_tenant(tenant) as db:
-        return productie.muta(db, lid, din, la, componenta=str(kw.pop("componenta", "test")), **kw)  # type: ignore[arg-type]
-
-
-def stare(tenant: uuid.UUID, lid: uuid.UUID) -> Stare:
-    with sesiune_tenant(tenant) as db:
-        livr = productie.citeste(db, lid)
-        assert livr is not None
-        return Stare(livr.stare)
-
-
-def randuri(admin: Engine, lid: uuid.UUID) -> list[dict[str, object]]:
-    with admin.connect() as c:
-        return [
-            dict(r._mapping)
-            for r in c.execute(
-                text(
-                    "SELECT rezultat, din, in_stare, componenta, actor_tip, motiv, detalii FROM livrabile_tranzitii "
-                    "WHERE livrabil_id = :i ORDER BY creat_la, id"
-                ),
-                {"i": lid},
-            )
-        ]
 
 
 # --- creare ------------------------------------------------------------------------------------------------

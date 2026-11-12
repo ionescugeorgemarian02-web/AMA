@@ -19,6 +19,9 @@ CONTEXT_AGENTIE = {
     # Procesul worker (F2.7): fără utilizator; scrie semnale de viață și coada de erori la nivel de agenție.
     "app/operare/watchdog.py",
     "app/operare/semnale.py",  # semnale de viață + verificarea de sănătate a serviciului `worker`
+    # Producția (F2.4, F2.8): joburi programate, fără utilizator; întrerupătorul global și expirarea aprobărilor
+    # citesc toți clienții (rezultatele de pe o oră, termenele de pe toate cererile).
+    "app/productie/fluxuri.py",
 }
 
 
