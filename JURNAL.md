@@ -102,3 +102,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit și reparat: la lansare, firele cozilor citesc din bază limitele **vechi** și apucă să scoată joburi cu ele (după ce numărul de culoare scăzuse de la 2 la 1, au pornit două joburi grele). Soluția: configurarea cozilor se scrie înainte de lansare, prin clientul subțire. Testul a prins-o fiindcă rulează cu limite diferite în teste consecutive.
   - Limite ale bibliotecii, spuse în `docs/specs/F2.2.md`: nu are termene (codificate în prioritate, granulație un minut, stabilite la intrare); nu are preempțiune; două cozi nu pot împărți un semafor (deci `învățare` nu ocupă un culoar `greu`).
   - Verificat: două culoare/trei joburi, un culoar, `io` limitat, `urgent` cu culoarele ocupate, ordinea P0–P3 cu termene, limita de rată (fereastră 1,5 s). Suita stabilă pe trei rulări consecutive.
+- **F2.6 — Planificatorul de timp.**
+  - Construit: `programare.py` (recurente declarate în cod și aplicate la pornire, sloturi prin `trimite(la=…)`), `AMA_PROGRAMARE_POLLING_SEC`.
+  - „La minut” dovedit fără să aștept un minut: cron cu secunde în timp real (ticuri consecutive, o dată fiecare), `recupereaza_ratate` pe ferestre alese de test (12:05, 12:10 … la secunda 0; ora României peste 25 octombrie 2026: 06:00, 07:00, 07:00 UTC) și SIGKILL cu recuperarea golului.
+  - Găsit: biblioteca nu are ceas injectabil și pune rulările programate pe prioritatea 0 (deci fluxurile programate trebuie să fie dispeceri mici); aplicarea repetată a programărilor păstrează pauza și ultima rulare (verificat în cod și în test).
+  - Neverificat: un minut întreg pe staging, doi workeri (trecut la „De verificat la migrare”).

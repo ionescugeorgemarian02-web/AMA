@@ -4,6 +4,7 @@ Coordonarea cu testul se face prin fișiere în `AMA_PROBA_DIR` (adăugare de li
 ceas sau de pauze, iar numărarea liniilor arată câte ori a rulat fiecare pas.
 """
 
+import datetime
 import os
 import time
 from pathlib import Path
@@ -109,3 +110,15 @@ def pas_cu_continut(corp: str) -> str:
 @motor.flux("proba.cu_continut_in_pas")
 def cu_continut_in_pas(job: str) -> str:
     return pas_cu_continut("conținut lung " * 40)
+
+
+@motor.flux("proba.tic_chaos")
+def tic_chaos(moment: "datetime.datetime", context: dict[str, str] | None) -> None:
+    with (director() / "tic.log").open("a", encoding="utf-8") as f:
+        f.write(moment.astimezone(datetime.UTC).isoformat() + "\n")
+        f.flush()
+        os.fsync(f.fileno())
+
+
+if os.environ.get("AMA_PROBA_PROGRAMARE"):  # programarea de probă o declară doar testele care o cer
+    motor.programeaza_recurent("proba.tic_chaos", "* * * * * *", tic_chaos, recupereaza_ratate=True)

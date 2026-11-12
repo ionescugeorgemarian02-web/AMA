@@ -19,6 +19,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F1.10 Botul Telegram și opririle | verificat cu un client Telegram simulat; botul real rămâne la migrare. Steagurile de oprire nu sunt încă citite de nimic (modulele apar din F2) | `tests/integration/test_telegram.py`, `tests/contract/test_telegram_contract.py` |
 | F2.1 Execuția durabilă | verificat local cu Postgres real și procese reale (SIGKILL, SIGTERM); imaginea și politica de restart din compose rămân la CI/migrare | `tests/chaos/test_recuperare.py`, `tests/integration/test_motor_executie.py`, `scripts/check_motor.py` |
 | F2.2 Cozile | verificat local (executor în proces, Postgres real); mai mulți workeri și ferestre lungi de rată rămân la migrare | `tests/integration/test_motor_cozi.py`, `tests/unit/test_motor_cozi.py` |
+| F2.6 Planificatorul de timp | verificat local (timp real cu cron de o secundă, ceas controlat, SIGKILL); „la minut pe staging” rămâne la migrare | `tests/integration/test_motor_programare.py`, `tests/chaos/test_programare.py` |
 
 ## De verificat la migrarea pe VPS
 
@@ -31,3 +32,4 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F1.10: crearea botului, `setWebhook` cu secretul, comenzile din conversația reală a proprietarului.
 - F2.1: serviciul `worker` din compose pe un VPS real (politica `restart: unless-stopped` după o cădere reală, `stop_grace_period`); mutarea workerului de către deployer-ul real; limita de memorie a workerului sub joburi reale; numărul de conexiuni la Postgres sub încărcare; promovarea `AMA_MOTOR_VERSIUNE` la un flux modificat cu joburi în lucru.
 - F2.2: numărul real de culoare grele (`AMA_CULOARE_GREU`) pentru nucleele VPS-ului; două procese worker pe aceleași cozi (limita globală); ferestre de rată de ordinul orelor.
+- F2.6: un job programat cu cron de minut rulează la minut pe staging, ore întregi; comportamentul cu doi workeri; ora României peste trecerea la ora de vară (martie), pe date reale.

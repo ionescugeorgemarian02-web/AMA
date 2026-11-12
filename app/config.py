@@ -63,6 +63,7 @@ class Settings(BaseSettings):
     )  # culoare pentru joburile grele (7.5): câte un job pe culoar
     io_paralel: int = Field(default=24, ge=1, le=200)  # coada de intrări și ieșiri
     invatare_paralel: int = Field(default=1, ge=1, le=8)
+    programare_polling_sec: float = Field(default=5.0, gt=0.0, le=60.0)  # cât de des caută programări noi
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

@@ -134,10 +134,14 @@ def admin_engine(baza: BazaTest) -> Iterator[Engine]:
     engine.dispose()
 
 
-TABELE_MOTOR = (
-    "workflow_status",
-    "workflow_schedules",
-)
+@pytest.fixture(autouse=True)
+def _fara_programari_declarate() -> Iterator[None]:
+    """Programările declarate în cod sunt globale procesului: niciun test nu le lasă următorului."""
+    from app.operare import motor
+
+    motor.uita_declaratiile()
+    yield
+    motor.uita_declaratiile()
 
 
 @pytest.fixture

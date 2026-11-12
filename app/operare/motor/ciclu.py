@@ -6,7 +6,7 @@ from dbos import DBOS, DBOSConfig
 
 from app.config import Settings, get_settings
 from app.logging import get_logger
-from app.operare.motor import executie
+from app.operare.motor import executie, programare
 
 log = get_logger("app.motor")
 _lock = threading.RLock()
@@ -22,6 +22,7 @@ def configurare(s: Settings) -> DBOSConfig:
         "application_version": s.motor_versiune,
         "executor_id": s.worker_id,
         "run_migrations": False,
+        "scheduler_polling_interval_sec": s.programare_polling_sec,
         "sys_db_pool_size": s.motor_pool,
         "log_level": s.log_level.upper(),
         "enable_otlp": False,
@@ -49,6 +50,7 @@ def porneste() -> None:
         try:
             DBOS.launch()
             executie.inregistreaza_cozi()
+            programare.aplica_programari()  # programările declarate în cod (idempotent)
         except BaseException:
             DBOS.destroy()
             raise
