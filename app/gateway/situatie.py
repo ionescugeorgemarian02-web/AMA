@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.gateway import cote
 from app.gateway.candidat import Candidat
 from app.gateway.cote import Fereastra
+from app.operare.motor import Prioritate
 
 
 @dataclass(frozen=True)
@@ -93,3 +94,70 @@ def acum() -> dt.datetime:
     from app.gateway import ceas
 
     return ceas.acum()
+
+
+def _ramas_zi(c: Candidat, cote_c: list[Cota]) -> tuple[int | None, int | None]:
+    """Cât mai poate consuma azi un model (cereri, tokeni) pentru munca obișnuită (P1–P3): limita
+    zilei fără rezerva de 10% pentru P0, minus ce s-a folosit; limita contului se aplică peste.
+    `None` = fără limită."""
+
+    def ramas(limita: int | None, folosit: int) -> int | None:
+        if limita is None:
+            return None
+        return max(0, (cote.plafon(limita, Fereastra.ZI, Prioritate.P1) or 0) - folosit)
+
+    def deja(resursa: str) -> Cota | None:
+        return next((x for x in cote_c if x.resursa == resursa and x.fereastra == "zi"), None)
+
+    m, cont = deja("model"), deja("cont")
+    cereri = ramas(m.cereri_limita, m.cereri_folosite) if m else None
+    tokeni = ramas(m.tokeni_limita, m.tokeni_folositi) if m else None
+    if cont is not None:
+        return _min(cereri, ramas(cont.cereri_limita, cont.cereri_folosite)), _min(
+            tokeni, ramas(cont.tokeni_limita, cont.tokeni_folositi)
+        )
+    return cereri, tokeni
+
+
+def _min(a: int | None, b: int | None) -> int | None:
+    return b if a is None else a if b is None else min(a, b)
+
+
+def capacitate_profil(db: Session, profil: str, acum: dt.datetime) -> tuple[int | None, int | None]:
+    """Cererile și tokenii care mai încap azi în cotele modelelor din lanțul profilului (F3.11).
+    Doar lanțul principal: degradarea la modelul local nu se numără (prudent). Un profil
+    necunoscut sau fără niciun model utilizabil acum are capacitate 0. `None` = fără limită."""
+    from app.gateway import registru
+    from app.gateway.intrerupator import StareSanatate
+    from app.gateway.rutare import Cerinte, alege
+
+    p = registru.profil(db, profil)
+    if p is None:
+        return 0, 0
+    candidati = registru.candidati(db)
+    cer = Cerinte(
+        prioritate=Prioritate.P1,
+        acum=acum,
+        chei_configurate=frozenset(
+            {c.furnizor for c in candidati if c.fara_cheie or registru.citeste_cheie_env(c.cheie_env)}
+        ),
+        sanatate={c.furnizor: StareSanatate(c.erori_consecutive, c.intrerupt_pana_la) for c in candidati},
+    )  # fmt: skip
+    pe_furnizor: dict[str, list[tuple[int | None, int | None]]] = {}
+    for c in alege(p, candidati, cer).principal:
+        pe_furnizor.setdefault(c.furnizor, []).append(_ramas_zi(c, cote_pentru(db, c, acum)))
+    total_cereri: int | None = 0
+    total_tokeni: int | None = 0
+    for ramase in pe_furnizor.values():
+        # suma modelelor furnizorului; limita contului (deja inclusă în fiecare) nu se adună de mai multe ori
+        cereri = None if any(r[0] is None for r in ramase) else sum(r[0] or 0 for r in ramase)
+        tokeni = None if any(r[1] is None for r in ramase) else sum(r[1] or 0 for r in ramase)
+        cont_c = [r[0] for r in ramase if r[0] is not None]
+        cont_t = [r[1] for r in ramase if r[1] is not None]
+        if cereri is not None and cont_c:
+            cereri = min(cereri, max(cont_c))
+        if tokeni is not None and cont_t:
+            tokeni = min(tokeni, max(cont_t))
+        total_cereri = None if total_cereri is None or cereri is None else total_cereri + cereri
+        total_tokeni = None if total_tokeni is None or tokeni is None else total_tokeni + tokeni
+    return total_cereri, total_tokeni

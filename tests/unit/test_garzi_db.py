@@ -32,8 +32,10 @@ CONTEXT_AGENTIE = {
     "app/gateway/bugete.py",
     "app/gateway/evaluare.py",
     "app/gateway/fluxuri.py",
-    "app/gateway/jurnal.py",
-    "app/gateway/masurare.py",  # curățarea zilnică a conținutului expirat, pentru toți clienții
+    "app/gateway/jurnal.py",  # curățarea zilnică a conținutului expirat, pentru toți clienții
+    "app/gateway/masurare.py",  # viteza modelelor locale se scrie în registru (comandă, F3.5)
+    # Planificatorul de capacitate (F3.11) citește livrabilele tuturor clienților și le amână; scrie planul zilei.
+    "app/planificare/capacitate.py",
 }
 
 

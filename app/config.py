@@ -111,6 +111,16 @@ class Settings(BaseSettings):
     )  # cât se păstrează conținutul apelurilor (20.4)
     # Bugetele pe client (F3.8, 8.5): ora UTC la care începe „ziua” bugetului (și luna, în prima zi a lunii).
     gateway_buget_reset_ora: int = Field(default=0, ge=0, le=23)
+    # Planificatorul de capacitate (F3.11, A4): valori de pornire, nemăsurate.
+    planificare_termen_apropiat_ore: int = Field(
+        default=48, ge=24, le=720
+    )  # sub acest termen un livrabil nu se amână
+    planificare_orizont_zile: int = Field(
+        default=14, ge=1, le=365
+    )  # livrabilele cu termen mai îndepărtat nu intră în plan
+    planificare_cpu_factor: float = Field(
+        default=0.6, gt=0.0, le=1.0
+    )  # cât din timpul culoarelor grele se poate planifica
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

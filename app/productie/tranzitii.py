@@ -371,6 +371,14 @@ def muta(
     if fara_temei:
         raise refuza(db, livrabil, TranzitieNepermisa, "fara_temei", fara_temei, cerere)
     if curenta == Stare.PLANIFICAT and la == Stare.BRIEFAT:
+        amanat = _amanat_pana_la(livrabil)
+        if amanat is not None:
+            raise refuza(
+                db, livrabil, TranzitieNepermisa, "amanat",
+                f"livrabilul este amânat până la {amanat.strftime('%d.%m.%Y %H:%M')} UTC "
+                "(planificatorul de capacitate)",
+                cerere,
+            )  # fmt: skip
         _respecta_opririle(db, livrabil)
     depasire = limite.depasire_la_intrare(
         la, livrabil.runde_reparatie, livrabil.predari, _limite_configurate()
@@ -447,6 +455,14 @@ def _motiv_fara_temei(db: Session, livrabil: Livrabil, cerere: Cerere, temei: Te
 def _limite_configurate() -> limite.Limite:
     s = get_settings()
     return limite.Limite(runde_reparatie=s.productie_runde_reparatie, predari=s.productie_predari_max)
+
+
+def _amanat_pana_la(livrabil: Livrabil) -> Any:
+    """Momentul până la care livrabilul nu are voie să pornească (F3.11), sau `None` dacă poate porni acum."""
+    import datetime as dt
+
+    nu_inainte = livrabil.nu_inainte_de
+    return nu_inainte if nu_inainte is not None and dt.datetime.now(dt.UTC) < nu_inainte else None
 
 
 def _respecta_opririle(db: Session, livrabil: Livrabil) -> None:

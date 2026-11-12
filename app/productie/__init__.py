@@ -9,6 +9,7 @@ Restul aplicației folosește doar ce se exportă aici:
 """
 
 from app.productie import aprobari, autonomie, intrerupator, limite
+from app.productie.amanare import AmanareNepermisa, amana, elibereaza
 from app.productie.bugete import Consum, inregistreaza_consum, poate_consuma
 from app.productie.limite import Depasire, Limite
 from app.productie.modele import Aprobare, Livrabil, NivelAutonomie, SchimbareAutonomie, Tranzitie
@@ -63,6 +64,7 @@ __all__ = [
     "MOTIVE_RESPINGERE",
     "NORMALE",
     "STARI_FINALE",
+    "AmanareNepermisa",
     "Aprobare",
     "Clasa",
     "ConflictStare",
@@ -88,11 +90,13 @@ __all__ = [
     "TranzitieNepermisa",
     "TranzitieRefuzata",
     "VersiuneNepotrivita",
+    "amana",
     "aprobari",
     "autonomie",
     "cere_aprobare",
     "citeste",
     "creeaza",
+    "elibereaza",
     "este_permisa",
     "inregistreaza_consum",
     "intrerupator",
