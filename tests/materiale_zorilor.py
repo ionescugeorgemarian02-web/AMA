@@ -168,3 +168,50 @@ def html_pagina(cale: str, linkuri: list[str] | None = None) -> str:
         f"</head><body>{nav}<main><h1>{html.escape(titlu)}</h1>{corp}{extra}</main>"
         f"<footer>© Cafeneaua Zorilor</footer></body></html>"
     )
+
+
+# --- F4.9: recenzii, comentarii și întrebări INVENTATE (nicio persoană reală), pentru vocea clientului.
+# 24 de texte curate + două cu date personale inventate (un email și un telefon) pe care garda trebuie să le respingă.
+# Fiecare apare în material cu o semnătură de autor („— Ioana M.”), care NU trebuie să ajungă în citate.
+RECENZII: list[str] = [
+    "Cafeaua Etiopia Guji miroase a flori și are gust de afine, exact cum scrie în descriere.",
+    "Pachetul a ajuns în două zile și pe el scria data prăjirii. Așa ceva nu am mai văzut la supermarket.",
+    "Mi s-a părut puțin mai scumpă decât cafeaua din magazin, dar diferența de gust se simte din prima ceașcă.",
+    "Abonamentul lunar a fost cea mai bună decizie: nu mai rămân niciodată fără cafea și nu mai caut prin magazine.",
+    "Am vrut să renunț la abonament și mi-au spus că pot opri oricând, fără explicații. Asta m-a convins să rămân.",
+    "La workshop am învățat în sfârșit să folosesc V60 fără să-mi iasă o cafea amară.",
+    "Columbia Huila merge perfect la aparatul automat din birou; colegii au întrebat de unde e cafeaua.",
+    "Nu știam ce cafea să aleg pentru espresso și m-au ajutat pe mesaj, fără să mă împingă spre cea mai scumpă.",
+    "Livrarea gratuită peste 150 de lei m-a făcut să comand două pachete deodată.",
+    "Mi-a plăcut că au schimbat pachetul când nu mi-a plăcut gustul, fără formalități.",
+    "Prețul pare mare la început, dar o cafea proaspătă se macină mai puțin și ține mai mult.",
+    "Degustarea de sâmbătă a fost relaxată; nimeni nu m-a făcut să mă simt prost că nu știu termenii.",
+    "Cafeaua decofeinizată are gust adevărat de cafea, nu de carton, ceea ce nu mă așteptam.",
+    "Am comandat pentru birou abonamentul cu vizită de barista și râșnița merge acum mult mai bine.",
+    "Ambalajul este simplu și rezistent, iar supapa păstrează aroma până la ultima boabă.",
+    "Aș vrea mai multe variante pentru cei care beau cafea cu lapte; Columbia e bună, dar caut ceva mai dulce.",
+    "Cât de repede ajunge cafeaua după prăjire? Pe pachetul meu era data de marți și a ajuns vineri.",
+    "Cum aleg cafeaua potrivită pentru un filtru de casă? Nu știu dacă să iau Etiopia sau Guatemala.",
+    "Se poate opri abonamentul dacă plec în vacanță? Mi-e teamă să nu plătesc pentru ceva ce nu folosesc.",
+    "Pot comanda cafea măcinată? Nu am râșniță acasă și nu vreau să cumpăr una doar pentru asta.",
+    "Mi-a plăcut cum explică pe site notele de gust, fără cuvinte pretențioase.",
+    "Am cumpărat cadou un pachet pentru socrul meu și a cerut încă unul după o săptămână.",
+    "Singurul lucru care m-a deranjat a fost comisionul de 6 lei la plata ramburs; plata cu cardul a fost mai simplă.",
+    "Prăjesc și eu acasă, dar cafeaua lor mi-a arătat cât de mult contează proaspătul.",
+]
+RECENZII_CU_DATE_PERSONALE: list[str] = [
+    "Dacă aveți nelămuriri, scrieți-mi la ana.test@exemplu.test și vă povestesc cum merge abonamentul.",
+    "Sunați-mă la 0700 111 222 dacă vreți o părere sinceră despre Guatemala Antigua.",
+]
+AUTORI = ["Ioana M.", "Radu P.", "Elena D.", "Mihai T.", "Alina S.", "Costin B."]
+
+
+def recenzii_ca_material() -> dict[str, list[str]]:
+    """Trei documente (recenzii, comentarii, întrebări): fiecare paragraf = o recenzie + semnătura autorului."""
+    toate = [*RECENZII, *RECENZII_CU_DATE_PERSONALE]
+    linii = [f"{t} — {AUTORI[k % len(AUTORI)]}" for k, t in enumerate(toate)]
+    return {
+        "Recenzii pe pagina de socializare": linii[:9],
+        "Comentarii la postări": linii[9:18],
+        "Întrebări primite de la clienți": linii[18:],
+    }

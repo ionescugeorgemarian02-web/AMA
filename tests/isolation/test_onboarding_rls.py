@@ -92,3 +92,25 @@ def test_variantele_de_ton_se_vad_doar_la_clientul_lor(date: Date) -> None:
             db.execute(
                 text("DELETE FROM onboarding_variante_ton WHERE id = :i"), {"i": ids["a"]}
             )  # fără DELETE
+
+
+def test_citatele_si_profilul_de_public_nu_se_amesteca_intre_clienti(date: Date) -> None:
+    from app import creier
+    from app.creier.compartimente import Compartiment, SursaTip
+    from app.onboarding import citate
+
+    for tenant, user, text_ in (
+        (date.a, date.user_a, "Citat al clientului A, destul de lung."),
+        (date.b, date.user_b, "Citat al clientului B, destul de lung."),
+    ):
+        with sesiune(ContextDb(tenant_id=tenant, user_id=user)) as db:
+            i, v = creier.creeaza_intrare(
+                db, tenant_id=tenant, compartiment=Compartiment.INSIGHT_PUBLIC, cheie=citate.cheie_citat(text_),
+                continut={"tip": "citat", "text": text_}, sursa=creier.Sursa(SursaTip.PASAJ, ref=str(new_id()), citat=text_),
+            )  # fmt: skip
+            creier.aproba(db, i.id, v.nr, utilizator_id=None, prin_sistem=True)
+    with sesiune(ContextDb(tenant_id=date.a, user_id=date.user_a)) as db:
+        assert [c["text"] for _, c in citate.citate_aprobate(db, date.a)] == [
+            "Citat al clientului A, destul de lung."
+        ]
+        assert citate.citate_aprobate(db, date.b) == []  # nici cerând explicit clientul B

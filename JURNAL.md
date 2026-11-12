@@ -285,4 +285,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri: verificările unei variante sunt deterministe și separate de schemă (canale, vocabular interzis în exemple, suprapuneri); o variantă care pică îi ia modelului TOT rezultatul (nicio variantă salvată), nu doar variantei greșite; alegerea creează o versiune nouă a intrării, aprobarea e pasul separat al unui om; randarea ghidului întoarce `None` pentru profiluri vechi.
   - Găsit: `context.construieste` cu `la` implicit (acum, la secundă) nu vede o aprobare făcută în aceeași secundă; testele dau `la` explicit.
   - NEVERIFICAT: model real; aprobarea reală pentru CariereAI / BigBrain.
+- **F4.9 — Profilul de public și vocea clientului.**
+  - Construit: `app/onboarding/{extractie,citate,public}.py`, două prompturi, fluxurile `onboarding.extrage` (generic pe pasaje, refolosit de F4.10) și `onboarding.profil_public`, materiale de probă inventate (26 de texte), `docs/specs/F4.9.md`.
+  - Hotărâri: citatul e respins de reguli deterministe (literal, date personale, nume de autor, lungime), nu judecat de model; profilul de public se aprobă doar de om chiar dacă compartimentul permite aprobarea de sistem (`inregistreaza_cere_om`); poarta cere 20 de citate, deci „Gata când” e impus de cod, nu doar de test; extragerile refolosesc `creier_extrageri` (aceeași idempotență ca la fapte).
+  - Găsit: garda de date personale nu maschează numele proprii (decizie F3.9 deschisă), deci semnăturile de autor se resping la verificare, nu la gateway.
+  - NEVERIFICAT: orice model real; recenzii reale; aprobarea reală pentru CariereAI / BigBrain.
 

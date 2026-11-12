@@ -236,6 +236,7 @@ def trimite_spre_aprobare(
 
 
 creier.inregistreaza_schema(Compartiment.BRIEF, brief.BriefClient)
+creier.inregistreaza_randare(Compartiment.BRIEF, brief.text_pentru_prompt)
 creier.inregistreaza_poarta(Compartiment.BRIEF, lambda _db, _t, c: brief.lipsuri(c))
 _ = SursaTip
 

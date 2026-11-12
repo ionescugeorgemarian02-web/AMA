@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.9 — Profilul de public și vocea clientului
+- Citate reale din recenzii, comentarii și întrebări (flux durabil pe pasaje, gateway cu schemă strictă): fiecare citat verificat LITERAL în pasaj, fără date personale (garda din F3.9) și fără numele autorului, cu sursă și poziție, în `insight_public` (aprobat de sistem). Profilul clientului ideal (segmente, nevoi, obiecții, declanșatori, canale, limbaj, dovezi) propus din brief și citate, cu poartă (≥ 20 de citate aprobate, dovezi reale) și aprobat doar de un om.
+- `gateway.detecteaza_date_personale` (export). Mecanism comun de extragere pe pasaje (`onboarding.extractie`).
+
 ### F4.5 — Profilul de brand
 - Trei variante de ton propuse prin gateway din brieful aprobat și din materiale (descriere, reguli da / nu, vocabular preferat / interzis, ≥ 3 exemple pe ≥ 3 canale, fără vocabular interzis în exemple — verificate determinist); omul alege, combină sau corectează (versiune nouă, nu suprascriere); ghidul aprobat intră în `profil_brand` și este preluat de constructorul de context. Migrarea `0027`, ecranul `/onboarding/{client}/ghid`.
 - Creier: randare pe compartiment (`inregistreaza_randare`) și intrări aprobate doar de om într-un compartiment cu aprobare automată (`inregistreaza_cere_om`).
