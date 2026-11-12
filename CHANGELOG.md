@@ -4,6 +4,11 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F3.7 — Registrul de prompturi și jurnalul de apeluri
+- `gateway.apeleaza(db, prompt=…, variabile=…, schema=…, tenant_id=…, componenta=…, prioritate=…)`: API-ul public unic. Prompturile sunt versionate (`gateway_prompturi`, migrarea `0015`; ciornă / activ / retras; versiunea activă nu se modifică, impus în bază; o singură versiune activă pe nume) și pot veni din fișiere `prompts/<nume>.v<N>.md`. Variabilele trebuie să se potrivească exact cu locurile din șablon; un secret al aplicației nu poate intra într-un prompt.
+- Jurnalul de apeluri (`gateway_apeluri`, cu `tenant_id` și RLS): cine, prompt și versiune, model ales și de ce, tokeni, durată, reparații, preț-umbră, traseul încercărilor; scris și pentru apelurile amânate, refuzate sau eșuate. Conținutul (mesajele trimise, răspunsul) stă separat, cu RLS, 30 de zile (`gateway_apeluri_continut`, ștergere zilnică); nu intră în tabelele motorului sau în jurnalele aplicației. Fiecare apel se contorizează în bugetul livrabilului.
+- Panoul: `/gateway/apeluri` (listă cu filtre pe client, model și rezultat) și detaliul unui apel, cu izolare pe client și urmă în audit la deschiderea conținutului.
+
 ### F3.4 — Rutarea și lanțurile de rezervă
 - Profilurile de sarcină din 8.2 ca date (`gateway_profiluri`, migrarea `0014`): nivel minim, capabilități, lanț ordonat de modele, ce se întâmplă când lanțul s-a epuizat (`amana` / `degradeaza` / `amana_sau_provizoriu`), lanț de degradare. Alegerea modelului (nucleu pur): furnizor oprit, fără cheie, fără uz comercial, antrenare pe date, capabilități, nivel minim, întrerupător deschis, T4 pe calea critică (ADR-06), apeluri plătite oprite, „alt model decât autorul”; ordine după scor (gol până la F3.6) și lanț.
 - Reacțiile din 7.5: 429 → alt furnizor; eroare de server → 3 reîncercări cu pauză crescătoare, apoi alt furnizor; ieșire în afara schemei → o reparație, apoi alt model; autentificare → furnizor pe pauză cu audit și alertă. Întrerupător pe furnizor (3 eșecuri la rând → scos 120 s, apoi cerere de probă). Strategia se amână, nu se degradează; clasificarea și rescrierea degradează la modelul local.

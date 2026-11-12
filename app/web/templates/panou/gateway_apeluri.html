@@ -1,0 +1,50 @@
+{% extends "panou/baza.html" %}
+{% block title %}Apeluri la modele · AMA{% endblock %}
+{% block pagina %}
+<h1>Apeluri la modele</h1>
+<p class="slab">Fiecare apel prin gateway, inclusiv cele amânate, refuzate sau eșuate. Metadatele se păstrează; conținutul (mesajele și răspunsul) 30 de zile. <a href="/gateway/registru">← Furnizori și modele</a></p>
+
+<form method="get" action="/gateway/apeluri" class="card">
+  <label for="f-client">Client</label>
+  <select id="f-client" name="client">
+    <option value="">toți</option>
+    {% for id_, nume in clienti %}<option value="{{ id_ }}"{% if filtre.client == id_|string %} selected{% endif %}>{{ nume }}</option>{% endfor %}
+  </select>
+  <label for="f-model">Model (conține)</label>
+  <input type="text" id="f-model" name="model" value="{{ filtre.model }}" maxlength="100" list="modele" autocomplete="off">
+  <datalist id="modele">{% for m in modele %}<option value="{{ m }}">{% endfor %}</datalist>
+  <label for="f-rezultat">Rezultat</label>
+  <select id="f-rezultat" name="rezultat">
+    <option value="">toate</option>
+    {% for cod, eticheta in etichete_rezultat.items() %}<option value="{{ cod }}"{% if filtre.rezultat == cod %} selected{% endif %}>{{ eticheta }}</option>{% endfor %}
+  </select>
+  <button type="submit">Filtrează</button>
+</form>
+
+<p class="slab">{{ total.apeluri }} apeluri · {{ '{:,}'.format(total.tokeni).replace(',', '.') }} tokeni · preț-umbră {{ '%.4f'|format(total.pret_umbra) }} USD</p>
+
+<div class="defilare"><table>
+  <tr><th>Când</th><th>Client</th><th>Componentă</th><th>Prompt</th><th>Model</th><th>Rezultat</th><th>Tokeni</th><th>Durată</th><th>Preț-umbră</th><th></th></tr>
+  {% for r in randuri %}{% set a = r.a %}
+  <tr>
+    <td>{{ a.creat_la|moment }}</td>
+    <td>{{ r.client }}</td>
+    <td>{{ a.componenta }}</td>
+    <td>{% if a.prompt_nume %}{{ a.prompt_nume }}{% if a.prompt_versiune %} v{{ a.prompt_versiune }}{% endif %}{% else %}–{% endif %}</td>
+    <td>{{ a.model or '–' }}{% if a.degradat %} <span class="insigna atentie">{{ 'provizoriu' if a.provizoriu else 'degradat' }}</span>{% endif %}</td>
+    <td><span class="insigna {{ clasa_rezultat[a.rezultat] }}">{{ etichete_rezultat[a.rezultat] }}</span>{% if a.cod_eroare %} <code>{{ a.cod_eroare }}</code>{% endif %}</td>
+    <td>{{ a.tokeni_intrare }} / {{ a.tokeni_iesire }}</td>
+    <td>{{ a.durata_ms }} ms</td>
+    <td>{{ '%.6f'|format(a.pret_umbra) }}</td>
+    <td><a href="/gateway/apeluri/{{ a.id }}">detalii</a></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="10" class="slab">Niciun apel pentru filtrele alese.</td></tr>
+  {% endfor %}
+</table></div>
+
+<p class="actiuni">
+  {% if pagina_curenta > 1 %}<a class="buton secundar" href="/gateway/apeluri?{{ interogare }}{{ '&' if interogare }}pagina={{ pagina_curenta - 1 }}">‹ Mai noi</a>{% endif %}
+  {% if are_urmatoarea %}<a class="buton secundar" href="/gateway/apeluri?{{ interogare }}{{ '&' if interogare }}pagina={{ pagina_curenta + 1 }}">Mai vechi ›</a>{% endif %}
+</p>
+{% endblock %}

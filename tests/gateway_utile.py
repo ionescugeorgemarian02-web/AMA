@@ -10,14 +10,21 @@ import pytest
 from sqlalchemy import Engine, text
 
 from app.db import sesiune_agentie
-from app.gateway import ceas, client
+from app.gateway import ceas, client, prompturi
 from app.gateway.candidat import Candidat, din_randuri
+from app.gateway.iesire import Iesire
 from app.gateway.modele import Furnizor, ModelLlm
 from app.ids import new_id
 from tests.furnizor_fals import FurnizorFals
 
 CHEIE_PROBA = "cheie-de-proba-" + "x" * 30  # construită la rulare: nu este o cheie reală
 T0 = dt.datetime(2026, 11, 12, 12, 0, 10, tzinfo=dt.UTC)
+
+
+class Clasificare(Iesire):
+    """Schema ieșirii pentru prompturile de probă."""
+
+    eticheta: str
 
 
 class CeasControlat:
@@ -66,6 +73,7 @@ class FabricaModele:
         self.admin = admin
         self.furnizori: list[str] = []
         self.profiluri: list[str] = []
+        self.prompturi: list[str] = []
 
     def furnizor(self, *, tip_api: str = "openai_compat", stare: str = "activ", **campuri: Any) -> uuid.UUID:
         cod = f"p{uuid.uuid4().hex[:8]}"
@@ -102,6 +110,8 @@ class FabricaModele:
             "tokeni_zi": None, "scor": json.dumps({}), "pi": 0.5, "pe": 1.5,
         }  # fmt: skip
         valori.update(campuri)
+        valori["pi"] = campuri.get("pret_umbra_intrare", valori["pi"])
+        valori["pe"] = campuri.get("pret_umbra_iesire", valori["pe"])
         if isinstance(valori["scor"], dict):
             valori["scor"] = json.dumps(valori["scor"])
         with self.admin.begin() as c:
@@ -140,6 +150,23 @@ class FabricaModele:
         self.profiluri.append(nume)
         return nume
 
+    def prompt(
+        self,
+        profil: str,
+        *,
+        sablon: str = "Clasifică textul: {{text}}",
+        sistem: str = "Ești un clasificator atent.",
+        activ: bool = True,
+    ) -> str:
+        """Un prompt de probă, cu nume unic (versiunea 1), activ. Schema: `Clasificare`."""
+        nume = f"t{uuid.uuid4().hex[:8]}.clasifica"
+        with sesiune_agentie() as db:
+            prompturi.creeaza(db, nume, profil=profil, sablon=sablon, sistem=sistem, schema=Clasificare)
+            if activ:
+                prompturi.activeaza(db, nume, 1)
+        self.prompturi.append(nume)
+        return nume
+
     def candidat(self, model_id: uuid.UUID) -> Candidat:
         with sesiune_agentie() as db:
             m = db.get(ModelLlm, model_id)
@@ -149,6 +176,10 @@ class FabricaModele:
             return din_randuri(f, m)
 
     def curata(self) -> None:
+        if self.prompturi:
+            with self.admin.begin() as c:
+                c.execute(text("DELETE FROM gateway_prompturi WHERE nume = ANY(:n)"), {"n": self.prompturi})
+            self.prompturi.clear()
         if self.profiluri:
             with self.admin.begin() as c:
                 c.execute(text("DELETE FROM gateway_profiluri WHERE nume = ANY(:n)"), {"n": self.profiluri})

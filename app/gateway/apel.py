@@ -263,6 +263,7 @@ class _Esecuri:
     incercari: list[Incercare] = field(default_factory=list)
     tokeni_intrare: int = 0
     tokeni_iesire: int = 0
+    pret_umbra: Decimal = Decimal(0)
 
 
 def _parcurge(
@@ -292,6 +293,9 @@ def _parcurge(
             esecuri.iesiri_invalide += 1
             esecuri.tokeni_intrare += sum(r.tokeni_intrare for r in exc.raspunsuri)
             esecuri.tokeni_iesire += sum(r.tokeni_iesire for r in exc.raspunsuri)
+            esecuri.pret_umbra += pret_umbra(
+                c, sum(r.tokeni_intrare for r in exc.raspunsuri), sum(r.tokeni_iesire for r in exc.raspunsuri)
+            )
             esecuri.incercari.append(
                 Incercare(
                     c.cod,
@@ -309,6 +313,7 @@ def _parcurge(
         durata = int((time.monotonic() - start) * 1000)
         esecuri.tokeni_intrare += iesire.tokeni_intrare
         esecuri.tokeni_iesire += iesire.tokeni_iesire
+        esecuri.pret_umbra += pret_umbra(c, iesire.tokeni_intrare, iesire.tokeni_iesire)
         esecuri.incercari.append(
             Incercare(
                 c.cod,
@@ -382,7 +387,7 @@ def _rezultat(
         tokeni_iesire=esecuri.tokeni_iesire,
         durata_ms=durata_ms,
         reparatii=1 if iesire.reparat else 0,
-        pret_umbra=pret_umbra(c, esecuri.tokeni_intrare, esecuri.tokeni_iesire),
+        pret_umbra=esecuri.pret_umbra,
         degradat=degradat,
         provizoriu=provizoriu,
         verificare_suplimentara=degradat and profil.verificare_in_plus,
@@ -416,6 +421,7 @@ def alege_si_ruleaza(ctx: ContextApel) -> Rezultat:
     )
     sel = alege(profil, candidati, cer)
     esecuri = _Esecuri()
+    ctx.extra["esecuri"] = esecuri  # pentru jurnal, și când apelul se termină cu eroare
     succes = _parcurge(ctx, sel.principal, esecuri)
     if succes is not None:
         c, iesire, durata = succes

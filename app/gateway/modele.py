@@ -6,7 +6,7 @@ import uuid
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import Boolean, Date, DateTime, Integer, SmallInteger, Text, func
+from sqlalchemy import Boolean, Date, DateTime, Integer, Numeric, SmallInteger, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -99,3 +99,68 @@ class ProfilSarcina(BazaGateway):
     verificare_in_plus: Mapped[bool] = mapped_column(Boolean, default=False)
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     actualizat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class PromptGateway(BazaGateway):
+    """Un prompt versionat (8.8). Conținutul unei versiuni care nu mai e ciornă nu se modifică
+    (declanșator în bază)."""
+
+    __tablename__ = "gateway_prompturi"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    nume: Mapped[str] = mapped_column(Text)
+    versiune: Mapped[int] = mapped_column(Integer)
+    stare: Mapped[str] = mapped_column(Text, default="ciorna")
+    profil: Mapped[str] = mapped_column(Text)
+    sistem: Mapped[str] = mapped_column(Text, default="")
+    sablon: Mapped[str] = mapped_column(Text)
+    schema_nume: Mapped[str] = mapped_column(Text)
+    schema_json: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    descriere: Mapped[str] = mapped_column(Text, default="")
+    amprenta: Mapped[str] = mapped_column(Text)
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    activat_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    retras_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Apel(BazaGateway):
+    """Un apel prin gateway (metadate, păstrate). Cu `tenant_id` și RLS; doar adăugări."""
+
+    __tablename__ = "gateway_apeluri"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    componenta: Mapped[str] = mapped_column(Text)
+    prioritate: Mapped[str] = mapped_column(Text)
+    profil: Mapped[str] = mapped_column(Text, default="")
+    prompt_nume: Mapped[str] = mapped_column(Text, default="")
+    prompt_versiune: Mapped[int | None] = mapped_column(Integer)
+    furnizor: Mapped[str] = mapped_column(Text, default="")
+    model: Mapped[str] = mapped_column(Text, default="")
+    nivel: Mapped[str] = mapped_column(Text, default="")
+    motiv_alegere: Mapped[str] = mapped_column(Text, default="")
+    rezultat: Mapped[str] = mapped_column(Text)
+    cod_eroare: Mapped[str] = mapped_column(Text, default="")
+    tokeni_intrare: Mapped[int] = mapped_column(Integer, default=0)
+    tokeni_iesire: Mapped[int] = mapped_column(Integer, default=0)
+    durata_ms: Mapped[int] = mapped_column(Integer, default=0)
+    reparatii: Mapped[int] = mapped_column(SmallInteger, default=0)
+    pret_umbra: Mapped[Decimal] = mapped_column(Numeric(12, 6), default=Decimal(0))
+    degradat: Mapped[bool] = mapped_column(Boolean, default=False)
+    provizoriu: Mapped[bool] = mapped_column(Boolean, default=False)
+    verificare_suplimentara: Mapped[bool] = mapped_column(Boolean, default=False)
+    incercari: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    corelare_id: Mapped[str] = mapped_column(Text, default="")
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ApelContinut(BazaGateway):
+    """Conținutul unui apel (mesajele trimise, răspunsul validat): 30 de zile, apoi se șterge; rămân
+    metadatele."""
+
+    __tablename__ = "gateway_apeluri_continut"
+    apel_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    mesaje: Mapped[list[dict[str, str]]] = mapped_column(JSONB)
+    raspuns: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    expira_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))

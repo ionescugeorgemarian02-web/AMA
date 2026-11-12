@@ -1,12 +1,15 @@
 """Gateway-ul de modele (ADR-04, docs/08): singura cale a aplicației spre modelele de limbaj.
 
-Orice apel la un model trece pe aici; garda `scripts/check_gateway.py` (în `make guards`) interzice
-adaptoarele,
-clientul intern și adresele furnizorilor în afara acestui pachet. API-ul public se completează pe pași
-(F3.1–F3.7).
+Orice apel la un model trece pe aici: `gateway.apeleaza(db, prompt=…, variabile=…, schema=…, tenant_id=…,
+componenta=…,
+prioritate=…)`. Garda `scripts/check_gateway.py` (în `make guards`) interzice adaptoarele, clientul
+intern și adresele
+furnizorilor în afara acestui pachet. Puncte de extensie: interceptori înainte / după apel
+(`adauga_interceptor`),
+profiluri și lanțuri ca date, adaptoare noi pe tip de API (F3.5), scorurile modelelor (F3.6).
 """
 
-from app.gateway import inventar, registru
+from app.gateway import inventar, jurnal, prompturi, registru
 from app.gateway.amanare import cheie_reluare, reprogrameaza
 from app.gateway.apel import ContextApel, Rezultat
 from app.gateway.erori import (
@@ -21,7 +24,7 @@ from app.gateway.iesire import Iesire
 from app.gateway.interceptori import Interceptor
 from app.gateway.interceptori import adauga as adauga_interceptor
 from app.gateway.interceptori import elimina as elimina_interceptor
-from app.gateway.modele import Furnizor, ModelLlm
+from app.gateway.modele import Apel, ApelContinut, Furnizor, ModelLlm, PromptGateway
 from app.gateway.registru import (
     activeaza,
     cheie_configurata,
@@ -31,9 +34,12 @@ from app.gateway.registru import (
     modele,
     poate_fi_activat,
 )
+from app.gateway.serviciu import apeleaza
 
 __all__ = [
     "Amanat",
+    "Apel",
+    "ApelContinut",
     "ApelRefuzat",
     "ContextApel",
     "EroareGateway",
@@ -44,9 +50,11 @@ __all__ = [
     "Interceptor",
     "ModelLlm",
     "NuSePoateActiva",
+    "PromptGateway",
     "Rezultat",
     "activeaza",
     "adauga_interceptor",
+    "apeleaza",
     "cheie_configurata",
     "cheie_reluare",
     "dezactiveaza",
@@ -54,8 +62,10 @@ __all__ = [
     "furnizor",
     "furnizori",
     "inventar",
+    "jurnal",
     "modele",
     "poate_fi_activat",
+    "prompturi",
     "registru",
     "reprogrameaza",
 ]

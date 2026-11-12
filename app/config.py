@@ -106,6 +106,9 @@ class Settings(BaseSettings):
     gateway_factor_pauza: float = Field(default=2.0, ge=1.0, le=10.0)
     gateway_intrerupator_prag: int = Field(default=3, ge=1)  # eșecuri consecutive care scot furnizorul
     gateway_intrerupator_pauza_sec: float = Field(default=120.0, gt=0.0)  # cât stă scos, până la prima probă
+    gateway_continut_zile: int = Field(
+        default=30, ge=1, le=365
+    )  # cât se păstrează conținutul apelurilor (20.4)
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 
