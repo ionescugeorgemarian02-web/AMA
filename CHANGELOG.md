@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F2.2 — Cozile
+- Cozile din 7.5: `urgent`, `greu` (câte un job pe culoar, `AMA_CULOARE_GREU`, implicit 2), `io` (24), `invatare` (1); fabrica de cozi pe furnizor și pe platformă cu limită de rată; priorități P0–P3 cu termenul codificat în prioritatea bibliotecii (nu are termene). Configurarea cozilor se scrie în bază înainte de lansare.
+
 ### F2.1 — Execuția durabilă
 - Biblioteca de workflow-uri DBOS Transact (`dbos==3.5.0`) în aceeași bază, schema `dbos`, ascunsă în `app/operare/motor/` (garda `scripts/check_motor.py`); decoratorii `flux` și `pas`, `trimite` din procesul web, procesul `worker` cu oprire curată, schema creată de `ama_owner` (`python -m app.operare.motor.migrare`), drepturi minime pentru `ama_app`, serviciul `worker` în compose, mutat de deployer odată cu aplicația. Un flux oprit forțat reia de la ultimul pas.
 

@@ -39,6 +39,12 @@ def porneste() -> None:
         if executie.pornit():
             return
         s = get_settings()
+        try:
+            executie.preinregistreaza_cozi()
+        except Exception as exc:  # schema lipsește etc.: lansarea de mai jos dă eroarea clară
+            log.warning(
+                "cozile nu au putut fi scrise înainte de lansare", extra={"tip_eroare": type(exc).__name__}
+            )
         DBOS(config=configurare(s))
         try:
             DBOS.launch()

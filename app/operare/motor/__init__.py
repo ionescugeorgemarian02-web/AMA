@@ -21,6 +21,14 @@ Fluxurile primesc doar identificatori (vezi `argumente`); pașii care ating date
 
 from app.operare.motor.argumente import verifica as verifica_argumente
 from app.operare.motor.ciclu import opreste, porneste, pornit
+from app.operare.motor.cozi import (
+    Coada,
+    DefinitieCoada,
+    Prioritate,
+    calculeaza_prioritate,
+    coada_furnizor,
+    coada_platforma,
+)
 from app.operare.motor.erori import (
     ArgumentNepermis,
     EroareAutentificare,
@@ -33,6 +41,7 @@ from app.operare.motor.executie import (
     StareFlux,
     StareJob,
     asteapta_flux,
+    declara_coada,
     flux,
     inchide_client,
     nume_flux,
@@ -44,14 +53,21 @@ from app.operare.motor.migrare import migreaza_sistem
 
 __all__ = [
     "ArgumentNepermis",
+    "Coada",
+    "DefinitieCoada",
     "EroareAutentificare",
     "EroareDefinitiva",
     "EroareMotor",
     "EroareTemporara",
     "MotorOprit",
+    "Prioritate",
     "StareFlux",
     "StareJob",
     "asteapta_flux",
+    "calculeaza_prioritate",
+    "coada_furnizor",
+    "coada_platforma",
+    "declara_coada",
     "flux",
     "inchide_client",
     "migreaza_sistem",

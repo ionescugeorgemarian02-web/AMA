@@ -3,7 +3,7 @@
 import os
 import secrets
 import uuid
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -161,18 +161,26 @@ def motor_curat(baza: BazaTest, admin_engine: Engine) -> Iterator[None]:
 
 
 @pytest.fixture
-def executor(baza: BazaTest, motor_curat: None, monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
-    """Executorul pornit ÎN procesul testului (rapid), pentru teste care nu au nevoie de un proces separat.
+def porneste_executor(
+    baza: BazaTest, motor_curat: None, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[Callable[..., None]]:
+    """Fabrică: pornește executorul ÎN procesul testului (rapid), cu setări proprii (`culoare_greu=3` …).
     Testele de avarie (SIGKILL, SIGTERM) folosesc procese reale din `tests/chaos`."""
     from app.config import get_settings
     from app.operare import motor
 
-    monkeypatch.setenv("AMA_MOTOR_POLLING_SEC", "0.1")
-    monkeypatch.setenv("AMA_WORKER_ID", "worker-local")
-    get_settings.cache_clear()
-    motor.porneste()
-    try:
-        yield
-    finally:
-        motor.opreste(0)
+    def pornire(**setari: object) -> None:
+        mediu = {"motor_polling_sec": 0.1, "worker_id": "worker-local", **setari}
+        for cheie, valoare in mediu.items():
+            monkeypatch.setenv(f"AMA_{cheie.upper()}", str(valoare))
         get_settings.cache_clear()
+        motor.porneste()
+
+    yield pornire
+    motor.opreste(0)
+    get_settings.cache_clear()
+
+
+@pytest.fixture
+def executor(porneste_executor: Callable[..., None]) -> None:
+    porneste_executor()

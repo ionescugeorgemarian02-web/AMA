@@ -97,3 +97,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Verificat: SIGKILL în mijlocul pasului 2 → al doilea proces cu aceeași identitate termină jobul (pas 1 o dată, pas 2 reluat, pas 3 o dată); SIGTERM cu job nesfârșit → ieșire 0, jobul se reia; `ama_app` fără drept de DDL pe schema bibliotecii; web fără executor.
   - Găsit: `resume` nu reia un flux `ERROR`; recuperarea cere același `executor_id` și aceeași versiune; un proces Python cu fire ne-daemon nu iese singur la SIGTERM (iese forțat, cod 0). Detalii în `docs/specs/F2.1.md`.
   - Neverificat local: imaginea Docker, `restart: unless-stopped`, deployer-ul real (CI / migrare).
+- **F2.2 — Cozile.**
+  - Construit: `cozi.py` (cozile fixe, fabrica de cozi, `calculeaza_prioritate`), `declara_coada`, `trimite(…, coada, prioritate, termen)`.
+  - Găsit și reparat: la lansare, firele cozilor citesc din bază limitele **vechi** și apucă să scoată joburi cu ele (după ce numărul de culoare scăzuse de la 2 la 1, au pornit două joburi grele). Soluția: configurarea cozilor se scrie înainte de lansare, prin clientul subțire. Testul a prins-o fiindcă rulează cu limite diferite în teste consecutive.
+  - Limite ale bibliotecii, spuse în `docs/specs/F2.2.md`: nu are termene (codificate în prioritate, granulație un minut, stabilite la intrare); nu are preempțiune; două cozi nu pot împărți un semafor (deci `învățare` nu ocupă un culoar `greu`).
+  - Verificat: două culoare/trei joburi, un culoar, `io` limitat, `urgent` cu culoarele ocupate, ordinea P0–P3 cu termene, limita de rată (fereastră 1,5 s). Suita stabilă pe trei rulări consecutive.

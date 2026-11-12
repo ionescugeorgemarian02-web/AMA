@@ -24,12 +24,18 @@ from dbos import DBOS, DBOSClient, EnqueueOptions
 
 from app.config import get_settings
 from app.operare.motor import argumente
+from app.operare.motor.cozi import (
+    NUME_COADA,
+    Coada,
+    DefinitieCoada,
+    Prioritate,
+    calculeaza_prioritate,
+    definitii_standard,
+)
 from app.operare.motor.erori import EroareDefinitiva
 
 NUME_APLICATIE = "ama"
 RECUPERARI_IMPLICIT = 5  # de câte ori e reluat un flux care strică workerul înainte să ajungă la oameni
-NUME_COADA = re.compile(r"^[a-z][a-z0-9_]{1,40}$")
-COADA_IMPLICITA = "io"
 CHEIE_VALIDA = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,159}$")
 ATRIBUT_NUME = "__ama_flux__"
 
@@ -38,6 +44,7 @@ R = TypeVar("R")
 
 _lock = threading.RLock()
 _client: DBOSClient | None = None
+_cozi_extra: dict[str, DefinitieCoada] = {}
 
 
 class StareJob(StrEnum):
@@ -182,16 +189,63 @@ def seteaza_pornit(valoare: bool) -> None:
     _executor_pornit = valoare
 
 
-def inregistreaza_cozi() -> None:
-    """Cozile executorului. În F2.1 doar `io`; setul din 7.5 (urgent, greu, învățare) vine în F2.2."""
-    s = get_settings()
+def inregistreaza_coada(d: DefinitieCoada) -> None:
+    """Scrie configurarea unei cozi în bază. Workerul e proprietarul ei: la fiecare pornire se aplică valorile
+    din configurare (`always_update`), deci schimbarea unei limite cere doar repornirea workerului."""
+    limiter = {"limit": d.cereri, "period": d.perioada_sec} if d.cereri is not None else None
     DBOS.register_queue(
-        COADA_IMPLICITA,
-        global_concurrency=s.io_paralel,
-        worker_concurrency=s.io_paralel,
-        polling_interval_sec=s.motor_polling_sec,
+        d.nume,
+        global_concurrency=d.paralel_global,
+        worker_concurrency=d.paralel_worker,
+        limiter=limiter,  # type: ignore[arg-type]
+        polling_interval_sec=d.polling_sec,
         on_conflict="always_update",
     )
+
+
+def definitii_cozi() -> list[DefinitieCoada]:
+    """Cozile fixe din 7.5 (limitele din configurare), apoi cele declarate (furnizori, platforme)."""
+    return [*definitii_standard(get_settings()), *cozi_extra()]
+
+
+def preinregistreaza_cozi() -> None:
+    """Scrie configurarea cozilor ÎNAINTE de lansarea bibliotecii, prin clientul subțire.
+
+    Firele cozilor pornesc la lansare cu ce găsesc în bază și apucă să scoată joburi cu limitele vechi până la
+    următoarea lor sondare. Cu configurarea scrisă dinainte, prima sondare vede deja limitele noi (de exemplu
+    nu pornesc trei joburi grele după ce numărul de culoare a fost scăzut la unu)."""
+    for d in definitii_cozi():
+        limiter = {"limit": d.cereri, "period": d.perioada_sec} if d.cereri is not None else None
+        client().register_queue(
+            d.nume,
+            global_concurrency=d.paralel_global,
+            worker_concurrency=d.paralel_worker,
+            limiter=limiter,  # type: ignore[arg-type]
+            polling_interval_sec=d.polling_sec,
+            on_conflict="always_update",
+        )
+
+
+def inregistreaza_cozi() -> None:
+    """Înregistrarea din interiorul bibliotecii lansate (idempotentă după `preinregistreaza_cozi`)."""
+    for d in definitii_cozi():
+        inregistreaza_coada(d)
+
+
+def declara_coada(definitie: DefinitieCoada) -> None:
+    """Adaugă o coadă (de furnizor sau de platformă) la cele standard; se înregistrează la pornirea
+    workerului, sau pe loc dacă executorul rulează deja. Numele fixe din 7.5 nu se pot redeclara."""
+    if definitie.nume in {c.value for c in Coada}:
+        raise ValueError(f"coada {definitie.nume!r} este una dintre cele fixe")
+    with _lock:
+        _cozi_extra[definitie.nume] = definitie
+        if pornit():
+            inregistreaza_coada(definitie)
+
+
+def cozi_extra() -> list[DefinitieCoada]:
+    with _lock:
+        return list(_cozi_extra.values())
 
 
 # --- clientul (procesul web) ----------------------------------------------------------------------------
@@ -225,23 +279,27 @@ def inchide_client() -> None:
 def trimite(
     fluxul: Callable[..., Any],
     *args: Any,
-    coada: str = COADA_IMPLICITA,
+    coada: Coada | str = Coada.IO,
+    prioritate: Prioritate = Prioritate.P1,
+    termen: dt.datetime | None = None,
     cheie: str | None = None,
     la: dt.datetime | None = None,
     kwargs: dict[str, Any] | None = None,
 ) -> str:
     """Pune un flux în coadă și întoarce identificatorul jobului. Nu pornește niciun executor.
 
-    - `coada`: numele cozii (cozile și prioritățile din 7.5 vin în F2.2).
+    - `coada`: una dintre cele patru fixe din 7.5 (`Coada`) sau o coadă declarată (`declara_coada`:
+      furnizor, platformă). `prioritate` (P0–P3) și `termen`: în aceeași clasă câștigă termenul cel mai
+      apropiat (vezi `cozi`).
     - `cheie`: identificator de idempotență; aceeași cheie de două ori = același job (nu se dublează).
-      Folosește
-      una derivată din lucrul de făcut (de exemplu `livrabil:<id>:v3`), mai ales dacă `trimite` e
-      apelat dintr-un pas.
+      Folosește una derivată din lucrul de făcut (de exemplu `livrabil:<id>:v3`), mai ales dacă `trimite`
+      e apelat dintr-un pas.
     - `la`: nu porni înainte de acest moment (slot); jobul așteaptă în bază și supraviețuiește repornirilor.
     """
     nume = nume_flux(fluxul)
-    if not NUME_COADA.match(coada):
-        raise ValueError(f"nume de coadă nepermis: {coada!r}")
+    nume_coada = coada.value if isinstance(coada, Coada) else coada
+    if not NUME_COADA.match(nume_coada):
+        raise ValueError(f"nume de coadă nepermis: {nume_coada!r}")
     if cheie is not None and not CHEIE_VALIDA.match(cheie):
         raise ValueError("cheie de idempotență nepermisă (litere, cifre, `._:@/-`, maxim 160)")
     kw = kwargs or {}
@@ -249,7 +307,8 @@ def trimite(
     s = get_settings()
     optiuni: EnqueueOptions = {
         "workflow_name": nume,
-        "queue_name": coada,
+        "queue_name": nume_coada,
+        "priority": calculeaza_prioritate(prioritate, termen),
         "app_version": s.motor_versiune,
         "application_name": NUME_APLICATIE,
     }
