@@ -20,6 +20,7 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.gateway.candidat import Candidat, din_randuri
 from app.gateway.erori import NuSePoateActiva
 from app.gateway.modele import Furnizor, ModelLlm
 from app.operare import audit
@@ -43,6 +44,20 @@ def modele(db: Session, *, furnizor_id: uuid.UUID | None = None) -> list[ModelLl
     if furnizor_id is not None:
         q = q.where(ModelLlm.furnizor_id == furnizor_id)
     return list(db.execute(q).scalars())
+
+
+def candidati(db: Session) -> list[Candidat]:
+    """Toate modelele din registru, ca date înghețate pentru rutare și limitatoare."""
+    f = {x.id: x for x in db.execute(select(Furnizor)).scalars()}
+    return [din_randuri(f[m.furnizor_id], m) for m in db.execute(select(ModelLlm)).scalars()]
+
+
+def candidat(db: Session, model_id: uuid.UUID) -> Candidat | None:
+    m = db.get(ModelLlm, model_id)
+    if m is None:
+        return None
+    f = db.get(Furnizor, m.furnizor_id)
+    return None if f is None else din_randuri(f, m)
 
 
 def citeste_cheie(f: Furnizor) -> str | None:

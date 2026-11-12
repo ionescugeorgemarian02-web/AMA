@@ -7,6 +7,7 @@ clientul intern și adresele furnizorilor în afara acestui pachet. API-ul publi
 """
 
 from app.gateway import inventar, registru
+from app.gateway.amanare import cheie_reluare, reprogrameaza
 from app.gateway.erori import (
     Amanat,
     ApelRefuzat,
@@ -39,6 +40,7 @@ __all__ = [
     "NuSePoateActiva",
     "activeaza",
     "cheie_configurata",
+    "cheie_reluare",
     "dezactiveaza",
     "furnizor",
     "furnizori",
@@ -46,4 +48,5 @@ __all__ = [
     "modele",
     "poate_fi_activat",
     "registru",
+    "reprogrameaza",
 ]

@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F3.3 — Limitatoarele de cotă
+- Contoare persistente în Postgres (`gateway_contoare`, `gateway_blocaje`, migrarea `0013`) pe (model sau cont de furnizor, minut / zi), cu rezervare atomică înainte de apel (o instrucțiune SQL sub plafon, corectă la concurență), regularizare cu tokenii reali, antetele furnizorului ca sursă de adevăr (`x-ratelimit-*`, `retry-after`), blocaj după 429 și rezerva de 10% din limita zilnică pentru P0.
+- Cota epuizată devine `Amanat(pana_la)`; un flux durabil se reprogramează prin motor cu `gateway.reprogrameaza` pentru momentul resetării (fără `sleep`).
+
 ### F3.2 — Clientul unificat
 - Un singur mod de a apela orice furnizor, cu `httpx` și transport injectabil (fără SDK-uri): adaptoare pe tip de API (compatibil OpenAI, Gemini, Anthropic), erori clasificate după 7.5, citirea antetelor de limită, ieșiri structurate (schemă JSON nativă sau instrucțiune, validare Pydantic, o singură reparație, apoi eroare tipizată). Cheia nu apare în erori sau jurnale (testat).
 - Garda `scripts/check_gateway.py` în `make guards`: niciun import intern al gateway-ului și nicio adresă de furnizor în afara `app/gateway`; fără SDK-uri de furnizori. Furnizorul fals pentru teste (`tests/furnizor_fals.py`, SIMULAT).

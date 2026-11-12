@@ -95,6 +95,7 @@ FURNIZORI: tuple[FurnizorSeed, ...] = (
         verificat_la=None,
         sursa="https://openrouter.ai/docs/limits",
         limite=Limite(cereri_minut=20, cereri_zi=50),
+        parametri={"antete_cheie": "furnizor"},  # limita e pe cont: antetele corectează contorul contului
     ),
     FurnizorSeed(
         cod="groq",

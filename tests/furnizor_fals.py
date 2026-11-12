@@ -46,6 +46,7 @@ class FurnizorFals:
     text: str | Callable[[CerereInregistrata], str] = TEXT_IMPLICIT
     tokeni: tuple[int, int] | None = None  # (intrare, ieșire) fixe; altfel din lungimi
     antete_limita: bool = True
+    antete_ok: dict[str, str] | None = None  # înlocuiește antetele de limită ale unui răspuns reușit
     cereri: list[CerereInregistrata] = field(default_factory=list)
     _liste: dict[str, list[str]] = field(default_factory=lambda: defaultdict(list))
     _permanent: dict[str, str] = field(default_factory=dict)
@@ -177,7 +178,9 @@ class FurnizorFals:
                 "stop_reason": oprire,
                 "usage": {"input_tokens": intrare, "output_tokens": iesire},
             }
-        return httpx.Response(200, json=corp, headers=antete)
+        return httpx.Response(
+            200, json=corp, headers=self.antete_ok if self.antete_ok is not None else antete
+        )
 
     def _eroare(self, api: str, cuvant: str) -> httpx.Response:
         if cuvant == "429":

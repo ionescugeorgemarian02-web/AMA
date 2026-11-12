@@ -25,6 +25,10 @@ CONTEXT_AGENTIE = {
     # Executorul de efecte (F2.5): jobul programat `efecte.tic` și punerea efectelor în coadă citesc efectele
     # tuturor clienților (cele rămase după o oprire); încercările propriu-zise rulează pe clientul efectului.
     "app/operare/efecte/executor.py",
+    # Gateway-ul de modele (F3.3, F3.4): contoarele de cotă, blocajele și sănătatea furnizorilor sunt la nivel de
+    # agenție (nu țin date de client) și se scriu din orice proces care face un apel, în tranzacții proprii și scurte.
+    "app/gateway/limitator.py",
+    "app/gateway/sanatate.py",
 }
 
 
