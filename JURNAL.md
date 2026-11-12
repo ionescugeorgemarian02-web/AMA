@@ -156,3 +156,13 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **Rezultat general F2.5, F2.9, poarta F2:** `make check` verde. Neverificat și simulat: conectorul (FALS), fluxul de probă, ecranele pe un telefon real, canalele reale de notificare, doi workeri pe aceeași bază.
 - Propuneri notate, nefăcute: reluarea automată a fluxului unui livrabil după `reia_de_om` (acum se reia starea, nu componenta); o legătură explicită livrabil → job în loc de potrivirea pe argumente; ecranul de setare a nivelurilor de autonomie; mutarea livrabilului în `esec_temporar` în timpul reîncercărilor efectului (acum rămâne în `in_publicare`).
 
+## 2026-11-12 — Sesiunea 4: faza F3, gateway de modele (F3.1, F3.2, F3.3, F3.4, F3.7)
+
+### 18. Pașii F3.1–F3.4 și F3.7 — un agent de cod (Sonnet), pe ramura `claude/amazing-volta-ou9t2u`
+- F3.5, F3.6, F3.8–F3.11 nu au fost atinse, conform cererii. Un commit pe pas, `make check` verde înainte de fiecare.
+- **F3.1 — Registrul de furnizori și modele.**
+  - Construit: `app/gateway/` (`inventar`, `modele`, `registru`, `erori`), migrarea `0012` (tabelele și sămânța), ecranul `/gateway/registru`.
+  - Hotărâri: cheile NU stau în bază, nici criptate: doar numele variabilei de mediu `AMA_CHEIE_*` (8.1 și 21.2 le vor în mediul serverului; baza refuză orice alt nume, deci gateway-ul nu poate fi îndreptat spre `AMA_MASTER_KEY`); registrul e la nivel de agenție dar citibil din orice context cu identitate, fiindcă lucrătorii deschid sesiuni de client; „uz comercial” se impune în bază (`CHECK`), nu doar în cod; sămânța pornește totul `inactiv`.
+  - Găsit: RLS este FORȚAT și pentru proprietarul migrării, deci sămânța trebuie scrisă cu `app.agency` setat în tranzacția migrării.
+  - Neverificat: toate valorile `[I]` din inventar (termeni, limite, identificatori de modele) sunt presupuneri.
+

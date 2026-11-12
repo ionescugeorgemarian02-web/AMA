@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F3.1 — Registrul de furnizori și modele
+- Tabelele `gateway_furnizori` și `gateway_modele` (migrarea `0012`), la nivel de agenție, cu RLS: furnizor (tip de API, adresă `https`, stare, termeni: uz comercial, antrenare pe date, regiuni; marcaj `V`/`S`/`I` și dată de verificare; limite pe minut și pe zi) și model (nivel T1–T4/local, context, capabilități, limite, preț-umbră, scor pe profil). Cheia de API nu stă în bază: doar numele variabilei de mediu `AMA_CHEIE_*` (baza refuză alt nume). Un furnizor fără uz comercial confirmat nu poate fi activat (impus și în bază).
+- Sămânța din `app/gateway/inventar.py` (OpenRouter, Groq, Gemini, Cloudflare, Claude), totul `inactiv`. Ecranul `/gateway/registru` (limite, termeni, „cheie configurată / lipsește”), cu activare / dezactivare de către proprietar (CSRF, audit).
+
 ### Poarta F2 — Motorul
 - Test cap-coadă cu procese reale (`tests/chaos/test_poarta_f2.py`): un livrabil de probă parcurge toate stările normale, supraviețuiește la două SIGKILL (la mijloc și în jurul publicării) și produce un singur efect la conectorul fals, fără tranziții dublate.
 

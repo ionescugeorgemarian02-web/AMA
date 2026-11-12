@@ -1,0 +1,63 @@
+{% extends "panou/baza.html" %}
+{% block title %}Furnizori de modele · AMA{% endblock %}
+{% block pagina %}
+<h1>Furnizori și modele</h1>
+<p class="slab">Registrul din docs/08 §8.1. Cheile de API nu se văd aici: stau în mediul serverului. Un furnizor fără uz comercial confirmat nu poate fi activat.</p>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+{% for r in randuri %}
+{% set f = r.f %}
+<section class="card" aria-labelledby="f-{{ f.cod }}">
+  <h2 id="f-{{ f.cod }}">{{ f.nume }}
+    <span class="insigna {{ 'ok' if f.stare == 'activ' else ('atentie' if f.stare == 'pauza' else '') }}">{{ etichete_stare[f.stare] }}</span></h2>
+  {% if f.stare == 'pauza' %}<p class="mesaj atentie" role="status">Pe pauză: {{ f.stare_motiv or 'eroare de autentificare' }}. Verifică cheia și activează din nou.</p>{% endif %}
+  <div class="rand"><span class="eticheta">Tip de API</span><span><code>{{ f.tip_api }}</code></span></div>
+  <div class="rand"><span class="eticheta">Cheie</span>
+    <span><span class="insigna {{ 'ok' if r.cheie_ok else 'atentie' }}">{{ 'configurată' if r.cheie_ok else 'lipsește' }}</span>
+      <code>{{ f.cheie_env }}</code></span></div>
+  <div class="rand"><span class="eticheta">Uz comercial</span><span>{{ da_nu(f.uz_comercial) }}</span></div>
+  <div class="rand"><span class="eticheta">Date folosite la antrenare</span><span>{{ da_nu(f.antrenare_pe_date) }}</span></div>
+  {% if f.restrictii_regionale %}<div class="rand"><span class="eticheta">Restricții regionale</span><span>{{ f.restrictii_regionale }}</span></div>{% endif %}
+  <div class="rand"><span class="eticheta">Plătit</span><span>{{ 'da (se oprește din „apeluri plătite”)' if f.platit else 'nu' }}</span></div>
+  <div class="rand"><span class="eticheta">Limite ale contului</span><span>{{ r.limite }}</span></div>
+  <div class="rand"><span class="eticheta">Încredere în termeni</span>
+    <span>[{{ f.marcaj }}] {{ etichete_marcaj[f.marcaj] }}{% if f.verificat_la %} · verificat la {{ f.verificat_la.isoformat() }}{% else %} · fără dată de verificare{% endif %}</span></div>
+  {% if f.note %}<p class="slab">{{ f.note }}</p>{% endif %}
+  {% if f.sursa %}<p class="slab">Sursă: {{ f.sursa }}</p>{% endif %}
+
+  <div class="defilare"><table>
+    <tr><th>Model</th><th>Nivel</th><th>Context</th><th>Capabilități</th><th>Limite</th><th>Preț-umbră</th><th>Încredere</th></tr>
+    {% for m in r.modele %}
+    <tr><td>{{ m.nume_afisat }}<br><code>{{ m.identificator }}</code></td>
+      <td>{{ m.nivel }}</td>
+      <td>{{ '{:,}'.format(m.context_tokeni).replace(',', '.') }}</td>
+      <td>{{ m.capabilitati|join(', ') or '–' }}</td>
+      <td>{{ limite(m) }}</td>
+      <td>{{ pret(m) }}</td>
+      <td>[{{ m.marcaj }}]{% if m.verificat_la %} {{ m.verificat_la.isoformat() }}{% endif %}</td></tr>
+    {% else %}
+    <tr><td colspan="7" class="slab">Niciun model.</td></tr>
+    {% endfor %}
+  </table></div>
+
+  {% if poate_actiona %}
+    {% if f.stare == 'activ' %}
+    <form method="post" action="/gateway/furnizori/{{ f.id }}/dezactiveaza">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="m-{{ f.cod }}">Motiv (opțional)</label>
+      <input type="text" id="m-{{ f.cod }}" name="motiv" maxlength="300" autocomplete="off">
+      <button type="submit" class="secundar">Dezactivează</button>
+    </form>
+    {% else %}
+    <form method="post" action="/gateway/furnizori/{{ f.id }}/activeaza">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit">Activează</button>
+    </form>
+    {% if r.motiv_blocat %}<p class="slab">{{ r.motiv_blocat }}</p>{% endif %}
+    {% endif %}
+  {% endif %}
+</section>
+{% endfor %}
+{% if not poate_actiona %}<p class="slab">Doar proprietarul poate activa sau dezactiva un furnizor.</p>{% endif %}
+{% endblock %}
