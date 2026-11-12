@@ -8,6 +8,9 @@ services:
   migrate:
     mem_limit: 512m
     memswap_limit: 512m
+  worker:
+    mem_limit: 2g  # worker-light din 6.4; worker-heavy vine în F3
+    memswap_limit: 2g
   app_blue:
     mem_limit: 1g
     memswap_limit: 1g

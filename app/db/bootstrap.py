@@ -46,3 +46,24 @@ def pregateste_baza(admin_dsn_baza: str, nume_baza: str) -> None:
             cur.execute("SELECT 1 FROM pg_available_extensions WHERE name = %s", (ext,))
             if cur.fetchone():
                 cur.execute(sql.SQL("CREATE EXTENSION IF NOT EXISTS {}").format(sql.Identifier(ext)))
+
+
+# Drepturi date implicit de biblioteca de workflow-uri rolului aplicației; aplicația nu le folosește.
+DREPTURI_RETRASE_MOTOR = ("TRUNCATE", "REFERENCES", "TRIGGER")
+
+
+def restrange_drepturi_schema(owner_dsn: str, schema: str, rol: str = ROL_APP) -> None:
+    """Conectat ca proprietar: retrage de la `rol` drepturile de structură pe tabelele schemei (existente și
+    viitoare). Idempotent. Apelat de `app.operare.motor.migrare` după ce biblioteca și-a creat schema."""
+    drepturi = sql.SQL(", ").join(sql.SQL(d) for d in DREPTURI_RETRASE_MOTOR)
+    with psycopg.connect(owner_dsn, autocommit=True) as conn, conn.cursor() as cur:
+        cur.execute(
+            sql.SQL("REVOKE {} ON ALL TABLES IN SCHEMA {} FROM {}").format(
+                drepturi, sql.Identifier(schema), sql.Identifier(rol)
+            )
+        )
+        cur.execute(
+            sql.SQL("ALTER DEFAULT PRIVILEGES IN SCHEMA {} REVOKE {} ON TABLES FROM {}").format(
+                sql.Identifier(schema), drepturi, sql.Identifier(rol)
+            )
+        )

@@ -33,6 +33,7 @@ VALABILITATE_COD = timedelta(minutes=5)
 PASTRARE_ACTUALIZARI = timedelta(days=7)
 TIPURI = {
     "publicare": Oprire.PUBLICARE,
+    "productie": Oprire.PRODUCTIE,
     "reclame": Oprire.RECLAME,
     "invatare": Oprire.INVATARE,
     "apeluri_platite": Oprire.APELURI_PLATITE,
@@ -40,7 +41,7 @@ TIPURI = {
 AJUTOR = (
     "Comenzi:\n"
     "/stare — starea sistemului\n"
-    "/opreste <publicare|reclame|invatare|apeluri_platite> — oprește\n"
+    "/opreste <publicare|productie|reclame|invatare|apeluri_platite> — oprește\n"
     "/opreste_client <id sau nume> — oprește un client\n"
     "/porneste <tip> și /porneste_client <id sau nume> — repornire (cere confirmare cu cod)\n"
     "/confirma <cod> — confirmă o repornire\n"

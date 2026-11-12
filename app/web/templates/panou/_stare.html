@@ -11,6 +11,14 @@
   <div class="rand"><span class="eticheta">Livrare</span>
     <span>{% if livrare.disponibila %}<a href="/operare">versiune nouă pe staging</a>{% elif livrare.cerere_activa %}în curs{% else %}la zi{% endif %}</span></div>
   {% endif %}
+  <div class="rand"><span class="eticheta">Alerte deschise</span>
+    <a href="/alerte">{% if alerte_deschise %}<span class="insigna atentie">{{ alerte_deschise }}</span>{% else %}<span class="insigna ok">niciuna</span>{% endif %}</a></div>
+  {% for w in workeri %}
+  <div class="rand"><span class="eticheta">Worker {{ w.worker_id }}</span>
+    {% if w.oprit_curat %}<span class="insigna">oprit</span>
+    {% elif w.viu %}<span class="insigna ok">activ</span>
+    {% else %}<span class="insigna pericol">fără semn de viață</span>{% endif %}</div>
+  {% endfor %}
   <div class="rand"><span class="eticheta">Opriri active</span>
     {% if opriri_active %}<span class="insigna pericol">{{ opriri_active|length }}</span>{% else %}<span class="insigna ok">niciuna</span>{% endif %}</div>
 </section>

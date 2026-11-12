@@ -22,7 +22,7 @@ from app.conturi import (
     require_role,
 )
 from app.conturi.roluri import ROLURI_AGENTIE
-from app.operare import audit, backup, livrare, notificari, opriri
+from app.operare import audit, backup, coada_erori, livrare, notificari, opriri, semnale
 from app.operare.opriri import Oprire
 from app.panou.sabloane import STATIC, pagina
 
@@ -79,6 +79,8 @@ def _stare_sistem(db: DbSession, u: SesiuneCurenta) -> dict[str, Any]:
         "backup": backup.citeste_stare(),
         "livrare": livrare.citeste_stare(db, istoric=1) if u.rol.value == "proprietar" else None,
         "opriri_active": active,
+        "alerte_deschise": coada_erori.numar_deschise(db),
+        "workeri": semnale.stare_workeri(db, get_settings().worker_timeout_sec),
         "globale": [
             {"tip": t.value, "eticheta": opriri.ETICHETE[t], "oprit": t.value in globale_oprite}
             for t in opriri.GLOBALE
@@ -100,45 +102,6 @@ def acasa(request: Request, u: Agentie, db: DbSession, mesaj: str = "") -> Respo
 @router.get("/fragment/stare")
 def fragment_stare(request: Request, u: Agentie, db: DbSession) -> Response:
     return pagina(request, u, "panou/_stare.html", tab="acasa", **_stare_sistem(db, u))
-
-
-@router.get("/aprobari")
-def aprobari(request: Request, u: Agentie) -> Response:
-    return pagina(
-        request,
-        u,
-        "panou/gol.html",
-        tab="aprobari",
-        titlu="Aprobări",
-        pictograma="✓",
-        text="Aici vei vedea livrabilele care așteaptă decizia ta, cu verdictele validatorilor.",
-    )
-
-
-@router.get("/productie")
-def productie(request: Request, u: Agentie) -> Response:
-    return pagina(
-        request,
-        u,
-        "panou/gol.html",
-        tab="productie",
-        titlu="Producție",
-        pictograma="⚙",
-        text="Aici vei vedea fiecare livrabil pe etape, cu timpi și reîncercări.",
-    )
-
-
-@router.get("/alerte")
-def alerte(request: Request, u: Agentie) -> Response:
-    return pagina(
-        request,
-        u,
-        "panou/gol.html",
-        tab="alerte",
-        titlu="Alerte",
-        pictograma="!",
-        text="Aici vor apărea incidentele, pe severitate, cu starea lor.",
-    )
 
 
 @router.get("/meniu")

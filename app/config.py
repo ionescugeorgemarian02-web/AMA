@@ -48,6 +48,60 @@ class Settings(BaseSettings):
     telegram_chat_id: str = ""
     telegram_webhook_secret: SecretStr = Field(default=SecretStr(""))
 
+    # Motorul de execuție (F2.1–F2.2, 7.5). Biblioteca de workflow-uri stă în aceeași bază, schema `dbos`.
+    # `worker_id` trebuie să fie stabil între reporniri: workerul reluat își recuperează joburile după el.
+    worker_id: str = Field(default="worker-1", pattern=r"^[a-z0-9][a-z0-9_.-]{0,62}$")
+    motor_schema: str = Field(default="dbos", pattern=r"^[a-z][a-z0-9_]{0,40}$")
+    motor_versiune: str = Field(
+        default="f2", pattern=r"^[A-Za-z0-9_.-]{1,60}$"
+    )  # versiunea joburilor (vezi F2.1)
+    motor_polling_sec: float = Field(default=1.0, gt=0.0, le=60.0)  # cât de des caută o coadă joburi noi
+    motor_pool: int = Field(default=6, ge=2, le=20)  # conexiuni ale bibliotecii (worker)
+    worker_oprire_sec: int = Field(default=20, ge=0, le=600)  # cât așteaptă joburile în curs la SIGTERM
+    culoare_greu: int = Field(
+        default=2, ge=1, le=16
+    )  # culoare pentru joburile grele (7.5): câte un job pe culoar
+    io_paralel: int = Field(default=24, ge=1, le=200)  # coada de intrări și ieșiri
+    invatare_paralel: int = Field(default=1, ge=1, le=8)
+    job_timp_maxim_sec: int = Field(default=1800, ge=1)  # fără niciun pas încheiat: job blocat (watchdog)
+    # Watchdog (22.3): bătăi de inimă, scanarea joburilor, pragurile de alertă.
+    watchdog_bataie_sec: float = Field(default=15.0, gt=0.0)
+    watchdog_scanare_sec: float = Field(default=30.0, gt=0.0)
+    worker_timeout_sec: float = Field(default=90.0, gt=0.0)  # fără bătaie atâta timp = fără semn de viață
+    watchdog_prag_reporniri: int = Field(default=3, ge=1)  # a treia repornire într-o oră anunță
+    watchdog_fereastra_min: int = Field(default=60, ge=1)
+    erori_prag_crestere: int = Field(default=5, ge=2)  # câte joburi deschise cu aceeași cauză urcă alerta
+    programare_polling_sec: float = Field(default=5.0, gt=0.0, le=60.0)  # cât de des caută programări noi
+    # Producția livrabilelor (F2.3–F2.4, 7.3): limitele anti-buclă (valori de pornire).
+    productie_runde_reparatie: int = Field(default=2, ge=0)  # a treia rundă merge la om
+    productie_predari_max: int = Field(default=12, ge=1)  # intrări în stări de lucru ale componentelor
+    productie_buget_apeluri_llm: int = Field(default=40, ge=1)  # per livrabil
+    productie_buget_timp_sec: int = Field(default=3600, ge=1)  # timp de lucru acumulat, per livrabil
+    intrerupator_prag_esec: float = Field(
+        default=0.30, gt=0.0, le=1.0
+    )  # rata de eșec peste care producția se oprește
+    intrerupator_fereastra_min: int = Field(default=60, ge=1)
+    intrerupator_volum_min: int = Field(
+        default=10, ge=1
+    )  # sub atâtea rezultate în fereastră nu se judecă rata
+    # Cererile de aprobare (F2.8, 19.4): termen de 48 h, reamintire cu 24 h înainte de termen.
+    aprobare_termen_ore: int = Field(default=48, ge=1)
+    aprobare_reamintire_ore: int = Field(default=24, ge=1)
+    # Autonomia (F2.10, 7.4): ponderea livrabilelor care merg totuși la om la L2 (10–20%) și la L3+ (5–10%).
+    autonomie_esantion_l2: float = Field(default=0.15, ge=0.0, le=1.0)
+    autonomie_esantion_l3: float = Field(default=0.075, ge=0.0, le=1.0)
+    # Canale cu consimțământ per postare: rămân la cel mult L1 (TikTok, 7.4). Separate prin virgulă.
+    canale_consimtamant: str = "tiktok"
+    # Executorul de efecte externe (F2.5, 7.5): reîncercări cu pauză crescătoare, plasa de siguranță a
+    # „tic”-ului.
+    efecte_reincercari: int = Field(default=3, ge=0, le=10)
+    efecte_pauza_sec: float = Field(default=2.0, gt=0.0, le=600.0)
+    efecte_redistribuire_sec: int = Field(
+        default=600, ge=1
+    )  # un efect în așteptare fără job viu se repune în coadă
+    # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
+    worker_module_test: str = ""
+
     @property
     def push_activ(self) -> bool:
         return bool(self.vapid_public_key) and len(self.vapid_private_key.get_secret_value()) >= 32

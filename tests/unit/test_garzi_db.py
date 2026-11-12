@@ -16,6 +16,15 @@ CONTEXT_AGENTIE = {
     "app/operare/livrare.py",  # rutele interne ale deployer-ului: jeton comparat în timp constant (F1.8)
     "app/operare/notificari.py",  # trimiterea către abonații agenției (alerte critice), fără cerere de utilizator
     "app/connectors/telegram/bot.py",  # webhook: antet-secret + chat permis, verificate înainte (F1.10)
+    # Procesul worker (F2.7): fără utilizator; scrie semnale de viață și coada de erori la nivel de agenție.
+    "app/operare/watchdog.py",
+    "app/operare/semnale.py",  # semnale de viață + verificarea de sănătate a serviciului `worker`
+    # Producția (F2.4, F2.8): joburi programate, fără utilizator; întrerupătorul global și expirarea aprobărilor
+    # citesc toți clienții (rezultatele de pe o oră, termenele de pe toate cererile).
+    "app/productie/fluxuri.py",
+    # Executorul de efecte (F2.5): jobul programat `efecte.tic` și punerea efectelor în coadă citesc efectele
+    # tuturor clienților (cele rămase după o oprire); încercările propriu-zise rulează pe clientul efectului.
+    "app/operare/efecte/executor.py",
 }
 
 

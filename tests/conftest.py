@@ -3,7 +3,7 @@
 import os
 import secrets
 import uuid
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -14,7 +14,10 @@ from alembic.config import Config
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.engine import make_url
 
+from app.operare.motor.migrare import migreaza_sistem
+
 os.environ.setdefault("AMA_ENV", "test")
+os.environ.setdefault("AMA_EFECTE_PAUZA_SEC", "0.05")  # reîncercările efectelor, fără pauze lungi în teste
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -91,6 +94,7 @@ def creeaza_baza_noua(admin: str, migreaza: bool) -> Iterator[BazaTest]:
         )
         if migreaza:
             command.upgrade(alembic_config(baza.owner_url), "head")
+            migreaza_sistem(baza.owner_url)  # schema bibliotecii de workflow-uri (F2.1), tot ca proprietar
         yield baza
     finally:
         with psycopg.connect(_psycopg_dsn(admin), autocommit=True) as conn:
@@ -129,3 +133,59 @@ def admin_engine(baza: BazaTest) -> Iterator[Engine]:
     engine = create_engine(baza.admin_url)
     yield engine
     engine.dispose()
+
+
+@pytest.fixture(autouse=True)
+def _fara_programari_declarate() -> Iterator[None]:
+    """Programările declarate în cod sunt globale procesului: niciun test nu le lasă următorului."""
+    from app.operare import motor
+
+    motor.uita_declaratiile()
+    yield
+    motor.uita_declaratiile()
+
+
+@pytest.fixture
+def motor_curat(baza: BazaTest, admin_engine: Engine) -> Iterator[None]:
+    """Joburile bibliotecii sunt comune întregii baze de test: fiecare test pornește fără joburi și fără programări.
+    La final se închide clientul web (are motor propriu de conexiuni, legat de configurarea testului)."""
+    from sqlalchemy import text
+
+    from app.operare import motor
+
+    def goleste() -> None:
+        with admin_engine.begin() as c:
+            c.execute(text("TRUNCATE dbos.workflow_status CASCADE"))
+            c.execute(text("DELETE FROM dbos.workflow_schedules"))
+
+    motor.inchide_client()
+    goleste()
+    yield
+    motor.inchide_client()
+    goleste()
+
+
+@pytest.fixture
+def porneste_executor(
+    baza: BazaTest, motor_curat: None, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[Callable[..., None]]:
+    """Fabrică: pornește executorul ÎN procesul testului (rapid), cu setări proprii (`culoare_greu=3` …).
+    Testele de avarie (SIGKILL, SIGTERM) folosesc procese reale din `tests/chaos`."""
+    from app.config import get_settings
+    from app.operare import motor
+
+    def pornire(**setari: object) -> None:
+        mediu = {"motor_polling_sec": 0.1, "worker_id": "worker-local", **setari}
+        for cheie, valoare in mediu.items():
+            monkeypatch.setenv(f"AMA_{cheie.upper()}", str(valoare))
+        get_settings.cache_clear()
+        motor.porneste()
+
+    yield pornire
+    motor.opreste(0)
+    get_settings.cache_clear()
+
+
+@pytest.fixture
+def executor(porneste_executor: Callable[..., None]) -> None:
+    porneste_executor()

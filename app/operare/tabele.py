@@ -1,4 +1,4 @@
-"""Tabelele operării: abonamente push, livrare, opriri, Telegram (migrarea 0005).
+"""Tabelele operării: abonamente push, livrare, opriri, Telegram (migrarea 0005), motor (migrarea 0006).
 
 Cheile străine există în bază (migrarea); aici nu se declară, fiindcă `utilizatori` și `clienti` țin de alt
 modul și alt `MetaData`."""
@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, LargeBinary, Text, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Integer, LargeBinary, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -89,3 +89,53 @@ class ConfirmareTelegram(BazaOperare):
     tip: Mapped[str] = mapped_column(Text)
     tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     expira_la: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class SemnalWorker(BazaOperare):
+    """Un rând pe worker (migrarea 0006): bătaia de inimă a procesului `worker`."""
+
+    __tablename__ = "worker_semnale"
+    worker_id: Mapped[str] = mapped_column(Text, primary_key=True)
+    pid: Mapped[int] = mapped_column(Integer)
+    versiune: Mapped[str] = mapped_column(Text, default="")
+    pornit_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    ultimul_semnal: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    oprit_curat: Mapped[bool] = mapped_column(Boolean, default=False)
+    oprit_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    semnalat_mort: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class EvenimentWorker(BazaOperare):
+    __tablename__ = "worker_evenimente"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    worker_id: Mapped[str] = mapped_column(Text)
+    tip: Mapped[str] = mapped_column(Text)
+    la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    detalii: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+
+
+class IntrareEroare(BazaOperare):
+    """Coada de erori (22.5): contextul complet al unui job eșuat. Nu se șterge; se închide cu motiv."""
+
+    __tablename__ = "coada_erori"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    workflow_id: Mapped[str] = mapped_column(Text, unique=True)
+    flux: Mapped[str] = mapped_column(Text)
+    pas: Mapped[str | None] = mapped_column(Text)
+    stare_job: Mapped[str] = mapped_column(Text)
+    coada: Mapped[str | None] = mapped_column(Text)
+    executor_id: Mapped[str | None] = mapped_column(Text)
+    eroare_tip: Mapped[str] = mapped_column(Text)
+    eroare_mesaj: Mapped[str] = mapped_column(Text, default="")
+    cauza: Mapped[str] = mapped_column(Text)
+    severitate: Mapped[str] = mapped_column(Text)
+    stare: Mapped[str] = mapped_column(Text, default="noua")
+    reluari: Mapped[int] = mapped_column(Integer, default=0)
+    reluat_ca: Mapped[str | None] = mapped_column(Text)
+    context: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    actualizat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    inchis_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    inchis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    motiv_inchidere: Mapped[str | None] = mapped_column(Text)

@@ -1,0 +1,18 @@
+<section id="motor-stare" class="card" aria-labelledby="t-workeri" hx-get="/operare/motor/fragment" hx-trigger="every 10s" hx-swap="outerHTML">
+  <h2 id="t-workeri">Worker și cozi</h2>
+  {% if not motor_ok %}<p class="mesaj atentie" role="status">Motorul nu a răspuns; adâncimea cozilor nu se poate citi acum.</p>{% endif %}
+  {% for w in workeri %}
+  <div class="rand"><span class="eticheta">Worker {{ w.worker_id }}</span>
+    {% if w.oprit_curat %}<span class="insigna">oprit</span>
+    {% elif w.viu %}<span class="insigna ok">activ · semn acum {{ w.secunde_de_la_semnal|round|int }} s</span>
+    {% else %}<span class="insigna pericol">fără semn de viață</span>{% endif %}</div>
+  {% else %}
+  <p class="slab">Niciun worker nu a dat semn de viață încă.</p>
+  {% endfor %}
+  <div class="defilare"><table>
+    <tr><th>Coadă</th><th>În coadă</th><th>În lucru</th><th>Limită</th></tr>
+    {% for c in cozi %}
+    <tr><td><code>{{ c.nume }}</code></td><td>{{ c.in_coada }}</td><td>{{ c.in_lucru }}</td><td>{{ c.limita }}</td></tr>
+    {% endfor %}
+  </table></div>
+</section>

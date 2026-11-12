@@ -154,6 +154,7 @@ def test_configurarea_cere_token_lung() -> None:
 class FakeRuntime:
     def __init__(self) -> None:
         self.calls: list[tuple[Any, ...]] = []
+        self.workers: list[tuple[str, str]] = []  # (mediu, imagine) la fiecare mutare a workerului
         self.fail_on: set[str] = set()
         self.health: dict[str, list[tuple[int, str]]] = {}  # url -> răspunsuri succesive (ultimul se repetă)
 
@@ -172,6 +173,11 @@ class FakeRuntime:
 
     def stop_slot(self, stack: Any, slot: str, state: Any) -> None:
         self.calls.append(("stop", stack.name, slot))
+
+    def update_worker(self, stack: Any, image: str, state: Any) -> None:
+        if "worker" in self.fail_on:
+            raise d.DeployError("worker eșuat")
+        self.workers.append((stack.name, image))
 
     def http_get(self, url: str) -> tuple[int, str]:
         seq = self.health.get(url)
@@ -369,3 +375,37 @@ def test_registrul_indisponibil_nu_strica_ciclul() -> None:
     dep.registry.broken = True
     dep.tick()
     assert dep.runtime.calls == []
+
+
+# ---- workerul urmează slotul activ (F2.1) -----------------------------------------------------------------------
+
+
+def test_workerul_se_muta_pe_versiunea_noua_abia_dupa_ce_slotul_nou_e_sanatos() -> None:
+    dep, _ = make()
+    dep.tick()
+    assert dep.runtime.workers == [("staging", B)]
+    dep.registry._digest = "sha256:" + "c" * 64
+    dep.runtime.health["http://staging-green:8000/readyz"] = [(503, "")]
+    dep.tick()  # slot nesănătos: nici workerul nu se atinge
+    assert dep.runtime.workers == [("staging", B)]
+
+
+def test_workerul_revine_odata_cu_aplicatia() -> None:
+    dep, _ = make()
+    dep.tick()
+    dep.registry._digest = "sha256:" + "c" * 64
+    ok = (200, '{"status":"ok","version":"v1"}')
+    dep.runtime.health["http://staging-green:8000/healthz"] = [ok, (500, "")]
+    dep.tick()  # revenire automată la blue
+    assert dep.runtime.workers[-1] == ("staging", B)
+
+
+def test_esecul_mutarii_workerului_nu_strica_implementarea_dar_se_vede_in_raport() -> None:
+    dep, _ = make()
+    dep.runtime.fail_on = {"worker"}
+    dep.tick()
+    assert dep.store.data["stacks"]["staging"]["active"] == "blue"
+    assert (
+        states(dep.panel)[-1] == "reusita"
+        and "workerul nu a putut fi mutat" in dep.panel.reports[-1]["detalii"]
+    )

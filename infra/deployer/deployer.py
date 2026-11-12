@@ -268,6 +268,7 @@ class Runtime(Protocol):
     def migrate(self, stack: Stack, image: str, state: Mapping[str, Any]) -> None: ...
     def start_slot(self, stack: Stack, slot: str, image: str, state: Mapping[str, Any]) -> None: ...
     def stop_slot(self, stack: Stack, slot: str, state: Mapping[str, Any]) -> None: ...
+    def update_worker(self, stack: Stack, image: str, state: Mapping[str, Any]) -> None: ...
     def http_get(self, url: str) -> tuple[int, str]: ...
 
 
@@ -398,9 +399,8 @@ class Deployer:
             self._report(data, build_report(stack.name, "esuata", image, rid, _short(exc)))
             return "esuata"
         mark_done(st, rid)
-        self._report(
-            data, build_report(stack.name, "reusita", image, rid, "implementare încheiată", checks, version)
-        )
+        detaliu = "implementare încheiată" + self._muta_workerul(stack, image, st)
+        self._report(data, build_report(stack.name, "reusita", image, rid, detaliu, checks, version))
         return "reusita"
 
     def rollback(self, data: dict[str, Any], stack: Stack, rid: str | None) -> str:
@@ -429,8 +429,20 @@ class Deployer:
         st["active"], st["previous"] = slot, current
         if current and current != slot:
             self._safe_stop(stack, current, st)
+        why += self._muta_workerul(stack, image, st)
         self._report(data, build_report(stack.name, "revenita", image, rid, why, checks, version))
         return "revenita"
+
+    def _muta_workerul(self, stack: Stack, image: str, st: Mapping[str, Any]) -> str:
+        """Workerul (F2.1) urmează slotul activ: aceeași imagine ca aplicația web. Se repornește doar după
+        ce slotul nou a trecut verificările; joburile în curs se reiau singure (execuție durabilă). Un eșec
+        nu strică implementarea web, dar se vede în raport."""
+        try:
+            self.runtime.update_worker(stack, image, st)
+        except Exception as exc:
+            self.log(f"nu am putut muta workerul {stack.name}: {_short(exc)}")
+            return "; atenție: workerul nu a putut fi mutat pe versiunea nouă"
+        return ""
 
     def _safe_stop(self, stack: Stack, slot: str, st: Mapping[str, Any]) -> None:
         try:
@@ -554,6 +566,12 @@ class DockerRuntime:
     def stop_slot(self, stack: Stack, slot: str, state: Mapping[str, Any]) -> None:
         env = compose_env(state, None, None, None)
         self._run(compose_command(self.cfg, stack, "stop", f"app_{slot}"), env)
+
+    def update_worker(self, stack: Stack, image: str, state: Mapping[str, Any]) -> None:
+        env = {**compose_env(state, None, None, None), "AMA_IMAGE_WORKER": image}
+        self._run(
+            compose_command(self.cfg, stack, "up", "--detach", "--no-deps", "--pull", "never", "worker"), env
+        )
 
     def http_get(self, url: str) -> tuple[int, str]:
         try:

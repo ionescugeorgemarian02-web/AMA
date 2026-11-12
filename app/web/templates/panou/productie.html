@@ -1,0 +1,45 @@
+{% extends "panou/baza.html" %}
+{% block title %}Producție · AMA{% endblock %}
+{% block pagina %}
+<h1>Producție</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+
+<form class="card" method="get" action="/productie" aria-label="Filtre">
+  <label for="f-client">Client</label>
+  <select id="f-client" name="client">
+    <option value="">toți</option>
+    {% for c in clienti %}<option value="{{ c.id }}"{% if client_ales == c.id|string %} selected{% endif %}>{{ c.nume }}</option>{% endfor %}
+  </select>
+  <label for="f-stare">Stare</label>
+  <select id="f-stare" name="stare">
+    <option value="">toate</option>
+    {% for cod, eticheta in stari %}<option value="{{ cod }}"{% if stare_aleasa == cod %} selected{% endif %}>{{ eticheta }}</option>{% endfor %}
+  </select>
+  <label><input type="checkbox" name="exceptii" value="1"{% if exceptii %} checked{% endif %}> Doar excepții (respins, carantină, coada de erori …)</label>
+  <div class="actiuni"><button type="submit">Filtrează</button><a class="buton secundar" href="/productie">Șterge filtrele</a></div>
+</form>
+
+{% for r in livrabile %}
+<section class="card" aria-labelledby="l-{{ r.l.id }}">
+  <h2 id="l-{{ r.l.id }}"><a href="/productie/{{ r.l.id }}">{{ r.l.tip }} · {{ r.l.canal }}</a>
+    <span class="insigna {{ r.clasa }}">{{ r.eticheta }}</span></h2>
+  <div class="rand"><span class="eticheta">Client</span><span>{{ r.client }}</span></div>
+  <div class="rand"><span class="eticheta">Versiune · predări</span><span>v{{ r.l.versiune }} · {{ r.l.predari }}</span></div>
+  <div class="rand"><span class="eticheta">Ultima mutare</span><span>{{ r.l.actualizat_la|moment }}</span></div>
+</section>
+{% else %}
+<div class="card gol">
+  <span class="pictograma" aria-hidden="true">⚙</span>
+  <p><strong>Niciun livrabil{% if client_ales or stare_aleasa or exceptii %} pentru filtrele alese{% endif %}.</strong></p>
+  <p class="slab">Fiecare livrabil apare aici pe etape, cu istoricul mutărilor, pașii, aprobările și efectele externe.</p>
+</div>
+{% endfor %}
+
+{% if anterioara or urmatoarea %}
+<nav class="actiuni" aria-label="Paginare">
+  {% if anterioara %}<a class="buton secundar" href="{{ anterioara }}">← Înapoi</a>{% endif %}
+  <span class="slab">Pagina {{ pagina }}</span>
+  {% if urmatoarea %}<a class="buton secundar" href="{{ urmatoarea }}">Mai departe →</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "panou/baza.html" %}
+{% block title %}Alerte · AMA{% endblock %}
+{% block pagina %}
+<h1>Alerte</h1>
+
+<section class="card" aria-labelledby="t-workeri">
+  <h2 id="t-workeri">Workerul</h2>
+  {% for w in workeri %}
+  <div class="rand"><span class="eticheta">{{ w.worker_id }}</span>
+    {% if w.oprit_curat %}<span class="insigna">oprit</span>
+    {% elif w.viu %}<span class="insigna ok">activ · semn acum {{ w.secunde_de_la_semnal|int }} s</span>
+    {% else %}<span class="insigna pericol">fără semn de viață de {{ (w.secunde_de_la_semnal / 60)|round(1) }} min</span>{% endif %}</div>
+  {% else %}
+  <p class="slab">Niciun worker nu a dat semn încă (sau nu ai acces la semnalele lui).</p>
+  {% endfor %}
+</section>
+
+<p class="actiuni">
+  <a class="buton {{ 'secundar' if toate else '' }}" href="/alerte">Deschise</a>
+  <a class="buton {{ '' if toate else 'secundar' }}" href="/alerte?stare=toate">Toate</a>
+</p>
+
+{% for g in grupuri %}
+<section class="card" aria-labelledby="g-{{ g.cauza }}">
+  <h2 id="g-{{ g.cauza }}">
+    <span class="insigna {{ clasa_severitate[g.severitate] }}">{{ etichete_severitate[g.severitate] }}</span>
+    {{ g.flux }}
+  </h2>
+  <p class="slab">Pas: {{ g.pas or '–' }} · {{ g.eroare_tip }} · {{ g.intrari }} {{ 'intrare' if g.intrari == 1 else 'intrări' }} · cauza <code>{{ g.cauza }}</code></p>
+  {% for i in g.recente %}
+  <div class="rand">
+    <a href="/alerte/{{ i.id }}">{{ i.creat_la|moment }}</a>
+    <span class="insigna {{ 'ok' if i.stare == 'inchisa' else ('atentie' if i.stare == 'reluata' else '') }}">{{ etichete_stare[i.stare] }}</span>
+  </div>
+  {% endfor %}
+  {% if g.intrari > g.recente|length %}<p class="slab">… și încă {{ g.intrari - g.recente|length }}.</p>{% endif %}
+</section>
+{% else %}
+<div class="card gol">
+  <span class="pictograma" aria-hidden="true">!</span>
+  <p><strong>{{ 'Nicio intrare în coada de erori.' if toate else 'Nicio alertă deschisă.' }}</strong></p>
+  <p class="slab">Joburile eșuate, blocate sau căzute apar aici, grupate pe cauză.</p>
+</div>
+{% endfor %}
+{% endblock %}

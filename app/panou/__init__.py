@@ -9,7 +9,11 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from app.panou.alerte_web import router as router_alerte
+from app.panou.aprobari_web import router as router_aprobari
+from app.panou.motor_web import router as router_motor
 from app.panou.operare_web import router as router_operare
+from app.panou.productie_web import router as router_productie
 from app.panou.sabloane import STATIC
 from app.panou.web import router
 
@@ -28,6 +32,10 @@ def inregistreaza(app: FastAPI) -> None:
     app.mount("/static", StaticCuRevalidare(directory=str(STATIC)), name="static")
     app.include_router(router)
     app.include_router(router_operare)
+    app.include_router(router_motor)
+    app.include_router(router_productie)
+    app.include_router(router_alerte)
+    app.include_router(router_aprobari)
 
 
 __all__ = ["STATIC", "inregistreaza"]
