@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.8 — Ecranul „Creierul de brand”
+- Pe client: compartimentele cu intrările lor, versiunea aprobată și propunerile în așteptare, diferența între versiuni, editare (creează propunere nouă, nu suprascrie; trece prin schema și poarta compartimentului), aprobare / respingere / retragere cu motiv, sursele, concurenții și pașii de pregătire; faptele rămân pe `/creier/fapte` (legate, nu dublate). Întâi pentru telefon: carduri și formulare, fără tabele. `creier.rezumat_pe_compartimente`, `creier.propuneri_in_asteptare`.
+
 ### F4.11 — Strategia pe 90 de zile, prima formă
 - Strategia (ipoteză, plan pe 30 și 90 de zile, indicator principal, prag minim, fereastră de măsurare, criteriu de oprire — toate obligatorii, schemă strictă și poartă) propusă prin gateway pe profilul `strategie` (se amână, nu se degradează) din pachetul de context al clientului (brief, ghid, fapte, public, insight aprobate), versionată și aprobată de un om. Ecranul „Campanii” (`/campanii`): lista pe client, detaliu, aprobă / respinge cu motiv.
 - Constructorul de context: secțiuni la cerere `brief`, `public`, `insight`, `strategie` (`sectiuni_extra`); implicit pachetele nu se schimbă.

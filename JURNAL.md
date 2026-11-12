@@ -300,4 +300,10 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri: schema este și poarta (o strategie incompletă nu există pe nicio cale, nici din editor); strategia se construiește doar din context APROBAT și lipsa oricărui element al contextului oprește propunerea (nu se improvizează); secțiunile noi ale pachetului sunt la cerere ca să nu schimbe pachetele existente (F4.7); relevanța faptelor fiind lexicală, întrebarea strategiei poartă produsele și prețurile din brief.
   - Găsit: `context.construieste` cu `la` implicit (acum, la secundă) nu vede ce s-a aprobat în aceeași secundă: strategia cere `la` exact; un analist de agenție nealocat nu vede niciun client (RLS), deci testele ecranelor folosesc proprietarul.
   - NEVERIFICAT: model real; aprobarea reală pentru CariereAI / BigBrain.
+- **F4.8 — Ecranul „Creierul de brand”.**
+  - Construit: `app/panou/creier_ecran_web.py` (patru pagini, patru șabloane), `creier.rezumat_pe_compartimente` / `propuneri_in_asteptare`, rând de meniu, `docs/specs/F4.8.md`.
+  - Hotărâri: editarea construiește formularul din conținutul aprobat și păstrează valorile câmpurilor absente din cerere; toate schimbările trec prin serviciul Creierului (audit, schemă, poartă), nu prin SQL din panou; faptele și ofertele nu se editează în editorul generic (au circuite cu verificări proprii); operatorul poate propune, doar proprietarul decide.
+  - Verificat în plus: șase pagini în Chrome headless, într-un `iframe` de 390 px (fereastra headless nu coboară sub 500 px): nicio derulare orizontală; capturi în scratchpad.
+  - Găsit: un analist de agenție nealocat nu vede niciun client (RLS), deci testele de permisiuni verifică refuzul acțiunilor, nu conținutul paginilor.
+  - NEVERIFICAT: telefon real; editarea JSON pe telefon.
 

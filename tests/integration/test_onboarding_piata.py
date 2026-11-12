@@ -198,7 +198,12 @@ def test_sondajul_pica_pe_un_citat_falsificat_si_blocheaza_aprobarea(
     brief_aprobat(tenant, om)
     ids = concurenti_manuali(tenant, om)
     extrage(tenant, ids, "af4")
-    # o afirmație cu citat FALSIFICAT, strecurată pe calea generică (care nu verifică citate): sondajul trebuie să o prindă
+    model_piata(modele)
+    propune(tenant, om, f"insight:{tenant}:3")
+    iid, v = brief_db(tenant)
+    c = v.continut
+    # abia acum se strecoară o afirmație cu citat FALSIFICAT, pe calea generică (care nu verifică citate); brieful
+    # cinstit de mai sus nu o poate cita, iar sondajul trebuie să o prindă într-un brief care o citează
     with sesiune_tenant(tenant, om) as db:
         pasaj = db.execute(
             text("SELECT id FROM pasaje WHERE tenant_id = :t LIMIT 1"), {"t": tenant}
@@ -210,10 +215,6 @@ def test_sondajul_pica_pe_un_citat_falsificat_si_blocheaza_aprobarea(
         )  # fmt: skip
         creier.aproba(db, i.id, ver.nr, utilizator_id=None, prin_sistem=True)
         falsa = f"afirmatie:{i.id}"
-    model_piata(modele)
-    propune(tenant, om, f"insight:{tenant}:3")
-    iid, v = brief_db(tenant)
-    c = v.continut
     # brieful cinstit trece; cel cu trimiterea la afirmația falsificată pică la sondaj (eșantionul acoperă toate trimiterile când sunt puține)
     reale = [e["surse"][0] for e in piata.enunturi(c)][:3]
     c2 = {

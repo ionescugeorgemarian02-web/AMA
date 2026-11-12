@@ -465,12 +465,60 @@ def versiuni_de_expirat(db: Session, la: dt.datetime, *, limita: int = 500) -> S
     )
 
 
+@dataclass(frozen=True)
+class RezumatCompartiment:
+    """Cât are un client într-un compartiment: intrări, cu versiune aprobată, versiuni propuse, ciorne."""
+
+    intrari: int
+    aprobate: int
+    in_asteptare: int
+    ciorne: int
+
+
+def rezumat_pe_compartimente(db: Session, tenant_id: uuid.UUID) -> dict[Compartiment, RezumatCompartiment]:
+    """Pentru ecranul Creierului: pe fiecare compartiment în care clientul are intrări."""
+    q = (
+        select(
+            IntrareCreier.compartiment,
+            func.count(func.distinct(IntrareCreier.id)),
+            func.count(VersiuneCreier.id).filter(VersiuneCreier.stare == Stare.APROBAT.value),
+            func.count(VersiuneCreier.id).filter(VersiuneCreier.stare == Stare.PROPUS.value),
+            func.count(VersiuneCreier.id).filter(VersiuneCreier.stare == Stare.CIORNA.value),
+        )
+        .outerjoin(VersiuneCreier, VersiuneCreier.intrare_id == IntrareCreier.id)
+        .where(IntrareCreier.tenant_id == tenant_id, IntrareCreier.nivel == Nivel.CLIENT.value)
+        .group_by(IntrareCreier.compartiment)
+    )
+    return {Compartiment(c): RezumatCompartiment(i, a, p, d) for c, i, a, p, d in db.execute(q).all()}
+
+
+def propuneri_in_asteptare(
+    db: Session, tenant_id: uuid.UUID, compartiment: Compartiment | None = None, *, limita: int = 200
+) -> list[tuple[IntrareCreier, VersiuneCreier]]:
+    """Versiunile `propus` ale clientului (cele mai vechi primele), cu intrarea lor."""
+    q = (
+        select(IntrareCreier, VersiuneCreier)
+        .join(VersiuneCreier, VersiuneCreier.intrare_id == IntrareCreier.id)
+        .where(
+            IntrareCreier.tenant_id == tenant_id,
+            IntrareCreier.nivel == Nivel.CLIENT.value,
+            VersiuneCreier.stare == Stare.PROPUS.value,
+        )
+        .order_by(VersiuneCreier.creat_la, VersiuneCreier.id)
+        .limit(limita)
+    )
+    if compartiment is not None:
+        q = q.where(IntrareCreier.compartiment == compartiment.value)
+    return [(i, v) for i, v in db.execute(q).all()]
+
+
 __all__ = [
     "ContinutInvalid",
     "EroareCreier",
     "IntrareInexistenta",
     "PoartaInchisa",
     "RegulaCreier",
+    "RezumatCompartiment",
     "Sursa",
     "TranzitieNepermisa",
     "VersiuneInexistenta",
@@ -484,7 +532,9 @@ __all__ = [
     "la_data",
     "lista",
     "propune_schimbare",
+    "propuneri_in_asteptare",
     "retrage",
+    "rezumat_pe_compartimente",
     "trimite_spre_aprobare",
     "versiune_aprobata",
     "versiuni_de_expirat",

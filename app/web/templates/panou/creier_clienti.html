@@ -1,0 +1,11 @@
+{% extends "panou/baza.html" %}
+{% block title %}Creierul de brand · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/meniu">← Meniu</a></p>
+<h1>Creierul de brand</h1>
+<p class="slab">Memoria fiecărui client, pe compartimente: versiunea aprobată, propunerile în așteptare, diferențele, editarea. Alege un client.</p>
+<ul class="lista-meniu">
+  {% for c in clienti %}<li><a href="/creier/client/{{ c.id }}">{{ c.nume }} <span aria-hidden="true">›</span></a></li>
+  {% else %}<li class="slab">Niciun client încă.</li>{% endfor %}
+</ul>
+{% endblock %}
