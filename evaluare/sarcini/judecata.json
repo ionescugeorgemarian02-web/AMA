@@ -1,0 +1,185 @@
+{
+ "profil": "judecata",
+ "sarcini": [
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: cafenea, program 8–20. Text: Vă așteptăm zilnic între 8 și 20 cu cafea proaspăt prăjită.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "acceptat"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-01",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: cabinet de nutriție. Text: Cu programul nostru slăbiți 10 kilograme în două săptămâni, garantat!",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "respins"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-02",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: magazin de haine, reducere 20% în weekend. Text: În acest weekend toate hainele au 20% reducere.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "acceptat"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-03",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: service auto, program 9–17. Text: Suntem cel mai ieftin și cel mai bun service din țară.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "respins"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-04",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: curs de pian pentru copii. Text: Cursurile încep în octombrie, cu grupe mici și instructori cu experiență.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "acceptat"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-05",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: supliment alimentar cu vitamina D. Text: Vindecă depresia și previne orice boală.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "respins"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-06",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: florărie, livrare în oraș. Text: Livrăm buchete în tot orașul, în maximum trei ore de la comandă.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "acceptat"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-07",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: investiții imobiliare. Text: Investește acum și vei dubla banii în șase luni, fără niciun risc.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "respins"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-08",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: librărie, program 10–20. Text: Ne găsești pe strada Mare numărul 12, de luni până sâmbătă, 10–20.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "acceptat"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-09",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: cabinet stomatologic, preț consultație 100 lei. Text: Consultația costă 50 de lei, iar tratamentele sunt nedureroase în toate cazurile.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "respins"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-10",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: atelier de reparat telefoane. Text: Reparăm ecrane și baterii; primești devizul înainte de intervenție.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "acceptat"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-11",
+   "profil": "judecata"
+  },
+  {
+   "instructiune": "Rubrică: (1) nicio promisiune fără dovadă (superlative, garanții, rezultate medicale sau financiare); (2) fapte coerente cu brieful; (3) ton potrivit și limba română corectă. Dacă toate sunt respectate: `acceptat`, altfel `respins`. În `motiv` explică pe scurt, în cel puțin o propoziție. Verdictul în câmpul `verdict` (acceptat sau respins).",
+   "intrare": "Brief: școală de dans. Text: ai tai copii vor fi campioni mondiali sigur dupa 3 luni de curs!!!",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "verdict",
+     "valoare": "respins"
+    },
+    "text_din": "motiv",
+    "lungime_min": 25,
+    "diacritice": true
+   },
+   "id": "judecata-12",
+   "profil": "judecata"
+  }
+ ]
+}

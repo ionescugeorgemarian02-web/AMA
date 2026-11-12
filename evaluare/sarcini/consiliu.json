@@ -1,0 +1,197 @@
+{
+ "profil": "consiliu",
+ "sarcini": [
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Campania A: cost pe client nou 12 lei față de ținta de 15 lei, în a patra săptămână, cu volum în creștere.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "continua"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-01",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Campania B: după 6 săptămâni, costul pe client nou este 41 de lei față de ținta de 15 lei, iar tendința nu se îmbunătățește.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "opreste"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-02",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Campania C: clicurile sunt bune, dar conversiile sunt scăzute; cercetarea arată că oferta nu e înțeleasă, deși publicul e potrivit.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "pivot"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-03",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Experimentul D: varianta nouă are rată de conversie cu 30% mai mare, dar eșantionul are doar 20 de conversii.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "continua"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-04",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Canalul E: trei luni la rând sub prag, bugetul de test consumat, niciun semnal de îmbunătățire.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "opreste"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-05",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Produsul F se vinde bine, dar clienții cer o altă variantă de ambalaj; costul de schimbare e mic.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "pivot"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-06",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Campania G: indicatorul principal a atins pragul de succes în doar două săptămâni, fără creșterea costului.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "continua"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-07",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Strategia H: ipoteza inițială a fost infirmată de datele a două cicluri de măsurare complete.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "opreste"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-08",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Oferta I: audiența răspunde la mesajul despre livrare rapidă, nu la cel despre preț, în toate testele.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "pivot"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-09",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Campania J: rezultatele sunt în linie cu ținta, dar încă într-un interval de incertitudine larg.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "continua"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-10",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Reclama K: rata de reclamații a crescut peste pragul acceptat, iar rezultatele financiare nu compensează.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "opreste"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-11",
+   "profil": "consiliu"
+  },
+  {
+   "instructiune": "Ești consilier pentru deciziile lunare ale unei agenții de marketing. Decide pentru situația descrisă, în câmpul `decizie`, exact una dintre valorile: continua, opreste, pivot. În `motiv` explică în română, cu diacritice corecte, în 2–4 propoziții.",
+   "intrare": "Segmentul L: clienții mai tineri convertesc de trei ori mai bine decât cei vizați inițial.",
+   "criterii": {
+    "raspuns_exact": {
+     "camp": "decizie",
+     "valoare": "pivot"
+    },
+    "text_din": "motiv",
+    "lungime_min": 60,
+    "lungime_max": 700,
+    "diacritice": true
+   },
+   "id": "consiliu-12",
+   "profil": "consiliu"
+  }
+ ]
+}

@@ -1,0 +1,232 @@
+{
+ "profil": "rescriere",
+ "sarcini": [
+  {
+   "instructiune": "Rescrie textul pentru canalul Instagram, în română, ton prietenos, maximum 220 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Cafenea de specialitate în centrul orașului. Avem cafea proaspăt prăjită, deserturi făcute în casă și un program de fidelizare: a zecea cafea este din partea casei. Vă așteptăm zilnic între 8 și 20.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 220,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "a zecea cafea"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-01",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul Facebook, în română, ton prietenos, maximum 400 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Atelierul nostru repară bicicletele în aceeași zi dacă le aduceți până la ora 12. Facem reglaje, schimb de cauciucuri și revizie completă. Programările se fac la telefon sau direct pe pagina noastră.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 400,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "aceeași zi",
+     "revizie"
+    ],
+    "cuvinte_interzise": [
+     "gratuit"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-02",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul LinkedIn, în română, ton prietenos, maximum 500 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Firma noastră de contabilitate pentru IMM-uri oferă consultanță fiscală, salarizare și depunerea declarațiilor la termen. Lucrăm cu peste o sută de întreprinderi mici din Cluj.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 500,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "consultanță fiscală",
+     "IMM"
+    ],
+    "cuvinte_interzise": [
+     "garantăm"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-03",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul SMS, în română, ton prietenos, maximum 160 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Reamintire: mâine la ora 10:30 aveți programare la cabinetul stomatologic Zâmbet, strada Florilor nr. 4. Dacă nu puteți ajunge, vă rugăm să ne anunțați cu o zi înainte.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 160,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "programare",
+     "mâine"
+    ],
+    "cuvinte_interzise": [
+     "urgent"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-04",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul Instagram, în română, ton prietenos, maximum 200 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Lansăm colecția de primăvară: rochii din in și bumbac, în culori calde, produse în România. Prima comandă are transport gratuit până la sfârșitul lunii.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 200,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "colecția de primăvară",
+     "transport gratuit"
+    ],
+    "cuvinte_interzise": [
+     "ieftin"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-05",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul Email, în română, ton prietenos, maximum 600 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Stimați clienți, vă informăm că programul magazinului se modifică de la 1 decembrie: luni–vineri 9–19, sâmbătă 10–16. Duminica rămânem închiși. Comenzile online se procesează în continuare zilnic.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 600,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "1 decembrie",
+     "comenzile online"
+    ],
+    "cuvinte_interzise": [
+     "nu ne asumăm"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-06",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul TikTok, în română, ton prietenos, maximum 150 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Tutorial rapid: cum se prepară un ceai rece de fructe de pădure, cu mentă proaspătă și puțin miere. Se face în zece minute și se păstrează la frigider două zile.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 150,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "ceai rece",
+     "zece minute"
+    ],
+    "cuvinte_interzise": [
+     "rețetă secretă"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-07",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul Facebook, în română, ton prietenos, maximum 350 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Școala de șoferi AutoPas organizează un curs intensiv de două săptămâni, cu examen la finalul lui. Instructorii au peste zece ani de experiență, iar mașinile sunt cu cutie manuală și automată.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 350,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "curs intensiv",
+     "două săptămâni"
+    ],
+    "cuvinte_interzise": [
+     "promitem promovarea"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-08",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul Instagram, în română, ton prietenos, maximum 180 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Florăria Petala vă oferă buchete de sezon cu livrare în oraș în maximum trei ore. Comenzile se pot face până la ora 18, inclusiv în weekend.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 180,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "livrare",
+     "trei ore"
+    ],
+    "cuvinte_interzise": [
+     "cel mai ieftin"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-09",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul Email, în română, ton prietenos, maximum 500 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Echipa noastră vă invită la webinarul despre campaniile pe rețele sociale pentru magazinele mici, joi la ora 17:00. Participarea este liberă, iar înregistrarea va fi trimisă tuturor celor înscriși.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 500,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "webinar",
+     "joi"
+    ],
+    "cuvinte_interzise": [
+     "garantat"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-10",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul Facebook, în română, ton prietenos, maximum 300 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Pensiunea de la munte are acum camere renovate, mic dejun inclus și acces la saună. Pentru rezervări din noiembrie oferim o reducere de zece la sută la a doua noapte.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 300,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "pensiunea",
+     "reducere"
+    ],
+    "cuvinte_interzise": [
+     "oferta anului"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-11",
+   "profil": "rescriere"
+  },
+  {
+   "instructiune": "Rescrie textul pentru canalul SMS, în română, ton prietenos, maximum 140 de caractere. Păstrează faptele; nu inventa informații. Pune rezultatul în câmpul `text`.",
+   "intrare": "Comanda dumneavoastră a fost expediată și ajunge mâine între 9 și 17. Curierul vă va suna cu o oră înainte de livrare.",
+   "criterii": {
+    "text_din": "text",
+    "lungime_max": 140,
+    "lungime_min": 40,
+    "cuvinte_obligatorii": [
+     "comanda",
+     "curierul"
+    ],
+    "cuvinte_interzise": [
+     "scuze"
+    ],
+    "diacritice": true
+   },
+   "id": "rescriere-12",
+   "profil": "rescriere"
+  }
+ ]
+}

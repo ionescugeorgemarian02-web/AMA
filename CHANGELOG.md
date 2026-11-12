@@ -4,6 +4,52 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F3 — Gateway de modele
+- Test cap-coadă cu furnizori falși (`tests/integration/test_poarta_f3.py`): testul comparativ rulat pe modelele de text din configurarea de probă, iar cu fiecare dintre cei cinci furnizori oprit pe rând un flux de probă pe fiecare profil se termină (degradare marcată la modelul local pe coada `greu`, trecere pe alt furnizor sau amânare curată, fără eșecuri). Testul comparativ pe modele reale rămâne deschis până la migrare.
+
+### F3.11 — Planificatorul de capacitate (A4)
+- Planificatorul zilnic (și la cerere) compară munca planificată (costuri pe tip de livrabil, ca date) cu cotele rămase pe profil și cu timpul de CPU al culoarelor grele; ce nu încape se amână, termenul cel mai îndepărtat întâi, iar P0 și termenele sub 48 de ore rămân neatinse. Decizia se scrie (`planificare_planuri`, `planificare_decizii`, migrarea `0020`) și o alertă spune ce nu a încăput.
+- `productie.amana` / `productie.elibereaza` și câmpul `livrabile.nu_inainte_de`: `productie.muta` refuză pornirea unui livrabil amânat până la acel moment (cod `amanat`, în istoric).
+
+### F3.10 — Ecranul „Modele și cote”
+- `/gateway/registru` arată cota rămasă pe fiecare furnizor și model (minut și zi, cu resetare), starea întrerupătoarelor și blocajele, scorurile pe profil și rulările testului comparativ, viteza modelelor locale, consumul pe client față de buget. Proprietarul editează limitele, termenii și bugetele (implicite și pe client), pornește testul comparativ și importă note, cu CSRF, verificare de rol și audit.
+
+### F3.6 — Testul comparativ pe română
+- Set de 72 de sarcini în română (`evaluare/sarcini/`, 12 pe fiecare profil din 8.2) cu criterii automate (schemă, lungime, cuvinte obligatorii / interzise, răspuns exact, diacritice), hamul de rulare prin gateway (P3, un model pe rulare, cote și bugete respectate, continuare după amânare), scorul pe (model, profil) scris în `gateway_modele.scor` și folosit de rutare, nota umană importată din CSV, istoric de rulări (migrarea `0019`), flux și job lunar, comandă `python -m app.gateway.evaluare`.
+
+### F3.5 — Modelul local și modelul de embeddings
+- Adaptorul `local` (server compatibil OpenAI separat, fără cheie, ieșire structurată prin schemă); modelul local se apelează doar din joburi de pe coada `greu` (în afara ei: `ApelRefuzat("local_doar_pe_coada_greu")`); `motor.coada_curenta()`. Sămânța în registru (3 mărimi + model de vectori de 384 dimensiuni, inactive, neverificate; migrarea `0018`) și serviciile `local-llm` / `embeddings` în compose (profil, fără digest: NEVERIFICAT).
+- `gateway.vectorizeaza(texte, tenant_id=…)` și `gateway.dimensiune_vectori`: vectori fără coada `greu`, dimensiunea ca dată în registru. `python -m app.gateway.masurare`: viteza (tokeni/s) a modelelor locale, scrisă în registru. `gateway.apeleaza(…, model=…)` pentru un singur model (evaluare).
+
+### F3.9 — Garda de date personale și garda de injecții
+- Mascare deterministă înainte de orice apel (email, IBAN, CNP cu cifră de control, card cu Luhn, telefon românesc, IP; CUI doar la cerere), cu marcaje stabile `[EMAIL_1]`, demascare opțională a răspunsului, jurnal și conținut păstrat în varianta mascată. `date_confidentiale` ajunge în rutare; fără model permis, apelul este refuzat.
+- `gateway.marcheaza_extern(text, sursa=…)`: funcția unică pentru orice text venit din afară (delimitatori cu id aleator, delimitatori falși neutralizați, caractere invizibile eliminate) și instrucțiunea „date, nu instrucțiuni” în mesajul de sistem; detecție euristică de tentative de injecție ca semnal în jurnalul de apeluri (migrarea `0017`), fără blocare. Garda `check_gateway` interzice `eval`/`exec`/`subprocess` în gateway.
+
+### F3.8 — Bugete și priorități
+- Bugete pe client (apeluri, tokeni, preț-umbră; pe zi și pe lună; valori implicite + suprascrieri per client; migrarea `0016`), aplicate de interceptorul `buget_client`: la depășire, P2 și P3 primesc `Amanat` cu momentul resetării, P1 continuă până la 1,5 × buget, P0 nu este atins. Consumul se ține în contoare proprii, rezervate atomic (corect la concurență). Avertizare la 80%, o singură dată pe fereastră. Decizia D-004.
+
+### F3.7 — Registrul de prompturi și jurnalul de apeluri
+- `gateway.apeleaza(db, prompt=…, variabile=…, schema=…, tenant_id=…, componenta=…, prioritate=…)`: API-ul public unic. Prompturile sunt versionate (`gateway_prompturi`, migrarea `0015`; ciornă / activ / retras; versiunea activă nu se modifică, impus în bază; o singură versiune activă pe nume) și pot veni din fișiere `prompts/<nume>.v<N>.md`. Variabilele trebuie să se potrivească exact cu locurile din șablon; un secret al aplicației nu poate intra într-un prompt.
+- Jurnalul de apeluri (`gateway_apeluri`, cu `tenant_id` și RLS): cine, prompt și versiune, model ales și de ce, tokeni, durată, reparații, preț-umbră, traseul încercărilor; scris și pentru apelurile amânate, refuzate sau eșuate. Conținutul (mesajele trimise, răspunsul) stă separat, cu RLS, 30 de zile (`gateway_apeluri_continut`, ștergere zilnică); nu intră în tabelele motorului sau în jurnalele aplicației. Fiecare apel se contorizează în bugetul livrabilului.
+- Panoul: `/gateway/apeluri` (listă cu filtre pe client, model și rezultat) și detaliul unui apel, cu izolare pe client și urmă în audit la deschiderea conținutului.
+
+### F3.4 — Rutarea și lanțurile de rezervă
+- Profilurile de sarcină din 8.2 ca date (`gateway_profiluri`, migrarea `0014`): nivel minim, capabilități, lanț ordonat de modele, ce se întâmplă când lanțul s-a epuizat (`amana` / `degradeaza` / `amana_sau_provizoriu`), lanț de degradare. Alegerea modelului (nucleu pur): furnizor oprit, fără cheie, fără uz comercial, antrenare pe date, capabilități, nivel minim, întrerupător deschis, T4 pe calea critică (ADR-06), apeluri plătite oprite, „alt model decât autorul”; ordine după scor (gol până la F3.6) și lanț.
+- Reacțiile din 7.5: 429 → alt furnizor; eroare de server → 3 reîncercări cu pauză crescătoare, apoi alt furnizor; ieșire în afara schemei → o reparație, apoi alt model; autentificare → furnizor pe pauză cu audit și alertă. Întrerupător pe furnizor (3 eșecuri la rând → scos 120 s, apoi cerere de probă). Strategia se amână, nu se degradează; clasificarea și rescrierea degradează la modelul local.
+- Interceptori înainte și după apel (`gateway.adauga_interceptor`), punctul de extensie pentru bugete (F3.8) și gărzile de date (F3.9).
+
+### F3.3 — Limitatoarele de cotă
+- Contoare persistente în Postgres (`gateway_contoare`, `gateway_blocaje`, migrarea `0013`) pe (model sau cont de furnizor, minut / zi), cu rezervare atomică înainte de apel (o instrucțiune SQL sub plafon, corectă la concurență), regularizare cu tokenii reali, antetele furnizorului ca sursă de adevăr (`x-ratelimit-*`, `retry-after`), blocaj după 429 și rezerva de 10% din limita zilnică pentru P0.
+- Cota epuizată devine `Amanat(pana_la)`; un flux durabil se reprogramează prin motor cu `gateway.reprogrameaza` pentru momentul resetării (fără `sleep`).
+
+### F3.2 — Clientul unificat
+- Un singur mod de a apela orice furnizor, cu `httpx` și transport injectabil (fără SDK-uri): adaptoare pe tip de API (compatibil OpenAI, Gemini, Anthropic), erori clasificate după 7.5, citirea antetelor de limită, ieșiri structurate (schemă JSON nativă sau instrucțiune, validare Pydantic, o singură reparație, apoi eroare tipizată). Cheia nu apare în erori sau jurnale (testat).
+- Garda `scripts/check_gateway.py` în `make guards`: niciun import intern al gateway-ului și nicio adresă de furnizor în afara `app/gateway`; fără SDK-uri de furnizori. Furnizorul fals pentru teste (`tests/furnizor_fals.py`, SIMULAT).
+
+### F3.1 — Registrul de furnizori și modele
+- Tabelele `gateway_furnizori` și `gateway_modele` (migrarea `0012`), la nivel de agenție, cu RLS: furnizor (tip de API, adresă `https`, stare, termeni: uz comercial, antrenare pe date, regiuni; marcaj `V`/`S`/`I` și dată de verificare; limite pe minut și pe zi) și model (nivel T1–T4/local, context, capabilități, limite, preț-umbră, scor pe profil). Cheia de API nu stă în bază: doar numele variabilei de mediu `AMA_CHEIE_*` (baza refuză alt nume). Un furnizor fără uz comercial confirmat nu poate fi activat (impus și în bază).
+- Sămânța din `app/gateway/inventar.py` (OpenRouter, Groq, Gemini, Cloudflare, Claude), totul `inactiv`. Ecranul `/gateway/registru` (limite, termeni, „cheie configurată / lipsește”), cu activare / dezactivare de către proprietar (CSRF, audit).
+
 ### Poarta F2 — Motorul
 - Test cap-coadă cu procese reale (`tests/chaos/test_poarta_f2.py`): un livrabil de probă parcurge toate stările normale, supraviețuiește la două SIGKILL (la mijloc și în jurul publicării) și produce un singur efect la conectorul fals, fără tranziții dublate.
 

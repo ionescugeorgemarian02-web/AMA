@@ -1,0 +1,220 @@
+{% extends "panou/baza.html" %}
+{% block title %}Modele și cote · AMA{% endblock %}
+{% macro cota(c) %}
+<div>{{ 'cont' if c.resursa == 'cont' else 'model' }} · {{ 'minut' if c.fereastra == 'minut' else 'zi' }}:
+  {% if c.cereri_limita is not none %}<strong>{{ nr(c.cereri_ramase) }}</strong> din {{ nr(c.cereri_limita) }} cereri rămase{% endif %}
+  {% if c.tokeni_limita is not none %}{{ ' · ' if c.cereri_limita is not none }}<strong>{{ nr(c.tokeni_ramasi) }}</strong> din {{ nr(c.tokeni_limita) }} tokeni rămași{% endif %}
+  · resetare {{ ora(c.reset_la) }}{% if c.fereastra == 'zi' %} (10% din limită rămâne pentru P0){% endif %}
+  {% if c.epuizata %}<span class="insigna atentie">epuizată</span>{% endif %}</div>
+{% endmacro %}
+{% macro camp_limita(nume, eticheta, valoare) %}
+<label for="{{ nume }}-{{ caz }}">{{ eticheta }}</label>
+<input type="text" inputmode="numeric" id="{{ nume }}-{{ caz }}" name="{{ nume }}" value="{{ valoare if valoare is not none else '' }}" maxlength="15" autocomplete="off">
+{% endmacro %}
+{% block pagina %}
+<h1>Furnizori și modele</h1>
+<p class="slab">Modele și cote (docs/08 §8.1, §8.4, §8.5; docs/18 §18.2): cota rămasă pe fiecare furnizor și model, starea întrerupătoarelor, scorurile din testul comparativ, viteza locală și consumul pe client. Cheile de API nu se văd aici: stau în mediul serverului. Un furnizor fără uz comercial confirmat nu poate fi activat. <a href="/gateway/apeluri">Jurnalul de apeluri →</a></p>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+{% for r in randuri %}
+{% set f = r.f %}
+<section class="card" aria-labelledby="f-{{ f.cod }}">
+  <h2 id="f-{{ f.cod }}">{{ f.nume }}
+    <span class="insigna {{ 'ok' if f.stare == 'activ' else ('atentie' if f.stare == 'pauza' else '') }}">{{ etichete_stare[f.stare] }}</span></h2>
+  {% if f.stare == 'pauza' %}<p class="mesaj atentie" role="status">Pe pauză: {{ f.stare_motiv or 'eroare de autentificare' }}. Verifică cheia și activează din nou.</p>{% endif %}
+  <div class="rand"><span class="eticheta">Tip de API</span><span><code>{{ f.tip_api }}</code></span></div>
+  <div class="rand"><span class="eticheta">Cheie</span>
+    <span><span class="insigna {{ 'ok' if r.cheie_ok else 'atentie' }}">{{ 'configurată' if r.cheie_ok else 'lipsește' }}</span>
+      <code>{{ f.cheie_env }}</code></span></div>
+  <div class="rand"><span class="eticheta">Întrerupător</span>
+    <span>{% if r.intrerupt %}<span class="insigna atentie">deschis</span> până la {{ ora(f.intrerupt_pana_la) }} ({{ f.erori_consecutive }} erori la rând){% else %}<span class="insigna ok">închis</span>{% if f.erori_consecutive %} · {{ f.erori_consecutive }} erori la rând{% endif %}{% endif %}
+      {% if r.blocaj %}· blocat de limită până la {{ ora(r.blocaj.pana_la) }}{% if r.blocaj.motiv %} ({{ r.blocaj.motiv }}){% endif %}{% endif %}</span></div>
+  <div class="rand"><span class="eticheta">Uz comercial</span><span>{{ da_nu(f.uz_comercial) }}</span></div>
+  <div class="rand"><span class="eticheta">Date folosite la antrenare</span><span>{{ da_nu(f.antrenare_pe_date) }}</span></div>
+  {% if f.restrictii_regionale %}<div class="rand"><span class="eticheta">Restricții regionale</span><span>{{ f.restrictii_regionale }}</span></div>{% endif %}
+  <div class="rand"><span class="eticheta">Plătit</span><span>{{ 'da (se oprește din „apeluri plătite”)' if f.platit else 'nu' }}</span></div>
+  <div class="rand"><span class="eticheta">Limite ale contului</span><span>{{ r.limite }} · resetare zilnică la {{ '%02d' % f.reset_zi_ora }}:00 UTC</span></div>
+  {% if r.cote_cont %}<div class="rand"><span class="eticheta">Cota contului</span><span>{% for c in r.cote_cont %}{{ cota(c) }}{% endfor %}</span></div>{% endif %}
+  <div class="rand"><span class="eticheta">Încredere în termeni</span>
+    <span>[{{ f.marcaj }}] {{ etichete_marcaj[f.marcaj] }}{% if f.verificat_la %} · verificat la {{ f.verificat_la.isoformat() }}{% else %} · fără dată de verificare{% endif %}</span></div>
+  {% if f.note %}<p class="slab">{{ f.note }}</p>{% endif %}
+  {% if f.sursa %}<p class="slab">Sursă: {{ f.sursa }}</p>{% endif %}
+
+  <div class="defilare"><table>
+    <tr><th>Model</th><th>Nivel</th><th>Context</th><th>Capabilități</th><th>Limite</th><th>Cota rămasă</th><th>Viteză / vectori</th><th>Preț-umbră</th><th>Încredere</th></tr>
+    {% for m in r.modele %}
+    <tr><td>{{ m.nume_afisat }}<br><code>{{ m.identificator }}</code></td>
+      <td>{{ m.nivel }}</td>
+      <td>{{ '{:,}'.format(m.context_tokeni).replace(',', '.') }}</td>
+      <td>{{ m.capabilitati|join(', ') or '–' }}</td>
+      <td>{{ limite(m) }}</td>
+      <td>{% for c in r.cote[m.id] if c.resursa == 'model' %}{{ cota(c) }}{% else %}<span class="slab">fără limită proprie</span>{% endfor %}</td>
+      <td>{% if m.tokeni_pe_secunda is not none %}{{ m.tokeni_pe_secunda }} tokeni/s<br><span class="slab">măsurat {{ ora(m.viteza_masurata_la) }}</span>{% elif m.dimensiune_vector %}vectori de {{ m.dimensiune_vector }} dimensiuni{% elif m.nivel == 'local' %}<span class="slab">nemăsurat</span>{% else %}–{% endif %}</td>
+      <td>{{ pret(m) }}</td>
+      <td>[{{ m.marcaj }}]{% if m.verificat_la %} {{ m.verificat_la.isoformat() }}{% endif %}</td></tr>
+    {% if poate_actiona %}
+    <tr><td colspan="9"><details><summary>Editează limitele modelului {{ m.identificator }}</summary>
+      {% set caz = m.id %}
+      <form method="post" action="/gateway/modele/{{ m.id }}/limite">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        {{ camp_limita('cereri_minut', 'Cereri pe minut', m.cereri_minut) }}
+        {{ camp_limita('cereri_zi', 'Cereri pe zi', m.cereri_zi) }}
+        {{ camp_limita('tokeni_minut', 'Tokeni pe minut', m.tokeni_minut) }}
+        {{ camp_limita('tokeni_zi', 'Tokeni pe zi', m.tokeni_zi) }}
+        <p class="slab">Gol = fără limită. Se aplică de la următorul apel.</p>
+        <button type="submit" class="secundar">Salvează limitele</button>
+      </form></details></td></tr>
+    {% endif %}
+    {% else %}
+    <tr><td colspan="9" class="slab">Niciun model.</td></tr>
+    {% endfor %}
+  </table></div>
+
+  {% if poate_actiona %}
+  <details><summary>Editează limitele contului și termenii</summary>
+    {% set caz = f.id %}
+    <form method="post" action="/gateway/furnizori/{{ f.id }}/limite">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      {{ camp_limita('cereri_minut', 'Cereri pe minut (cont)', f.cereri_minut) }}
+      {{ camp_limita('cereri_zi', 'Cereri pe zi (cont)', f.cereri_zi) }}
+      {{ camp_limita('tokeni_minut', 'Tokeni pe minut (cont)', f.tokeni_minut) }}
+      {{ camp_limita('tokeni_zi', 'Tokeni pe zi (cont)', f.tokeni_zi) }}
+      <label for="reset-{{ f.id }}">Ora UTC a resetării zilnice (0–23)</label>
+      <input type="text" inputmode="numeric" id="reset-{{ f.id }}" name="reset_zi_ora" value="{{ f.reset_zi_ora }}" maxlength="2" autocomplete="off">
+      <button type="submit" class="secundar">Salvează limitele contului</button>
+    </form>
+    <form method="post" action="/gateway/furnizori/{{ f.id }}/termeni">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="uz-{{ f.id }}">Uz comercial</label>
+      <select id="uz-{{ f.id }}" name="uz_comercial">
+        <option value="" {{ 'selected' if f.uz_comercial is none }}>necunoscut</option>
+        <option value="da" {{ 'selected' if f.uz_comercial is true }}>da</option>
+        <option value="nu" {{ 'selected' if f.uz_comercial is false }}>nu</option>
+      </select>
+      <label for="antr-{{ f.id }}">Date folosite la antrenare</label>
+      <select id="antr-{{ f.id }}" name="antrenare_pe_date">
+        <option value="" {{ 'selected' if f.antrenare_pe_date is none }}>necunoscut</option>
+        <option value="da" {{ 'selected' if f.antrenare_pe_date is true }}>da</option>
+        <option value="nu" {{ 'selected' if f.antrenare_pe_date is false }}>nu</option>
+      </select>
+      <label for="reg-{{ f.id }}">Restricții regionale</label>
+      <input type="text" id="reg-{{ f.id }}" name="restrictii_regionale" value="{{ f.restrictii_regionale }}" maxlength="500">
+      <label for="mc-{{ f.id }}">Încredere în termeni</label>
+      <select id="mc-{{ f.id }}" name="marcaj">
+        {% for k, v in etichete_marcaj.items() %}<option value="{{ k }}" {{ 'selected' if f.marcaj == k }}>[{{ k }}] {{ v }}</option>{% endfor %}
+      </select>
+      <label for="vf-{{ f.id }}">Data verificării (AAAA-LL-ZZ)</label>
+      <input type="text" id="vf-{{ f.id }}" name="verificat_la" value="{{ f.verificat_la.isoformat() if f.verificat_la else '' }}" maxlength="10">
+      <button type="submit" class="secundar">Salvează termenii</button>
+    </form>
+  </details>
+  {% if f.stare == 'activ' %}
+  <form method="post" action="/gateway/furnizori/{{ f.id }}/dezactiveaza">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="m-{{ f.cod }}">Motiv (opțional)</label>
+    <input type="text" id="m-{{ f.cod }}" name="motiv" maxlength="300" autocomplete="off">
+    <button type="submit" class="secundar">Dezactivează</button>
+  </form>
+  {% else %}
+  <form method="post" action="/gateway/furnizori/{{ f.id }}/activeaza">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Activează</button>
+  </form>
+  {% if r.motiv_blocat %}<p class="slab">{{ r.motiv_blocat }}</p>{% endif %}
+  {% endif %}
+  {% endif %}
+</section>
+{% endfor %}
+
+<section class="card" aria-labelledby="scoruri">
+  <h2 id="scoruri">Scoruri pe profil (testul comparativ pe română)</h2>
+  <p class="slab">Scorul (0–1) din ultimele rulări, folosit de rutare ca prim criteriu (8.3). Gol = modelul nu a fost încă evaluat pe acel profil.</p>
+  <div class="defilare"><table>
+    <tr><th>Model</th>{% for p in scoruri.profiluri %}<th>{{ p }}</th>{% endfor %}</tr>
+    {% for s in scoruri.randuri %}
+    <tr><td><code>{{ s.cod }}</code></td>{% for p in scoruri.profiluri %}<td>{{ s.scor[p] if p in s.scor else '–' }}</td>{% endfor %}</tr>
+    {% endfor %}
+  </table></div>
+  <h3>Rulări recente</h3>
+  <div class="defilare"><table>
+    <tr><th>Model</th><th>Stare</th><th>Sarcini</th><th>Pornită</th><th>Note umane</th></tr>
+    {% for u in scoruri.rulari %}
+    <tr><td><code>{{ u.model_cod }}</code></td><td>{{ u.stare }}{% if u.stare == 'amanata' %} până la {{ ora(u.amanata_pana_la) }}{% endif %}</td>
+      <td>{{ u.sarcini_facute }} / {{ u.sarcini_total }}</td><td>{{ ora(u.pornita_la) }}</td>
+      <td>{% if poate_actiona and u.stare == 'terminata' %}<details><summary>Importă note (CSV)</summary>
+        <form method="post" action="/gateway/evaluare/{{ u.id }}/note">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <label for="csv-{{ u.id }}">Coloane: sarcina_id,nota (1–5)</label>
+          <textarea id="csv-{{ u.id }}" name="csv" rows="4" maxlength="20000">sarcina_id,nota
+</textarea>
+          <button type="submit" class="secundar">Importă notele</button>
+        </form></details>{% else %}–{% endif %}</td></tr>
+    {% else %}
+    <tr><td colspan="5" class="slab">Nicio rulare încă.</td></tr>
+    {% endfor %}
+  </table></div>
+  {% if poate_actiona %}
+  <form method="post" action="/gateway/evaluare/porneste">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="ev-model">Pornește testul comparativ pe modelul</label>
+    <select id="ev-model" name="model">
+      {% for s in scoruri.randuri %}<option value="{{ s.cod }}">{{ s.cod }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="secundar">Pornește testul</button>
+  </form>
+  {% endif %}
+</section>
+
+<section class="card" aria-labelledby="consum">
+  <h2 id="consum">Consum pe client (față de buget)</h2>
+  <p class="slab">Apeluri, tokeni și preț-umbră, azi și în luna curentă (UTC). La buget atins, munca P2 și P3 se amână; P1 merge până la {{ implicit.plafon_p1 }}× bugetul; P0 nu e atins. Avertizare la {{ (implicit.prag_avertizare * 100)|round|int }}%.</p>
+  <div class="defilare"><table>
+    <tr><th>Client</th><th>Azi</th><th>Luna</th><th></th></tr>
+    {% for c in clienti %}
+    {% set b = c.buget %}
+    <tr><td>{{ c.nume }}{% if c.propriu %} <span class="insigna">buget propriu</span>{% endif %}</td>
+      <td>{{ nr(c.zi.apeluri) }} / {{ nr(b.zi.apeluri) }} apeluri<br>{{ nr(c.zi.tokeni) }} / {{ nr(b.zi.tokeni) }} tokeni<br>{{ c.zi.pret_umbra }} / {{ b.zi.pret_umbra if b.zi.pret_umbra is not none else '–' }} USD</td>
+      <td>{{ nr(c.luna.apeluri) }} / {{ nr(b.luna.apeluri) }} apeluri<br>{{ nr(c.luna.tokeni) }} / {{ nr(b.luna.tokeni) }} tokeni<br>{{ c.luna.pret_umbra }} / {{ b.luna.pret_umbra if b.luna.pret_umbra is not none else '–' }} USD</td>
+      <td>{% if poate_actiona %}<details><summary>Buget</summary>
+        {% set caz = c.tenant_id %}
+        <form method="post" action="/gateway/clienti/{{ c.tenant_id }}/buget">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          {{ camp_limita('apeluri_zi', 'Apeluri pe zi', b.zi.apeluri) }}
+          {{ camp_limita('tokeni_zi', 'Tokeni pe zi', b.zi.tokeni) }}
+          {{ camp_limita('pret_umbra_zi', 'Preț-umbră pe zi (USD)', b.zi.pret_umbra) }}
+          {{ camp_limita('apeluri_luna', 'Apeluri pe lună', b.luna.apeluri) }}
+          {{ camp_limita('tokeni_luna', 'Tokeni pe lună', b.luna.tokeni) }}
+          {{ camp_limita('pret_umbra_luna', 'Preț-umbră pe lună (USD)', b.luna.pret_umbra) }}
+          <button type="submit" class="secundar">Salvează bugetul clientului</button>
+        </form>
+        <form method="post" action="/gateway/clienti/{{ c.tenant_id }}/buget">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="secundar">Revino la bugetul implicit</button>
+        </form></details>{% endif %}</td></tr>
+    {% else %}
+    <tr><td colspan="4" class="slab">Niciun client.</td></tr>
+    {% endfor %}
+  </table></div>
+  {% if poate_actiona %}
+  <details><summary>Bugetele implicite (clienții fără buget propriu)</summary>
+    {% set caz = 'implicit' %}
+    <form method="post" action="/gateway/bugete/implicite">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      {{ camp_limita('apeluri_zi', 'Apeluri pe zi', implicit.zi.apeluri) }}
+      {{ camp_limita('tokeni_zi', 'Tokeni pe zi', implicit.zi.tokeni) }}
+      {{ camp_limita('pret_umbra_zi', 'Preț-umbră pe zi (USD)', implicit.zi.pret_umbra) }}
+      {{ camp_limita('apeluri_luna', 'Apeluri pe lună', implicit.luna.apeluri) }}
+      {{ camp_limita('tokeni_luna', 'Tokeni pe lună', implicit.luna.tokeni) }}
+      {{ camp_limita('pret_umbra_luna', 'Preț-umbră pe lună (USD)', implicit.luna.pret_umbra) }}
+      <label for="prag-implicit">Prag de avertizare (%)</label>
+      <input type="text" id="prag-implicit" name="prag_avertizare" value="{{ (implicit.prag_avertizare * 100)|round|int }}" maxlength="5">
+      <label for="p1-implicit">Plafonul lui P1 (× buget)</label>
+      <input type="text" id="p1-implicit" name="plafon_p1" value="{{ implicit.plafon_p1 }}" maxlength="5">
+      <button type="submit" class="secundar">Salvează bugetele implicite</button>
+    </form>
+  </details>
+  {% endif %}
+</section>
+{% if not poate_actiona %}<p class="slab">Doar proprietarul poate activa, dezactiva sau edita limite, termeni și bugete.</p>{% endif %}
+{% endblock %}

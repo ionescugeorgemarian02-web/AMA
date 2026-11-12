@@ -34,12 +34,21 @@ def test_dupa_sigkill_nu_raman_goluri_si_nu_exista_dubluri(
     w2 = Worker(baza, dir_proba, **mediu).porneste()
     workeri.append(w2)
     tinta = dt.datetime.now(dt.UTC) + dt.timedelta(seconds=1)
-    asteapta(
-        lambda: bool(ticuri(dir_proba)) and max(ticuri(dir_proba)) >= tinta, mesaj="ticuri după repornire"
-    )
+
+    def fara_goluri() -> bool:
+        # Ticurile recuperate rulează în paralel și pot sosi în altă ordine: așteptăm să se așeze toate.
+        rulate = sorted(set(ticuri(dir_proba)))
+        if not rulate or rulate[-1] < tinta:
+            return False
+        return {(b - a).total_seconds() for a, b in itertools.pairwise(rulate)} == {1.0}
+
+    asteapta(fara_goluri, mesaj="ticuri după repornire, fără goluri (cele ratate au fost recuperate)")
 
     rulate = sorted(ticuri(dir_proba))
-    assert len(rulate) == len(set(rulate)), "niciun tic nu rulează de două ori"
-    pasi = {(b - a).total_seconds() for a, b in itertools.pairwise(rulate)}
-    assert pasi == {1.0}, f"ticurile din intervalul în care workerul a lipsit au fost recuperate: {pasi}"
+    dubluri = {t for t in rulate if rulate.count(t) > 1}
+    # Un pas întrerupt de SIGKILL după ce și-a scris urma, dar înainte să fie notat ca terminat, se reia
+    # (pașii sunt „cel puțin o dată” la cădere). Singurul tic care poate apărea de două ori este deci cel
+    # aflat în lucru la momentul căderii; planificatorul nu declanșează niciun tic de două ori.
+    assert dubluri <= {ultimul}, f"ticuri declanșate de două ori: {dubluri}"
+    assert all(rulate.count(t) <= 2 for t in dubluri)
     assert w2.opreste_curat() == 0

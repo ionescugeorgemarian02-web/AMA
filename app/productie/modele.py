@@ -30,6 +30,7 @@ class Livrabil(BazaProductie):
     canal: Mapped[str] = mapped_column(Text)
     clasa_actiune: Mapped[str] = mapped_column(Text, default="publicare_continut")
     termen_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    nu_inainte_de: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # amânat de A4 (F3.11)
     stare: Mapped[str] = mapped_column(Text, default="planificat")
     stare_anterioara: Mapped[str | None] = mapped_column(Text)
     versiune: Mapped[int] = mapped_column(Integer, default=1)

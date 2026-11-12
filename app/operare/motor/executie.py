@@ -342,6 +342,35 @@ def trimite(
     return client().enqueue(optiuni, *args, **kw).get_workflow_id()
 
 
+_coada_proba: Callable[[], str | None] | None = None
+_cozi_cunoscute: dict[str, str | None] = {}
+
+
+def seteaza_coada_curenta(f: Callable[[], str | None] | None) -> None:
+    """Doar teste: înlocuiește răspunsul lui `coada_curenta` (o rulare în afara unui job nu are coadă)."""
+    global _coada_proba
+    _coada_proba = f
+
+
+def coada_curenta() -> str | None:
+    """Coada jobului în care rulează codul apelant, sau `None` în afara unui job (proces web, script, test).
+    Gateway-ul o folosește ca să lase modelul local doar joburilor de pe coada `greu` (F3.5)."""
+    if _coada_proba is not None:
+        return _coada_proba()
+    id_job = DBOS.workflow_id
+    if id_job is None:
+        return None
+    if id_job not in _cozi_cunoscute:
+        try:
+            stare = DBOS.get_workflow_status(id_job)
+        except Exception:  # fără stare nu știm coada: cel mai prudent este „necunoscută”
+            return None
+        if len(_cozi_cunoscute) > 1000:
+            _cozi_cunoscute.clear()
+        _cozi_cunoscute[id_job] = None if stare is None else stare.queue_name
+    return _cozi_cunoscute[id_job]
+
+
 def stare_flux(id_job: str) -> StareFlux | None:
     randuri = client().list_workflows(workflow_ids=[id_job], load_input=False, load_output=True)
     if not randuri:

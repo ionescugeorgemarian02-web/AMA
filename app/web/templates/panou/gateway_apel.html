@@ -1,0 +1,54 @@
+{% extends "panou/baza.html" %}
+{% block title %}Apel la model · AMA{% endblock %}
+{% block pagina %}
+<h1>Apel la model</h1>
+<p><a href="/gateway/apeluri">← Apeluri la modele</a></p>
+<section class="card" aria-labelledby="t-meta">
+  <h2 id="t-meta">{{ a.componenta }}
+    <span class="insigna {{ clasa_rezultat[a.rezultat] }}">{{ etichete_rezultat[a.rezultat] }}</span></h2>
+  <div class="rand"><span class="eticheta">Când</span><span>{{ a.creat_la|moment }}</span></div>
+  <div class="rand"><span class="eticheta">Client</span><span>{{ client }}</span></div>
+  {% if a.livrabil_id %}<div class="rand"><span class="eticheta">Livrabil</span><span><a href="/productie/{{ a.livrabil_id }}">deschide</a></span></div>{% endif %}
+  <div class="rand"><span class="eticheta">Profil · prioritate</span><span>{{ a.profil or '–' }} · {{ a.prioritate }}</span></div>
+  <div class="rand"><span class="eticheta">Prompt</span><span>{% if a.prompt_nume %}{{ a.prompt_nume }}{% if a.prompt_versiune %} v{{ a.prompt_versiune }}{% endif %}{% else %}–{% endif %}</span></div>
+  <div class="rand"><span class="eticheta">Model ales</span><span>{{ a.model or '–' }}{% if a.nivel %} ({{ a.nivel }}){% endif %}</span></div>
+  <div class="rand"><span class="eticheta">De ce</span><span>{{ a.motiv_alegere or '–' }}</span></div>
+  {% for sem in a.semnale %}<div class="rand"><span class="eticheta">Semnal</span><span>
+    {% if sem.tip == 'date_personale_mascate' %}date personale mascate înainte de apel: {% for t, n in sem.pe_tip.items() %}{{ t }} × {{ n }}{{ ', ' if not loop.last }}{% endfor %}
+    {% elif sem.tip == 'injectie_suspecta' %}<span class="insigna atentie">posibilă injecție</span> <code>{{ sem.cod }}</code> în {{ sem.sursa }}
+    {% else %}{{ sem.tip }}{% endif %}</span></div>{% endfor %}
+  {% if a.cod_eroare %}<div class="rand"><span class="eticheta">Cod</span><span><code>{{ a.cod_eroare }}</code></span></div>{% endif %}
+  <div class="rand"><span class="eticheta">Tokeni (intrare / ieșire)</span><span>{{ a.tokeni_intrare }} / {{ a.tokeni_iesire }}</span></div>
+  <div class="rand"><span class="eticheta">Durată</span><span>{{ a.durata_ms }} ms</span></div>
+  <div class="rand"><span class="eticheta">Reparații</span><span>{{ a.reparatii }}</span></div>
+  <div class="rand"><span class="eticheta">Preț-umbră</span><span>{{ '%.6f'|format(a.pret_umbra) }} USD</span></div>
+  {% if a.degradat %}<div class="rand"><span class="eticheta">Degradat</span><span>{{ 'provizoriu' if a.provizoriu else 'da' }}{% if a.verificare_suplimentara %} · cere verificare în plus{% endif %}</span></div>{% endif %}
+  <div class="rand"><span class="eticheta">Corelare</span><span><code>{{ a.corelare_id or '–' }}</code></span></div>
+</section>
+
+<section class="card" aria-labelledby="t-incercari">
+  <h2 id="t-incercari">Încercări</h2>
+  <div class="defilare"><table>
+    <tr><th>Model</th><th>Rezultat</th><th>Tokeni</th><th>Durată</th><th>Detaliu</th></tr>
+    {% for i in a.incercari %}
+    <tr><td>{{ i.model }}</td><td>{{ i.rezultat }}</td><td>{{ i.tokeni_intrare }} / {{ i.tokeni_iesire }}</td><td>{{ i.durata_ms }} ms</td><td>{{ i.detaliu or '–' }}</td></tr>
+    {% else %}
+    <tr><td colspan="5" class="slab">Niciun model nu a fost apelat.</td></tr>
+    {% endfor %}
+  </table></div>
+</section>
+
+<section class="card" aria-labelledby="t-continut">
+  <h2 id="t-continut">Conținut</h2>
+  {% if continut %}
+  <p class="slab">Păstrat până la {{ continut.expira_la|moment }}; apoi rămân doar metadatele.</p>
+  {% for m in continut.mesaje %}
+  <h3>{{ {'system': 'Sistem', 'user': 'Utilizator', 'assistant': 'Asistent'}.get(m.rol, m.rol) }}</h3>
+  <pre>{{ m.continut }}</pre>
+  {% endfor %}
+  {% if raspuns_text %}<h3>Răspuns validat</h3><pre>{{ raspuns_text }}</pre>{% endif %}
+  {% else %}
+  <p class="slab">Conținutul nu mai este păstrat (a trecut perioada de 30 de zile) sau apelul nu a ajuns să aibă mesaje.</p>
+  {% endif %}
+</section>
+{% endblock %}

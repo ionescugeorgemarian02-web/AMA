@@ -18,6 +18,7 @@ guards:
 	uv run python scripts/check_pins.py
 	uv run python scripts/check_motor.py
 	uv run python scripts/check_efecte.py
+	uv run python scripts/check_gateway.py
 	uv run detect-secrets-hook --baseline .secrets.baseline $$(git ls-files)
 
 # Vulnerabilități cunoscute în dependențe. Are nevoie de rețea; rulează în CI.
