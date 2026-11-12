@@ -21,3 +21,7 @@ def workeri(baza: BazaTest, dir_proba: Path, motor_curat: None) -> Iterator[list
     yield lista
     for w in lista:
         w.curata()
+
+
+# Clienți și utilizatori pentru testele cu livrabile (F2.5+).
+from tests.integration.utile_productie import fabrica_clienti, om, tenant  # noqa: E402, F401

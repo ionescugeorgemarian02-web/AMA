@@ -17,6 +17,7 @@ from sqlalchemy.engine import make_url
 from app.operare.motor.migrare import migreaza_sistem
 
 os.environ.setdefault("AMA_ENV", "test")
+os.environ.setdefault("AMA_EFECTE_PAUZA_SEC", "0.05")  # reîncercările efectelor, fără pauze lungi în teste
 
 ROOT = Path(__file__).resolve().parents[1]
 

@@ -92,6 +92,13 @@ class Settings(BaseSettings):
     autonomie_esantion_l3: float = Field(default=0.075, ge=0.0, le=1.0)
     # Canale cu consimțământ per postare: rămân la cel mult L1 (TikTok, 7.4). Separate prin virgulă.
     canale_consimtamant: str = "tiktok"
+    # Executorul de efecte externe (F2.5, 7.5): reîncercări cu pauză crescătoare, plasa de siguranță a
+    # „tic”-ului.
+    efecte_reincercari: int = Field(default=3, ge=0, le=10)
+    efecte_pauza_sec: float = Field(default=2.0, gt=0.0, le=600.0)
+    efecte_redistribuire_sec: int = Field(
+        default=600, ge=1
+    )  # un efect în așteptare fără job viu se repune în coadă
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

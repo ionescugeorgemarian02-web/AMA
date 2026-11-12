@@ -104,3 +104,30 @@ def randuri(admin: Engine, lid: uuid.UUID) -> list[dict[str, object]]:
                 {"i": lid},
             )
         ]
+
+
+def livrabil_programat(
+    tenant: uuid.UUID, om_id: uuid.UUID, *, canal: str = "fals", tip: str = "postare"
+) -> uuid.UUID:
+    """Un livrabil ajuns LEGITIM în `programat`: toate mutările trec prin `productie.muta`, cu aprobare de om."""
+    from app.conturi import Rol
+    from app.productie import Hotarare, aprobari
+
+    lid = livrabil(tenant, canal=canal, tip=tip)
+    curenta = Stare.PLANIFICAT
+    for s in (Stare.BRIEFAT, Stare.IN_SCRIERE, Stare.IN_VALIDARE, Stare.VALIDAT):
+        muta(tenant, lid, curenta, s)
+        curenta = s
+    with sesiune_tenant(tenant) as db:
+        ap = aprobari.cere(db, lid)
+        aprobari.decide(db, ap.id, Hotarare.APROBAT, utilizator_id=om_id, rol=Rol.PROPRIETAR, versiune=1)
+    muta(tenant, lid, Stare.APROBAT, Stare.PROGRAMAT)
+    return lid
+
+
+def livrabil_in_publicare(
+    tenant: uuid.UUID, om_id: uuid.UUID, *, canal: str = "fals", tip: str = "postare"
+) -> uuid.UUID:
+    lid = livrabil_programat(tenant, om_id, canal=canal, tip=tip)
+    muta(tenant, lid, Stare.PROGRAMAT, Stare.IN_PUBLICARE)
+    return lid

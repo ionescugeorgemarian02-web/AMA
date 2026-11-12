@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F2.5 — Executorul de efecte externe
+- Outbox tranzacțional (`efecte_de_trimis`): efectul se scrie în aceeași tranzacție cu mutarea care îl cere, cu cheie de idempotență unică (client, livrabil, canal, versiune, tip); a doua cerere întoarce primul rând. Fluxul durabil `efecte.executa` îl trimite pe coada canalului; o încercare notează `în trimitere` înainte de conector și rezultatul după, iar după orice eroare sau rezultat necunoscut începe cu `verifica` (7.3). Erori clasificate (7.5): temporare cu pauză crescătoare, autentificare cu pauză pe conector și alertă de reautorizare, definitive în coada de erori. Oprirea globală a publicării și oprirea pe client se verifică chiar înainte de trimitere; efectul rămâne în așteptare și pleacă după repornire doar dacă mai e valabil. Contractul și registrul conectorilor (`app/connectors`), conector fals în teste, garda `scripts/check_efecte.py`. Migrarea `0011`.
+
 ### F2.10 — Nivelurile de autonomie
 - Matricea pe client × cinci clase de acțiuni, niveluri L0–L4, implicit L1; funcția pură de decizie „cere aprobare?” (umbră / aprobare / automat) cu eșantion determinist la L2 și L3; canalele cu consimțământ per postare (TikTok) rămân la L1, ca date; schimbarea nivelului doar de proprietar (permisiunea `autonomie.seteaza`, motiv, audit); retrogradare cu un nivel la incident critic; poarta din `productie.muta` recalculează decizia (L0 produce, nu publică). Migrarea `0010`.
 

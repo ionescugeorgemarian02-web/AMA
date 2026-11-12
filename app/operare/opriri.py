@@ -1,8 +1,10 @@
 """Butoanele de oprire (docs 7.8): steaguri de sistem, citite de modulele care fac efecte.
 
 Cine le citește: producția nouă de livrabile (`Oprire.PRODUCTIE` și oprirea pe client, F2.4: `productie.muta`
-refuză pornirea unui livrabil nou). Publicarea (F2.5), reclamele (F13) și învățarea (F12) vor apela
-`este_oprit` înaintea oricărui efect. Implicit nimic nu este oprit.
+refuză pornirea unui livrabil nou) și publicarea (F2.5: executorul de efecte verifică oprirea chiar
+înainte de trimitere; maparea clasă de efect → oprire e în `operare.efecte.stari.OPRIRE_PE_TIP`).
+Reclamele (F13) și învățarea (F12) vor apela `este_oprit` înaintea oricărui efect.
+Implicit nimic nu este oprit.
 
     from app.operare import opriri
     if opriri.este_oprit(db, opriri.Oprire.PUBLICARE, tenant_id=client_id):

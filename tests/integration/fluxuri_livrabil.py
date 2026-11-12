@@ -13,12 +13,17 @@ livrabilul unde l-a lăsat. Scenarii (al treilea argument al fluxului):
   se depășește la prima reparație).
 """
 
+import tempfile
+import time
 import uuid
+from pathlib import Path
 
 from app import productie
+from app.connectors import registru
 from app.db import sesiune_tenant
-from app.operare import motor
+from app.operare import efecte, motor
 from app.productie import Stare
+from tests.conector_fals import ConectorFals
 
 SCENARII = ("ok", "o_runda", "mereu_esueaza", "buget")
 # Cât timp livrabilul e într-una dintre aceste stări, fluxul îl împinge mai departe. Se oprește la
@@ -39,7 +44,22 @@ ACTIVE = {
     Stare.PUBLICAT,
     Stare.IN_MASURARE,
 }
-MAXIM_PASI = 80  # plasă de siguranță: un flux de probă nu se rotește la nesfârșit
+MAXIM_PASI = 80
+ASTEPTARE_PUBLICARE_SEC = 30.0  # cât așteaptă fluxul de probă încheierea efectului de publicare
+_dir_platforma: Path | None = None
+
+
+def _conector_fals(canal: str) -> None:
+    """SIMULAT: dacă testul nu și-a înregistrat un conector pe canal, se pune unul fals, cu „platforma” într-un
+    director temporar (aceleași reguli ca la un conector real: doar executorul de efecte îl cheamă)."""
+    global _dir_platforma
+    if canal not in registru.inregistrari():
+        if _dir_platforma is None:
+            _dir_platforma = Path(tempfile.mkdtemp(prefix="ama-platforma-"))
+        registru.inregistreaza(canal, ConectorFals(_dir_platforma / canal))
+
+
+# plasă de siguranță: un flux de probă nu se rotește la nesfârșit
 
 
 def _trece_validarea(scenariu: str, runde_reparatie: int) -> bool:
@@ -118,12 +138,30 @@ def _urmatorul(db, livrabil, stare: Stare, scenariu: str) -> Stare | str:  # typ
     if stare == Stare.PROGRAMAT:
         return muta(Stare.IN_PUBLICARE, "B4")
     if stare == Stare.IN_PUBLICARE:
-        return muta(Stare.PUBLICAT, "B7")  # SIMULAT: NU se publică nimic; executorul de efecte este F2.5
+        # Publicarea o face executorul de efecte (F2.5), la un conector FALS: fluxul doar cere efectul (idempotent:
+        # un pas reluat după o cădere găsește cererea făcută) și așteaptă ca livrabilul să iasă din „în publicare”.
+        _conector_fals(livrabil.canal)
+        efecte.cere(db, lid, payload={"continut_id": f"proba-{lid}"})
+        return "asteapta_publicarea"
     if stare == Stare.PUBLICAT:
         return muta(Stare.IN_MASURARE, "K1")
     if stare == Stare.IN_MASURARE:
         return muta(Stare.INCHIS, "K8")
     return stare
+
+
+@motor.pas()
+def asteapta_publicarea(tenant_id: str, livrabil_id: str) -> str:
+    """SIMULAT: așteaptă (cu sondare scurtă) ca executorul de efecte să mute livrabilul din „în publicare”."""
+    tenant, lid = uuid.UUID(tenant_id), uuid.UUID(livrabil_id)
+    limita = time.monotonic() + ASTEPTARE_PUBLICARE_SEC
+    while time.monotonic() < limita:
+        with sesiune_tenant(tenant) as db:
+            livrabil = productie.citeste(db, lid)
+            if livrabil is None or livrabil.stare != Stare.IN_PUBLICARE.value:
+                return "inexistent" if livrabil is None else livrabil.stare
+        time.sleep(0.05)
+    return Stare.IN_PUBLICARE.value
 
 
 @motor.flux("proba.livrabil")
@@ -132,6 +170,8 @@ def proba(tenant_id: str, livrabil_id: str, scenariu: str) -> str:
     stare = "planificat"
     for _ in range(MAXIM_PASI):
         stare = avanseaza(tenant_id, livrabil_id, scenariu)
+        if stare == "asteapta_publicarea":
+            stare = asteapta_publicarea(tenant_id, livrabil_id)
         if stare not in {s.value for s in ACTIVE}:
             break
     return stare

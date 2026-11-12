@@ -25,7 +25,7 @@ log = get_logger("app.worker")
 
 # Modulele care declară fluxuri (`@motor.flux`). Se adaugă aici pe măsură ce apar (F3 …): workerul
 # trebuie să le fi importat înainte de pornire, altfel nu poate rula joburile lor.
-MODULE_FLUXURI: tuple[str, ...] = ("app.productie.fluxuri",)
+MODULE_FLUXURI: tuple[str, ...] = ("app.productie.fluxuri", "app.operare.efecte")
 
 
 def _incarca_module() -> None:

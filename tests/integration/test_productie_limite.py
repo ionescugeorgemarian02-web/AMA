@@ -260,8 +260,10 @@ def test_omul_reia_livrabilul_cu_randuri_noi_si_intrarea_se_inchide(
     with admin_engine.connect() as c:
         a = c.execute(
             text(
-                "SELECT utilizator_id, tenant_id, detalii FROM jurnal_audit WHERE actiune = 'livrabil.reluat_de_om'"
-            )
+                "SELECT utilizator_id, tenant_id, detalii FROM jurnal_audit "
+                "WHERE actiune = 'livrabil.reluat_de_om' AND obiect_id = :l"
+            ),
+            {"l": str(lid)},
         ).one()
     assert (a.utilizator_id, a.tenant_id) == (om, tenant) and a.detalii["in_starea"] == "in_validare"
     ultimul = randuri(admin_engine, lid)[-1]
