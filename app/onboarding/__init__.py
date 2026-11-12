@@ -24,6 +24,7 @@ from app.onboarding import (
     public,
     sesiuni,
     sondaj,
+    strategie,
 )
 from app.onboarding.sesiuni import EroareOnboarding, SesiuneInchisa
 
@@ -42,4 +43,5 @@ __all__ = [
     "public",
     "sesiuni",
     "sondaj",
+    "strategie",
 ]

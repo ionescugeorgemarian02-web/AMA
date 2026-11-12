@@ -32,15 +32,27 @@ from app.creier.pachete import Element, PachetContext
 
 BUGET_IMPLICIT = 3000
 MAX_FAPTE, MAX_OFERTE, MAX_PASAJE = 20, 8, 6
-PRIORITATI = ["reguli", "fapte", "oferte", "ghid", "pasaje"]
+PRIORITATI = ["reguli", "fapte", "oferte", "ghid", "strategie", "brief", "public", "insight", "pasaje"]
 OBLIGATORII = frozenset({"reguli"})
-ORDINE_IN_TEXT = ["ghid", "reguli", "fapte", "oferte", "pasaje"]
+ORDINE_IN_TEXT = ["ghid", "strategie", "brief", "public", "insight", "reguli", "fapte", "oferte", "pasaje"]
 TITLURI = {
     "ghid": "Ghid de brand (aprobat)", "reguli": "Reguli și interdicții", "fapte": "Fapte aprobate",
     "oferte": "Oferte valabile", "pasaje": "Pasaje din materialele clientului",
+    "brief": "Brief de onboarding (aprobat)", "public": "Profil de public (aprobat)",
+    "insight": "Insight de piață (aprobat)",
+    "strategie": "Strategie aprobată (90 de zile)",
 }  # fmt: skip
 SEMNALE_MEREU = frozenset({"mentiune_legala"})  # mențiunile legale intră mereu printre faptele relevante
 CARACTERE_PASAJ_IN_PROMPT = 1200
+# Secțiuni cerute explicit (strategia, F4.11): compartimentul și, unde compartimentul amestecă mai multe
+# feluri de intrări, cheia intrării. Ca să nu schimbe pachetele existente, nu intră decât la cerere
+# (`sectiuni_extra`).
+SECTIUNI_EXTRA = {
+    "brief": (Compartiment.BRIEF, None),
+    "public": (Compartiment.INSIGHT_PUBLIC, "profil-public"),
+    "insight": (Compartiment.INSIGHT_PIATA, "brief-insight"),
+    "strategie": (Compartiment.STRATEGIE, None),
+}
 
 
 def _tulpini(text: str) -> set[str]:
@@ -86,6 +98,7 @@ def construieste(
     buget_tokeni: int = BUGET_IMPLICIT,
     utilizator_id: uuid.UUID | None = None,
     salveaza: bool = True,
+    sectiuni_extra: tuple[str, ...] = (),
 ) -> PachetContext:
     """Pachetul de context al unei sarcini. `intrebare` este brieful / întrebarea. `la`: data pentru care se
     citesc faptele (implicit acum, la secundă). Cu `salveaza=True` pachetul se scrie (și se leagă de
@@ -150,6 +163,17 @@ def construieste(
             adauga("ghid", "profil", str(r.intrare_id), r.versiune, r.text, cheie_intrare=r.cheie)
     else:
         lipsuri.append("ghid_brand")  # F4.5 îl produce; până atunci lipsa e explicită, nu o presupunere
+    for sectiune in sectiuni_extra:
+        if sectiune not in SECTIUNI_EXTRA:
+            raise ValueError(f"secțiune necunoscută: {sectiune}")
+        comp, cheie_ceruta = SECTIUNI_EXTRA[sectiune]
+        gasite = [
+            r for r in citire.pentru_context(db, tenant_id, comp, la) if cheie_ceruta in (None, r.cheie)
+        ]
+        for r in gasite:
+            adauga(sectiune, sectiune, str(r.intrare_id), r.versiune, r.text, cheie_intrare=r.cheie)
+        if not gasite:
+            lipsuri.append(sectiune)  # cerută și lipsă (neaprobată): spusă explicit
     surse_ok = [s.id for s in cercetare.surse(db, tenant_id) if cercetare.STATUTE[s.statut].reutilizare_text]
     if surse_ok:
         raspuns = cautare_hibrida.cauta(

@@ -295,4 +295,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri: poarta brieful rulează și sondajul (nu doar ecranul), deci nicio cale nu aprobă un brief cu trimiteri false; un brief cu o afirmație fără trimitere se salvează ca ciornă, nu se pierde; numele concurentului vine din sursă, nu din model; eșantionul depinde de amprenta conținutului (reproductibil, nu „norocos” la a doua rulare); afirmațiile concurenței se aprobă de sistem după verificare, brieful doar de om (`inregistreaza_cere_om`).
   - Găsit: o trimitere către un identificator inexistent trebuia raportată, nu să arunce `IntrareInexistenta`; un test trebuie să încerce aprobarea de sistem ÎNAINTE de cea umană (după aprobare, tranziția e refuzată pe altă cale).
   - NEVERIFICAT: modele reale; site-uri reale de concurență.
+- **F4.11 — Strategia pe 90 de zile, prima formă.**
+  - Construit: `app/onboarding/strategie.py`, promptul de strategie, fluxul `onboarding.strategie`, ecranul `/campanii` (două șabloane), secțiunile la cerere ale constructorului de context, `lant_onboarding.py` (ajutor de test pentru lanțul brief → insight), `docs/specs/F4.11.md`.
+  - Hotărâri: schema este și poarta (o strategie incompletă nu există pe nicio cale, nici din editor); strategia se construiește doar din context APROBAT și lipsa oricărui element al contextului oprește propunerea (nu se improvizează); secțiunile noi ale pachetului sunt la cerere ca să nu schimbe pachetele existente (F4.7); relevanța faptelor fiind lexicală, întrebarea strategiei poartă produsele și prețurile din brief.
+  - Găsit: `context.construieste` cu `la` implicit (acum, la secundă) nu vede ce s-a aprobat în aceeași secundă: strategia cere `la` exact; un analist de agenție nealocat nu vede niciun client (RLS), deci testele ecranelor folosesc proprietarul.
+  - NEVERIFICAT: model real; aprobarea reală pentru CariereAI / BigBrain.
 

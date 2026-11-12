@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.11 — Strategia pe 90 de zile, prima formă
+- Strategia (ipoteză, plan pe 30 și 90 de zile, indicator principal, prag minim, fereastră de măsurare, criteriu de oprire — toate obligatorii, schemă strictă și poartă) propusă prin gateway pe profilul `strategie` (se amână, nu se degradează) din pachetul de context al clientului (brief, ghid, fapte, public, insight aprobate), versionată și aprobată de un om. Ecranul „Campanii” (`/campanii`): lista pe client, detaliu, aprobă / respinge cu motiv.
+- Constructorul de context: secțiuni la cerere `brief`, `public`, `insight`, `strategie` (`sectiuni_extra`); implicit pachetele nu se schimbă.
+
 ### F4.10 — Harta pieței și brieful de insight
 - Concurenți ca surse (3–5 pe client, citire cu colectorul existent, text lipit altfel; textul lor nu se reutilizează), afirmațiile lor (ofertă, preț, mesaj) extrase pe pasaje cu citat verificat literal în `insight_piata`, brief de insight pe o pagină cu trimitere la sursă pe fiecare afirmație (profilul `strategie`, se amână), poarta care blochează afirmațiile fără trimitere, trimiterile fără sursă și sondajul de citate picat; sondaj cu eșantion determinist (`sondaj.esantion`).
 

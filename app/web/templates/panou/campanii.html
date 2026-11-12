@@ -1,0 +1,79 @@
+{% extends "panou/baza.html" %}
+{% block title %}Campanii {{ client.nume }} · AMA{% endblock %}
+{% macro strategie(c) %}
+  <h3>Ipoteza</h3>
+  <p>{{ c.ipoteza }}</p>
+  <h3>Plan pe 30 de zile</h3>
+  <ol>{% for p in c.plan_30_zile %}<li>{{ p.actiune }} <span class="slab">({{ p.canal }}; {{ p.rezultat_asteptat }})</span></li>{% endfor %}</ol>
+  <h3>Plan pe 90 de zile</h3>
+  <ol>{% for p in c.plan_90_zile %}<li>{{ p.actiune }} <span class="slab">({{ p.canal }}; {{ p.rezultat_asteptat }})</span></li>{% endfor %}</ol>
+  <h3>Indicator principal</h3>
+  <p>{{ c.indicator_principal.nume }}: țintă {{ c.indicator_principal.tinta }} {{ c.indicator_principal.unitate }}. <span class="slab">Măsurare: {{ c.indicator_principal.mod_masurare }}</span></p>
+  <h3>Prag minim</h3>
+  <p>{{ c.prag_minim.valoare }} {{ c.prag_minim.unitate }}. <span class="slab">{{ c.prag_minim.motiv }}</span></p>
+  <h3>Fereastra de măsurare</h3>
+  <p>{{ c.fereastra_masurare_zile }} de zile</p>
+  <h3>Criteriul de oprire</h3>
+  <p>{{ c.criteriu_oprire }}</p>
+{% endmacro %}
+{% block pagina %}
+<p><a href="/campanii">← Campanii</a> · <a href="/creier/client/{{ client.id }}">Creierul de brand</a></p>
+<h1>Strategie · {{ client.nume }}</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab">Revizuirile și pivotul vin mai târziu (F13.6). Aici: strategia propusă, cea aprobată și decizia ta.</p>
+
+{% if poate_propune %}
+<form method="post" action="/campanii/{{ client.id }}/propune">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <button type="submit" class="secundar">{% if intrari %}Propune o strategie nouă{% else %}Propune strategia pe 90 de zile{% endif %}</button>
+</form>
+<p class="slab">Cere brief, ghid de brand, profil de public și brief de insight aprobate.</p>
+{% endif %}
+
+{% for r in intrari %}
+  {% if r.aprobata %}
+  <section class="card" aria-labelledby="ap-{{ r.intrare.id }}">
+    <h2 id="ap-{{ r.intrare.id }}">Strategia aprobată <span class="insigna ok">versiunea {{ r.aprobata.nr }}</span></h2>
+    <p class="slab">Aprobată {{ r.aprobata.aprobat_la|moment }}.</p>
+    {{ strategie(r.aprobata.continut) }}
+  </section>
+  {% endif %}
+  {% for v in r.in_asteptare %}
+  <section class="card" aria-labelledby="pr-{{ v.id }}">
+    <h2 id="pr-{{ v.id }}">Propunere în așteptare <span class="insigna atentie">versiunea {{ v.nr }}</span></h2>
+    <p class="slab">Propusă {{ v.creat_la|moment }}.</p>
+    {{ strategie(v.continut) }}
+    {% if poate_aproba %}
+    <form method="post" action="/campanii/{{ client.id }}/{{ r.intrare.id }}/aproba">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="versiune" value="{{ v.nr }}">
+      <button type="submit">Aprobă strategia</button>
+    </form>
+    <form method="post" action="/campanii/{{ client.id }}/{{ r.intrare.id }}/respinge">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="versiune" value="{{ v.nr }}">
+      <label for="m-{{ v.id }}">Motivul respingerii (obligatoriu)</label>
+      <input type="text" id="m-{{ v.id }}" name="motiv" maxlength="300" minlength="3" required autocomplete="off">
+      <button type="submit" class="secundar">Respinge</button>
+    </form>
+    {% else %}
+    <p class="slab">Doar proprietarul poate aproba sau respinge strategia.</p>
+    {% endif %}
+  </section>
+  {% endfor %}
+  {% if r.respinse %}
+  <section class="card">
+    <h2>Respinse</h2>
+    {% for v in r.respinse %}<p class="slab">Versiunea {{ v.nr }}, respinsă: {{ v.retras_motiv }}</p>{% endfor %}
+  </section>
+  {% endif %}
+  <p><a href="/creier/intrare/{{ r.intrare.id }}">Istoric și diferențe între versiuni ›</a></p>
+{% else %}
+<div class="card gol">
+  <span class="pictograma" aria-hidden="true">◎</span>
+  <p><strong>Nicio strategie încă.</strong></p>
+  <p class="slab">Strategia apare aici după ce brieful, ghidul, publicul și harta pieței sunt aprobate.</p>
+</div>
+{% endfor %}
+{% endblock %}

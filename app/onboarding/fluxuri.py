@@ -13,7 +13,7 @@ from sqlalchemy import update
 from app import creier, gateway
 from app.db import sesiune_tenant
 from app.logging import get_logger
-from app.onboarding import citate, completare, extractie, ghid, piata, prompturi, public
+from app.onboarding import citate, completare, extractie, ghid, piata, prompturi, public, strategie
 from app.onboarding.modele import Sesiune
 from app.operare import motor
 from app.operare.motor import Coada, Prioritate
@@ -299,5 +299,56 @@ def trimite_brief_insight(tenant_id: uuid.UUID, utilizator_id: uuid.UUID, *, che
         str(utilizator_id),
         coada=Coada.IO,
         prioritate=Prioritate.P2,
+        cheie=cheie,
+    )
+
+
+# --- strategia pe 90 de zile (F4.11)
+
+NUME_STRATEGIE = "onboarding.strategie"
+
+
+@motor.pas(nume="onboarding.strategie_pas", reincercari=1)
+def _strategie(tenant_id: str, utilizator_id: str) -> str:
+    """`gata`, `amanat:<moment ISO>` (strategia se amână, nu se degradează) sau `refuzat:<motiv>`."""
+    try:
+        with sesiune_tenant(uuid.UUID(tenant_id)) as db:
+            strategie.propune(db, tenant_id=uuid.UUID(tenant_id), utilizator_id=uuid.UUID(utilizator_id))
+    except gateway.Amanat as amanat:
+        return f"amanat:{amanat.pana_la.isoformat()}"
+    except (
+        gateway.EroareGateway
+    ) as exc:  # ieșire invalidă, furnizori indisponibili, apel refuzat: fluxul se încheie curat
+        return f"refuzat:{type(exc).__name__}"
+    except creier.RegulaCreier as exc:
+        log.warning("strategia nu s-a putut propune", extra={"motiv": str(exc)[:200]})
+        return "refuzat:strategie_invalida"
+    return "gata"
+
+
+@motor.flux(NUME_STRATEGIE, timp_maxim_sec=900)
+def propune_strategia(tenant_id: str, utilizator_id: str) -> str:
+    r = _strategie(tenant_id, utilizator_id)
+    if r.startswith("amanat:"):
+        gateway.reprogrameaza(
+            gateway.Amanat(dt.datetime.fromisoformat(r.split(":", 1)[1]), "strategie"),
+            propune_strategia,
+            tenant_id,
+            utilizator_id,
+            cheie=f"strategie:{tenant_id}:reluare",
+            coada=Coada.IO,
+            prioritate=Prioritate.P1,
+        )
+        return "amanat"
+    return r
+
+
+def trimite_strategia(tenant_id: uuid.UUID, utilizator_id: uuid.UUID, *, cheie: str) -> str:
+    return motor.trimite(
+        propune_strategia,
+        str(tenant_id),
+        str(utilizator_id),
+        coada=Coada.IO,
+        prioritate=Prioritate.P1,
         cheie=cheie,
     )
