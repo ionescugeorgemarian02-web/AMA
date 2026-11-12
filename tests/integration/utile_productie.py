@@ -75,9 +75,9 @@ def anunturi(monkeypatch: pytest.MonkeyPatch) -> AnunturiFalse:
     return f
 
 
-def livrabil(tenant: uuid.UUID, **kw: object) -> uuid.UUID:
+def livrabil(tenant: uuid.UUID, *, tip: str = "postare", canal: str = "facebook", **kw: object) -> uuid.UUID:
     with sesiune_tenant(tenant) as db:
-        return productie.creeaza(db, tenant_id=tenant, tip="postare", canal="facebook", **kw).id  # type: ignore[arg-type]
+        return productie.creeaza(db, tenant_id=tenant, tip=tip, canal=canal, **kw).id  # type: ignore[arg-type]
 
 
 def muta(tenant: uuid.UUID, lid: uuid.UUID, din: Stare, la: Stare, **kw: object) -> productie.Rezultat:

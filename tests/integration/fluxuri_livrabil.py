@@ -21,12 +21,23 @@ from app.operare import motor
 from app.productie import Stare
 
 SCENARII = ("ok", "o_runda", "mereu_esueaza", "buget")
+# Cât timp livrabilul e într-una dintre aceste stări, fluxul îl împinge mai departe. Se oprește la
+# `asteapta_aprobare` (așteaptă un om), la `expirat`, `respins`, `coada_de_erori`, `inchis` și la cele terminale.
 ACTIVE = {
     Stare.PLANIFICAT,
     Stare.BRIEFAT,
     Stare.IN_SCRIERE,
     Stare.IN_VALIDARE,
     Stare.IN_REPARATIE,
+    Stare.VALIDAT,
+    Stare.APROBAT,
+    Stare.IN_RANDARE,
+    Stare.CONTROL_MEDIA,
+    Stare.GATA,
+    Stare.PROGRAMAT,
+    Stare.IN_PUBLICARE,
+    Stare.PUBLICAT,
+    Stare.IN_MASURARE,
 }
 MAXIM_PASI = 80  # plasă de siguranță: un flux de probă nu se rotește la nesfârșit
 
@@ -80,6 +91,26 @@ def _urmatorul(db, livrabil, stare: Stare, scenariu: str) -> Stare:  # type: ign
             return Stare.COADA_DE_ERORI
         productie.versiune_noua(db, lid, componenta="E1", motiv="reparație simulată")
         return muta(Stare.IN_VALIDARE, "E1")
+    if stare == Stare.VALIDAT:
+        productie.aprobari.cere(db, lid)  # la L1: fiecare livrabil se aprobă; fluxul se oprește aici
+        return Stare.ASTEAPTA_APROBARE
+    if stare == Stare.APROBAT:
+        # SIMULAT: un video trece prin randare și controlul media; un text merge direct la programare
+        return muta(Stare.IN_RANDARE if livrabil.tip == "video" else Stare.PROGRAMAT, "H1")
+    if stare == Stare.IN_RANDARE:
+        return muta(Stare.CONTROL_MEDIA, "F3")  # SIMULAT: nicio randare reală
+    if stare == Stare.CONTROL_MEDIA:
+        return muta(Stare.GATA, "G5")  # SIMULAT: nicio verificare reală
+    if stare == Stare.GATA:
+        return muta(Stare.PROGRAMAT, "B4")
+    if stare == Stare.PROGRAMAT:
+        return muta(Stare.IN_PUBLICARE, "B4")
+    if stare == Stare.IN_PUBLICARE:
+        return muta(Stare.PUBLICAT, "B7")  # SIMULAT: NU se publică nimic; executorul de efecte este F2.5
+    if stare == Stare.PUBLICAT:
+        return muta(Stare.IN_MASURARE, "K1")
+    if stare == Stare.IN_MASURARE:
+        return muta(Stare.INCHIS, "K8")
     return stare
 
 

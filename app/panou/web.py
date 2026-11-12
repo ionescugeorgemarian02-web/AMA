@@ -104,19 +104,6 @@ def fragment_stare(request: Request, u: Agentie, db: DbSession) -> Response:
     return pagina(request, u, "panou/_stare.html", tab="acasa", **_stare_sistem(db, u))
 
 
-@router.get("/aprobari")
-def aprobari(request: Request, u: Agentie) -> Response:
-    return pagina(
-        request,
-        u,
-        "panou/gol.html",
-        tab="aprobari",
-        titlu="Aprobări",
-        pictograma="✓",
-        text="Aici vei vedea livrabilele care așteaptă decizia ta, cu verdictele validatorilor.",
-    )
-
-
 @router.get("/productie")
 def productie(request: Request, u: Agentie) -> Response:
     return pagina(

@@ -92,12 +92,15 @@ def test_bara_de_jos_are_cele_cinci_file_in_ordine_si_marcheaza_pagina_curenta(
     assert html.count('aria-current="page"') == 1 and 'href="/aprobari" aria-current="page"' in html
 
 
-@pytest.mark.parametrize("cale", ["/aprobari", "/productie"])
-def test_aprobari_si_productie_sunt_stari_goale_oneste(
-    client: TestClient, proprietar: Cont, cale: str
-) -> None:
-    html = client.get(cale).text
+def test_productie_este_stare_goala_onesta(client: TestClient, proprietar: Cont) -> None:
+    html = client.get("/productie").text
     assert "Încă nimic aici" in html and "faza F2" in html
+
+
+def test_aprobari_fara_cereri_este_stare_goala_onesta(client: TestClient, proprietar: Cont) -> None:
+    # Ecranul Aprobări are conținut din F2.8 (lista cererilor); fără cereri arată o stare goală onestă.
+    html = client.get("/aprobari").text
+    assert "Nicio cerere în așteptare" in html and "Fără decizie la timp, un livrabil nu se publică" in html
 
 
 def test_meniu_trimite_la_operare_cont_notificari_si_iesire(client: TestClient, proprietar: Cont) -> None:

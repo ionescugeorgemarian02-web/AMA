@@ -9,6 +9,10 @@
   obișnuit după o excepție), refuzul rămâne.
 - În bază, un declanșator refuză orice UPDATE al stării care nu e în tabel sau nu trece pe aici.
 - Fiecare mutare aplicată scrie istoricul (din, în, componentă, motiv, când) și un eveniment (22.1).
+- Porțile de aprobare (F2.8, 7.3: „fără aprobare automată”): intrarea în `așteaptă aprobare`, `aprobat`,
+  `respins` și ieșirea din `așteaptă aprobare` în `expirat` cer un TEMEI (`Temei`): o cerere de aprobare a
+  ACESTUI livrabil, pentru versiunea lui CURENTĂ, în starea potrivită. O aprobare dată pe o versiune veche nu
+  aprobă versiunea nouă; fără temei, mutarea e refuzată și înregistrată.
 - Limitele anti-buclă (F2.4, 7.3) trăiesc tot aici, ca să nu existe ocolire: intrarea într-o a treia rundă de
   reparație sau într-a 13-a predare nu se face; livrabilul trece în `coada_de_erori`, cu diagnostic și o
   intrare în coada de erori (`escaleaza`). Pornirea producției noi (`planificat → briefat`) respectă
@@ -17,6 +21,7 @@
 
 import uuid
 from dataclasses import dataclass, field
+from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import func, insert, select, text
@@ -30,10 +35,11 @@ from app.logging import get_logger
 from app.operare import audit, coada_erori, evenimente, opriri
 from app.operare.notificari import Nivel
 from app.operare.opriri import Oprire
-from app.productie import limite, stari
+from app.productie import aprobari_baza, limite, stari
 from app.productie.anunturi import anunta
 from app.productie.limite import Depasire
 from app.productie.modele import Livrabil, Tranzitie
+from app.productie.reguli_aprobare import Decident, StareAprobare
 from app.productie.stari import Stare
 
 log = get_logger("app.productie")
@@ -77,6 +83,28 @@ class LimitaDepasita(TranzitieRefuzata):
 class ProductieOprita(EroareProductie):
     """Producția nouă este oprită (global sau pe client): livrabilul rămâne `planificat`, nu se pierde nimic.
     Nu se scrie în istoric (nu e o tranziție greșită, ci o pauză); reîncearcă după repornire."""
+
+
+class TipTemei(StrEnum):
+    APROBARE = "aprobare"
+    AUTONOMIE = "autonomie"
+
+
+@dataclass(frozen=True)
+class Temei:
+    """De ce trece livrabilul printr-o poartă de aprobare: o cerere de aprobare anume, sau (F2.10) nivelul de
+    autonomie, care nu cere aprobare. Se construiește cu `Temei.aprobare(id)` / `Temei.autonomie()`."""
+
+    tip: TipTemei
+    aprobare_id: uuid.UUID | None = None
+
+    @classmethod
+    def aprobare(cls, aprobare_id: uuid.UUID) -> "Temei":
+        return cls(TipTemei.APROBARE, aprobare_id)
+
+    @classmethod
+    def autonomie(cls) -> "Temei":
+        return cls(TipTemei.AUTONOMIE)
 
 
 @dataclass(frozen=True)
@@ -297,6 +325,7 @@ def muta(
     utilizator_id: uuid.UUID | None = None,
     versiune: int | None = None,
     detalii: dict[str, Any] | None = None,
+    temei: Temei | None = None,
 ) -> Rezultat:
     """Mută livrabilul din `din` în `la`. `din` este starea pe care apelantul o crede curentă (verificare
     optimistă, sub blocare). `componenta`: cine mută (D5, G1, ...). `utilizator_id`: dacă a decis un om.
@@ -337,6 +366,9 @@ def muta(
             f"din „{stari.ETICHETE[curenta]}” iese doar un om",
             cerere,
         )
+    fara_temei = _motiv_fara_temei(db, livrabil, cerere, temei)
+    if fara_temei:
+        raise refuza(db, livrabil, TranzitieNepermisa, "fara_temei", fara_temei, cerere)
     if curenta == Stare.PLANIFICAT and la == Stare.BRIEFAT:
         _respecta_opririle(db, livrabil)
     depasire = limite.depasire_la_intrare(
@@ -363,6 +395,40 @@ def muta(
         )
     _aplica(db, livrabil, cerere, motiv=motiv, detalii=detalii)
     return Rezultat(livrabil=livrabil, cerut=la, stare=la)
+
+
+# Porțile de aprobare: (din, în) → starea pe care o cere cererea de aprobare invocată ca temei.
+POARTA_ASTEAPTA = (Stare.VALIDAT, Stare.ASTEAPTA_APROBARE)
+STARE_CERERE_NECESARA: dict[tuple[Stare | None, Stare], StareAprobare] = {
+    (Stare.VALIDAT, Stare.ASTEAPTA_APROBARE): StareAprobare.IN_ASTEPTARE,
+    (Stare.VALIDAT, Stare.APROBAT): StareAprobare.APROBAT,
+    (Stare.ASTEAPTA_APROBARE, Stare.APROBAT): StareAprobare.APROBAT,
+    (Stare.ASTEAPTA_APROBARE, Stare.RESPINS): StareAprobare.RESPINS,
+    (Stare.ASTEAPTA_APROBARE, Stare.EXPIRAT): StareAprobare.EXPIRAT,
+}
+
+
+def _motiv_fara_temei(db: Session, livrabil: Livrabil, cerere: Cerere, temei: Temei | None) -> str | None:
+    """`None` dacă mutarea nu trece printr-o poartă sau are temeiul potrivit; altfel motivul refuzului."""
+    nevoie = STARE_CERERE_NECESARA.get((cerere.din, cerere.la))
+    if nevoie is None:
+        return None
+    unde = f"din „{stari.ETICHETE[cerere.din]}” în „{stari.ETICHETE[cerere.la]}”"
+    if temei is None:
+        return f"mutarea {unde} cere o aprobare (fără aprobare automată)"
+    if temei.tip is TipTemei.AUTONOMIE:
+        return f"mutarea {unde} nu se poate sprijini pe nivelul de autonomie"
+    ap = aprobari_baza.gaseste(db, temei.aprobare_id) if temei.aprobare_id else None
+    if ap is None or ap.livrabil_id != livrabil.id:
+        return f"mutarea {unde}: cererea de aprobare nu aparține acestui livrabil"
+    if ap.versiune != livrabil.versiune:
+        return (
+            f"mutarea {unde}: aprobarea e pentru versiunea {ap.versiune}, "
+            f"iar livrabilul e la versiunea {livrabil.versiune}"
+        )
+    if ap.stare != nevoie.value:
+        return f"mutarea {unde} cere o cerere „{nevoie.value}”, dar cererea e „{ap.stare}”"
+    return None
 
 
 def _limite_configurate() -> limite.Limite:
@@ -626,9 +692,46 @@ def versiune_noua(
             din=curenta,
             la=curenta,
         )
+    veche = aprobari_baza.anuleaza_in_asteptare(db, livrabil.id)
     livrabil.versiune += 1
     livrabil.actualizat_la = func.now()
     db.flush()
+    if veche is not None:
+        audit.record(
+            db,
+            "aprobare.anulata",
+            obiect_tip="aprobare",
+            obiect_id=veche.id,
+            utilizator_id=utilizator_id,
+            tenant_id=veche.tenant_id,
+            actor_tip=None if utilizator_id else "sistem",
+            detalii={
+                "livrabil": livrabil.id,
+                "versiune_veche": veche.versiune,
+                "versiune_noua": livrabil.versiune,
+            },
+        )
+        if curenta == Stare.ASTEAPTA_APROBARE:
+            # Invariant: un livrabil care așteaptă aprobare are o cerere pentru versiunea curentă.
+            # Cererea nouă păstrează decidentul și termenul vechi (termenul nu se prelungește prin editare).
+            nou = aprobari_baza.deschide(
+                db,
+                livrabil,
+                Decident(veche.decident),
+                termen_la=veche.termen_la,
+                reamintire_la=veche.reamintire_la,
+                creat_de=utilizator_id,
+            )
+            audit.record(
+                db,
+                "aprobare.creata",
+                obiect_tip="aprobare",
+                obiect_id=nou.id,
+                utilizator_id=utilizator_id,
+                tenant_id=nou.tenant_id,
+                actor_tip=None if utilizator_id else "sistem",
+                detalii={"livrabil": livrabil.id, "versiune": nou.versiune, "motiv": "versiune nouă"},
+            )
     evenimente.emite(
         db,
         "livrabil.versiune_noua",

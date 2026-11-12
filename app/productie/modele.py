@@ -61,3 +61,25 @@ class Tranzitie(BazaProductie):
     detalii: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     versiune: Mapped[int] = mapped_column(Integer)
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.clock_timestamp())
+
+
+class Aprobare(BazaProductie):
+    """O cerere de aprobare pentru o VERSIUNE a unui livrabil (F2.8). O decizie înregistrată nu se schimbă."""
+
+    __tablename__ = "aprobari"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    versiune: Mapped[int] = mapped_column(Integer)
+    clasa_actiune: Mapped[str] = mapped_column(Text)
+    decident: Mapped[str] = mapped_column(Text)
+    stare: Mapped[str] = mapped_column(Text, default="in_asteptare")
+    termen_la: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    reamintire_la: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    reamintit_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    motiv_cod: Mapped[str | None] = mapped_column(Text)
+    motiv: Mapped[str | None] = mapped_column(Text)
+    decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    decis_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

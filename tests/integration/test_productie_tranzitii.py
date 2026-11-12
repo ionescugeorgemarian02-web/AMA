@@ -9,6 +9,7 @@ from sqlalchemy.exc import DBAPIError
 
 from app import productie
 from app.config import get_settings
+from app.conturi import Rol
 from app.db import sesiune_agentie, sesiune_tenant
 from app.productie import stari
 from app.productie.stari import Stare
@@ -48,29 +49,37 @@ def test_livrabilul_nou_incepe_planificat_cu_buget_si_istoric(
 
 
 def test_drumul_unui_text_pana_la_inchis_scrie_istoricul_in_ordine(
-    tenant: uuid.UUID, admin_engine: Engine
+    tenant: uuid.UUID, om: uuid.UUID, admin_engine: Engine
 ) -> None:
     lid = livrabil(tenant)
-    drum = [
-        Stare.BRIEFAT,
-        Stare.IN_SCRIERE,
-        Stare.IN_VALIDARE,
-        Stare.VALIDAT,
-        Stare.APROBAT,  # aici gardă de aprobare vine în F2.8; în F2.3 tabelul o permite
-        Stare.PROGRAMAT,
-        Stare.IN_PUBLICARE,
-        Stare.PUBLICAT,
-        Stare.IN_MASURARE,
-        Stare.INCHIS,
-    ]
+    pana_la_aprobare = [Stare.BRIEFAT, Stare.IN_SCRIERE, Stare.IN_VALIDARE, Stare.VALIDAT]
+    dupa_aprobare = [Stare.PROGRAMAT, Stare.IN_PUBLICARE, Stare.PUBLICAT, Stare.IN_MASURARE, Stare.INCHIS]
     curenta = Stare.PLANIFICAT
-    for urmatoarea in drum:
+    for urmatoarea in pana_la_aprobare:
         rez = muta(tenant, lid, curenta, urmatoarea, componenta="D5")
         assert rez.aplicat and rez.stare == urmatoarea
         curenta = urmatoarea
+    # poarta de aprobare (F2.8): validat → așteaptă aprobare → aprobat, doar printr-o cerere și o decizie
+    with sesiune_tenant(tenant) as db:
+        cerere = productie.aprobari.cere(db, lid)
+    with sesiune_tenant(tenant, om) as db:
+        productie.aprobari.decide(
+            db, cerere.id, productie.Hotarare.APROBAT, utilizator_id=om, rol=Rol.OPERATOR
+        )
+    curenta = Stare.APROBAT
+    for urmatoarea in dupa_aprobare:
+        assert muta(tenant, lid, curenta, urmatoarea, componenta="H1").aplicat
+        curenta = urmatoarea
     assert stare(tenant, lid) == Stare.INCHIS
     r = randuri(admin_engine, lid)
-    assert [x["in_stare"] for x in r] == ["planificat", *[s.value for s in drum]]
+    asteptat = [
+        "planificat",
+        *[s.value for s in pana_la_aprobare],
+        "asteapta_aprobare",
+        "aprobat",
+        *[s.value for s in dupa_aprobare],
+    ]
+    assert [x["in_stare"] for x in r] == asteptat
     assert all(x["rezultat"] == "aplicata" for x in r)
     assert r[1]["componenta"] == "D5" and r[1]["actor_tip"] == "componenta"
     with admin_engine.connect() as c:
@@ -80,7 +89,7 @@ def test_drumul_unui_text_pana_la_inchis_scrie_istoricul_in_ordine(
             ),
             {"i": str(lid)},
         ).scalar_one()
-    assert n == len(drum), "fiecare tranziție aplicată emite un eveniment (22.1)"
+    assert n == len(asteptat) - 1, "fiecare tranziție aplicată emite un eveniment (22.1)"
 
 
 def test_un_om_apare_in_istoric_cu_numele_lui(tenant: uuid.UUID, om: uuid.UUID, admin_engine: Engine) -> None:

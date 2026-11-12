@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F2.8 — Cererile de aprobare
+- Obiectul de aprobare (client, livrabil și versiunea lui, clasa de acțiune, decident operator/client, termen de 48 h, reamintire la 24 h, stare, decident, moment); decizia se leagă de versiune (o aprobare pe o versiune veche nu aprobă versiunea nouă); poarta „fără aprobare automată” în `productie.muta`; expirare prin jobul programat (o cerere neprimită la timp devine `expirat`, nu se publică); notificări la creare și înainte de termen; punctul minim din panou (listă, „Aprobă”, „Respinge” cu motiv, CSRF, permisiune, audit). Migrarea `0009`.
+
 ### F2.4 — Limite anti-buclă
 - Cel mult 2 runde de reparație (a treia merge la om), cel mult 12 predări, buget per livrabil (apeluri la modele și timp), toate în `productie.muta`/`inregistreaza_consum`; la depășire livrabilul trece în coada de erori cu diagnostic și anunț, iar un om îl reia (`reia_de_om`). Întrerupătorul global (rata de eșec peste 30% pe oră, minim 10 rezultate) oprește producția nouă (`Oprire.PRODUCTIE`, buton în panou și comandă în Telegram); repornirea e doar a omului, auditată. Pragurile se configurează. Migrarea `0008`.
 

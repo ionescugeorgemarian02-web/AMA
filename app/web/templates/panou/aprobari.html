@@ -1,0 +1,52 @@
+{% extends "panou/baza.html" %}
+{% block title %}Aprobări · AMA{% endblock %}
+{% block pagina %}
+<h1>Aprobări</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+<p class="actiuni">
+  <a class="buton {{ 'secundar' if toate else '' }}" href="/aprobari">În așteptare</a>
+  <a class="buton {{ '' if toate else 'secundar' }}" href="/aprobari?stare=toate">Toate</a>
+</p>
+
+{% for r in randuri %}
+{% set a = r.a %}
+<section class="card" aria-labelledby="c-{{ a.id }}">
+  <h2 id="c-{{ a.id }}">{{ r.livrabil.tip }} · {{ r.livrabil.canal }}
+    <span class="insigna {{ 'ok' if a.stare == 'aprobat' else ('pericol' if a.stare in ('respins', 'expirat') else '') }}">{{ etichete_aprobare[a.stare] }}</span></h2>
+  <div class="rand"><span class="eticheta">Versiunea</span><span>{{ a.versiune }}</span></div>
+  <div class="rand"><span class="eticheta">Decide</span><span>{{ etichete_decident[a.decident] }}</span></div>
+  <div class="rand"><span class="eticheta">Termen</span><span>{{ a.termen_la|moment }}</span></div>
+  <div class="rand"><span class="eticheta">Livrabil</span><span>{{ r.stare_livrabil }}</span></div>
+  {% if a.stare == 'respins' %}<p>Motiv: {{ a.motiv }}</p>{% endif %}
+  {% if a.stare == 'in_asteptare' and not r.poate %}
+  <p class="slab">{% if a.decident == 'client' %}Așteaptă decizia clientului.{% else %}Nu ai dreptul să decizi această cerere.{% endif %}</p>
+  {% endif %}
+  {% if r.poate %}
+  <form method="post" action="/aprobari/{{ a.id }}/aproba">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ a.versiune }}">
+    <button type="submit">Aprobă</button>
+  </form>
+  <form method="post" action="/aprobari/{{ a.id }}/respinge">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ a.versiune }}">
+    <label for="ms-{{ a.id }}">Motiv standard</label>
+    <select id="ms-{{ a.id }}" name="motiv_standard">
+      {% for cod, eticheta in motive.items() %}<option value="{{ cod }}">{{ eticheta }}</option>{% endfor %}
+    </select>
+    <label for="m-{{ a.id }}">Motivul tău (obligatoriu)</label>
+    <input type="text" id="m-{{ a.id }}" name="motiv" maxlength="300" minlength="3" required autocomplete="off">
+    <button type="submit" class="secundar">Respinge</button>
+  </form>
+  {% endif %}
+</section>
+{% else %}
+<div class="card gol">
+  <span class="pictograma" aria-hidden="true">✓</span>
+  <p><strong>{{ 'Nicio cerere de aprobare.' if toate else 'Nicio cerere în așteptare.' }}</strong></p>
+  <p class="slab">Livrabilele validate care cer decizia ta apar aici, cu termen. Fără decizie la timp, un livrabil nu se publică.</p>
+</div>
+{% endfor %}
+{% endblock %}

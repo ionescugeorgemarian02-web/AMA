@@ -54,9 +54,11 @@ def test_livrabilul_care_esueaza_mereu_se_opreste_la_limita_si_ajunge_la_om(
     assert anunturi.nivele() == [Nivel.IMPORTANT]
 
 
-def test_livrabilul_cu_o_runda_de_reparatie_trece(executor: None, tenant: uuid.UUID) -> None:
+def test_livrabilul_cu_o_runda_de_reparatie_trece_si_asteapta_aprobarea(
+    executor: None, tenant: uuid.UUID
+) -> None:
     lid = livrabil(tenant)
-    assert ruleaza(tenant, lid, "o_runda") == Stare.VALIDAT.value
+    assert ruleaza(tenant, lid, "o_runda") == Stare.ASTEAPTA_APROBARE.value
     with sesiune_tenant(tenant) as db:
         liv = productie.citeste(db, lid)
         assert liv is not None and (liv.runde_reparatie, liv.escaladari, liv.versiune) == (1, 0, 2)
@@ -93,3 +95,87 @@ def test_productia_oprita_lasa_livrabilul_planificat(
     with sesiune_tenant(tenant) as db:
         liv = productie.citeste(db, lid)
         assert liv is not None and liv.stare == "planificat"
+
+
+# --- aprobare și expirare, cap-coadă pe motorul durabil (F2.8) ----------------------------------------------------
+
+
+def ruleaza_din_nou(tenant: uuid.UUID, lid: uuid.UUID, scenariu: str, eticheta: str) -> str:
+    job = motor.trimite(proba.proba, str(tenant), str(lid), scenariu, cheie=f"proba-{eticheta}-{lid}")
+    assert motor.asteapta_flux(job, timeout_sec=30).stare is motor.StareJob.TERMINAT
+    with sesiune_tenant(tenant) as db:
+        liv = productie.citeste(db, lid)
+        assert liv is not None
+        return liv.stare
+
+
+def aproba_cererea(tenant: uuid.UUID, lid: uuid.UUID, om: uuid.UUID) -> None:
+    from app.conturi import Rol
+    from app.productie import aprobari
+
+    with sesiune_tenant(tenant, om) as db:
+        ap = aprobari.cerere_activa(db, lid)
+        assert ap is not None
+        r = aprobari.decide(db, ap.id, productie.Hotarare.APROBAT, utilizator_id=om, rol=Rol.OPERATOR)
+        assert r.aplicat
+
+
+def test_un_text_aprobat_de_om_parcurge_drumul_pana_la_inchis(
+    executor: None, tenant: uuid.UUID, om: uuid.UUID, admin_engine
+) -> None:  # type: ignore[no-untyped-def]
+    lid = livrabil(tenant)
+    assert ruleaza(tenant, lid, "ok") == Stare.ASTEAPTA_APROBARE.value, "fluxul se oprește și așteaptă un om"
+    aproba_cererea(tenant, lid, om)
+    assert ruleaza_din_nou(tenant, lid, "ok", "dupa") == Stare.INCHIS.value
+    parcurse = [r["in_stare"] for r in randuri(admin_engine, lid) if r["rezultat"] == "aplicata"]
+    assert parcurse == [
+        "planificat",
+        "briefat",
+        "in_scriere",
+        "in_validare",
+        "validat",
+        "asteapta_aprobare",
+        "aprobat",
+        "programat",
+        "in_publicare",
+        "publicat",
+        "in_masurare",
+        "inchis",
+    ]
+
+
+def test_un_video_parcurge_toate_cele_16_stari_normale(
+    executor: None, tenant: uuid.UUID, om: uuid.UUID, admin_engine
+) -> None:  # type: ignore[no-untyped-def]
+    lid = livrabil(tenant, tip="video")
+    assert ruleaza(tenant, lid, "o_runda") == Stare.ASTEAPTA_APROBARE.value
+    aproba_cererea(tenant, lid, om)
+    assert ruleaza_din_nou(tenant, lid, "o_runda", "dupa") == Stare.INCHIS.value
+    parcurse = {r["in_stare"] for r in randuri(admin_engine, lid) if r["rezultat"] == "aplicata"}
+    assert parcurse == {s.value for s in productie.NORMALE}, (
+        "toate cele 16 stări normale, în ordinea din tabel"
+    )
+
+
+def test_aprobarea_neprimita_la_timp_expira_prin_jobul_programat_nu_se_publica(
+    executor: None, tenant: uuid.UUID, admin_engine
+) -> None:  # type: ignore[no-untyped-def]
+    import datetime as dt
+    import time
+
+    from app.productie import fluxuri
+
+    slot = dt.datetime.now(dt.UTC) + dt.timedelta(seconds=2.5)  # slotul de publicare e aproape
+    lid = livrabil(tenant, termen_la=slot)
+    assert ruleaza(tenant, lid, "ok") == Stare.ASTEAPTA_APROBARE.value
+    time.sleep(max(0.0, (slot - dt.datetime.now(dt.UTC)).total_seconds()) + 0.3)  # nimeni nu aprobă
+    job = motor.trimite(fluxuri.tic, dt.datetime.now(dt.UTC), None)
+    assert motor.asteapta_flux(job, timeout_sec=30).stare is motor.StareJob.TERMINAT
+    with sesiune_tenant(tenant) as db:
+        liv = productie.citeste(db, lid)
+        assert liv is not None and liv.stare == "expirat"
+    parcurse = [r["in_stare"] for r in randuri(admin_engine, lid) if r["rezultat"] == "aplicata"]
+    assert parcurse[-2:] == ["asteapta_aprobare", "expirat"]
+    assert not {"aprobat", "programat", "in_publicare", "publicat"} & set(parcurse)
+    # fluxul reluat nu publică nimic: un livrabil expirat nu e „activ”
+    assert ruleaza_din_nou(tenant, lid, "ok", "dupa") == Stare.EXPIRAT.value

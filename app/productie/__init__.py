@@ -8,10 +8,17 @@ Restul aplicației folosește doar ce se exportă aici:
     rez = productie.muta(db, l.id, productie.Stare.PLANIFICAT, productie.Stare.BRIEFAT, componenta="D5")
 """
 
-from app.productie import intrerupator, limite
+from app.productie import aprobari, intrerupator, limite
 from app.productie.bugete import Consum, inregistreaza_consum, poate_consuma
 from app.productie.limite import Depasire, Limite
-from app.productie.modele import Livrabil, Tranzitie
+from app.productie.modele import Aprobare, Livrabil, Tranzitie
+from app.productie.reguli_aprobare import (
+    MOTIVE_RESPINGERE,
+    Decident,
+    Hotarare,
+    StareAprobare,
+    poate_decide,
+)
 from app.productie.stari import (
     ETICHETE,
     EXCEPTII,
@@ -28,6 +35,7 @@ from app.productie.tranzitii import (
     LivrabilInexistent,
     ProductieOprita,
     Rezultat,
+    Temei,
     TranzitieNepermisa,
     TranzitieRefuzata,
     VersiuneNepotrivita,
@@ -42,12 +50,16 @@ from app.productie.tranzitii import (
 __all__ = [
     "ETICHETE",
     "EXCEPTII",
+    "MOTIVE_RESPINGERE",
     "NORMALE",
     "STARI_FINALE",
+    "Aprobare",
     "ConflictStare",
     "Consum",
+    "Decident",
     "Depasire",
     "EroareProductie",
+    "Hotarare",
     "LimitaDepasita",
     "Limite",
     "Livrabil",
@@ -55,10 +67,13 @@ __all__ = [
     "ProductieOprita",
     "Rezultat",
     "Stare",
+    "StareAprobare",
+    "Temei",
     "Tranzitie",
     "TranzitieNepermisa",
     "TranzitieRefuzata",
     "VersiuneNepotrivita",
+    "aprobari",
     "citeste",
     "creeaza",
     "este_permisa",
@@ -69,6 +84,7 @@ __all__ = [
     "motiv_refuz",
     "muta",
     "poate_consuma",
+    "poate_decide",
     "reia_de_om",
     "versiune_noua",
 ]
