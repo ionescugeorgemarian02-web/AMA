@@ -4,6 +4,11 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.2 — Colectorul de surse
+- `app/cercetare`: crawl politicos al site-urilor (robots.txt cu `Crawl-delay`, User-Agent propriu, o cerere odată pe gazdă cu pauză, doar același domeniu înregistrat, sitemap, fără formulare și fără autentificare), cu apărare SSRF (doar http / https, adrese private / loopback / link-local / metadate refuzate la fiecare redirecționare, limită de octeți în flux, tipuri permise) și limite de pagini, adâncime, octeți, timp, capcane de linkuri. Text extras cu parserul din biblioteca standard; originalul pe disc (`AMA_MEDIA_DIR`) cu hash; deduplicare; re-colectare incrementală; flux durabil pe coada `io` cu stare vizibilă (găsite / citite / sărite și de ce).
+- Statutul surselor din 12.1 ca date; materiale manuale (text lipit, `.txt`, `.md`; PDF amânat); `ca_continut_extern` pentru prompturi.
+- Migrarea `0022`: `surse`, `colectari`, `colectari_pagini`, `documente_colectate` (RLS). Setări noi: `AMA_MEDIA_DIR`, `AMA_COLECTOR_USER_AGENT`.
+
 ### F4.1 — Modelul Creierului
 - `app/creier`: cele zece compartimente din 10.1 ca date, intrări cu versiuni (`ciornă → propus → aprobat → retras`), sursă obligatorie, valabilitate, cine și când a aprobat, nivelurile de cunoaștere din 10.2. API: `creeaza_intrare`, `propune_schimbare`, `aproba`, `retrage`, `citeste`, `la_data`, `istoric`, `diferenta_versiuni`.
 - Migrarea `0021` (`creier_intrari`, `creier_versiuni`, RLS): conținutul unei versiuni nu se mai poate schimba (declanșator în bază), cel mult o versiune aprobată pe intrare.
