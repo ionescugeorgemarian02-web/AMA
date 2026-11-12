@@ -92,9 +92,10 @@ def test_bara_de_jos_are_cele_cinci_file_in_ordine_si_marcheaza_pagina_curenta(
     assert html.count('aria-current="page"') == 1 and 'href="/aprobari" aria-current="page"' in html
 
 
-def test_productie_este_stare_goala_onesta(client: TestClient, proprietar: Cont) -> None:
+def test_productie_este_lista_de_livrabile_cu_filtre(client: TestClient, proprietar: Cont) -> None:
+    # F2.9: ecranul nu mai e o stare goală; lista și filtrele au testele lor în test_productie_ecrane.py
     html = client.get("/productie").text
-    assert "Încă nimic aici" in html and "faza F2" in html
+    assert "<h1>Producție</h1>" in html and 'name="stare"' in html and 'name="client"' in html
 
 
 def test_aprobari_fara_cereri_este_stare_goala_onesta(client: TestClient, proprietar: Cont) -> None:
@@ -123,7 +124,9 @@ def test_operatorul_vede_coaja_dar_nu_operare_si_nu_butoanele_de_oprire(
     acasa = client.get("/")
     assert acasa.status_code == 200 and "Doar proprietarul poate folosi butoanele de oprire" in acasa.text
     assert 'action="/opriri/opreste"' not in acasa.text
-    assert "/operare" not in client.get("/meniu").text.replace("/meniu/notificari", "")
+    meniu = client.get("/meniu").text
+    assert 'href="/operare"' not in meniu, "versiunile și backup-ul sunt ale proprietarului"
+    assert 'href="/operare/motor"' in meniu, "motorul (F2.9) îl văd toate rolurile de agenție"
     assert client.get("/operare").status_code == 403
 
 
@@ -137,7 +140,8 @@ def test_acasa_arata_starea_si_spune_ca_steagurile_nu_sunt_citite_inca(
         "Backup",
         "Butoane de oprire",
         "publicare",
-        "doar se înregistrează",
+        "deocamdată le citesc",
+        "executorul de efecte",
     ):
         assert text_.lower() in html.lower(), text_
     assert 'hx-get="/fragment/stare"' in html

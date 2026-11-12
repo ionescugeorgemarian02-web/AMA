@@ -117,6 +117,40 @@ def joburi_in_lucru(limita: int = 300) -> list[DetaliiJob]:
     return joburi_in_stare([StareJob.IN_LUCRU], limita)
 
 
+def joburi_pentru(valori: list[str], limita: int = 500) -> list[DetaliiJob]:
+    """Joburile (cele mai noi `limita`, de orice stare) ai căror argumente conțin vreuna dintre `valori`
+    (identificatori: livrabil, efect). Argumentele fluxurilor sunt doar identificatori (`argumente`), deci o
+    potrivire exactă pe ei găsește jobul unui lucru anume. Apelează-o doar după ce ai verificat că lucrul e
+    vizibil utilizatorului: tabelele motorului nu au izolare pe client."""
+    cautate = set(valori)
+    randuri = client().list_workflows(sort_desc=True, limit=limita, load_output=True)
+    gasite = []
+    for w in randuri:
+        j = _detalii(w)
+        if cautate & (set(j.argumente) | set(j.kwargs.values())):
+            gasite.append(j)
+    return gasite
+
+
+@dataclass(frozen=True)
+class AdancimeCoada:
+    nume: str
+    in_coada: int  # așteaptă un culoar
+    in_lucru: int  # rulează acum
+
+
+def adancime_cozi(limita: int = 5000) -> list[AdancimeCoada]:
+    """Câte joburi așteaptă și câte rulează, pe fiecare coadă (doar cozile cu joburi apar)."""
+    randuri = client().list_workflows(
+        status=["ENQUEUED", "PENDING"], queues_only=True, load_input=False, load_output=False, limit=limita
+    )
+    contor: dict[str, list[int]] = {}
+    for w in randuri:
+        c = contor.setdefault(w.queue_name or "?", [0, 0])
+        c[0 if w.status == "ENQUEUED" else 1] += 1
+    return [AdancimeCoada(n, v[0], v[1]) for n, v in sorted(contor.items())]
+
+
 def pasi_job(id_job: str) -> list[PasJob]:
     pasi = client().list_workflow_steps(id_job, load_output=True)  # eroarea vine odată cu rezultatul
     return [
@@ -193,14 +227,17 @@ def opreste_si_reia(id_job: str) -> None:
 
 
 __all__ = [
+    "AdancimeCoada",
     "DetaliiJob",
     "JobNereluabil",
     "PasJob",
+    "adancime_cozi",
     "anuleaza_job",
     "detalii_job",
     "joburi_esuate",
     "joburi_in_lucru",
     "joburi_in_stare",
+    "joburi_pentru",
     "opreste_si_reia",
     "pas_de_reluare",
     "pasi_job",

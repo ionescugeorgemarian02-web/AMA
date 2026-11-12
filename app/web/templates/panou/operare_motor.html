@@ -1,0 +1,81 @@
+{% extends "panou/baza.html" %}
+{% block title %}Operare: motor · AMA{% endblock %}
+{% block pagina %}
+<h1>Operare: motor</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if este_proprietar %}<p><a href="/operare">Versiuni și backup →</a></p>{% endif %}
+
+{% include "panou/_motor_stare.html" %}
+
+<section class="card" aria-labelledby="t-programari">
+  <h2 id="t-programari">Joburi programate</h2>
+  {% if not programari_ok %}<p class="mesaj atentie" role="status">Programările nu s-au putut citi acum.</p>{% endif %}
+  {% for p in programari %}
+  <div class="rand">
+    <span><code>{{ p.nume }}</code><br>
+      <span class="slab">{{ p.cron }} · {{ p.fus_orar or '–' }} · ultima rulare {{ p.ultima_declansare|moment }}</span><br>
+      <span class="insigna {{ 'ok' if p.stare == 'activa' else 'atentie' }}">{{ 'activă' if p.stare == 'activa' else 'pe pauză' }}</span></span>
+  </div>
+  {% if poate_actiona %}
+  <div class="actiuni">
+    <form method="post" action="/operare/motor/programari/{{ p.nume }}/{{ 'reia' if p.stare != 'activa' else 'pauza' }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit" class="secundar">{{ 'Reia' if p.stare != 'activa' else 'Pauză' }}</button>
+    </form>
+    <form method="post" action="/operare/motor/programari/{{ p.nume }}/ruleaza">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit" class="secundar">Rulează acum</button>
+    </form>
+  </div>
+  {% endif %}
+  {% else %}
+  <p class="slab">Nicio programare în bază încă (se scriu la pornirea workerului).</p>
+  {% endfor %}
+  {% if not poate_actiona %}<p class="slab">Doar proprietarul poate pune pe pauză sau rula o programare.</p>{% endif %}
+</section>
+
+<section class="card" aria-labelledby="t-efecte">
+  <h2 id="t-efecte">Efecte externe</h2>
+  <p class="slab">Publicările cerute și starea lor. Un efect oprit rămâne în așteptare și pleacă după repornire, doar dacă mai e valabil.</p>
+  <div class="rand"><span class="eticheta">Pe stări</span>
+    <span>{% for eticheta, n in efecte_pe_stare %}{{ eticheta }}: {{ n }}{% if not loop.last %} · {% endif %}{% else %}niciun efect{% endfor %}</span></div>
+  {% for p in pauze %}
+  <div class="rand"><span>{{ p.client }} · canal <code>{{ p.p.canal }}</code><br>
+    <span class="insigna atentie">pe pauză: cere reautorizare</span></span>
+    {% if poate_actiona %}
+    <form method="post" action="/operare/motor/conectori/reia">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="tenant_id" value="{{ p.p.tenant_id }}">
+      <input type="hidden" name="canal" value="{{ p.p.canal }}">
+      <button type="submit" class="secundar">Reautorizat, reia</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %}
+  <div class="defilare"><table>
+    <tr><th>Client · canal</th><th>Stare</th><th>Livrabil</th><th>Motiv</th></tr>
+    {% for r in efecte_deschise %}
+    <tr><td>{{ r.client }} · {{ r.e.canal }}</td>
+      <td><span class="insigna {{ 'pericol' if r.e.stare == 'esuat_definitiv' else ('atentie' if r.e.stare != 'in_trimitere' else '') }}">{{ r.eticheta }}</span></td>
+      <td><a href="/productie/{{ r.e.livrabil_id }}">deschide</a></td>
+      <td>{{ r.e.motiv or r.e.eroare_cod or '–' }}</td></tr>
+    {% else %}
+    <tr><td colspan="4" class="slab">Niciun efect în așteptare sau eșuat.</td></tr>
+    {% endfor %}
+  </table></div>
+</section>
+
+<section class="card" aria-labelledby="t-opriri">
+  <h2 id="t-opriri">Întrerupător și opriri</h2>
+  <div class="rand"><span class="eticheta">Întrerupătorul global (producția nouă)</span>
+    {% if intrerupator_oprit %}<span class="insigna pericol">oprit</span>{% else %}<span class="insigna ok">activ</span>{% endif %}</div>
+  {% if intrerupator_oprit and intrerupator_motiv %}<p class="slab">Motiv: {{ intrerupator_motiv }}</p>{% endif %}
+  {% for o in opriri_active %}
+  <div class="rand"><span class="eticheta">{{ o.eticheta }}{% if o.tip == 'client' %} · {{ o.client }}{% endif %}</span><span class="insigna pericol">oprit</span></div>
+  {% else %}
+  <p class="slab">Nicio oprire activă.</p>
+  {% endfor %}
+  <p class="actiuni"><a class="buton secundar" href="/">Butoanele de oprire (Acasă)</a>
+    <a class="buton secundar" href="/alerte">Alerte</a></p>
+</section>
+{% endblock %}

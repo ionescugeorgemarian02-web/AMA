@@ -1,0 +1,129 @@
+{% extends "panou/baza.html" %}
+{% block title %}Livrabil · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/productie">← Producție</a></p>
+<h1>{{ l.tip }} · {{ l.canal }}</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+<section class="card" aria-labelledby="t-rezumat">
+  <h2 id="t-rezumat">Rezumat</h2>
+  <div class="rand"><span class="eticheta">Stare</span><span class="insigna {{ clasa_stare }}">{{ eticheta }}</span></div>
+  <div class="rand"><span class="eticheta">Client</span><span>{{ client }}</span></div>
+  <div class="rand"><span class="eticheta">Versiune</span><span>{{ l.versiune }}</span></div>
+  <div class="rand"><span class="eticheta">Clasa de acțiune</span><code>{{ l.clasa_actiune }}</code></div>
+  <div class="rand"><span class="eticheta">Termen</span><span>{{ l.termen_la|moment }}</span></div>
+  <div class="rand"><span class="eticheta">Identificator</span><code>{{ l.id }}</code></div>
+  {% if l.stare_anterioara %}<div class="rand"><span class="eticheta">Înainte de excepție</span><span>{{ etichete_stari[l.stare_anterioara] }}</span></div>{% endif %}
+</section>
+
+<section class="card" aria-labelledby="t-limite">
+  <h2 id="t-limite">Contoare și limite</h2>
+  <div class="rand"><span class="eticheta">Runde de reparație</span><span>{{ l.runde_reparatie }} / {{ contoare.runde_reparatie }}</span></div>
+  <div class="rand"><span class="eticheta">Predări</span><span>{{ l.predari }} / {{ contoare.predari }}</span></div>
+  <div class="rand"><span class="eticheta">Apeluri la modele</span><span>{{ l.apeluri_llm }} / {{ l.buget_apeluri_llm }}</span></div>
+  <div class="rand"><span class="eticheta">Timp de lucru</span><span>{{ l.timp_sec|round(1) }} / {{ l.buget_timp_sec }} s</span></div>
+  <div class="rand"><span class="eticheta">Escaladări la om</span><span>{{ l.escaladari }}</span></div>
+</section>
+
+<section class="card" aria-labelledby="t-tranzitii">
+  <h2 id="t-tranzitii">Istoricul mutărilor</h2>
+  <p class="slab">Inclusiv mutările refuzate: fiecare rămâne înregistrată.</p>
+  <div class="defilare"><table>
+    <tr><th>Când</th><th>Din → în</th><th>Cine</th><th>Motiv</th></tr>
+    {% for t in tranzitii %}
+    <tr><td>{{ t.creat_la|moment }}</td>
+      <td>{% if t.din %}{{ etichete_stari[t.din] }}{% else %}–{% endif %} → {{ etichete_stari[t.in_stare] }}
+        {% if t.rezultat == 'refuzata' %}<span class="insigna pericol">refuzată</span>{% endif %}
+        <br><span class="slab">v{{ t.versiune }}</span></td>
+      <td>{{ t.componenta }}{% if t.actor_tip == 'utilizator' %} <span class="slab">(om)</span>{% endif %}</td>
+      <td>{{ t.motiv or '–' }}</td></tr>
+    {% endfor %}
+  </table></div>
+</section>
+
+<section class="card" aria-labelledby="t-pasi">
+  <h2 id="t-pasi">Pașii fluxului durabil</h2>
+  {% if not motor_ok %}<p class="mesaj atentie" role="status">Motorul nu a răspuns; pașii nu se pot citi acum.</p>{% endif %}
+  {% for j in joburi[:6] %}
+  <h3>{{ j.nume }} <span class="insigna {{ clasa_job.get(j.stare.value, '') }}">{{ etichete_job[j.stare.value] }}</span></h3>
+  <p class="slab"><code>{{ j.id }}</code> · coada {{ j.coada or '–' }} · {{ j.creat_la|moment }}{% if j.recuperari > 1 %} · reluat după {{ j.recuperari - 1 }} căderi{% endif %}</p>
+  {% if j.eroare_tip %}<p>Eroare: <code>{{ j.eroare_tip }}</code> {{ j.eroare_mesaj }}</p>{% endif %}
+  <div class="defilare"><table>
+    <tr><th>#</th><th>Pas</th><th>Stare</th><th>Durată</th><th>Eroare</th></tr>
+    {% for p in pasi.get(j.id, []) %}
+    <tr><td>{{ p.nr }}</td><td><code>{{ p.nume }}</code></td>
+      <td><span class="insigna {{ 'ok' if p.stare == 'ok' else 'pericol' }}">{{ p.stare }}</span></td>
+      <td>{{ p.durata }}</td><td>{{ p.eroare }}</td></tr>
+    {% else %}
+    <tr><td colspan="5" class="slab">Niciun pas înregistrat.</td></tr>
+    {% endfor %}
+  </table></div>
+  {% else %}
+  {% if motor_ok %}<p class="slab">Niciun job durabil legat de acest livrabil în ultimele joburi.</p>{% endif %}
+  {% endfor %}
+</section>
+
+<section class="card" aria-labelledby="t-aprobari">
+  <h2 id="t-aprobari">Cererile de aprobare</h2>
+  {% for a in cereri %}
+  <div class="rand"><span>Versiunea {{ a.versiune }} · decide {{ etichete_decident[a.decident] }}<br>
+    <span class="slab">termen {{ a.termen_la|moment }}{% if a.motiv %} · motiv: {{ a.motiv }}{% endif %}</span></span>
+    <span class="insigna {{ 'ok' if a.stare == 'aprobat' else ('pericol' if a.stare in ('respins', 'expirat') else '') }}">{{ etichete_aprobare[a.stare] }}</span></div>
+  {% else %}<p class="slab">Nicio cerere de aprobare (încă, sau nu a fost nevoie).</p>{% endfor %}
+</section>
+
+<section class="card" aria-labelledby="t-efecte">
+  <h2 id="t-efecte">Efectele externe</h2>
+  {% if canal_pe_pauza %}<p class="mesaj atentie" role="status">Canalul este pe pauză: cere reautorizare.</p>{% endif %}
+  {% for e in efecte %}
+  <div class="rand"><span>{{ e.tip }} pe {{ e.canal }} · v{{ e.versiune }} · {{ e.incercari }} încercări<br>
+    <span class="slab">{% if e.id_extern %}id la platformă <code>{{ e.id_extern }}</code>{% if e.link %} · <a href="{{ e.link }}" rel="noopener noreferrer">link</a>{% endif %}{% endif %}
+    {% if e.eroare_cod %}eroare <code>{{ e.eroare_cod }}</code>{% endif %}{% if e.motiv %} {{ e.motiv }}{% endif %}</span></span>
+    <span class="insigna {{ clasa_efect.get(e.stare, '') }}">{{ etichete_efect[e.stare] }}</span></div>
+  {% else %}<p class="slab">Niciun efect extern cerut încă.</p>{% endfor %}
+</section>
+
+{% if poate_edita %}
+<section class="card" aria-labelledby="t-actiuni">
+  <h2 id="t-actiuni">Ce faci</h2>
+  {% if poate_reia_de_om %}
+  <form method="post" action="/productie/{{ l.id }}/reia">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="ce" value="livrabil">
+    <label for="m-reia">Motivul reluării (rămâne în audit)</label>
+    <input type="text" id="m-reia" name="motiv" maxlength="300" minlength="3" required autocomplete="off">
+    <p class="slab">Livrabilul revine unde era; rundele de reparație și predările se resetează, iar bugetul crește cu unul implicit. Un efect extern eșuat revine în așteptare (înainte de trimitere se verifică la platformă).</p>
+    <button type="submit">Reia livrabilul</button>
+  </form>
+  {% endif %}
+  {% for j in de_reluat %}
+  <form method="post" action="/productie/{{ l.id }}/reia">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="ce" value="job">
+    <input type="hidden" name="job" value="{{ j.id }}">
+    <label for="p-{{ loop.index }}">Reia jobul <code>{{ j.nume }}</code> de la pasul</label>
+    <select id="p-{{ loop.index }}" name="de_la_pas">
+      <option value="">primul pas eșuat (implicit)</option>
+      {% for p in pasi.get(j.id, []) %}<option value="{{ p.nr }}">{{ p.nr }} · {{ p.nume }}</option>{% endfor %}
+    </select>
+    <label for="mj-{{ loop.index }}">Motivul reluării (rămâne în audit)</label>
+    <input type="text" id="mj-{{ loop.index }}" name="motiv" maxlength="300" minlength="3" required autocomplete="off">
+    <p class="slab">Pașii deja încheiați nu se repetă. Efectele externe au chei de idempotență.</p>
+    <button type="submit">Reia pasul eșuat</button>
+  </form>
+  {% endfor %}
+  {% if poate_anula %}
+  <form method="post" action="/productie/{{ l.id }}/anuleaza">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="m-anuleaza">Motivul anulării (rămâne în audit)</label>
+    <input type="text" id="m-anuleaza" name="motiv" maxlength="300" minlength="3" required autocomplete="off">
+    <button type="submit" class="pericol">Anulează livrabilul</button>
+  </form>
+  {% endif %}
+  {% if not poate_reia_de_om and not de_reluat and not poate_anula %}<p class="slab">Nimic de făcut din starea aceasta.</p>{% endif %}
+</section>
+{% else %}
+<p class="slab">Doar proprietarul și operatorul pot relua sau anula livrabile.</p>
+{% endif %}
+{% endblock %}

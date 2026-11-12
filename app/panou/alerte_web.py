@@ -115,14 +115,15 @@ def reia(
     i = _intrare(db, id_intrare)
     if i.stare == Stare.INCHISA.value:
         return _randeaza_detaliu(request, u, db, i, status=409, eroare="Intrarea este închisă.")
-    if i.context.get("tip_sursa") == "livrabil":
+    if i.context.get("tip_sursa") in ("livrabil", "efect"):
         return _randeaza_detaliu(
             request,
             u,
             db,
             i,
             status=409,
-            eroare="Nu este un job de reluat: un livrabil oprit la o limită îl reia un om din Producție.",
+            eroare="Nu este un job de reluat: un livrabil oprit la o limită sau un efect extern eșuat "
+            "îl reia un om din Producție.",
         )
     pas: int | None = None
     if de_la_pas.strip():

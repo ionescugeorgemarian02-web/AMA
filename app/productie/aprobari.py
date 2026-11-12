@@ -114,6 +114,22 @@ def listeaza(
     return [(a, liv) for a, liv in db.execute(q).all()]
 
 
+def ale_livrabilului(db: Session, livrabil_id: uuid.UUID) -> list[Aprobare]:
+    """Toate cererile unui livrabil (urma lui, 18.4), cele mai vechi primele."""
+    return list(
+        db.execute(
+            select(Aprobare).where(Aprobare.livrabil_id == livrabil_id).order_by(Aprobare.creat_la)
+        ).scalars()
+    )
+
+
+def anuleaza_cererea_in_asteptare(db: Session, livrabil_id: uuid.UUID) -> Aprobare | None:
+    """Livrabilul a fost anulat: cererea lui în așteptare (dacă are una) devine `anulat`, ca să nu mai
+    apară la
+    aprobări."""
+    return aprobari_baza.anuleaza_in_asteptare(db, livrabil_id)
+
+
 def numar_in_asteptare(db: Session) -> int:
     return int(
         db.execute(

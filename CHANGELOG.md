@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F2.9 — Ecranele Producție și Operare
+- Producție: lista livrabilelor (filtre pe client, stare și excepții, paginare) și „urma” fiecăruia: mutările inclusiv refuzurile, pașii fluxului durabil cu stare, durată și eroare, cererile de aprobare, efectele externe, contoarele de limite. Acțiuni cu CSRF, permisiune, motiv și audit: reia livrabilul din coada de erori (și efectul extern eșuat), reia un pas eșuat, anulează. Operare, motorul: workerii și cozile (adâncime, în lucru), joburile programate (pauză, reluare, „rulează acum”), efectele în așteptare sau oprite și canalele pe pauză, întrerupătorul și opririle. Un operator vede doar clientul la care are acces.
+
 ### F2.5 — Executorul de efecte externe
 - Outbox tranzacțional (`efecte_de_trimis`): efectul se scrie în aceeași tranzacție cu mutarea care îl cere, cu cheie de idempotență unică (client, livrabil, canal, versiune, tip); a doua cerere întoarce primul rând. Fluxul durabil `efecte.executa` îl trimite pe coada canalului; o încercare notează `în trimitere` înainte de conector și rezultatul după, iar după orice eroare sau rezultat necunoscut începe cu `verifica` (7.3). Erori clasificate (7.5): temporare cu pauză crescătoare, autentificare cu pauză pe conector și alertă de reautorizare, definitive în coada de erori. Oprirea globală a publicării și oprirea pe client se verifică chiar înainte de trimitere; efectul rămâne în așteptare și pleacă după repornire doar dacă mai e valabil. Contractul și registrul conectorilor (`app/connectors`), conector fals în teste, garda `scripts/check_efecte.py`. Migrarea `0011`.
 

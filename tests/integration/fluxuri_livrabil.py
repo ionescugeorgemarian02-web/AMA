@@ -13,6 +13,7 @@ livrabilul unde l-a lăsat. Scenarii (al treilea argument al fluxului):
   se depășește la prima reparație).
 """
 
+import os
 import tempfile
 import time
 import uuid
@@ -60,6 +61,19 @@ def _conector_fals(canal: str) -> None:
 
 
 # plasă de siguranță: un flux de probă nu se rotește la nesfârșit
+
+
+def _blocaj(stare: Stare) -> None:
+    """SIMULAT: punct de oprire pentru testele de avarie. Dacă `AMA_PROBA_DIR` e setat și există fișierul
+    `blocheaza.<stare>`, pasul notează `ajuns.<stare>` și așteaptă să dispară fișierul (testul omoară workerul aici)."""
+    director = os.environ.get("AMA_PROBA_DIR")
+    if not director:
+        return
+    blocaj = Path(director) / f"blocheaza.{stare.value}"
+    if blocaj.exists():
+        (Path(director) / f"ajuns.{stare.value}").touch()
+        while blocaj.exists():
+            time.sleep(0.02)
 
 
 def _trece_validarea(scenariu: str, runde_reparatie: int) -> bool:
@@ -130,6 +144,7 @@ def _urmatorul(db, livrabil, stare: Stare, scenariu: str) -> Stare | str:  # typ
         # SIMULAT: un video trece prin randare și controlul media; un text merge direct la programare
         return muta(Stare.IN_RANDARE if livrabil.tip == "video" else Stare.PROGRAMAT, "H1")
     if stare == Stare.IN_RANDARE:
+        _blocaj(stare)
         return muta(Stare.CONTROL_MEDIA, "F3")  # SIMULAT: nicio randare reală
     if stare == Stare.CONTROL_MEDIA:
         return muta(Stare.GATA, "G5")  # SIMULAT: nicio verificare reală
@@ -175,3 +190,37 @@ def proba(tenant_id: str, livrabil_id: str, scenariu: str) -> str:
         if stare not in {s.value for s in ACTIVE}:
             break
     return stare
+
+
+# --- un flux cu un pas care poate fi stricat (F2.9: „reia din panou un pas eșuat”) ---------------------------------
+
+FRAGIL = {"esueaza": False}  # SIMULAT: testul decide dacă pasul B cade
+APELURI_FRAGIL: list[str] = []
+
+
+@motor.pas("proba.fragil_a")
+def fragil_a(tenant_id: str, livrabil_id: str) -> str:
+    APELURI_FRAGIL.append("a")
+    return "a"
+
+
+@motor.pas("proba.fragil_b")
+def fragil_b(tenant_id: str, livrabil_id: str) -> str:
+    APELURI_FRAGIL.append("b")
+    if FRAGIL["esueaza"]:
+        raise motor.EroareDefinitiva("SIMULAT: pasul B a căzut")
+    return "b"
+
+
+@motor.pas("proba.fragil_c")
+def fragil_c(tenant_id: str, livrabil_id: str) -> str:
+    APELURI_FRAGIL.append("c")
+    return "c"
+
+
+@motor.flux("proba.fragil")
+def fragil(tenant_id: str, livrabil_id: str) -> str:
+    """SIMULAT: trei pași; al doilea poate cădea. Un job eșuat se reia din panou de la pasul B."""
+    return (
+        fragil_a(tenant_id, livrabil_id) + fragil_b(tenant_id, livrabil_id) + fragil_c(tenant_id, livrabil_id)
+    )

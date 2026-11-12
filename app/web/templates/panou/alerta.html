@@ -26,7 +26,19 @@
   {% endif %}
 </section>
 
-{% if intrare.context.get('tip_sursa') == 'livrabil' %}
+{% if intrare.context.get('tip_sursa') == 'efect' %}
+{% set d = intrare.context %}
+<section class="card" aria-labelledby="t-efect">
+  <h2 id="t-efect">Diagnostic: efect extern eșuat</h2>
+  <div class="rand"><span class="eticheta">Efect</span><code>{{ d.tip }}</code></div>
+  <div class="rand"><span class="eticheta">Canal</span><span>{{ d.canal }} · versiunea {{ d.versiune }}</span></div>
+  <div class="rand"><span class="eticheta">Încercări</span><span>{{ d.incercari }}</span></div>
+  <div class="rand"><span class="eticheta">Eroare</span><code>{{ d.eroare_tip }}</code></div>
+  <p>{{ d.eroare_mesaj }}</p>
+  <p><a href="/productie/{{ d.livrabil_id }}">Deschide urma livrabilului în Producție →</a></p>
+  <p class="slab">Un om reia livrabilul din Producție (efectul revine în așteptare; înainte de trimitere se verifică la platformă) sau îl anulează. Aici poți închide intrarea cu un motiv.</p>
+</section>
+{% elif intrare.context.get('tip_sursa') == 'livrabil' %}
 {% set d = intrare.context %}
 <section class="card" aria-labelledby="t-diagnostic">
   <h2 id="t-diagnostic">Diagnostic: livrabil oprit la o limită</h2>
@@ -51,6 +63,7 @@
       <td>{{ t.componenta }}</td><td>{{ t.motiv }}</td></tr>
     {% endfor %}
   </table></div>
+  <p><a href="/productie/{{ d.livrabil_id }}">Deschide urma livrabilului în Producție →</a></p>
   <p class="slab">Un om reia livrabilul din Producție (primește rânduri noi de reparație, predări și buget) sau îl anulează. Aici poți închide intrarea cu un motiv.</p>
 </section>
 {% else %}
@@ -89,7 +102,7 @@
 {% if poate_gestiona and intrare.stare != 'inchisa' %}
 <section class="card" aria-labelledby="t-actiuni">
   <h2 id="t-actiuni">Ce faci</h2>
-  {% if intrare.context.get('tip_sursa') != 'livrabil' %}
+  {% if intrare.context.get('tip_sursa') not in ('livrabil', 'efect') %}
   <form method="post" action="/alerte/{{ intrare.id }}/reia">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     {% if intrare.stare_job == 'esuat' %}

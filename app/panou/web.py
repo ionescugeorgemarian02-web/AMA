@@ -104,19 +104,6 @@ def fragment_stare(request: Request, u: Agentie, db: DbSession) -> Response:
     return pagina(request, u, "panou/_stare.html", tab="acasa", **_stare_sistem(db, u))
 
 
-@router.get("/productie")
-def productie(request: Request, u: Agentie) -> Response:
-    return pagina(
-        request,
-        u,
-        "panou/gol.html",
-        tab="productie",
-        titlu="Producție",
-        pictograma="⚙",
-        text="Aici vei vedea fiecare livrabil pe etape, cu timpi și reîncercări.",
-    )
-
-
 @router.get("/meniu")
 def meniu(request: Request, u: Agentie) -> Response:
     return pagina(request, u, "panou/meniu.html", tab="meniu")
