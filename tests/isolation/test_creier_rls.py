@@ -16,13 +16,18 @@ from tests.isolation.conftest import Date
 pytestmark = [pytest.mark.db, pytest.mark.isolation]
 
 
+def fapt(afirmatie: str) -> dict[str, str]:
+    """Conținut valid pentru `registru_fapte` (schema din F4.6: tip, subiect și afirmație atomică)."""
+    return {"tip": "altul", "subiect": "Probă de izolare", "afirmatie": afirmatie}
+
+
 @pytest.fixture
 def intrari(date: Date) -> dict[str, uuid.UUID]:
     ids: dict[str, uuid.UUID] = {}
     for cheie, tenant, user in (("a", date.a, date.user_a), ("b", date.b, date.user_b)):
         with sesiune(ContextDb(tenant_id=tenant, user_id=user)) as db:
             i, _ = creier.creeaza_intrare(
-                db, tenant_id=tenant, compartiment=Compartiment.REGISTRU_FAPTE, continut={"afirmatie": cheie},
+                db, tenant_id=tenant, compartiment=Compartiment.REGISTRU_FAPTE, continut=fapt(f"Afirmația clientului {cheie}"),
                 sursa=Sursa(SursaTip.DECLARATIE_CLIENT), utilizator_id=user,
             )  # fmt: skip
             ids[cheie] = i.id
@@ -61,7 +66,7 @@ def test_clientul_nu_poate_scrie_pe_numele_altuia_nici_la_nivel_de_nisa(
     ctx_a = ContextDb(tenant_id=date.a, user_id=date.user_a)
     with pytest.raises(DBAPIError), sesiune(ctx_a) as db:  # intrare pe clientul B
         creier.creeaza_intrare(
-            db, tenant_id=date.b, compartiment=Compartiment.REGISTRU_FAPTE, continut={"afirmatie": "x"},
+            db, tenant_id=date.b, compartiment=Compartiment.REGISTRU_FAPTE, continut=fapt("Afirmație scrisă pe numele altuia"),
             sursa=Sursa(SursaTip.OM), utilizator_id=date.user_a,
         )  # fmt: skip
     with (
@@ -76,7 +81,7 @@ def test_clientul_nu_poate_scrie_pe_numele_altuia_nici_la_nivel_de_nisa(
         creier.propune_schimbare(
             db,
             intrari["b"],
-            continut={"afirmatie": "furat"},
+            continut=fapt("Afirmație furată de la alt client"),
             sursa=Sursa(SursaTip.OM),
             utilizator_id=date.user_a,
         )

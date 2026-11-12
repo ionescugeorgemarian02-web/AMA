@@ -71,7 +71,7 @@ PAGINI: dict[str, tuple[str, list[str]]] = {
         [
             "Cafenea și prăjitorie: strada Lungă nr. 14, Brașov. Program: luni–vineri 07:30–19:00, sâmbătă "
             "09:00–17:00, duminică închis. În zilele de sărbătoare legală cafeneaua este închisă.",
-            "Telefon comenzi: 0268 555 0100, de luni până vineri între 09:00 și 17:00. Email: "
+            "Telefon comenzi: 0700 000 000, de luni până vineri între 09:00 și 17:00. Email: "
             "comenzi@cafeneaua-zorilor.example. Răspundem la mesaje în maximum o zi lucrătoare.",
             "Parcare: în fața cafenelei există patru locuri cu plată. Cel mai apropiat acces cu transport public "
             "este stația Livada, la două minute pe jos.",
@@ -141,7 +141,7 @@ INTREBARI: list[tuple[str, str, str]] = [
     ("Pot returna un pachet deschis?", "/livrare", "pachetele deschise"),
     ("Puteți plăti ramburs la curier?", "/livrare", "ramburs la curier"),
     ("Care este programul cafenelei sâmbăta?", "/contact", "duminică închis"),
-    ("La ce telefon pot da o comandă?", "/contact", "0268 555 0100"),
+    ("La ce telefon pot da o comandă?", "/contact", "0700 000 000"),
     ("Unde pot parca lângă cafenea?", "/contact", "patru locuri"),
     ("Când este degustarea gratuită și cât durează?", "/workshopuri", "prima sâmbătă a lunii începe"),
     ("Cât costă workshopul de preparare acasă?", "/workshopuri", "120 lei de persoană"),

@@ -1,4 +1,4 @@
-"""Tabelele Creierului (migrările 0021 și 0023). Cheile străine există în bază, nu se declară aici."""
+"""Tabelele Creierului (migrările 0021, 0023 și 0024). Cheile străine există în bază, nu se declară aici."""
 
 import uuid
 from datetime import datetime
@@ -79,4 +79,20 @@ class Pasaj(BazaCreier):
     compartiment: Mapped[str | None] = mapped_column(Text)
     model_vectori: Mapped[str | None] = mapped_column(Text)
     vectorizat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Extragere(BazaCreier):
+    """Un pasaj extras cu o versiune de prompt: câte fapte a dat și ce a respins verificatorul de citate."""
+
+    __tablename__ = "creier_extrageri"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    pasaj_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    document_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    prompt: Mapped[str] = mapped_column(Text)
+    propuse: Mapped[int] = mapped_column(Integer, default=0)
+    duplicate: Mapped[int] = mapped_column(Integer, default=0)
+    respinse: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    model: Mapped[str | None] = mapped_column(Text)
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.panou.alerte_web import router as router_alerte
 from app.panou.aprobari_web import router as router_aprobari
+from app.panou.creier_web import router as router_creier
 from app.panou.gateway_web import router as router_gateway
 from app.panou.motor_web import router as router_motor
 from app.panou.operare_web import router as router_operare
@@ -38,6 +39,7 @@ def inregistreaza(app: FastAPI) -> None:
     app.include_router(router_alerte)
     app.include_router(router_aprobari)
     app.include_router(router_gateway)
+    app.include_router(router_creier)
 
 
 __all__ = ["STATIC", "inregistreaza"]

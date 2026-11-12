@@ -1,0 +1,54 @@
+{% extends "panou/baza.html" %}
+{% block title %}Fapte de aprobat · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/meniu">← Meniu</a></p>
+<h1>Fapte de aprobat</h1>
+<p class="slab">Doar un fapt aprobat de un om intră în context. Fiecare propunere arată sursa și citatul exact din material.</p>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+<form method="get" action="/creier/fapte" class="actiuni">
+  <label for="f-client">Client</label>
+  <select id="f-client" name="client">
+    <option value="">toți</option>
+    {% for c in clienti %}<option value="{{ c.id }}" {{ 'selected' if client_ales == c.id|string else '' }}>{{ c.nume }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="secundar">Filtrează</button>
+</form>
+
+{% for r in randuri %}
+{% set f = r.f %}
+<section class="card" aria-labelledby="f-{{ f.intrare_id }}">
+  <h2 id="f-{{ f.intrare_id }}">{{ r.tip }} · {{ f.subiect }} <span class="insigna">propus</span></h2>
+  <p>{{ f.afirmatie }}</p>
+  <div class="rand"><span class="eticheta">Client</span><span>{{ r.client }}</span></div>
+  {% if r.valoare %}<div class="rand"><span class="eticheta">Valoare</span><span>{{ r.valoare }}</span></div>{% endif %}
+  <div class="rand"><span class="eticheta">Sursa</span><span>{{ f.sursa_tip }}{% if f.sursa_detalii.get('url') %} · {{ f.sursa_detalii.get('url') }}{% endif %}{% if f.sursa_detalii.get('pozitie') is not none %} · pasajul {{ f.sursa_detalii.get('pozitie') + 1 }}{% endif %}</span></div>
+  {% if f.sursa_citat %}<blockquote class="slab">„{{ f.sursa_citat }}”</blockquote>{% endif %}
+  <div class="rand"><span class="eticheta">Valabil</span><span>{% if f.valabil_de_la %}de la {{ f.valabil_de_la|moment }} {% endif %}{% if f.valabil_pana_la %}până la {{ f.valabil_pana_la|moment }}{% elif not f.valabil_de_la %}fără dată de expirare{% endif %}</span></div>
+  <div class="rand"><span class="eticheta">Propus</span><span>{{ f.creat_la|moment }} · versiunea {{ f.versiune }}</span></div>
+  {% if poate_edita %}
+  <form method="post" action="/creier/fapte/{{ f.intrare_id }}/aproba">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ f.versiune }}">
+    <button type="submit">Aprobă</button>
+  </form>
+  <form method="post" action="/creier/fapte/{{ f.intrare_id }}/respinge">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ f.versiune }}">
+    <label for="m-{{ f.intrare_id }}">Motivul respingerii (obligatoriu)</label>
+    <input type="text" id="m-{{ f.intrare_id }}" name="motiv" maxlength="300" minlength="3" required autocomplete="off">
+    <button type="submit" class="secundar">Respinge</button>
+  </form>
+  {% else %}
+  <p class="slab">Doar proprietarul poate aproba sau respinge faptele.</p>
+  {% endif %}
+</section>
+{% else %}
+<div class="card gol">
+  <span class="pictograma" aria-hidden="true">✓</span>
+  <p><strong>Niciun fapt de aprobat.</strong></p>
+  <p class="slab">Faptele extrase din materialele clienților apar aici, cu sursa lor, până le aprobă un om.</p>
+</div>
+{% endfor %}
+{% endblock %}

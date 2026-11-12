@@ -26,7 +26,9 @@ Materialele clientului devin pasaje cu vectori și se caută hibrid (F4.3):
 
 import uuid
 
+from app.creier import fapte, oferte
 from app.creier.cautare import CautareRefuzata, Raspuns, Rezultat, cauta
+from app.creier.citat import citat_in_text, verifica_propunere
 from app.creier.compartimente import (
     COMPARTIMENTE,
     CauzaRetragere,
@@ -51,7 +53,7 @@ from app.creier.indexare import (
     vectorizeaza_lot,
 )
 from app.creier.indexare import stare as stare_indexare
-from app.creier.modele import IntrareCreier, Pasaj, VersiuneCreier
+from app.creier.modele import Extragere, IntrareCreier, Pasaj, VersiuneCreier
 from app.creier.versiuni import (
     EroareCreier,
     IntrareInexistenta,
@@ -83,6 +85,13 @@ def trimite_indexarea(tenant_id: uuid.UUID, sursa_id: uuid.UUID, *, cheie: str) 
     return fluxuri.trimite(tenant_id, sursa_id, cheie=cheie)
 
 
+def trimite_extragerea(tenant_id: uuid.UUID, sursa_id: uuid.UUID, *, cheie: str) -> str:
+    """Pune în coadă extragerea faptelor dintr-o sursă (propuneri verificate; aprobarea o dă un om)."""
+    from app.creier import fluxuri
+
+    return fluxuri.trimite_extragerea(tenant_id, sursa_id, cheie=cheie)
+
+
 def trimite_reindexarea(tenant_id: uuid.UUID, *, cheie: str) -> list[str]:
     """După schimbarea modelului de vectori: re-vectorizează pasajele cu vectori vechi ale clientului."""
     from app.creier import fluxuri
@@ -98,6 +107,7 @@ __all__ = [
     "ContinutInvalid",
     "DimensiuneNepotrivita",
     "EroareCreier",
+    "Extragere",
     "Fel",
     "InfoCompartiment",
     "IntrareCreier",
@@ -118,11 +128,13 @@ __all__ = [
     "VersiuneInexistenta",
     "aproba",
     "cauta",
+    "citat_in_text",
     "citeste",
     "creeaza_intrare",
     "diferenta",
     "diferenta_versiuni",
     "dimensiune_coloana",
+    "fapte",
     "gaseste_intrare",
     "inregistreaza_schema",
     "intrare",
@@ -130,16 +142,19 @@ __all__ = [
     "la_data",
     "lista",
     "numara_de_vectorizat",
+    "oferte",
     "pregateste_sursa",
     "propune_schimbare",
     "retrage",
     "stare_indexare",
     "surse_de_vectorizat",
+    "trimite_extragerea",
     "trimite_indexarea",
     "trimite_reindexarea",
     "trimite_spre_aprobare",
     "valideaza_continut",
     "vectorizeaza_lot",
+    "verifica_propunere",
     "versiune_aprobata",
     "versiuni_de_expirat",
 ]

@@ -226,7 +226,7 @@ def test_fara_model_de_vectori_cautarea_continua_pe_text_si_spune_ca_e_degradata
     assert (
         r.degradat
         and r.rezultate
-        and "0268 555 0100" in r.rezultate[0].text
+        and "0700 000 000" in r.rezultate[0].text
         and r.motiv.startswith("fără vectori")
     )
 

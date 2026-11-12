@@ -112,7 +112,7 @@ class SiteFals:
                 "/blog/metode-de-preparare", "/intrebari-frecvente", "/privat/oferta-secreta", "/vechi", "/copie", "/mare",
                 "/infinit", "/calendar?luna=1", "/a/a/a/a/a", "/login", "/brosura.pdf", "/poza.jpg", "/fara-text",
                 "/noindex", "/injectie", "/spre-extern", "/bucla", "/spre-metadata", "/eroare",
-                "http://alt-domeniu.test/pagina", "mailto:comenzi@cafeneaua-zorilor.example", "tel:+40268555010",
+                "http://alt-domeniu.test/pagina", "mailto:comenzi@cafeneaua-zorilor.example", "tel:+40700000000",
             ]  # fmt: skip
             corp = (
                 '<html lang="ro"><head><title>Cafeneaua Zorilor</title></head><body><main><h1>Cafea de specialitate din '

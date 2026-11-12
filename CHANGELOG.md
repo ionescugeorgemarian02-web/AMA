@@ -4,6 +4,11 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.6 — Registrul de fapte și catalogul de oferte
+- Fapte (tip, afirmație atomică, valoare structurată cu număr exact, sursă obligatorie: pasaj / document / URL / declarația clientului, stare propus / aprobat / respins / expirat, valabilitate, cine a aprobat) și catalog de oferte (preț, monedă, condiții, valabilitate, legate de fapte), peste depozitul versionat. Singura citire pentru context, `pentru_context`, întoarce doar ce a aprobat un om și e valabil la data cerută; o gardă statică o impune și constructorului de context.
+- Extragere din materiale ca flux durabil: pasajele trec prin gateway cu schemă strictă (`prompts/creier.extrage_fapte.v1.md`), fiecare fapt păstrează citatul exact, iar un verificator determinist respinge propunerile al căror citat nu apare literal în pasaj sau ale căror cifre nu apar în citat. Expirare automată (job zilnic) cu anunț; punct minim în panou (`/creier/fapte`: aprobă / respinge cu CSRF, permisiune, audit).
+- Migrarea `0024` (`creier_extrageri`, RLS). `Dockerfile`: `COPY prompts`.
+
 ### F4.3 — Vectori și căutare hibridă
 - Materialele colectate se taie în pasaje (paragrafe întregi, suprapunere, legătură pasaj → document → sursă → URL / poziție), se vectorizează în loturi prin gateway (flux durabil `creier.indexeaza_sursa`, cu reprogramare la `Amanat`; pornește singur după fiecare colectare) și se caută hibrid: vectori (pgvector) + text fără diacritice + trigrame, combinate prin fuziune de ranguri, cu filtrare pe client (RLS) și opțional pe sursă / compartiment. Fiecare vector poartă modelul care l-a produs: la schimbarea modelului pasajele se re-vectorizează.
 - Migrarea `0023` (`pasaje`, RLS). Gateway: `vectorizeaza_cu_model`, `model_vectori`. Setări: `AMA_VECTORI_PREFIX_PASAJ`, `AMA_VECTORI_PREFIX_INTREBARE`.
