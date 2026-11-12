@@ -1,7 +1,7 @@
 {% extends "panou/baza.html" %}
 {% block title %}Onboarding {{ client.nume }} · AMA{% endblock %}
 {% block pagina %}
-<p><a href="/onboarding">← Onboarding</a> · <a href="/creier/client/{{ client.id }}">Creierul de brand</a></p>
+<p><a href="/onboarding">← Onboarding</a> · <a href="/onboarding/{{ client.id }}/ghid">Ghid de brand</a> · <a href="/creier/client/{{ client.id }}">Creierul de brand</a></p>
 <h1>Onboarding · {{ client.nume }}</h1>
 {% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
 {% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}

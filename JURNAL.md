@@ -280,4 +280,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri: poarta de aprobare e a COMPARTIMENTULUI (în `creier.versiuni`), nu a ecranului, ca niciun serviciu să nu poată ocoli completitudinea; trei compartimente noi în loc de tabele paralele; clarificarea cade pe șablonul din interviu dacă gateway-ul nu răspunde; câmpul respins de verificator cade pe răspunsul clientului, nu rămâne gol.
   - Găsit: auditul refuză cheia `cod`; cheia de idempotență a jobului trebuie să fie unică pe sesiune în teste; o valoare repetată „Nu știu” după clarificări trebuia tratată ca substitut.
   - NEVERIFICAT: orice model real.
+- **F4.5 — Profilul de brand.**
+  - Construit: `app/onboarding/ghid.py`, migrarea `0027`, promptul de ton, fluxul `onboarding.propune_ton`, ecranul ghidului, randarea ghidului în pachetul de context, `docs/specs/F4.5.md`.
+  - Hotărâri: verificările unei variante sunt deterministe și separate de schemă (canale, vocabular interzis în exemple, suprapuneri); o variantă care pică îi ia modelului TOT rezultatul (nicio variantă salvată), nu doar variantei greșite; alegerea creează o versiune nouă a intrării, aprobarea e pasul separat al unui om; randarea ghidului întoarce `None` pentru profiluri vechi.
+  - Găsit: `context.construieste` cu `la` implicit (acum, la secundă) nu vede o aprobare făcută în aceeași secundă; testele dau `la` explicit.
+  - NEVERIFICAT: model real; aprobarea reală pentru CariereAI / BigBrain.
 

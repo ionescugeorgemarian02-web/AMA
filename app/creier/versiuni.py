@@ -401,6 +401,8 @@ def aproba(
     v = citeste(db, intrare_id, versiune)
     if v.stare != Stare.PROPUS.value:
         raise TranzitieNepermisa(f"doar o versiune propusă se aprobă (versiunea {versiune} e „{v.stare}”)")
+    if prin_sistem and cmp.cere_om(Compartiment(i.compartiment), v.continut):
+        raise RegulaCreier(f"„{info.nume}”: această intrare se aprobă doar de un om")
     _poarta(db, i.tenant_id, Compartiment(i.compartiment), v.continut)
     for veche in istoric(db, intrare_id):
         if veche.nr < v.nr and veche.stare in (Stare.APROBAT.value, Stare.PROPUS.value, Stare.CIORNA.value):

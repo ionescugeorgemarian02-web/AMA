@@ -65,3 +65,30 @@ def test_tabelele_onboardingului_au_rls_activ_si_fortat(admin_engine: Engine) ->
         ).all()
     assert rows and all(r[1] and r[2] for r in rows)
     _ = uuid
+
+
+def test_variantele_de_ton_se_vad_doar_la_clientul_lor(date: Date) -> None:
+    ids = {}
+    with sesiune(ContextDb(agency=True)) as db:
+        for cheie, tenant in (("a", date.a), ("b", date.b)):
+            ids[cheie] = new_id()
+            db.execute(
+                text(
+                    "INSERT INTO onboarding_variante_ton (id, tenant_id, grup_id, nr, continut, prompt) "
+                    "VALUES (:i, :t, :g, 1, '{}', 'p@1')"
+                ),
+                {"i": ids[cheie], "t": tenant, "g": new_id()},
+            )
+    with sesiune(ContextDb(tenant_id=date.a, user_id=date.user_a)) as db:
+        vazute = {r[0] for r in db.execute(text("SELECT id FROM onboarding_variante_ton"))}
+        assert ids["a"] in vazute and ids["b"] not in vazute
+        assert (
+            db.execute(
+                text("UPDATE onboarding_variante_ton SET ales = true WHERE id = :i"), {"i": ids["b"]}
+            ).rowcount
+            == 0
+        )
+        with pytest.raises(DBAPIError), db.begin_nested():
+            db.execute(
+                text("DELETE FROM onboarding_variante_ton WHERE id = :i"), {"i": ids["a"]}
+            )  # fără DELETE

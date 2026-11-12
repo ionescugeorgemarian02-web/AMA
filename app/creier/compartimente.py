@@ -222,7 +222,8 @@ class PoartaInchisa(ValueError):
 
 
 _POARTA: dict[Compartiment, Callable[[Any, uuid.UUID | None, dict[str, Any]], list[str]]] = {}
-_RANDARE: dict[Compartiment, Callable[[dict[str, Any]], str]] = {}
+_RANDARE: dict[Compartiment, Callable[[dict[str, Any]], str | None]] = {}
+_CERE_OM: dict[Compartiment, Callable[[dict[str, Any]], bool]] = {}
 
 
 def inregistreaza_poarta(
@@ -243,13 +244,29 @@ def probleme_poarta(
     return f(db, tenant_id, continut) if f else []
 
 
-def inregistreaza_randare(compartiment: Compartiment, randeaza: Callable[[dict[str, Any]], str]) -> None:
-    """Cum se scrie conținutul unui compartiment în pachetul de context (altfel, `citire.text_intrare`)."""
+def inregistreaza_randare(
+    compartiment: Compartiment, randeaza: Callable[[dict[str, Any]], str | None]
+) -> None:
+    """Cum se scrie conținutul unui compartiment în pachetul de context. Întoarce `None` pentru un
+    conținut pe care
+    nu îl cunoaște: atunci se folosește randarea implicită (`citire.text_intrare`)."""
     _RANDARE[compartiment] = randeaza
 
 
-def randare(compartiment: Compartiment) -> Callable[[dict[str, Any]], str] | None:
+def randare(compartiment: Compartiment) -> Callable[[dict[str, Any]], str | None] | None:
     return _RANDARE.get(compartiment)
+
+
+def inregistreaza_cere_om(compartiment: Compartiment, cere: Callable[[dict[str, Any]], bool]) -> None:
+    """Într-un compartiment cu aprobare automată, anumite intrări (profilul de public, brieful de
+    insight) le aprobă
+    totuși doar un om: `cere(continut)` întoarce `True` pentru ele."""
+    _CERE_OM[compartiment] = cere
+
+
+def cere_om(compartiment: Compartiment, continut: dict[str, Any]) -> bool:
+    f = _CERE_OM.get(compartiment)
+    return bool(f and f(continut))
 
 
 def schema(compartiment: Compartiment) -> type[BaseModel] | None:

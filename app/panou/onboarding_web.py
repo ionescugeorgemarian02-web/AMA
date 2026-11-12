@@ -25,7 +25,7 @@ from app.conturi import (
     require_role,
 )
 from app.conturi.roluri import ROLURI_AGENTIE
-from app.onboarding import brief, interviu, sesiuni
+from app.onboarding import brief, ghid, interviu, sesiuni
 from app.panou.sabloane import pagina
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
@@ -38,6 +38,8 @@ MESAJE = {
     "compune": "Brieful se compune din răspunsuri și materiale. Reîncarcă pagina peste câteva secunde.",
     "camp": "Câmpul a fost actualizat.",
     "trimis": "Brieful a fost trimis spre aprobare în Creierul de brand.",
+    "ton_pornit": "Variantele de ton se pregătesc. Reîncarcă pagina peste câteva secunde.",
+    "ghid_propus": "Ghidul de brand a fost propus. Îl aprobi în Creierul de brand.",
 }
 
 
@@ -182,3 +184,63 @@ def trimite(request: Request, u: PoateCompleta, db: DbSession, client_id: str) -
     except onboarding.EroareOnboarding as exc:
         return _pagina(request, u, db, client_id, status=409, eroare=str(exc))
     return RedirectResponse(f"/onboarding/{c.id}?mesaj=trimis", status_code=303)
+
+
+# --- ghidul de brand (F4.5)
+
+
+def _pagina_ghid(
+    request: Request, u: SesiuneCurenta, db: DbSession, client_id: str, *, status: int = 200, **extra: object
+) -> Response:
+    c = _client(db, client_id)
+    brief_ok = True
+    try:
+        onboarding.completare.brief_aprobat(db, c.id)
+    except creier.RegulaCreier:
+        brief_ok = False
+    intrare = creier.gaseste_intrare(
+        db, tenant_id=c.id, compartiment=creier.Compartiment.PROFIL_BRAND, cheie=ghid.CHEIE_GHID
+    )
+    return pagina(
+        request, u, "panou/onboarding_ghid.html", tab="meniu", status=status, client=c,
+        variante=ghid.variante(db, c.id), brief_ok=brief_ok, intrare=intrare, parti=ghid.PARTI,
+        poate_completa=poate(u.rol, Permisiune.ONBOARDING_COMPLETEAZA), **extra,
+    )  # fmt: skip
+
+
+@router.get("/{client_id}/ghid")
+def ghid_vezi(request: Request, u: Agentie, db: DbSession, client_id: str, mesaj: str = "") -> Response:
+    return _pagina_ghid(request, u, db, client_id, mesaj=MESAJE.get(mesaj, ""))
+
+
+@router.post("/{client_id}/ghid/propune", dependencies=[Depends(csrf_protect)])
+def ghid_propune(request: Request, u: PoateCompleta, db: DbSession, client_id: str) -> Response:
+    c = _client(db, client_id)
+    try:
+        onboarding.completare.brief_aprobat(db, c.id)
+    except creier.RegulaCreier as exc:
+        return _pagina_ghid(request, u, db, client_id, status=409, eroare=str(exc))
+    tenant = c.id
+    db.commit()
+    onboarding.fluxuri.trimite_propunerea_de_ton(
+        tenant, u.utilizator_id, cheie=f"ton:{tenant}:{uuid.uuid4().hex[:8]}"
+    )
+    return RedirectResponse(f"/onboarding/{c.id}/ghid?mesaj=ton_pornit", status_code=303)
+
+
+@router.post("/{client_id}/ghid/alege", dependencies=[Depends(csrf_protect)])
+async def ghid_alege(request: Request, u: PoateCompleta, db: DbSession, client_id: str) -> Response:
+    c = _client(db, client_id)
+    form = await request.form()
+    try:
+        if form.get("varianta"):
+            ghid.alege(db, c.id, utilizator_id=u.utilizator_id, varianta=int(str(form["varianta"])))
+        else:
+            ghid.alege(
+                db, c.id, utilizator_id=u.utilizator_id,
+                combina={p: int(str(form.get(f"parte_{p}", ""))) for p in ghid.PARTI},
+            )  # fmt: skip
+    except (ValueError, creier.RegulaCreier, ghid.VariantaInvalida) as exc:
+        db.rollback()
+        return _pagina_ghid(request, u, db, client_id, status=422, eroare=f"Nu s-a putut salva ghidul: {exc}")
+    return RedirectResponse(f"/onboarding/{c.id}/ghid?mesaj=ghid_propus", status_code=303)

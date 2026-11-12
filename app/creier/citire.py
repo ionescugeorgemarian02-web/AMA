@@ -60,7 +60,8 @@ def text_intrare(continut: dict[str, Any]) -> str:
 
 def _text(compartiment: Compartiment, continut: dict[str, Any]) -> str:
     randeaza = randare(compartiment)
-    return randeaza(continut) if randeaza else text_intrare(continut)
+    randat = randeaza(continut) if randeaza else None
+    return randat if randat is not None else text_intrare(continut)
 
 
 def pentru_context(

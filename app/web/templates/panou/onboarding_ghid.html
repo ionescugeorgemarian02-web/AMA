@@ -1,0 +1,58 @@
+{% extends "panou/baza.html" %}
+{% block title %}Ghid de brand {{ client.nume }} · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/onboarding/{{ client.id }}">← Onboarding</a> · <a href="/creier/client/{{ client.id }}">Creierul de brand</a></p>
+<h1>Ghid de brand · {{ client.nume }}</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab">Din brief și materiale, trei variante de ton. Alegi una, o combini sau o corectezi; apoi ghidul se aprobă în Creierul de brand și intră în contextul fiecărei sarcini.</p>
+
+{% if not brief_ok %}
+<div class="mesaj atentie" role="status">Brieful nu este aprobat încă. Aprobă brieful în <a href="/creier/client/{{ client.id }}/brief">Creierul de brand</a>, apoi revino.</div>
+{% elif poate_completa %}
+<form method="post" action="/onboarding/{{ client.id }}/ghid/propune">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <button type="submit">{% if variante %}Propune alte variante{% else %}Propune variante de ton{% endif %}</button>
+</form>
+{% endif %}
+
+{% for v in variante %}
+{% set c = v.continut %}
+<section class="card" aria-labelledby="v-{{ v.nr }}">
+  <h2 id="v-{{ v.nr }}">Varianta {{ v.nr }} · {{ c.nume }}{% if v.ales %} <span class="insigna ok">aleasă</span>{% endif %}</h2>
+  <p>{{ c.descriere }}</p>
+  <p><strong>Da:</strong></p>
+  <ul>{% for r in c.reguli_da %}<li>{{ r }}</li>{% endfor %}</ul>
+  <p><strong>Nu:</strong></p>
+  <ul>{% for r in c.reguli_nu %}<li>{{ r }}</li>{% endfor %}</ul>
+  <p><strong>Vocabular preferat:</strong> {{ c.vocabular_preferat|join(', ') }}</p>
+  <p><strong>Vocabular interzis:</strong> {{ c.vocabular_interzis|join(', ') }}</p>
+  <p><strong>Exemple:</strong></p>
+  {% for e in c.exemple %}<blockquote class="slab"><em>{{ e.canal }}</em> · {{ e.text }}</blockquote>{% endfor %}
+  {% if poate_completa %}
+  <form method="post" action="/onboarding/{{ client.id }}/ghid/alege">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="varianta" value="{{ v.nr }}">
+    <button type="submit">Alege varianta {{ v.nr }}</button>
+  </form>
+  {% endif %}
+</section>
+{% endfor %}
+
+{% if variante and poate_completa %}
+<section class="card" aria-labelledby="comb">
+  <h2 id="comb">Combină variantele</h2>
+  <form method="post" action="/onboarding/{{ client.id }}/ghid/alege">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% for p in parti %}
+    <label for="parte_{{ p }}">{{ p|capitalize }} din varianta</label>
+    <select id="parte_{{ p }}" name="parte_{{ p }}">{% for v in variante %}<option value="{{ v.nr }}">{{ v.nr }} · {{ v.continut.nume }}</option>{% endfor %}</select>
+    {% endfor %}
+    <button type="submit" class="secundar">Salvează combinația</button>
+  </form>
+  <p class="slab">Pentru corecturi de text, deschide propunerea în Creierul de brand și editeaz-o (se creează o versiune nouă).</p>
+</section>
+{% endif %}
+
+{% if intrare %}<p><a href="/creier/intrare/{{ intrare.id }}">Vezi ghidul în Creierul de brand ›</a></p>{% endif %}
+{% endblock %}

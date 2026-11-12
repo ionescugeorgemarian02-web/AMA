@@ -11,7 +11,7 @@ pieței și prima strategie, toate scrise în Creierul de brand (versionat, apro
     onboarding.completare.trimite_spre_aprobare(db, s.id, utilizator_id=u)   # doar un brief complet
 """
 
-from app.onboarding import brief, clarificare, completare, fluxuri, interviu, sesiuni
+from app.onboarding import brief, clarificare, completare, fluxuri, ghid, interviu, sesiuni
 from app.onboarding.sesiuni import EroareOnboarding, SesiuneInchisa
 
 __all__ = [
@@ -21,6 +21,7 @@ __all__ = [
     "clarificare",
     "completare",
     "fluxuri",
+    "ghid",
     "interviu",
     "sesiuni",
 ]

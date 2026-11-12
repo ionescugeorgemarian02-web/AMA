@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.5 — Profilul de brand
+- Trei variante de ton propuse prin gateway din brieful aprobat și din materiale (descriere, reguli da / nu, vocabular preferat / interzis, ≥ 3 exemple pe ≥ 3 canale, fără vocabular interzis în exemple — verificate determinist); omul alege, combină sau corectează (versiune nouă, nu suprascriere); ghidul aprobat intră în `profil_brand` și este preluat de constructorul de context. Migrarea `0027`, ecranul `/onboarding/{client}/ghid`.
+- Creier: randare pe compartiment (`inregistreaza_randare`) și intrări aprobate doar de om într-un compartiment cu aprobare automată (`inregistreaza_cere_om`).
+
 ### F4.4 — Asistentul de onboarding
 - Interviul din 19.3 ca date (5 secțiuni, 11 întrebări), sesiune persistentă și reluabilă (`onboarding_sesiuni`, `onboarding_intrebari`, migrarea `0026`), întrebări de clarificare generate prin gateway și limitate (2 pe întrebare, 6 pe sesiune), brief cu 11 câmpuri obligatorii (schemă Pydantic) compus ca flux durabil din răspunsuri + materialele colectate, cu sursă și citat verificat literal pe fiecare câmp.
 - Poarta de aprobare a Creierului (`creier.inregistreaza_poarta`): un brief cu câmpuri goale nu poate deveni „propus” sau „aprobat” pe nicio cale. Compartimente noi `brief`, `insight_piata`, `strategie` (DECIZII D-005). Permisiunea `onboarding.completeaza` (operator, proprietar). Ecranul `/onboarding`.

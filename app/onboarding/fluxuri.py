@@ -12,7 +12,7 @@ from sqlalchemy import update
 
 from app import gateway
 from app.db import sesiune_tenant
-from app.onboarding import completare
+from app.onboarding import completare, ghid
 from app.onboarding.modele import Sesiune
 from app.operare import motor
 from app.operare.motor import Coada, Prioritate
@@ -69,3 +69,45 @@ def trimite_compunerea(
         compune_brief, str(tenant_id), str(sesiune_id), str(utilizator_id), coada=Coada.IO,
         prioritate=Prioritate.P2, cheie=cheie,
     )  # fmt: skip
+
+
+# --- propunerea de ton pentru ghidul de brand (F4.5)
+
+NUME_TON = "onboarding.propune_ton"
+
+
+@motor.pas(nume="onboarding.propune_ton_pas", reincercari=1)
+def _propune_ton(tenant_id: str, utilizator_id: str) -> str:
+    """`gata`, `amanat:<moment ISO>` sau `refuzat:variante_invalide` (verificările deterministe pică)."""
+    try:
+        with sesiune_tenant(uuid.UUID(tenant_id)) as db:
+            ghid.propune_variante(db, tenant_id=uuid.UUID(tenant_id), utilizator_id=uuid.UUID(utilizator_id))
+    except gateway.Amanat as amanat:
+        return f"amanat:{amanat.pana_la.isoformat()}"
+    except ghid.VariantaInvalida:
+        return "refuzat:variante_invalide"
+    return "gata"
+
+
+@motor.flux(NUME_TON, timp_maxim_sec=600)
+def propune_ton(tenant_id: str, utilizator_id: str) -> str:
+    r = _propune_ton(tenant_id, utilizator_id)
+    if r.startswith("amanat:"):
+        gateway.reprogrameaza(
+            gateway.Amanat(dt.datetime.fromisoformat(r.split(":", 1)[1]), "ton"),
+            propune_ton,
+            tenant_id,
+            utilizator_id,
+            cheie=f"ton:{tenant_id}:reluare",
+            coada=Coada.IO,
+            prioritate=Prioritate.P2,
+        )
+        return "amanat"
+    return r
+
+
+def trimite_propunerea_de_ton(tenant_id: uuid.UUID, utilizator_id: uuid.UUID, *, cheie: str) -> str:
+    """Pune în coadă propunerea celor trei variante de ton (idempotent pe `cheie`)."""
+    return motor.trimite(
+        propune_ton, str(tenant_id), str(utilizator_id), coada=Coada.IO, prioritate=Prioritate.P2, cheie=cheie
+    )
