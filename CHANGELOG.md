@@ -4,6 +4,12 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F4.7 — Constructorul de context
+- Pachetul de context al unei sarcini (client, tip, canal, întrebare, livrabil): reguli și interdicții (obligatorii), fapte aprobate și valabile relevante (doar prin `fapte.pentru_context`), oferte valabile, ghidul de brand aprobat (lipsa lui e spusă explicit) și pasaje din materialele clientului prin căutarea hibridă (doar din surse reutilizabile; în prompt doar marcate ca externe). Fiecare element poartă identificatorul și versiunea sursei.
+- Buget de tokeni cu priorități între secțiuni și trunchiere deterministă (un element intră întreg sau deloc; regulile intră mereu); aceleași intrări dau aceeași amprentă.
+- Pachetul se salvează (`pachete_context`, migrarea `0025`, RLS, doar adăugări) și se leagă de livrabil: apare în secțiunea „Pachetul de context” de pe `/productie/{id}`.
+- Corecție la F4.6: valoarea numerică a unui fapt nu se mai stochează în notație științifică (`50` devenea „5E+1”). `cautare.cauta` primește `surse=[…]`.
+
 ### F4.6 — Registrul de fapte și catalogul de oferte
 - Fapte (tip, afirmație atomică, valoare structurată cu număr exact, sursă obligatorie: pasaj / document / URL / declarația clientului, stare propus / aprobat / respins / expirat, valabilitate, cine a aprobat) și catalog de oferte (preț, monedă, condiții, valabilitate, legate de fapte), peste depozitul versionat. Singura citire pentru context, `pentru_context`, întoarce doar ce a aprobat un om și e valabil la data cerută; o gardă statică o impune și constructorului de context.
 - Extragere din materiale ca flux durabil: pasajele trec prin gateway cu schemă strictă (`prompts/creier.extrage_fapte.v1.md`), fiecare fapt păstrează citatul exact, iar un verificator determinist respinge propunerile al căror citat nu apare literal în pasaj sau ale căror cifre nu apar în citat. Expirare automată (job zilnic) cu anunț; punct minim în panou (`/creier/fapte`: aprobă / respinge cu CSRF, permisiune, audit).

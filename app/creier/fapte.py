@@ -84,7 +84,12 @@ class Valoare(BaseModel):
     @field_validator("numar")
     @classmethod
     def _canonic(cls, n: Decimal | None) -> Decimal | None:
-        return None if n is None else n.normalize()
+        if n is None:
+            return None
+        n = n.normalize()
+        exponent = n.as_tuple().exponent
+        # fără notația științifică („5E+1” în loc de „50”): numărul ajunge în prompturi și în ecrane, ca text
+        return n.quantize(Decimal(1)) if isinstance(exponent, int) and exponent > 0 else n
 
 
 class ContinutFapt(BaseModel):

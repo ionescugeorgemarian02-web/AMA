@@ -22,11 +22,17 @@ Materialele clientului devin pasaje cu vectori și se caută hibrid (F4.3):
     r.rezultate[0].text, .url, .pozitie, .scor; r.degradat  # `True` dacă vectorii nu s-au putut folosi
     creier.trimite_reindexarea(tenant_id, cheie="reindexare:model-nou")  # după schimbarea modelului de
     vectori
+
+Pachetul de context al unei sarcini (F4.7, 10.3): reguli, fapte aprobate și valabile, oferte, ghid, pasaje:
+
+    p = creier.context.construieste(db, tenant_id=t, tip_sarcina="postare_facebook", canal="facebook",
+                                    intrebare="…", livrabil_id=l)   # se salvează și se leagă de livrabil
+    creier.context.ca_text(p)   # text de prompt; pasajele doar prin `gateway.marcheaza_extern`
 """
 
 import uuid
 
-from app.creier import fapte, oferte
+from app.creier import context, fapte, oferte
 from app.creier.cautare import CautareRefuzata, Raspuns, Rezultat, cauta
 from app.creier.citat import citat_in_text, verifica_propunere
 from app.creier.compartimente import (
@@ -54,6 +60,7 @@ from app.creier.indexare import (
 )
 from app.creier.indexare import stare as stare_indexare
 from app.creier.modele import Extragere, IntrareCreier, Pasaj, VersiuneCreier
+from app.creier.pachete import Element, PachetContext
 from app.creier.versiuni import (
     EroareCreier,
     IntrareInexistenta,
@@ -106,6 +113,7 @@ __all__ = [
     "Compartiment",
     "ContinutInvalid",
     "DimensiuneNepotrivita",
+    "Element",
     "EroareCreier",
     "Extragere",
     "Fel",
@@ -113,6 +121,7 @@ __all__ = [
     "IntrareCreier",
     "IntrareInexistenta",
     "Nivel",
+    "PachetContext",
     "Parametri",
     "Pasaj",
     "Raspuns",
@@ -130,6 +139,7 @@ __all__ = [
     "cauta",
     "citat_in_text",
     "citeste",
+    "context",
     "creeaza_intrare",
     "diferenta",
     "diferenta_versiuni",

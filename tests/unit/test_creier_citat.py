@@ -97,3 +97,17 @@ def _fapt(**kw: object) -> FaptExtras:
 )  # fmt: skip
 def test_validarea_unei_propuneri_a_modelului(campuri: dict[str, object], motiv: str | None) -> None:
     assert valideaza_propunere(_fapt(**campuri), PASAJ) == motiv
+
+
+@pytest.mark.parametrize(
+    ("scris", "asteptat"),
+    [("50", "50"), ("1138.50", "1138.5"), ("100", "100"), ("0.5", "0.5"), ("49.00", "49")],
+)
+def test_numarul_unui_fapt_se_stocheaza_fara_notatie_stiintifica(scris: str, asteptat: str) -> None:
+    """Regresie F4.7: `Decimal("50").normalize()` se serializa „5E+1”, iar cifra greșită ajungea în pachetul de context."""
+    from app.creier.fapte import ContinutFapt
+
+    f = ContinutFapt.model_validate(
+        {"tip": "pret", "subiect": "Test", "afirmatie": "Prețul de probă", "valoare": {"numar": scris}}
+    )
+    assert f.model_dump(mode="json")["valoare"]["numar"] == asteptat

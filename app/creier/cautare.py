@@ -16,6 +16,7 @@ server căzut), căutarea continuă doar pe canalele de text și spune că e `de
 """
 
 import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from sqlalchemy import text
@@ -45,6 +46,7 @@ class Rezultat:
     url: str | None
     titlu: str
     pozitie: int
+    versiune_document: int
     car_inceput: int
     car_sfarsit: int
     text: str
@@ -77,6 +79,7 @@ def cauta(
     intrebare: str,
     limita: int = 8,
     sursa_id: uuid.UUID | None = None,
+    surse: Sequence[uuid.UUID] | None = None,
     compartiment: str | None = None,
     vector_intrebare: list[float] | None = None,
     model_vector: str | None = None,
@@ -97,6 +100,9 @@ def cauta(
     if sursa_id is not None:
         filtre += " AND p.sursa_id = :sursa"
         parametri["sursa"] = sursa_id
+    if surse is not None:
+        filtre += " AND p.sursa_id = ANY(CAST(:surse AS uuid[]))"
+        parametri["surse"] = list(surse)
     if compartiment is not None:
         filtre += " AND p.compartiment = :comp"
         parametri["comp"] = compartiment
@@ -173,8 +179,8 @@ def cauta(
         str(r.id): r
         for r in db.execute(
             text(
-                "SELECT p.id, p.document_id, p.sursa_id, d.url, d.titlu, p.pozitie, p.car_inceput, "
-                "p.car_sfarsit, p.text "
+                "SELECT p.id, p.document_id, p.sursa_id, d.url, d.titlu, p.pozitie, d.versiune, "
+                "p.car_inceput, p.car_sfarsit, p.text "
                 "FROM pasaje p JOIN documente_colectate d ON d.id = p.document_id "
                 "WHERE p.tenant_id = :t AND p.id = ANY(CAST(:ids AS uuid[]))"
             ),
@@ -194,6 +200,7 @@ def cauta(
                 url=d.url,
                 titlu=d.titlu,
                 pozitie=d.pozitie,
+                versiune_document=d.versiune,
                 car_inceput=d.car_inceput,
                 car_sfarsit=d.car_sfarsit,
                 text=d.text,
