@@ -92,8 +92,8 @@ def test_bara_de_jos_are_cele_cinci_file_in_ordine_si_marcheaza_pagina_curenta(
     assert html.count('aria-current="page"') == 1 and 'href="/aprobari" aria-current="page"' in html
 
 
-@pytest.mark.parametrize("cale", ["/aprobari", "/productie", "/alerte"])
-def test_aprobari_productie_alerte_sunt_stari_goale_oneste(
+@pytest.mark.parametrize("cale", ["/aprobari", "/productie"])
+def test_aprobari_si_productie_sunt_stari_goale_oneste(
     client: TestClient, proprietar: Cont, cale: str
 ) -> None:
     html = client.get(cale).text

@@ -20,6 +20,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F2.1 Execuția durabilă | verificat local cu Postgres real și procese reale (SIGKILL, SIGTERM); imaginea și politica de restart din compose rămân la CI/migrare | `tests/chaos/test_recuperare.py`, `tests/integration/test_motor_executie.py`, `scripts/check_motor.py` |
 | F2.2 Cozile | verificat local (executor în proces, Postgres real); mai mulți workeri și ferestre lungi de rată rămân la migrare | `tests/integration/test_motor_cozi.py`, `tests/unit/test_motor_cozi.py` |
 | F2.6 Planificatorul de timp | verificat local (timp real cu cron de o secundă, ceas controlat, SIGKILL); „la minut pe staging” rămâne la migrare | `tests/integration/test_motor_programare.py`, `tests/chaos/test_programare.py` |
+| F2.7 Watchdog și coada de erori | verificat local cu procese reale (SIGKILL cu supervizor simulat, job care strică workerul), Postgres real și ecranul în teste HTTP; politica de restart/healthcheck din compose și canalele de notificare rămân la migrare | `tests/chaos/test_watchdog.py`, `tests/integration/test_watchdog.py`, `tests/integration/test_alerte_panou.py`, `tests/isolation/test_motor_rls.py` |
 
 ## De verificat la migrarea pe VPS
 
@@ -33,3 +34,4 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F2.1: serviciul `worker` din compose pe un VPS real (politica `restart: unless-stopped` după o cădere reală, `stop_grace_period`); mutarea workerului de către deployer-ul real; limita de memorie a workerului sub joburi reale; numărul de conexiuni la Postgres sub încărcare; promovarea `AMA_MOTOR_VERSIUNE` la un flux modificat cu joburi în lucru.
 - F2.2: numărul real de culoare grele (`AMA_CULOARE_GREU`) pentru nucleele VPS-ului; două procese worker pe aceleași cozi (limita globală); ferestre de rată de ordinul orelor.
 - F2.6: un job programat cu cron de minut rulează la minut pe staging, ore întregi; comportamentul cu doi workeri; ora României peste trecerea la ora de vară (martie), pe date reale.
+- F2.7: `restart: unless-stopped` pe worker după un SIGKILL real (Docker) și healthcheck-ul `python -m app.worker --verifica` (un container `unhealthy` nu se repornește singur: de decis un sidecar); notificările push/Telegram la repornire repetată, job blocat și cauză care crește, trimise pe canalele reale; prag de 3 căderi/oră, 5 intrări/cauză și timp maxim de 1800 s calibrate pe date reale; observator extern pentru cazul „niciun worker nu rulează”; scanarea cu mii de joburi în `dbos.workflow_status` (retenție).

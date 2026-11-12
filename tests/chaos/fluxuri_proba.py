@@ -122,3 +122,16 @@ def tic_chaos(moment: "datetime.datetime", context: dict[str, str] | None) -> No
 
 if os.environ.get("AMA_PROBA_PROGRAMARE"):  # programarea de probă o declară doar testele care o cer
     motor.programeaza_recurent("proba.tic_chaos", "* * * * * *", tic_chaos, recupereaza_ratate=True)
+
+
+@motor.pas("proba.otrava")
+def otrava(job: str) -> str:
+    noteaza(f"{job}.otrava")
+    os._exit(
+        9
+    )  # imită o cădere de proces (memorie epuizată, bibliotecă nativă): fără curățare, fără excepție
+
+
+@motor.flux("proba.otravit", recuperari_max=1)
+def otravit(job: str) -> str:
+    return otrava(job)

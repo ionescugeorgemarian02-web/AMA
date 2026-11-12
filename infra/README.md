@@ -24,7 +24,7 @@ Limitele rezervate vin din tabelul 6.4 (24 GB, 8 nuclee). Totalul curent (proxy 
 
 | Serviciu | Rol | Limită de memorie | Faza |
 | --- | --- | --- | --- |
-| worker-light | Apeluri LLM, conectori, validatori ușori, embeddings (24 joburi). Din F2.1 există serviciul `worker` (`python -m app.worker`, `restart: unless-stopped`, mutat de deployer odată cu aplicația); celelalte capabilități se adaugă în F3 | 2 GB | F2.1 |
+| worker-light | Apeluri LLM, conectori, validatori ușori, embeddings (24 joburi). Din F2.1 există serviciul `worker` (`python -m app.worker`, `restart: unless-stopped`, mutat de deployer odată cu aplicația, cu healthcheck `python -m app.worker --verifica`); celelalte capabilități se adaugă în F3 | 2 GB | F2.1 |
 | worker-heavy | Randare, voce, transcriere, OCR (2 culoare grele) | 5 GB | F3 |
 | local-llm | Model local de text, încărcat permanent | 6,5 GB | F3.5 |
 | browser | Chromium headless, 3 pagini în paralel | 1,5 GB | F4 |

@@ -1,0 +1,85 @@
+{% extends "panou/baza.html" %}
+{% block title %}Alertă · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/alerte">← Alerte</a></p>
+<h1>{{ intrare.flux }}</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+<section class="card" aria-labelledby="t-rezumat">
+  <h2 id="t-rezumat">Rezumat</h2>
+  <div class="rand"><span class="eticheta">Severitate</span>
+    <span class="insigna {{ clasa_severitate[intrare.severitate] }}">{{ etichete_severitate[intrare.severitate] }}</span></div>
+  <div class="rand"><span class="eticheta">Stare</span>
+    <span class="insigna {{ 'ok' if intrare.stare == 'inchisa' else ('atentie' if intrare.stare == 'reluata' else '') }}">{{ etichete_stare[intrare.stare] }}</span></div>
+  <div class="rand"><span class="eticheta">Pas</span><code>{{ intrare.pas or '–' }}</code></div>
+  <div class="rand"><span class="eticheta">Eroare</span><code>{{ intrare.eroare_tip }}</code></div>
+  <p>{{ intrare.eroare_mesaj }}</p>
+  <div class="rand"><span class="eticheta">Cauză (grup)</span><code>{{ intrare.cauza }}</code></div>
+  <div class="rand"><span class="eticheta">Job</span><code>{{ intrare.workflow_id }}</code></div>
+  <div class="rand"><span class="eticheta">Coadă · worker</span><span>{{ intrare.coada or '–' }} · {{ intrare.executor_id or '–' }}</span></div>
+  <div class="rand"><span class="eticheta">Apărută</span><span>{{ intrare.creat_la|moment }}</span></div>
+  <div class="rand"><span class="eticheta">Reluări</span><span>{{ intrare.reluari }}{% if intrare.reluat_ca %} · continuă ca <code>{{ intrare.reluat_ca }}</code>{% endif %}</span></div>
+  {% if intrare.stare == 'inchisa' %}
+  <div class="rand"><span class="eticheta">Închisă</span><span>{{ intrare.inchis_la|moment }}</span></div>
+  <p>Motiv: {{ intrare.motiv_inchidere }}{% if not intrare.inchis_de %} <span class="slab">(închisă automat)</span>{% endif %}</p>
+  {% endif %}
+</section>
+
+<section class="card" aria-labelledby="t-pasi">
+  <h2 id="t-pasi">Pașii jobului</h2>
+  <div class="defilare"><table>
+    <tr><th>#</th><th>Pas</th><th>Stare</th><th>Eroare</th></tr>
+    {% for p in intrare.context.get('pasi', []) %}
+    <tr><td>{{ p.nr }}</td><td><code>{{ p.nume }}</code></td>
+      <td><span class="insigna {{ 'ok' if p.stare == 'ok' else 'pericol' }}">{{ p.stare }}</span></td>
+      <td>{{ p.eroare or '' }}</td></tr>
+    {% else %}
+    <tr><td colspan="4" class="slab">Niciun pas înregistrat (a eșuat înainte de primul pas).</td></tr>
+    {% endfor %}
+  </table></div>
+  <h2>Ce s-a încercat</h2>
+  <ul>
+    {% for x in intrare.context.get('ce_s_a_incercat', []) %}<li>{{ x }}</li>{% else %}<li class="slab">Nimic notat.</li>{% endfor %}
+  </ul>
+  <h2>Argumentele jobului</h2>
+  <p class="slab">Doar identificatori (nu conținut).</p>
+  <p><code>{{ intrare.context.get('argumente', [])|join(', ') or '–' }}</code></p>
+</section>
+
+{% if inrudite %}
+<section class="card" aria-labelledby="t-inrudite">
+  <h2 id="t-inrudite">Aceeași cauză</h2>
+  {% for i in inrudite %}
+  <div class="rand"><a href="/alerte/{{ i.id }}">{{ i.creat_la|moment }}</a>
+    <span class="insigna {{ 'ok' if i.stare == 'inchisa' else ('atentie' if i.stare == 'reluata' else '') }}">{{ etichete_stare[i.stare] }}</span></div>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if poate_gestiona and intrare.stare != 'inchisa' %}
+<section class="card" aria-labelledby="t-actiuni">
+  <h2 id="t-actiuni">Ce faci</h2>
+  <form method="post" action="/alerte/{{ intrare.id }}/reia">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% if intrare.stare_job == 'esuat' %}
+    <label for="de_la_pas">Reia de la pasul</label>
+    <select id="de_la_pas" name="de_la_pas">
+      <option value="">primul pas eșuat (implicit)</option>
+      {% for p in intrare.context.get('pasi', []) %}<option value="{{ p.nr }}">{{ p.nr }} · {{ p.nume }}</option>{% endfor %}
+    </select>
+    {% endif %}
+    <p class="slab">Pașii deja încheiați nu se repetă. Pasul reluat poate repeta efectele lui: efectele externe au chei de idempotență.</p>
+    <button type="submit">Reia</button>
+  </form>
+  <form method="post" action="/alerte/{{ intrare.id }}/inchide">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="motiv">Motivul închiderii (rămâne în jurnalul de audit)</label>
+    <input type="text" id="motiv" name="motiv" maxlength="300" required minlength="3" autocomplete="off">
+    <button type="submit" class="secundar">Închide</button>
+  </form>
+</section>
+{% elif not poate_gestiona %}
+<p class="slab">Doar proprietarul și operatorul pot reia sau închide intrări.</p>
+{% endif %}
+{% endblock %}

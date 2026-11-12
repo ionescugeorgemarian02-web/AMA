@@ -32,6 +32,10 @@ def test_proprietarul_poate_tot() -> None:
     [
         (Rol.OPERATOR, P.LIVRABIL_APROBA, True),
         (Rol.OPERATOR, P.INBOX_RASPUNDE, True),
+        (Rol.OPERATOR, P.ALERTE_GESTIONEAZA, True),
+        (Rol.ANALIST, P.ALERTE_GESTIONEAZA, False),
+        (Rol.CLIENT_TITULAR, P.ALERTE_GESTIONEAZA, False),
+        (Rol.CLIENT_APROBATOR, P.ALERTE_GESTIONEAZA, False),
         (Rol.OPERATOR, P.UTILIZATORI_GESTIONEAZA, False),
         (Rol.OPERATOR, P.OPRIRE_FOLOSESTE, False),
         (Rol.OPERATOR, P.PLAFOANE_SETEAZA, False),

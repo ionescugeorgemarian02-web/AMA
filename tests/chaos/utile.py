@@ -4,6 +4,7 @@ import os
 import signal
 import subprocess
 import sys
+import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -70,6 +71,16 @@ class Worker:
         self.proces.send_signal(signal.SIGTERM)
         return self.proces.wait(timeout=timeout_sec)
 
+    def verificare_sanatate(self) -> int:
+        """Rulează `python -m app.worker --verifica` (cum o face `healthcheck` din compose); întoarce codul de ieșire."""
+        return subprocess.run(
+            [sys.executable, "-m", "app.worker", "--verifica"],
+            cwd=ROOT,
+            env=self._mediu,
+            timeout=60,
+            check=False,
+        ).returncode
+
     def viu(self) -> bool:
         return self.proces is not None and self.proces.poll() is None
 
@@ -78,3 +89,42 @@ class Worker:
             assert self.proces is not None
             self.proces.kill()
             self.proces.wait(timeout=10)
+
+
+class Supervizor:
+    """SIMULAT: ține locul politicii `restart: unless-stopped` din compose. Cât timp nu e oprit, un worker care a
+    murit (SIGKILL, cădere) este repornit, cu aceeași identitate, după o scurtă pauză. Politica reală a Docker-ului
+    se verifică pe VPS (STARE.md)."""
+
+    def __init__(self, worker: Worker, pauza_sec: float = 0.2) -> None:
+        self.worker = worker
+        self.pauza_sec = pauza_sec
+        self.reporniri = 0
+        self._oprit = threading.Event()
+        self._fir = threading.Thread(target=self._bucla, name="supervizor", daemon=True)
+
+    def porneste(self) -> "Supervizor":
+        self.worker.porneste()
+        self._fir.start()
+        return self
+
+    def _bucla(self) -> None:
+        while not self._oprit.wait(0.05):
+            if self.worker.proces is not None and self.worker.proces.poll() is not None:
+                if self._oprit.wait(self.pauza_sec):
+                    return
+                self.worker.porneste()
+                self.reporniri += 1
+
+    def opreste(self) -> int:
+        """Oprește supervizorul și opresc curat workerul curent; întoarce codul lui de ieșire."""
+        self._oprit.set()
+        self._fir.join(timeout=10)
+        if self.worker.viu():
+            return self.worker.opreste_curat()
+        assert self.worker.proces is not None
+        return self.worker.proces.returncode
+
+    def curata(self) -> None:
+        self._oprit.set()
+        self.worker.curata()

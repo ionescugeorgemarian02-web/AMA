@@ -45,6 +45,8 @@ R = TypeVar("R")
 _lock = threading.RLock()
 _client: DBOSClient | None = None
 _cozi_extra: dict[str, DefinitieCoada] = {}
+_timp_maxim: dict[str, float | None] = {}  # numele fluxului -> timpul maxim fără progres (None = implicit)
+_reincercari: dict[str, int] = {}  # numele pasului -> câte reîncercări are configurate
 
 
 class StareJob(StrEnum):
@@ -108,7 +110,10 @@ def _nume(nume: str | None, fn: Callable[..., Any]) -> str:
 
 
 def flux(
-    nume: str | None = None, *, recuperari_max: int = RECUPERARI_IMPLICIT
+    nume: str | None = None,
+    *,
+    recuperari_max: int = RECUPERARI_IMPLICIT,
+    timp_maxim_sec: float | None = None,
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """Declară un flux durabil. Numele (stabil, scris în bază) e implicit `modul.funcție`.
 
@@ -116,7 +121,8 @@ def flux(
     Cod nedeterminist (ora, aleatoriu, citiri din bază) se pune în pași, nu în corpul fluxului: la reluare,
     corpul se reexecută, iar pașii deja salvați întorc rezultatul lor.
     `recuperari_max`: de câte ori e reluat după căderi ale workerului; peste, ajunge `EPUIZAT` (coada
-    de erori).
+    de erori). `timp_maxim_sec`: cât poate sta fără niciun pas încheiat înainte ca watchdog-ul să-l
+    considere blocat (implicit `AMA_JOB_TIMP_MAXIM_SEC`).
     """
 
     def decorator(fn: Callable[P, R]) -> Callable[P, R]:
@@ -129,9 +135,21 @@ def flux(
 
         invelit = DBOS.workflow(name=n, max_recovery_attempts=recuperari_max)(interior)
         setattr(invelit, ATRIBUT_NUME, n)
+        _timp_maxim[n] = timp_maxim_sec
         return invelit
 
     return decorator
+
+
+def timp_maxim_flux(nume: str) -> float:
+    """Timpul maxim fără progres al fluxului `nume` (cel declarat sau cel din configurare)."""
+    declarat = _timp_maxim.get(nume)
+    return declarat if declarat is not None else float(get_settings().job_timp_maxim_sec)
+
+
+def reincercari_pas(nume: str) -> int | None:
+    """Câte reîncercări are configurate pasul `nume` (None dacă acest proces nu îl cunoaște)."""
+    return _reincercari.get(nume)
 
 
 def nume_flux(fn: Callable[..., Any]) -> str:
@@ -165,6 +183,7 @@ def pas(
             argumente.verifica(n, args, kwargs)
             return fn(*args, **kwargs)
 
+        _reincercari[n] = reincercari
         return DBOS.step(
             name=n,
             retries_allowed=reincercari > 0,
@@ -311,6 +330,8 @@ def trimite(
         "priority": calculeaza_prioritate(prioritate, termen),
         "app_version": s.motor_versiune,
         "application_name": NUME_APLICATIE,
+        # Anularea scoate jobul din coadă; reluarea trebuie să-l pună la loc în coada lui (vezi `inspectie`).
+        "attributes": {"coada": nume_coada},
     }
     if cheie is not None:
         optiuni["workflow_id"] = cheie

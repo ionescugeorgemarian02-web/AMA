@@ -16,6 +16,9 @@ CONTEXT_AGENTIE = {
     "app/operare/livrare.py",  # rutele interne ale deployer-ului: jeton comparat în timp constant (F1.8)
     "app/operare/notificari.py",  # trimiterea către abonații agenției (alerte critice), fără cerere de utilizator
     "app/connectors/telegram/bot.py",  # webhook: antet-secret + chat permis, verificate înainte (F1.10)
+    # Procesul worker (F2.7): fără utilizator; scrie semnale de viață și coada de erori la nivel de agenție.
+    "app/operare/watchdog.py",
+    "app/operare/semnale.py",  # semnale de viață + verificarea de sănătate a serviciului `worker`
 }
 
 

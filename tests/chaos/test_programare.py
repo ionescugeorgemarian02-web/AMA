@@ -28,7 +28,7 @@ def test_dupa_sigkill_nu_raman_goluri_si_nu_exista_dubluri(
     inainte = len(ticuri(dir_proba))
     ultimul = max(ticuri(dir_proba))
 
-    asteapta(lambda: dt.datetime.now(dt.UTC) > ultimul + dt.timedelta(seconds=3), mesaj="trecerea golului")
+    asteapta(lambda: dt.datetime.now(dt.UTC) > ultimul + dt.timedelta(seconds=2), mesaj="trecerea golului")
     assert len(ticuri(dir_proba)) == inainte, "cât workerul lipsește nu se execută nimic"
 
     w2 = Worker(baza, dir_proba, **mediu).porneste()

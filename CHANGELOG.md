@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F2.7 — Watchdog și coada de erori
+- Workerul bate în `worker_semnale`; căderile și repornirile se văd (a treia într-o oră anunță); un job blocat se oprește și se reîncearcă o dată; joburile eșuate, epuizate sau blocate intră în coada de erori cu context complet, grupate pe cauză și triate (minor / major). Ecranul Alerte din panou: listă, detaliu, „Reia” (de la pasul eșuat sau ales) și „Închide” (cu motiv), cu CSRF și audit; numărul alertelor și starea workerului pe Acasă. Migrarea `0006`, permisiunea `alerte.gestioneaza`, healthcheck pe serviciul `worker`.
+
 ### F2.6 — Planificatorul de timp
 - Joburi recurente (cron cu 5 câmpuri = la minut, fus orar `Europe/Bucharest`, recuperarea ticurilor ratate) și sloturi (un job la un moment dat, idempotent, supraviețuiește repornirilor), peste planificatorul bibliotecii. Programările se declară în cod și se aplică la pornirea workerului.
 

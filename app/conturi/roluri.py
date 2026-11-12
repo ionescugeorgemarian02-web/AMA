@@ -18,6 +18,7 @@ class Permisiune(StrEnum):
     OPRIRE_FOLOSESTE = "oprire.foloseste"
     PLAFOANE_SETEAZA = "plafoane.seteaza"
     JURNAL_CITESTE = "jurnal.citeste"
+    ALERTE_GESTIONEAZA = "alerte.gestioneaza"  # reia și închide intrări din coada de erori (22.5)
     LIVRABIL_CITESTE = "livrabil.citeste"
     LIVRABIL_APROBA = "livrabil.aproba"
     LIVRABIL_EDITEAZA = "livrabil.editeaza"
@@ -45,6 +46,7 @@ MATRICE: dict[Rol, frozenset[Permisiune]] = {
             P.COMENTARII_SCRIE,
             P.INBOX_RASPUNDE,
             P.RAPOARTE_CITESTE,
+            P.ALERTE_GESTIONEAZA,
         }
     ),
     Rol.ANALIST: frozenset({P.RAPOARTE_CITESTE, P.INVATARE_CITESTE, P.LIVRABIL_CITESTE}),

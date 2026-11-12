@@ -97,6 +97,12 @@ services:
     cap_drop: ["ALL"]
     security_opt: ["no-new-privileges:true"]
     stop_grace_period: 40s  # peste AMA_WORKER_OPRIRE_SEC (20): joburile în curs își termină pasul
+    healthcheck:  # semn de viață recent în baza de date (watchdog, F2.7); vizibil în `docker ps`
+      test: ["CMD", "python", "-m", "app.worker", "--verifica"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
     depends_on:
       postgres: { condition: service_healthy }
       migrate: { condition: service_completed_successfully }

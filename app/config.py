@@ -63,6 +63,14 @@ class Settings(BaseSettings):
     )  # culoare pentru joburile grele (7.5): câte un job pe culoar
     io_paralel: int = Field(default=24, ge=1, le=200)  # coada de intrări și ieșiri
     invatare_paralel: int = Field(default=1, ge=1, le=8)
+    job_timp_maxim_sec: int = Field(default=1800, ge=1)  # fără niciun pas încheiat: job blocat (watchdog)
+    # Watchdog (22.3): bătăi de inimă, scanarea joburilor, pragurile de alertă.
+    watchdog_bataie_sec: float = Field(default=15.0, gt=0.0)
+    watchdog_scanare_sec: float = Field(default=30.0, gt=0.0)
+    worker_timeout_sec: float = Field(default=90.0, gt=0.0)  # fără bătaie atâta timp = fără semn de viață
+    watchdog_prag_reporniri: int = Field(default=3, ge=1)  # a treia repornire într-o oră anunță
+    watchdog_fereastra_min: int = Field(default=60, ge=1)
+    erori_prag_crestere: int = Field(default=5, ge=2)  # câte joburi deschise cu aceeași cauză urcă alerta
     programare_polling_sec: float = Field(default=5.0, gt=0.0, le=60.0)  # cât de des caută programări noi
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
