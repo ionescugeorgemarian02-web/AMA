@@ -215,3 +215,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit: auditul refuză chei cu „token”, deci `bugete.seteaza_client` cu `tokeni_zi` ar fi picat (nepăzit de testele F3.8): cheile apar acum ca „jetoane”, cu test; fabrica de teste trebuia să curețe și rulările de evaluare.
   - Verificat: vezi spec; scoruri 1,0 / mediu / slab pe toate profilurile; rutarea alege modelul bun.
   - NEVERIFICAT: orice model real; evaluarea umană.
+- **F3.10 — Ecranul „Modele și cote”.**
+  - Construit: `situatie` (cote), `registru.seteaza_limite` / `seteaza_termeni`, `evaluare.porneste`, rute și șablon extinse în `gateway_web.py` / `gateway_registru.html`, `docs/specs/F3.10.md`.
+  - Hotărâri: s-a extins ecranul existent (același URL, aceeași pagină), nu s-a adăugat altul; formularele de editare stau în `<details>`, ca pagina să rămână citibilă pe telefon; un furnizor activ nu poate pierde uzul comercial (se dezactivează întâi); cheile cu „token” apar ca „jetoane” în audit; editarea este doar a proprietarului, citirea a oricărui rol de agenție.
+  - Găsit: numele clienților de probă (prefix de UUID de timp) se pot repeta, deci un test nu poate identifica un client după nume.
+  - Verificat: vezi spec. NEVERIFICAT: aspectul pe telefon.

@@ -417,6 +417,21 @@ def rezultate(db: Session, rulare_id: uuid.UUID) -> list[dict[str, Any]]:
     ]
 
 
+def porneste(model_cod: str) -> str:
+    """Pune în coadă testul comparativ pe un model (din panou). Întoarce identificatorul jobului; același
+    model în același minut nu pornește de două ori."""
+    from app.gateway import fluxuri
+    from app.operare import motor
+
+    with sesiune_agentie() as db:
+        if not any(c.cod == model_cod for c in registru.candidati(db)):
+            raise LookupError(f"modelul {model_cod!r} nu există în registru")
+    return motor.trimite(
+        fluxuri.evalueaza, model_cod, "", coada=fluxuri.coada_pentru(model_cod), prioritate=Prioritate.P3,
+        cheie=f"evaluare-panou:{model_cod}:{ceas.acum():%Y%m%d%H%M}",
+    )  # fmt: skip
+
+
 def main(argv: list[str] | None = None) -> int:
     import argparse
     import sys

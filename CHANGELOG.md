@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F3.10 — Ecranul „Modele și cote”
+- `/gateway/registru` arată cota rămasă pe fiecare furnizor și model (minut și zi, cu resetare), starea întrerupătoarelor și blocajele, scorurile pe profil și rulările testului comparativ, viteza modelelor locale, consumul pe client față de buget. Proprietarul editează limitele, termenii și bugetele (implicite și pe client), pornește testul comparativ și importă note, cu CSRF, verificare de rol și audit.
+
 ### F3.6 — Testul comparativ pe română
 - Set de 72 de sarcini în română (`evaluare/sarcini/`, 12 pe fiecare profil din 8.2) cu criterii automate (schemă, lungime, cuvinte obligatorii / interzise, răspuns exact, diacritice), hamul de rulare prin gateway (P3, un model pe rulare, cote și bugete respectate, continuare după amânare), scorul pe (model, profil) scris în `gateway_modele.scor` și folosit de rutare, nota umană importată din CSV, istoric de rulări (migrarea `0019`), flux și job lunar, comandă `python -m app.gateway.evaluare`.
 

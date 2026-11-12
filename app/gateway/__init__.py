@@ -9,9 +9,10 @@ furnizorilor în afara acestui pachet. Puncte de extensie: interceptori înainte
 profiluri și lanțuri ca date, adaptoare noi pe tip de API (F3.5), scorurile modelelor (F3.6).
 """
 
-from app.gateway import bugete, garda, inventar, jurnal, prompturi, registru
+from app.gateway import bugete, evaluare, garda, inventar, jurnal, prompturi, registru, situatie
 from app.gateway.amanare import cheie_reluare, reprogrameaza
 from app.gateway.apel import ContextApel, Rezultat
+from app.gateway.candidat import Candidat
 from app.gateway.erori import (
     Amanat,
     ApelRefuzat,
@@ -49,6 +50,7 @@ __all__ = [
     "Apel",
     "ApelContinut",
     "ApelRefuzat",
+    "Candidat",
     "ContextApel",
     "EroareGateway",
     "Furnizor",
@@ -69,6 +71,7 @@ __all__ = [
     "dezactiveaza",
     "dimensiune_vectori",
     "elimina_interceptor",
+    "evaluare",
     "furnizor",
     "furnizori",
     "inventar",
@@ -79,5 +82,6 @@ __all__ = [
     "prompturi",
     "registru",
     "reprogrameaza",
+    "situatie",
     "vectorizeaza",
 ]

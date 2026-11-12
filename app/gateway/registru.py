@@ -13,9 +13,11 @@ folosită
 de client; nu ajunge în jurnale, audit, erori sau HTML (în panou apare doar „configurată / lipsește”).
 """
 
+import datetime as dt
 import os
 import re
 import uuid
+from typing import Any, Literal
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -150,5 +152,121 @@ def _schimba(db: Session, f: Furnizor, stare: str, motiv: str, utilizator_id: uu
         db, "gateway.furnizor_activat" if stare == "activ" else "gateway.furnizor_dezactivat",
         obiect_tip="furnizor", obiect_id=f.cod, utilizator_id=utilizator_id, tenant_id=None,
         detalii={"furnizor": f.cod, "din": anterior, "in": stare, "motiv": f.stare_motiv},
+    )  # fmt: skip
+    return f
+
+
+# --- editare de către proprietar (F3.10): limite și termeni, cu audit
+
+
+class RegistruInvalid(ValueError):
+    """Valoare nepermisă la editarea registrului (limită negativă, termeni care contrazic starea
+    furnizorului)."""
+
+
+CAMPURI_LIMITE = ("cereri_minut", "cereri_zi", "tokeni_minut", "tokeni_zi")
+MARCAJE = ("V", "S", "I")
+
+
+def _nume_audit(camp: str) -> str:
+    """Auditul refuză cheile cu „token” (le ia drept secrete): tokenii apar ca „jetoane”."""
+    return camp.replace("tokeni", "jetoane")
+
+
+def _intreg_optional(nume: str, valoare: object, maxim: int = 10**12) -> int | None:
+    if valoare is None or str(valoare).strip() == "":
+        return None
+    try:
+        n = int(str(valoare).strip().replace(".", "").replace(" ", ""))
+    except ValueError:
+        raise RegistruInvalid(f"{nume}: nu e un număr întreg") from None
+    if not 1 <= n <= maxim:
+        raise RegistruInvalid(f"{nume}: trebuie să fie un număr pozitiv (gol = fără limită)")
+    return n
+
+
+def seteaza_limite(
+    db: Session,
+    tip: Literal["furnizor", "model"],
+    obiect_id: uuid.UUID,
+    valori: dict[str, Any],
+    *,
+    reset_zi_ora: object = None,
+    utilizator_id: uuid.UUID | None,
+) -> None:
+    """Schimbă limitele unui furnizor (comune contului) sau ale unui model: cereri / tokeni pe minut și pe
+    zi (gol = fără limită) și, la furnizor, ora UTC de resetare a zilei. Cu audit. Se aplică de la
+    următorul apel."""
+    obiect: Furnizor | ModelLlm | None = (
+        db.get(Furnizor, obiect_id) if tip == "furnizor" else db.get(ModelLlm, obiect_id)
+    )
+    if obiect is None:
+        raise LookupError(f"{tip} necunoscut")
+    nou = {k: _intreg_optional(k, valori.get(k)) for k in CAMPURI_LIMITE if k in valori}
+    inainte = {k: getattr(obiect, k) for k in nou}
+    ora: int | None = None
+    if tip == "furnizor" and reset_zi_ora not in (None, ""):
+        try:
+            ora = int(str(reset_zi_ora))
+        except ValueError:
+            raise RegistruInvalid("reset_zi_ora: nu e un număr") from None
+        if not 0 <= ora <= 23:
+            raise RegistruInvalid("reset_zi_ora: ora UTC trebuie să fie între 0 și 23")
+    for k, v in nou.items():
+        setattr(obiect, k, v)
+    if ora is not None and isinstance(obiect, Furnizor):
+        obiect.reset_zi_ora = ora
+    obiect.actualizat_la = func.now()
+    db.flush()
+    cod = obiect.cod if isinstance(obiect, Furnizor) else f"{obiect.furnizor_id}/{obiect.identificator}"
+    audit.record(
+        db, "gateway.limite_setate", obiect_tip=tip, obiect_id=cod,
+        utilizator_id=utilizator_id, tenant_id=None,
+        detalii={
+            "inainte": {_nume_audit(k): v for k, v in inainte.items()},
+            "dupa": {_nume_audit(k): v for k, v in nou.items()},
+            "reset_zi_ora": ora,
+        },
+    )  # fmt: skip
+
+
+def seteaza_termeni(
+    db: Session,
+    furnizor_id: uuid.UUID,
+    *,
+    uz_comercial: bool | None,
+    antrenare_pe_date: bool | None,
+    restrictii_regionale: str,
+    marcaj: str,
+    verificat_la: dt.date | None,
+    utilizator_id: uuid.UUID | None,
+) -> Furnizor:
+    """Termenii de folosire ai unui furnizor (8.1), așa cum i-a confirmat proprietarul. Un furnizor ACTIV
+    nu poate primi `uz_comercial` diferit de „da” (întâi se dezactivează); marcajul `V` cere data
+    verificării. Cu audit."""
+    f = db.get(Furnizor, furnizor_id)
+    if f is None:
+        raise LookupError("furnizor necunoscut")
+    if marcaj not in MARCAJE:
+        raise RegistruInvalid("marcaj necunoscut (V, S sau I)")
+    if marcaj == "V" and verificat_la is None:
+        raise RegistruInvalid("marcajul „verificat” cere data verificării")
+    if f.stare == "activ" and uz_comercial is not True:
+        raise RegistruInvalid(
+            "furnizorul este activ: dezactivează-l înainte să-i retragi confirmarea uzului comercial"
+        )
+    inainte = {"uz_comercial": f.uz_comercial, "antrenare_pe_date": f.antrenare_pe_date, "marcaj": f.marcaj}
+    f.uz_comercial, f.antrenare_pe_date = uz_comercial, antrenare_pe_date
+    f.restrictii_regionale = restrictii_regionale.strip()[:500]
+    f.marcaj, f.verificat_la = marcaj, verificat_la
+    f.actualizat_la = func.now()
+    db.flush()
+    audit.record(
+        db, "gateway.termeni_setati", obiect_tip="furnizor", obiect_id=f.cod, utilizator_id=utilizator_id,
+        tenant_id=None,
+        detalii={
+            "inainte": inainte,
+            "dupa": {"uz_comercial": uz_comercial, "antrenare_pe_date": antrenare_pe_date, "marcaj": marcaj},
+        },
     )  # fmt: skip
     return f
