@@ -1,7 +1,7 @@
 pachet = "meta"
 tip = "platforma"
 titlu = "Facebook și Instagram (Meta)"
-versiune = 1
+versiune = 2
 canale = ["facebook", "instagram"]
 
 [[reguli]]
@@ -10,15 +10,15 @@ text = "Fără momeală de interacțiune (a cere like, distribuiri sau etichetă
 potrivire = "regex"
 tipare = [
   '\bda(?:ti)? like (?:daca|ca sa|pentru)\b',
-  '\bdistribuie\w* (?:ca sa|pentru a|si castigi)\b',
+  '\bdistribuie\w*(?: \w+){0,2} (?:ca sa|pentru a|si castigi)\b',
   '\beticheteaza (?:un|doi|trei|\d+) (?:prieten|prieteni|prietena)\b',
-  '\bcomenteaza (?:ca sa|pentru a) (?:castig\w+|participa)\b',
+  '\bcomenteaza(?: \w+){0,2} (?:ca sa|pentru a) (?:castig\w+|participi?\w*|primesti|primi|intri)\b',
 ]
 severitate = "majora"
 marcaj = "[I]"
 verificat_la = 2026-11-13
 sursa = { tip = "politica_platformei", titlu = "Meta: recomandări și momeala de interacțiune", url = "https://transparency.meta.com/policies/recommendation-guidelines/" }
-exemple_blocate = ["Dă like dacă iubești cafeaua!", "Etichetează doi prieteni ca să câștigi un pachet."]
+exemple_blocate = ["Dă like dacă iubești cafeaua!", "Etichetează doi prieteni ca să câștigi un pachet.", "Comentează DA ca să primești rețeta.", "Distribuie postarea noastră ca să intri în tragerea la sorți."]
 exemple_trece = ["Spune-ne în comentarii ce cafea preferi.", "Vino sâmbătă la degustare, intrarea e liberă."]
 
 [[reguli]]

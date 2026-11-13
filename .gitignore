@@ -12,4 +12,5 @@ htmlcov/
 dist/
 *.egg-info/
 .pgtest/
+.pgtest2/
 node_modules/

@@ -114,3 +114,47 @@ class RegulaClient(BazaValidare):
     motiv: Mapped[str] = mapped_column(Text, default="")
     creat_de: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class BancRulare(BazaValidare):
+    """O rulare a bancului de evaluare (K4), la nivel de agenție (migrarea 0031)."""
+
+    __tablename__ = "banc_rulari"
+    id: Mapped[uuid.UUID] = _pk()
+    cheie: Mapped[str | None] = mapped_column(Text)
+    pornit_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    pornit_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    terminat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    stare: Mapped[str] = mapped_column(Text, default="in_curs")
+    amprenta_seturi: Mapped[str] = mapped_column(Text, default="")
+    exemple: Mapped[int] = mapped_column(Integer, default=0)
+    scoruri: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    eroare: Mapped[str] = mapped_column(Text, default="")
+
+
+class ExempluPropus(BazaValidare):
+    """Un exemplu propus pentru setul de aur (din contestație sau din etichetă umană). Îl decide un om."""
+
+    __tablename__ = "exemple_propuse"
+    id: Mapped[uuid.UUID] = _pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    validator: Mapped[str] = mapped_column(Text)
+    sursa: Mapped[str] = mapped_column(Text)
+    verdict_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    versiune: Mapped[int] = mapped_column(Integer)
+    tip: Mapped[str] = mapped_column(Text)
+    canal: Mapped[str] = mapped_column(Text)
+    text: Mapped[str] = mapped_column(Text)
+    campuri: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    active: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    asteptat: Mapped[str] = mapped_column(Text)
+    severitate: Mapped[str | None] = mapped_column(Text)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    stare: Mapped[str] = mapped_column(Text, default="propus")
+    context_profil: Mapped[str] = mapped_column(Text, default="gol")
+    decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    decis_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    motiv_decizie: Mapped[str] = mapped_column(Text, default="")
+    creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -181,6 +181,7 @@ def g7_reguli(intrare: Intrare) -> Verdict:
         VERSIUNE_V2,
         Treapta.V2,
         70,
+        foloseste_vectori=True,
         descriere="Parafraze apropiate de sursele nereutilizabile",
     )
 )

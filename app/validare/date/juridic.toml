@@ -8,10 +8,10 @@ cuvinte_reducere = ["reducere", "reduceri", "redus", "redusa", "discount", "prom
 # promisiuni despre rezultatul pentru client (fără diacritice); blochează
 expresii = [
   '\brezultate (?:garantate|sigure|asigurate|imediate)\b',
-  '\bgarantam (?:ca )?(?:vei|veti|o sa)\b',
+  '\bgarantam (?:ca )?(?:nu )?(?:vei|veti|o sa)\b',
   '\bsigur (?:vei|veti|o sa) (?:slabi|castiga|reusi|vindeca)',
   '\bfara (?:nicio|nici o) (?:indoiala|dubla)\b',
-  '\bpromitem (?:ca )?(?:vei|veti|o sa)\b',
+  '\bpromitem (?:ca )?(?:nu )?(?:vei|veti|o sa)\b',
   '\bsucces (?:garantat|asigurat|100 ?%)',
   '\b100 ?% (?:eficient|eficace|sigur)\b',
 ]

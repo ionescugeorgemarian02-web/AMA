@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F5.7 — Seturile de aur și bancul de evaluare (K4)
+- Seturi de aur înghețate în `evaluare/aur/` (8 validatoare, 107 materiale greșite, 63 bune), bancul `python -m app.validare.banc` și butonul din ecranul „Validatoare” (job durabil `validare.banc`), scoruri pe validator (matrice, precizie, recall, respingeri pe nedrept) salvate în `banc_rulari`; exemple propuse pentru setul de aur (`exemple_propuse`), migrarea `0031`.
+- `db.restrans_la_client` (îngustare într-un punct de salvare anulat) în locul comutării libere de context; validatorii îmbunătățiți (limbă străină, linkuri, etichete de ordine, tipare G3, registrul G4, „încearcă”, promisiuni negate). Workerul importă acum `app.validare.fluxuri`.
+
 ### F5.6 — G7 Originalitate și G9 Juridic
 - G7: suprapunere de shingle-uri cu sursele colectate (concurența blochează, materialele clientului doar avertizează), parafraze prin vectori, active fără licență. G9: reducerea cere ofertă cu preț de referință egal cu cel mai mic preț din ultimele 30 de zile (din versiunile aprobate ale ofertei; lipsa istoricului se semnalează explicit), promisiuni de rezultat, mențiuni obligatorii (pachetul `juridic`), judecător puternic opțional (V4).
 

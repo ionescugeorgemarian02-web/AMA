@@ -146,6 +146,7 @@ def probleme_vocabular(text: str, ghid: Ghid) -> list[Problema]:
                     detalii=f"termen interzis: {interzis}",
                 )
             )
+    probleme += probleme_registru(text, ghid)
     n_cuvinte = len(text_ro.cuvinte(text))
     minim = int(incarca("ton")["vocabular"]["cuvinte_minim_pentru_preferat"])
     nu_foloseste_preferate = not any(gaseste_in_text(text, p) for p in ghid.vocabular_preferat)
@@ -159,6 +160,51 @@ def probleme_vocabular(text: str, ghid: Ghid) -> list[Problema]:
                 + ".",
                 blocant=False,
                 severitate=Severitate.MINORA,
+            )
+        )
+    return probleme
+
+
+REGISTRE = {
+    "birocratic": "limbaj birocratic",
+    "argou": "argou și strigăt",
+    "jignitor": "ton jignitor față de cititor",
+}
+
+
+def markeri_registru(text: str) -> dict[str, list[str]]:
+    """Pe registru, fragmentele exacte din `text` ale markerilor distincți găsiți (nucleu pur)."""
+    cfg = incarca("ton")["registru"]
+    b = afirmatii.baza(text)
+    iesire: dict[str, list[str]] = {}
+    for nume in REGISTRE:
+        gasite: list[str] = []
+        for sablon in cfg[nume]:
+            m = re.search(sablon, b)
+            if m:
+                gasite.append(text[m.start() : m.end()])
+        iesire[nume] = gasite
+    return iesire
+
+
+def probleme_registru(text: str, ghid: Ghid) -> list[Problema]:
+    """Registrul nepotrivit: cel puțin `minim` markeri distincți ai unui registru pe care ghidul nu îl
+    declară."""
+    cfg = incarca("ton")["registru"]
+    declaratie = afirmatii.baza(f"{ghid.nume} {ghid.descriere} {' '.join(ghid.reguli_da)}")
+    probleme: list[Problema] = []
+    for nume, gasite in markeri_registru(text).items():
+        if len(gasite) < int(cfg["minim"][nume]):
+            continue
+        if any(re.search(rf"\b{re.escape(d)}", declaratie) for d in cfg["declarat"][nume]):
+            continue
+        probleme.append(
+            Problema(
+                f"G4.registru_{nume}",
+                gasite[0],
+                f"Tonul nu se potrivește cu ghidul „{ghid.nume}”: {REGISTRE[nume]} "
+                f"({', '.join(f'„{g}”' for g in gasite[:4])}). Rescrie pe tonul descris în ghid.",
+                detalii=f"registru: {nume}",
             )
         )
     return probleme
@@ -265,6 +311,7 @@ def calculeaza_similaritatea(intrare: Intrare, ghid: Ghid) -> Similaritate:
         VERSIUNE_V2,
         Treapta.V2,
         50,
+        foloseste_vectori=True,
         descriere="Similaritatea cu exemplele aprobate din ghidul de brand (vectori)",
     )
 )

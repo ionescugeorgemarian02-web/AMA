@@ -33,14 +33,14 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
 ### D-004 (2026-11-12) — Bugetele de modele pe client: consum din contoare proprii, P1 cu plafon
 
 - **Context:** 8.5 cere bugete pe client și spune „P0 și P1 au cotă garantată; P2 și P3 se amână la epuizare; P0 continuă”, dar nu spune ce se întâmplă cu P1 peste buget.
-- **Hotărâre (propusă de agentul de cod, de confirmat de proprietar):** consumul se ține în contoare proprii (nu se citește din jurnal: jurnalul se scrie după apel, deci nu este corect la concurență). P0 nu este atins niciodată; P1 continuă până la 1,5 × bugetul (configurabil), apoi se amână; P2 și P3 se amână la atingerea bugetului. Valorile implicite de buget sunt de pornire, nemăsurate.
+- **Hotărâre (adoptată, D-007):** consumul se ține în contoare proprii (nu se citește din jurnal: jurnalul se scrie după apel, deci nu este corect la concurență). P0 nu este atins niciodată; P1 continuă până la 1,5 × bugetul (configurabil), apoi se amână; P2 și P3 se amână la atingerea bugetului. Valorile implicite de buget sunt de pornire, nemăsurate.
 - **Consecințe:** `gateway.Amanat(pana_la)` cu momentul resetării (miezul nopții UTC, ora este setare). Se revizuiește după primele luni de consum real.
 
 ### D-005 (2026-11-12) — Trei compartimente adăugate Creierului în F4: `brief`, `insight_piata`, `strategie`
 
 - **Context:** `docs/10` §10.1 are zece compartimente. Brieful de onboarding (F4.4), harta pieței și brieful de insight (F4.10) și strategia pe 90 de zile
   (F4.11) cer același regim ca restul Creierului: versiuni, sursă obligatorie, aprobare de om, citire „la o dată”, diferență între versiuni.
-- **Hotărâre:** se adaugă trei compartimente ca date (`app/creier/compartimente.py`), fără a le schimba pe cele zece. Nu se creează tabele paralele.
+- **Hotărâre (adoptată, D-007):** se adaugă trei compartimente ca date (`app/creier/compartimente.py`), fără a le schimba pe cele zece. Nu se creează tabele paralele.
 - **Consecințe:** ecranul „Creierul de brand” (F4.8) le arată împreună cu celelalte; `tests/unit/test_creier_compartimente.py` numără 13 și păstrează verificarea
   celor zece din 10.1. Documentul 10.1 se actualizează odată cu poarta F4 (propunere).
 
@@ -49,10 +49,22 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
 
 - **Context:** `docs/09` spune „un eșec critic blochează” (9.2) și „un livrabil blocat critic intră în carantină” (9.8), iar 7.3 cere cel mult 2 reparații. Nu spune
   ce eșec merge la reparație și ce eșec la carantină. Nu există încă tabel de conținut (F6) și nici bibliotecă YAML în dependențele de rulare.
-- **Hotărâre (propusă de agentul de cod, de confirmat de proprietar):** (1) orice `esec` blochează și oprește cascada; severitatea `majora` = reparabil (autorul primește
+- **Hotărâre (adoptată, D-007):** (1) orice `esec` blochează și oprește cascada; severitatea `majora` = reparabil (autorul primește
   instrucțiunea, cel mult 2 runde, apoi om), `critica` = nu se repară prin rescriere (nișă refuzată, injecție) → carantină; avertismentele se numără în puncte (minoră 1,
   majoră 2), peste `AMA_VALIDARE_PRAG_AVERTISMENTE` (4, de pornire) livrabilul cere aprobarea unui om. (2) Până la F6, `livrabile_continut` ține versiunile de conținut ale
   livrabilului (text + câmpuri pe canal + active); F6 îl refolosește. (3) Pachetele de reguli (F5.4) sunt fișiere TOML (`tomllib`, bibliotecă standard), nu YAML:
   nicio dependență nouă.
-- **Consecințe:** F5.10 construiește ieșirea din carantină; un eșec `critica` nu intră în bucla de reparație. Dacă proprietarul vrea ca și eșecurile critice să fie reparate
-  întâi, se schimbă o singură decizie în `app/validare/agregare.py`.
+- **Consecințe:** F5.10 construiește ieșirea din carantină; un eșec `critica` nu intră în bucla de reparație. O eventuală schimbare (eșecurile critice reparate
+  întâi) se face într-un singur loc, `app/validare/agregare.py`, cu decizie nouă în acest fișier.
+
+### D-007 (2026-11-13) — Agentul de cod decide; nimic nu rămâne „de confirmat de proprietar”
+
+- **Context:** pașii lăsau hotărâri „de confirmat de proprietar” sau „rămâne la proprietar”, iar unii pași păreau să aștepte o aprobare
+  care nu ține de cod.
+- **Hotărâre (proprietar):** toate deciziile le ia agentul de cod: alege cea mai bună soluție, o aplică, o documentează aici sau în
+  specificația pasului și continuă. Nu lasă nimic „de confirmat de proprietar” și nu sare peste pași. Singurele excepții sunt cele care
+  cer tehnic resurse externe (chei de API, conturi de platformă, VPS): acestea stau la „De verificat la migrare” (`docs/specs/STARE.md`),
+  iar tot ce depinde de ele se construiește și se testează cu simulări. Mecanismele pentru oamenii agenției (etichetare umană, promovarea
+  exemplelor în setul de aur, aprobări) sunt funcții ale produsului: se construiesc complet, dar nu sunt condiții pentru a închide pașii.
+- **Consecințe:** D-004, D-005 și D-006 sunt adoptate (nu mai sunt propuneri). În `docs/specs/STARE.md` starea fiecărui pas spune ce este
+  verificat local și ce depinde de resurse externe, nu ce „așteaptă proprietarul”.

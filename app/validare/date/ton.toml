@@ -11,3 +11,24 @@ text_minim_cuvinte = 5   # sub atâtea cuvinte tonul nu se judecă
 # un cuvânt interzis se potrivește și cu formele lui (prefix de cel puțin `prefix_minim` litere, dar nu mai scurt decât cuvântul − 2)
 prefix_minim = 4
 cuvinte_minim_pentru_preferat = 30   # un text mai lung fără niciun cuvânt preferat primește un avertisment
+
+[registru]
+# Registrul nepotrivit (V1, adăugat în F5.7): markeri de limbaj birocratic, de argou / strigăt și de ton jignitor față de cititor.
+# Se aplică doar cu un ghid de brand aprobat. Un registru declarat în descrierea ghidului (ex. „formal”, „tineresc”) nu se mai
+# semnalează. Listele sunt valori de pornire [I], pe text fără diacritice, cu litere mici.
+birocratic = [
+  '\bconform (?:procedurilor|prevederilor|reglementarilor|legislatiei|normelor)\b', '\bprin prezenta\b', '\bsolicitar(?:ea|ile|ilor)\b',
+  '\bbeneficiar(?:ii|ilor)\b', '\bse proceseaza\b', '\breglementar\w*', '\baplicabil\w*', '\bin vederea\b', '\baducem la cunostinta\b',
+  '\bva comunicam\b', '\bse desfasoara in regim\b', '\b(?:sus-?)?mentionat\w*', '\bpartenerilor (?:sai|sau|nostri)\b',
+  '\bsocietatea (?:comunica|informeaza|aduce)\b', '\bin conformitate cu\b', '\bcategoriei respective\b', '\bactivitatea comerciala\b',
+]
+argou = [
+  '\byo+\b', '\bbro\b', '\bfratilor\b', '\bnebunie totala\b', '\bever\b', '\bbeton\b', '\bsmecher\w*', '\bomg\b', '\bwtf\b', '\bmisto\b',
+  '\btare rau\b', '\bspargem preturile\b', '!{3,}',
+]
+jignitor = [
+  '\b(?:tu )?nu stii sa\b', '\bnu ne intereseaza\b', '\b(?:esti|sunteti) (?:prost|prosti|proasta|incapabil\w*|lenes\w*|ratat\w*)\b',
+  '\bscumpo\b', '\bdaca ai chef\b', '\bnormal ca (?:iti|va) iese\b', '\bramai cu\b.{0,30}\burat\w*',
+]
+minim = { birocratic = 2, argou = 2, jignitor = 1 }
+declarat = { birocratic = ["formal", "oficial", "institutional", "juridic"], argou = ["argou", "tineresc", "ireverentios", "colocvial"], jignitor = [] }

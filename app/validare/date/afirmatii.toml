@@ -41,6 +41,9 @@ decembrie = 12
 # numărul urmat de aceste cuvinte nu este o afirmație despre client („3 pași simpli”, „top 5 sfaturi”)
 cuvinte = ["pasi", "moduri", "motive", "sfaturi", "idei", "lucruri", "trucuri", "greseli", "intrebari", "variante",
            "metode", "tipuri", "reguli", "etape", "secrete", "ponturi", "cauze", "beneficii", "avantaje", "exemple"]
+# numărul precedat de aceste cuvinte este o etichetă de ordine („Cadrul 4:”, „Pasul 2”), nu o afirmație (adăugat în F5.7)
+etichete = ["cadrul", "cadru", "pasul", "slide", "slide-ul", "partea", "capitolul", "episodul", "sectiunea", "punctul", "lectia",
+            "intrebarea", "varianta", "optiunea", "etapa", "modulul"]
 
 [superlative]
 # regex-uri pe text fără diacritice

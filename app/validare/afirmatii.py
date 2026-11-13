@@ -41,6 +41,7 @@ ORA = re.compile(r"(?<![\d:])(?P<h>[01]?\d|2[0-3]):(?P<m>[0-5]\d)(?![\d:])")
 CIFRA = re.compile(rf"(?<![\w.,])(?P<n>{_NUM_G})(?![\w]*(?:[.,]\d))", re.IGNORECASE)
 INCEPUT_LISTA = re.compile(r"^\s*\d+[.)]\s", re.MULTILINE)
 CUVANT_URMATOR = re.compile(r"\s*(?:de\s+)?([a-z]+)")
+CUVANT_ANTERIOR = re.compile(r"(?<![a-z-])([a-z][a-z-]*)\s*(?:nr\.?\s*)?$")
 
 
 @dataclass(frozen=True)
@@ -169,11 +170,15 @@ def extrage(text: str) -> list[Afirmatie]:
                 s, e, f = fragment(m)
                 adauga(Afirmatie(tip, f, s, e, cuvinte=_radacini(b[s:e])))
     neutre = set(cfg["cifre_neutre"]["cuvinte"])
+    etichete = set(cfg["cifre_neutre"].get("etichete", ()))
     inceputuri_liste = {m.start() for m in INCEPUT_LISTA.finditer(b)}
     for m in CIFRA.finditer(b):
         s, e, f = fragment(m)
         v = numar(m.group("n"))
         if v is None or any(s <= i + 1 <= e or i <= s <= i + 4 for i in inceputuri_liste):
+            continue
+        anterior = CUVANT_ANTERIOR.search(b[max(0, s - 30) : s])
+        if anterior and anterior.group(1) in etichete:
             continue
         urmator = CUVANT_URMATOR.match(b, e)
         if urmator and urmator.group(1) in neutre:

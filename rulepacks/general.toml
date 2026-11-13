@@ -1,7 +1,7 @@
 pachet = "general"
 tip = "general"
 titlu = "Reguli valabile pe orice canal"
-versiune = 1
+versiune = 2
 canale = ["*"]
 
 [[reguli]]
@@ -28,7 +28,7 @@ text = "Fără promisiuni de slăbit rapid sau de arderea grăsimii (afirmație 
 potrivire = "regex"
 tipare = [
   '\bslab\w+ (?:cu )?\d+ ?(?:kg|kilograme|de kilograme)\b',
-  '\barde(?:ti)? (?:rapid )?grasimea\b',
+  '\bar(?:de|deti|zi)\b (?:\w+ )?grasim\w*',
   '\bpierzi? (?:rapid )?in greutate\b',
   '\bslabit(?:ul)? (?:rapid|garantat|fara efort)\b',
 ]
@@ -36,7 +36,7 @@ severitate = "majora"
 marcaj = "[I]"
 verificat_la = 2026-11-13
 sursa = { tip = "politica_platformei", titlu = "Standardele de publicitate Meta / TikTok: afirmații despre slăbit", url = "https://transparency.meta.com/policies/ad-standards/" }
-exemple_blocate = ["Slăbești 10 kg în două săptămâni cu ceaiul nostru.", "Arde grăsimea fără efort."]
+exemple_blocate = ["Slăbești 10 kg în două săptămâni cu ceaiul nostru.", "Arde grăsimea fără efort.", "Cu siropul nostru arzi ușor grăsimile."]
 exemple_trece = ["Un ceai ușor, fără zahăr adăugat.", "Cafea cu 10 la sută mai puțin cofeină."]
 
 [[reguli]]
@@ -45,7 +45,9 @@ text = "Fără promisiuni de câștig financiar nerealist sau garantat (scheme f
 potrivire = "regex"
 tipare = [
   '\bcastig\w* (?:garantat|sigur|asigurat|rapid)\b',
-  '\b(?:castigi|faci|aduni) \d[\d. ]* ?(?:lei|euro|ron|\$) (?:pe zi|pe saptamana|din casa|fara efort)',
+  '\b(?:castigi|faci|aduni) \d[\d. ]* ?(?:de )?(?:lei|euro|ron|\$) (?:pe zi|pe saptamana|pe luna|din casa|fara efort)',
+  '\bcomision\w* din vanzarile (?:lor|celor|oamenilor)\b',
+  '\brecrut\w*(?: \w+){0,4},? (?:si )?castig\w* (?:un )?comision\w*',
   '\bvenit pasiv\b',
   '\bbani (?:rapizi|usori|fara efort)\b',
   '\bimbogate\w+',
@@ -54,7 +56,7 @@ severitate = "majora"
 marcaj = "[I]"
 verificat_la = 2026-11-13
 sursa = { tip = "politica_platformei", titlu = "Standardele de publicitate Meta: afirmații înșelătoare despre câștiguri", url = "https://transparency.meta.com/policies/ad-standards/" }
-exemple_blocate = ["Faci 500 lei pe zi din casă, fără experiență.", "Câștig garantat din prima lună."]
+exemple_blocate = ["Faci 500 lei pe zi din casă, fără experiență.", "Câștig garantat din prima lună.", "Aduni 3.000 de lei pe lună stând pe canapea.", "Adu-ți prietenii în rețea și primești comision din vânzările lor."]
 exemple_trece = ["Abonamentul îți aduce cafea proaspătă în fiecare lună.", "Câștigă o degustare gratuită la cafenea."]
 
 [[reguli]]
@@ -77,14 +79,14 @@ id = "gen-minori-alcool-tutun"
 text = "Alcoolul, tutunul și produsele de vapat nu se promovează minorilor sau în legătură cu minorii."
 potrivire = "regex"
 tipare = [
-  '\b(?:alcool|bere|vinul|vinuri|tigari|tutun|vape\w*)\b.{0,60}\b(?:minori|copii|adolescenti|elevi)\b',
-  '\b(?:minori|copii|adolescenti|elevi)\b.{0,60}\b(?:alcool|bere|vinul|vinuri|tigari|tutun|vape\w*)\b',
+  '\b(?:alcool\w*|bere|berea|vinul|vinuri|tigari|tutun|vape\w*)\b.{0,60}\b(?:minor\w*|copii\w*|adolescent\w*|elev\w*|liceen\w*|de liceu)\b',
+  '\b(?:minor\w*|copii\w*|adolescent\w*|elev\w*|liceen\w*)\b.{0,60}\b(?:alcool\w*|bere|berea|vinul|vinuri|tigari|tutun|vape\w*)\b',
 ]
 severitate = "critica"
 marcaj = "[I]"
 verificat_la = 2026-11-13
 sursa = { tip = "lege", titlu = "Protecția minorilor în publicitate (Legea 148/2000 a publicității, art. 7–8)", url = "https://legislatie.just.ro" }
-exemple_blocate = ["Bere artizanală, perfectă și pentru adolescenți la petreceri."]
+exemple_blocate = ["Bere artizanală, perfectă și pentru adolescenți la petreceri.", "Bere rece la reducere pentru liceenii din clasa a XII-a."]
 exemple_trece = ["Limonadă artizanală pentru copii și părinți.", "Vin de casă, doar pentru adulți."]
 
 [[reguli]]

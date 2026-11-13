@@ -30,6 +30,7 @@ class DefinitieValidator:
     tipuri: frozenset[str] | None = None  # None = toate tipurile de livrabil
     canale: frozenset[str] | None = None  # None = toate canalele
     foloseste_model: bool = False  # V3 / V4: opțional, cere `judecatori` / `v4`
+    foloseste_vectori: bool = False  # V2 prin gateway (vectori); bancul de evaluare nu îl rulează (F5.7)
     descriere: str = ""
 
     def se_aplica(self, tip: str, canal: str) -> bool:

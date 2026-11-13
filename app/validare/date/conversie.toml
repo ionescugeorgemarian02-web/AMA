@@ -27,7 +27,7 @@ inscriere = [
 ]
 vizita = ['\bvino\b', '\bveniti\b', '\btreci pe la\b', '\btreceti pe la\b', '\bte asteptam\b', '\bva asteptam\b']
 social = ['\burmar(?:este|iti)-?(?:ne|ne)\b', '\bdistribu(?:ie|iti)\b', '\bda(?:ti)? (?:un )?(?:like|share)\b', '\bda mai departe\b', '\bcomenteaza\b']
-incercare = ['\bincerc(?:a|ati)\b', '\btest(?:eaza|ati)\b', '\bgusta\b', '\bdegusta\b']
+incercare = ['\bincearca\b', '\bincercati\b', '\btest(?:eaza|ati)\b', '\bgusta\b', '\bdegusta\b']
 
 [hook]
 # prima frază: deschideri fără conținut (fără diacritice, la începutul frazei)

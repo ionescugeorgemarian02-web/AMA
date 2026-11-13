@@ -148,8 +148,12 @@ def test_romana_fara_diacritice_este_tot_romana_iar_textul_scurt_nu_se_judeca() 
 
 
 def test_o_limba_straina_neidentificata_este_semnalata() -> None:
+    hu = "Friss kávénk tíz napon belül megérkezik hozzád a pörkölés után és szívesen kicseréljük ha nem ízlik"
+    assert text_ro.detecteaza_limba(hu).cod == "necunoscuta"
+    assert reguli("postare", "facebook", c(hu)) == ["G1.limba"]
+    # F5.7: germana (ca franceza, spaniola, italiana) este recunoscută ca limbă străină
     de = "Unser frischer Kaffee kommt innerhalb von zehn Tagen nach der Röstung bei Ihnen an und wir tauschen ihn um"
-    assert text_ro.detecteaza_limba(de).cod == "necunoscuta"
+    assert text_ro.detecteaza_limba(de).cod == "strain"
     assert reguli("postare", "facebook", c(de)) == ["G1.limba"]
 
 

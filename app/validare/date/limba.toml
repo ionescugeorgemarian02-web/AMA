@@ -169,6 +169,46 @@ incercam = "încercăm"
 descoperiti = "descoperiți"
 mestesugar = "meșteșugar"
 
+# adăugate în F5.7 (bancul a arătat că dicționarul nu prindea formele de plural de politețe și verbele frecvente)
+asteptam = "așteptăm"
+asteptati = "așteptați"
+ceasca = "ceașcă"
+coafura = "coafură"
+cumparam = "cumpărăm"
+cumparati = "cumpărați"
+declaratia = "declarația"
+declaratie = "declarație"
+doresti = "dorești"
+gandim = "gândim"
+gasiti = "găsiți"
+imbunatati = "îmbunătăți"
+imbunatatim = "îmbunătățim"
+impreuna = "împreună"
+incepem = "începem"
+incerca = "încerca"
+inchidem = "închidem"
+intelegem = "înțelegem"
+lucratoare = "lucrătoare"
+lucratori = "lucrători"
+manichiura = "manichiură"
+orasul = "orașul"
+pastram = "păstrăm"
+pastreaza = "păstrează"
+prajire = "prăjire"
+prajirii = "prăjirii"
+pregatim = "pregătim"
+pregatit = "pregătit"
+pregatiti = "pregătiți"
+raspundem = "răspundem"
+scrieti = "scrieți"
+spuneti = "spuneți"
+stilista = "stilistă"
+stilisti = "stiliști"
+tari = "țări"
+vedeti = "vedeți"
+veniti = "veniți"
+verificam = "verificăm"
+
 [sedila]
 # ş ţ Ş Ţ (cu sedilă, U+015F U+0163 U+015E U+0162) → ș ț Ș Ț (cu virgulă, U+0219 U+021B U+0218 U+021A)
 literele = { "ş" = "ș", "ţ" = "ț", "Ş" = "Ș", "Ţ" = "Ț" }
@@ -199,5 +239,14 @@ romana = ["si", "de", "la", "cu", "pentru", "este", "sa", "nu", "un", "care", "c
 engleza = ["the", "and", "of", "to", "is", "for", "with", "that", "you", "your", "are", "this", "it", "on", "as",
            "be", "at", "by", "from", "we", "our", "have", "has", "not", "but", "all", "can", "will", "what", "how",
            "more", "about", "they", "their", "was", "were", "which", "its", "if", "just", "get", "now", "new"]
+prag_straina = 0.12      # o limbă străină (franceză, spaniolă, italiană, germană) peste acest raport și mai frecventă decât româna → limbă greșită
+franceza = ["le", "les", "des", "est", "et", "du", "que", "qui", "pour", "avec", "dans", "une", "sur", "par", "pas", "vous", "nous",
+            "votre", "notre", "chaque", "sans", "aux", "cette", "sont", "ont", "plus", "tous", "ou", "comme", "mais", "chez", "afin"]
+spaniola = ["el", "los", "las", "una", "del", "con", "para", "por", "que", "es", "y", "su", "sus", "mas", "pero", "como", "muy", "esta",
+            "son", "este", "todos", "todo", "nuestro", "nuestra"]
+italiana = ["il", "gli", "della", "delle", "che", "per", "sono", "una", "non", "piu", "nel", "nella", "anche", "con", "tutti", "ogni",
+            "questo", "questa", "nostro", "nostra"]
+germana = ["der", "die", "das", "und", "ist", "nicht", "mit", "fur", "ein", "eine", "auf", "den", "dem", "zu", "wir", "sie", "von",
+           "bei", "auch", "jede", "jeden"]
 prag_engleza = 0.15      # dacă engleza depășește acest raport și e mai frecventă decât româna → limbă greșită
 prag_romana_minim = 0.06 # sub acest raport (text lung) limba nu pare română (franceză, spaniolă, litere la întâmplare)

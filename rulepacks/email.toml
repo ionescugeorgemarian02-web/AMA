@@ -1,14 +1,14 @@
 pachet = "email"
 tip = "platforma"
 titlu = "Email comercial"
-versiune = 1
+versiune = 2
 canale = ["email"]
 
 [[reguli]]
 id = "email-dezabonare-obligatorie"
 text = "Emailul comercial trebuie să conțină o modalitate clară și imediată de dezabonare (21.8)."
 potrivire = "obligatoriu"
-tipare = ['dezabon\w*', 'unsubscribe', 'nu mai doresti sa primesti', 'renunta la abonare']
+tipare = ['dezabon\w*', 'unsubscribe', 'nu mai doresti sa primesti', 'renunta la abonare', 'te (?:scoatem|stergem) din lista']
 severitate = "majora"
 marcaj = "[I]"
 verificat_la = 2026-11-13

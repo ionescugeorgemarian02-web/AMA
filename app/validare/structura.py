@@ -119,8 +119,10 @@ def _probleme_limba(continut: Continut) -> list[Problema]:
             )
         )
     limba = text_ro.detecteaza_limba(corp)
-    if limba.cod in ("en", "necunoscuta"):
-        ce = "în engleză" if limba.cod == "en" else "într-o limbă care nu pare română"
+    if limba.cod in ("en", "strain", "necunoscuta"):
+        ce = {"en": "în engleză", "strain": "într-o limbă străină"}.get(
+            limba.cod, "într-o limbă care nu pare română"
+        )
         probleme.append(
             Problema(
                 "G1.limba",

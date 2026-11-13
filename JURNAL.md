@@ -362,3 +362,16 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit: la început serverul Postgres de test pornit în sesiunea anterioară nu mai rula după resetarea limitei (verificarea completă dădea sute de erori de conexiune, nu defecte de cod); verificările complete rulează pe al doilea server (port 54330).
   - NEVERIFICAT / SIMULAT: interpretarea juridică a regulii de 30 de zile (fără avocat), pragurile, vectorii (SIMULAȚI), judecătorul V4 (FALS).
 
+## 2026-11-13 — Sesiunea 9: închiderea fazei F5 (F5.7, F5.8, F5.10, F5.9, poarta F5)
+
+### 23. Un agent de cod (Opus), pe ramura `claude/amazing-volta-ou9t2u`
+- D-007 (agentul de cod decide; nimic „de confirmat de proprietar”): D-004–D-006 adoptate, STARE rescris cu starea reală.
+- **F5.7 — Seturile de aur și bancul.**
+  - Preluat ciorna necomisă; revizuită: `app/db.comuta_context` (schimba orice context în mijlocul tranzacției, inclusiv client →
+    agenție) înlocuit cu `restrans_la_client` (doar îngustare, punct de salvare anulat la ieșire); ciorna de test ștearsă.
+  - Construit: ecranul `/validatoare` (bancul, istoricul, butonul), testele, declanșatorul pe `exemple_propuse`, spec F5.7.
+  - Prima rulare: 99/107 blocate (92,5%), 5/63 respinse pe nedrept; după îmbunătățirea validatorilor (seturile neatinse,
+    amprentele neschimbate): 107/107 și 3/63 (4,8%). Scor optimist (aceleași seturi au arătat ce lipsea), documentat.
+  - Găsit: workerul nu importa `app.validare.fluxuri` (din F5.1); `porn\w*` prindea „pornit”; „încearcă” nu era recunoscut.
+  - NEVERIFICAT / SIMULAT: vectorii și judecătorii nu sunt în scor; seturi inventate.
+

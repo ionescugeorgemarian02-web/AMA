@@ -48,9 +48,10 @@ GHID = {
     ],
 }
 IN_TON = "Sâmbătă facem degustare de cafea proaspăt prăjită la cafenea, vino să guști și să afli cum o prepari acasă."
+# F5.7: textul nu are markeri de registru (aceia blochează deja în V1), ca semnalul să vină din similaritate (V2)
 IN_AFARA_TONULUI = (
-    "Conform procedurilor interne ale organizației, solicitările beneficiarilor se procesează în termenul reglementar "
-    "aplicabil categoriei respective."
+    "Raportul trimestrial al societății arată indicatori financiari stabili pentru exercițiul curent și "
+    "pentru perioada următoare."
 )
 
 
@@ -151,11 +152,7 @@ def test_rubrica_confirma_tonul_gresit_cu_fragment_literal_si_textul_e_respins(
 ) -> None:
     judecator.raspunde(
         "Ești un redactor atent la tonul unui brand",
-        rubrica(
-            raspuns(
-                "ton_potrivit", False, "solicitările beneficiarilor se procesează în termenul reglementar"
-            )
-        ),
+        rubrica(raspuns("ton_potrivit", False, "indicatori financiari stabili pentru exercițiul curent")),
     )
     r = ruleaza_doar(tenant, IN_AFARA_TONULUI, "G4", judecatori=True, model_autor=judecator.cod_autor)
     assert r.stare is Stare.IN_REPARATIE

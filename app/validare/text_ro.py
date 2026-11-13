@@ -6,6 +6,7 @@ fără rețea."""
 import re
 import unicodedata
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 from urllib.parse import urlsplit
 
 from app.validare.date_validare import incarca
@@ -15,7 +16,7 @@ SEDILA = "şţŞŢ"
 CUVANT = re.compile(r"[^\W\d_]+", re.UNICODE)
 URL = re.compile(r"(?:https?://|www\.)[^\s<>\"“”«»]+", re.IGNORECASE)
 URL_STRICAT = re.compile(
-    r"\b(?:https?:/(?!/)[^\s<>\"]+|https?//[^\s<>\"]+|h?tps?://[^\s<>\"]+|https?:///[^\s<>\"]*|https?://(?=\s|$))",
+    r"\b(?:https?:/(?!/)[^\s<>\"]+|https?//[^\s<>\"]+|https?:///[^\s<>\"]*|https?://(?=\s|$))",
     re.IGNORECASE,
 )
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
@@ -43,7 +44,7 @@ def cuvinte(text: str, *, fara_adrese_: bool = True) -> list[str]:
 
 @dataclass(frozen=True)
 class Limba:
-    cod: str  # „ro”, „en” sau „necunoscuta”
+    cod: str  # „ro”, „en”, „strain” (franceză, spaniolă, italiană, germană) sau „necunoscuta”
     cuvinte: int
     raport_ro: float
     raport_en: float
@@ -63,6 +64,10 @@ def detecteaza_limba(text: str) -> Limba:
     r_en = sum(1 for x in c if x in en) / n
     if r_en >= d["prag_engleza"] and r_en > r_ro:
         return Limba("en", n, r_ro, r_en)
+    for nume in ("franceza", "spaniola", "italiana", "germana"):
+        r_str = sum(1 for x in c if x in frozenset(d[nume])) / n
+        if r_str >= d["prag_straina"] and r_str > r_ro:
+            return Limba("strain", n, r_ro, r_en)
     if r_ro < d["prag_romana_minim"]:
         return Limba("necunoscuta", n, r_ro, r_en)
     return Limba("ro", n, r_ro, r_en)
@@ -78,10 +83,26 @@ def linkuri_in_text(text: str) -> list[str]:
     return [g for g in gasite if g]
 
 
+SCHEMA_ASEMANATOARE = re.compile(r"\b([A-Za-z]{3,7})://[^\s<>\"]+")
+
+
+def _schema_gresita(schema: str) -> bool:
+    """Seamănă cu http / https (`htps`, `hhtp`, `htttp`, `httpss`), dar nu e una dintre ele."""
+    s = schema.lower()
+    return s not in ("http", "https") and any(
+        SequenceMatcher(None, s, bun).ratio() >= 0.75 for bun in ("http", "https")
+    )
+
+
 def linkuri_stricate_in_text(text: str) -> list[str]:
-    """Ce arată a link, dar are schema greșită (`http:/x.ro`, `https//x.ro`, `htps://x.ro`,
+    """Ce arată a link, dar are schema greșită (`http:/x.ro`, `https//x.ro`, `htps://x.ro`, `hhtp://x.ro`,
     `https://`)."""
-    return [m.group(0).rstrip(FINAL_LINK) or m.group(0) for m in URL_STRICAT.finditer(text)]
+    gasite = [m.group(0).rstrip(FINAL_LINK) or m.group(0) for m in URL_STRICAT.finditer(text)]
+    for m in SCHEMA_ASEMANATOARE.finditer(text):
+        legatura = m.group(0).rstrip(FINAL_LINK)
+        if _schema_gresita(m.group(1)) and not any(legatura in g or g in legatura for g in gasite):
+            gasite.append(legatura)
+    return gasite
 
 
 def motiv_link_invalid(link: str) -> str | None:

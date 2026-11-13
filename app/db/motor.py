@@ -69,6 +69,56 @@ def sesiune(ctx: ContextDb | None = None) -> Iterator[Session]:
         session.close()
 
 
+class ContextNepermis(RuntimeError):
+    """Restrângerea la un client cere o sesiune cu scop de agenție (doar se îngustează, nu se lărgește)."""
+
+
+@contextmanager
+def restrans_la_client(session: Session, tenant_id: UUID, user_id: UUID | None = None) -> Iterator[Session]:
+    """ÎNGUSTEAZĂ temporar o sesiune de agenție la un singur client, într-un punct de salvare care se
+    ANULEAZĂ la ieșire.
+
+    În interior, politicile RLS se aplică exact ca pentru o sesiune a clientului (fără scop de agenție).
+    La ieșire
+    punctul de salvare se anulează: tot ce s-a scris înăuntru dispare, iar contextul revine la cel de
+    agenție (în
+    Postgres, `set_config(..., true)` dintr-un punct de salvare anulat se anulează și el). Nu există drum
+    invers:
+    dintr-o sesiune de client nu se poate cere scop de agenție. Pentru rulările de probă (bancul de evaluare).
+    """
+    anterior: ContextDb = session.info[CTX_KEY]
+    if not anterior.agency or anterior.auth:
+        raise ContextNepermis("restrângerea la un client pornește doar dintr-o sesiune de agenție")
+    ingust = ContextDb(tenant_id=tenant_id, user_id=user_id or anterior.user_id)
+    punct = session.begin_nested()
+    session.info[CTX_KEY] = ingust
+    try:
+        s = ingust.settings()
+        session.execute(
+            _SET_CONTEXT,
+            {"tenant": s["app.tenant_id"], "utilizator": s["app.user_id"], "agentie": "", "auth": ""},
+        )
+        yield session
+    finally:
+        session.info[CTX_KEY] = anterior
+        if punct.is_active:
+            punct.rollback()
+
+
+@contextmanager
+def sesiune_anulata(ctx: ContextDb | None = None) -> Iterator[Session]:
+    """Ca `sesiune`, dar tranzacția se ANULEAZĂ întotdeauna (nimic nu rămâne în bază). Pentru rulările de
+    probă; apelantul nu trebuie să cheme `commit`."""
+    session = Session(get_engine(), expire_on_commit=False)
+    session.info[CTX_KEY] = ctx or ContextDb()
+    event.listen(session, "after_begin", _aplica_context)
+    try:
+        yield session
+    finally:
+        session.rollback()
+        session.close()
+
+
 def sesiune_tenant(tenant_id: UUID, user_id: UUID | None = None) -> AbstractContextManager[Session]:
     return sesiune(ContextDb(tenant_id=tenant_id, user_id=user_id))
 

@@ -1,0 +1,31 @@
+{% extends "panou/baza.html" %}
+{% block title %}Validatoare · AMA{% endblock %}
+{% block pagina %}
+<h1>Validatoare</h1>
+<p class="slab">Bancul de evaluare (docs/09 §9.9): seturile de aur rulate prin cascadă, izolat, fără să scrie nimic. Seturile sunt fișiere în depozit (<code>evaluare/aur/</code>), schimbate doar printr-un commit.</p>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+
+<section class="card" aria-labelledby="t-banc">
+  <h2 id="t-banc">Bancul de evaluare</h2>
+  {% if ultima %}<p>Ultima rulare terminată: <a href="/validatoare/banc/{{ ultima.id }}">{{ ultima.terminat_la|moment }}</a>, {{ ultima.exemple }} exemple.</p>
+  {% else %}<p class="slab">Bancul nu a rulat încă.</p>{% endif %}
+  <form method="post" action="/validatoare/banc/porneste">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Rulează bancul</button>
+  </form>
+</section>
+
+{% if scoruri %}{% include "panou/_banc_scoruri.html" %}{% endif %}
+
+<section class="card" aria-labelledby="t-istoric">
+  <h2 id="t-istoric">Rulări recente</h2>
+  {% for r in rulari %}
+  <div class="rand"><a href="/validatoare/banc/{{ r.id }}">{{ r.pornit_la|moment }}</a>
+    {% if r.stare == 'terminat' %}<span class="insigna {{ 'ok' if r.scoruri.get('poarta', {}).get('trece') else 'pericol' }}">{{ procent(r.scoruri.get('poarta', {}).get('rata_blocare')) }} blocate · {{ procent(r.scoruri.get('poarta', {}).get('rata_respingere_pe_nedrept')) }} respinse</span>
+    {% elif r.stare == 'esuat' %}<span class="insigna pericol">eșuată</span>
+    {% else %}<span class="insigna atentie">în curs</span>{% endif %}</div>
+  {% else %}
+  <p class="slab">Nicio rulare încă.</p>
+  {% endfor %}
+</section>
+{% endblock %}
