@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F6.4 — Scripturi video
+- Scenaristul video (E2): scriptul scurt pe bătăi (voce, text pe ecran, vizual, apel la acțiune) pe hook-ul ales de E1 cu limita video de 7 cuvinte; durata estimată determinist din cuvinte, încadrarea la ±15% din țintă, o singură cerere de scurtare / lungire, altfel coada de erori. Prompt `continut.script@1`.
+
 ### F6.3 — Hook-uri și postări
 - Generatorul de hook-uri (E1, 3–5 variante pe tipare, alegere deterministă, tabelul `variante_hook`, migrarea `0036`), autorul de postări (E4) în lume închisă, editorul determinist (E8, `date/editor.toml`), lanțul `continut.pipeline` și fluxul durabil `continut.produ` (brief → scriere → validare cu ≤ 2 reparații → aprobare după nivelul de autonomie).
 - `validare`: sursele de autori de reparații (`autor.inregistreaza_sursa`), punctul de extensie după validare (`ciclu.inregistreaza_dupa_validare`) și nucleele exportate (`probleme_hook`, `probleme_structura`, `extrage_afirmatii`, `corecteaza_sedila`, `propozitii`).

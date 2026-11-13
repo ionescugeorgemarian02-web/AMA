@@ -22,6 +22,7 @@ o cere,
 
 import re
 import uuid
+from collections.abc import Callable
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -41,6 +42,8 @@ COMPONENTA_HOOK, COMPONENTA_POSTARE = "E1", "E4"
 TIPARE = ("intrebare", "contraintuitiv", "rezultat", "greseala", "cifra", "poveste", "inainte_dupa")
 Tipar = Literal["intrebare", "contraintuitiv", "rezultat", "greseala", "cifra", "poveste", "inainte_dupa"]
 CUVINTE_HOOK_MAXIM = 20  # [I] docs/13 §13.4: un hook scurt; G8 semnalează peste 25
+# [I] scriptul video: hook-ul se rostește în primele 3 secunde (13.3), la ~2,5 cuvinte pe secundă
+CUVINTE_HOOK_PE_TIP = {"script_video_scurt": 7}
 
 
 class HookPropus(BaseModel):
@@ -66,6 +69,12 @@ class ScriereRefuzata(creier.RegulaCreier):
     """Livrabilul nu se poate scrie (stare greșită, fără brief)."""
 
 
+class AutorEsuat(RuntimeError):
+    """Autorul nu a putut produce un material care respectă regulile tipului (de exemplu durata unui script):
+    livrabilul
+    merge în coada de erori cu diagnostic, nu în validare."""
+
+
 # --- nucleul alegerii
 # --------------------------------------------------------------------------------------------
 
@@ -74,7 +83,9 @@ def _cifre(text: str) -> set[str]:
     return set(re.findall(r"\d+(?:[.,]\d+)?", text))
 
 
-def scor_hook(text: str, continut_brief: dict[str, object]) -> tuple[int, list[str]]:
+def scor_hook(
+    text: str, continut_brief: dict[str, object], *, cuvinte_maxim: int = CUVINTE_HOOK_MAXIM
+) -> tuple[int, list[str]]:
     """Scorul unui hook (mai mare = mai bun) și problemele lui. Nucleu pur, determinist."""
     probleme = [
         p.regula
@@ -82,9 +93,9 @@ def scor_hook(text: str, continut_brief: dict[str, object]) -> tuple[int, list[s
     ]
     scor = 100 - 25 * len(probleme)
     n = len(text.split())
-    if n > CUVINTE_HOOK_MAXIM:
+    if n > cuvinte_maxim:
         probleme.append("hook_prea_lung")
-        scor -= 15
+        scor -= 15 if cuvinte_maxim >= CUVINTE_HOOK_MAXIM else 30
     fapte = continut_brief.get("fapte_permise")
     permise: set[str] = set()
     for f in fapte if isinstance(fapte, list) else []:
@@ -98,9 +109,11 @@ def scor_hook(text: str, continut_brief: dict[str, object]) -> tuple[int, list[s
     return scor, probleme
 
 
-def alege(hookuri: list[HookPropus], continut_brief: dict[str, object]) -> int:
+def alege(
+    hookuri: list[HookPropus], continut_brief: dict[str, object], *, cuvinte_maxim: int = CUVINTE_HOOK_MAXIM
+) -> int:
     """Indicele hook-ului ales: cel mai mare scor; la egalitate, primul."""
-    scoruri = [scor_hook(h.text, continut_brief)[0] for h in hookuri]
+    scoruri = [scor_hook(h.text, continut_brief, cuvinte_maxim=cuvinte_maxim)[0] for h in hookuri]
     return max(range(len(hookuri)), key=lambda i: (scoruri[i], -i))
 
 
@@ -121,7 +134,7 @@ def exemple_text(db: Session, lv: productie.Livrabil) -> str:
     return ""
 
 
-def _hookuri(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> str:
+def hook_ales(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> str:
     """Hook-ul ales pentru livrabil (variantele existente se refolosesc: pasul e idempotent)."""
     existente = variante(db, lv.id)
     if existente:
@@ -147,9 +160,10 @@ def _hookuri(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> str:
     if not isinstance(r.iesire, PropunereHookuri):
         raise TypeError("ieșirea nu respectă schema promptului")
     hookuri = r.iesire.hookuri
-    ales = alege(hookuri, b)
+    maxim = CUVINTE_HOOK_PE_TIP.get(lv.tip, CUVINTE_HOOK_MAXIM)
+    ales = alege(hookuri, b, cuvinte_maxim=maxim)
     for i, h in enumerate(hookuri):
-        scor, probleme = scor_hook(h.text, b)
+        scor, probleme = scor_hook(h.text, b, cuvinte_maxim=maxim)
         db.add(
             VariantaHook(
                 id=new_id(),
@@ -169,7 +183,7 @@ def _hookuri(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> str:
 
 
 def _scrie_postarea(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> validare.ContinutNou:
-    hook = editor.editeaza(_hookuri(db, lv, b))
+    hook = editor.editeaza(hook_ales(db, lv, b))
     r = gateway.apeleaza(
         db,
         prompt="continut.postare@1",
@@ -200,14 +214,18 @@ def _scrie_postarea(db: Session, lv: productie.Livrabil, b: dict[str, object]) -
     )
 
 
-# Autorii pe tip de livrabil (F6.4 adaugă scenaristul video).
-AUTORI = {"postare": _scrie_postarea}
+# Autorii pe tip de livrabil: E4 (postări) aici, E2 (scripturi video) în `scripturi`, înregistrat la import.
+AUTORI: dict[str, Callable[[Session, productie.Livrabil, dict[str, object]], validare.ContinutNou]] = {
+    "postare": _scrie_postarea
+}
 
 
-def scrie(db: Session, livrabil_id: uuid.UUID) -> validare.ContinutLivrabil:
+def scrie(db: Session, livrabil_id: uuid.UUID) -> validare.ContinutLivrabil | None:
     """Scrie versiunea completă a unui livrabil `briefat` (sau reluat în `in_scriere`) și îl trimite în
     validare
-    (`in_validare`). Ridică `gateway.Amanat` (nimic nu s-a mutat) sau `ScriereRefuzata`."""
+    (`in_validare`); `None` dacă autorul a eșuat (livrabilul e în coada de erori). Ridică `gateway.Amanat`
+    (nimic nu
+    s-a mutat) sau `ScriereRefuzata`."""
     lv = productie.blocheaza(db, livrabil_id)
     b = brief.al_livrabilului(db, lv.id)
     if b is None:
@@ -217,7 +235,15 @@ def scrie(db: Session, livrabil_id: uuid.UUID) -> validare.ContinutLivrabil:
     stare = Stare(lv.stare)
     if stare not in (Stare.BRIEFAT, Stare.IN_SCRIERE):
         raise ScriereRefuzata(f"livrabilul este „{productie.ETICHETE[stare]}”, nu „Briefat”")
-    nou = AUTORI[lv.tip](db, lv, b.continut)
+    try:
+        nou = AUTORI[lv.tip](db, lv, b.continut)
+    except AutorEsuat as exc:
+        if stare is Stare.BRIEFAT:
+            productie.muta(db, lv.id, Stare.BRIEFAT, Stare.IN_SCRIERE, componenta="continut", motiv="scriere")
+        productie.muta(
+            db, lv.id, Stare.IN_SCRIERE, Stare.COADA_DE_ERORI, componenta="continut", motiv=str(exc)[:300]
+        )
+        return None
     if stare is Stare.BRIEFAT:
         productie.muta(db, lv.id, Stare.BRIEFAT, Stare.IN_SCRIERE, componenta=nou.autor, motiv="scriere")
     rand = validare.continut.scrie(

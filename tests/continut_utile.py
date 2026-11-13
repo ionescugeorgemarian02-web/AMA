@@ -101,7 +101,8 @@ def _subiect(p: str) -> str:
 
 
 def model_hookuri(modele: ModelFals) -> None:
-    """Patru deschideri: una cu o cifră din afara faptelor, una slabă, o întrebare bună și o poveste lungă."""
+    """Cinci deschideri: o cifră din afara faptelor, una slabă, o întrebare legată de subiect, una lungă și o întrebare
+    scurtă (potrivită pentru video, unde hook-ul are cel mult 7 cuvinte)."""
 
     def handler(c: CerereInregistrata) -> str:
         s = _subiect(prompt_complet(c))
@@ -112,6 +113,7 @@ def model_hookuri(modele: ModelFals) -> None:
                 {"text": f"Știi ce înseamnă „{s}”?", "tipar": "intrebare"},
                 {"text": "Am prăjit, am gustat, am mai prăjit o dată și abia apoi am trimis cafeaua la tine acasă, "
                  "în pachetul cu data pe el.", "tipar": "rezultat"},
+                {"text": "Ce gust are cafeaua proaspătă?", "tipar": "intrebare"},
             ]
         )  # fmt: skip
 
@@ -161,3 +163,57 @@ def model_postari(modele: ModelFals, stricate: set[int] | None = None) -> AutorP
     modele.handlere["Scrie postarea pentru"] = a.postare
     modele.handlere["Corectează materialul de mai jos"] = a.repara
     return a
+
+
+BATAI = [
+    "La Cafeneaua Zorilor prăjim cafeaua în loturi mici, în fiecare săptămână, chiar aici, în Brașov.",
+    "Pe fiecare pachet scriem data prăjirii, ca să știi exact cât de proaspătă este cafeaua ta.",
+    "{fapt} Așa știi de la început ce primești în fiecare pachet de cafea.",
+    "Pachetul pleacă spre tine în aceeași săptămână, bine închis, ca boabele să rămână proaspete.",
+]
+
+
+class ScenaristFals:
+    """E2 fals: patru bătăi de ~16 cuvinte (≈ 30 s cu hook-ul și apelul). `prea_lungi`: a câta cerere (de la 1)
+    întoarce un script de două ori mai lung; `mereu_lung`: toate."""
+
+    def __init__(self, prea_lungi: set[int] | None = None, mereu_lung: bool = False) -> None:
+        self.prea_lungi = prea_lungi or set()
+        self.mereu_lung = mereu_lung
+        self.cereri: list[str] = []
+
+    def __call__(self, c: CerereInregistrata) -> str:
+        p = prompt_complet(c)
+        self.cereri.append(p)
+        fapte = re.findall(r"^- (.*)$", p.split("Fapte permise", 1)[1], re.M) if "Fapte permise" in p else []
+        fapt = next((f for f in fapte if "costă" in f or "gratuită" in f), "Cafeaua e prăjită în Brașov")
+        voci = [b.format(fapt=fapt.rstrip(".") + ".") for b in BATAI]
+        if self.mereu_lung or len(self.cereri) in self.prea_lungi:
+            voci = [v + " " + v for v in voci]
+        batai = [
+            {"voce": v, "text_ecran": e, "vizual": z}
+            for v, e, z in zip(
+                voci,
+                [
+                    "Prăjită în Brașov",
+                    "Data prăjirii pe pachet",
+                    "Prețul, pe față",
+                    "Pleacă în aceeași săptămână",
+                ],
+                [
+                    "Prăjitorul, cadru apropiat",
+                    "Mâna scrie data pe pachet",
+                    "Pachetul pe tejghea",
+                    "Cutia închisă",
+                ],
+                strict=True,
+            )
+        ]
+        return raspuns_json(batai=batai, apel_la_actiune="Comandă acum din magazinul online.")
+
+
+def model_scripturi(modele: ModelFals, **kw: Any) -> ScenaristFals:
+    s = ScenaristFals(**kw)
+    model_hookuri(modele)
+    modele.handlere["Scrie scriptul video scurt"] = s
+    return s

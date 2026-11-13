@@ -1,6 +1,6 @@
 """Producția de conținut text (F6, docs/13): strategul de conținut și calendarul (D3),
 autorul de brief (D5),
-hook-urile și postările (E1, E4, E8), cu validarea și aprobarea lor.
+hook-urile, postările și scripturile video (E1, E4, E2, E8), cu validarea și aprobarea lor.
 
 Restul aplicației folosește doar ce se exportă aici:
 
@@ -17,7 +17,7 @@ Restul aplicației folosește doar ce se exportă aici:
     stare = continut.pipeline.produ(tenant, livrabil_id)  # același lanț, sincron (proba, testele)
 """
 
-from app.continut import brief, calendar, editor, fluxuri, pipeline, scriere
+from app.continut import brief, calendar, editor, fluxuri, pipeline, scriere, scripturi
 from app.continut.modele import Brief, Calendar, IntrareCalendar, VariantaHook
 
 __all__ = [
@@ -31,4 +31,5 @@ __all__ = [
     "fluxuri",
     "pipeline",
     "scriere",
+    "scripturi",
 ]

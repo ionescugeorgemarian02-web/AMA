@@ -415,3 +415,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `continut.scriere`, `continut.editor`, `continut.pipeline`, fluxul `continut.produ`, migrarea `0036`, trei prompturi, spec F6.3.
   - Hotărâri (D-007): alegerea hook-ului e deterministă (G8 + cifre fără fapt), nu prin model; autorul de reparații e o „sursă” care răspunde doar pentru livrabilele cu brief, ca testele și comportamentul F5 („fără autor”) să rămână neschimbate; aprobarea după validare printr-un punct de extensie, nu în ciclul validării.
   - Verificat: 6 teste (unitare + integrare): 10 / 10 postări validate, 2 cu reparație.
+- **F6.4 — Scripturi video.**
+  - Construit: `continut.scripturi`, autorul pe tip în `scriere.AUTORI`, `AutorEsuat` (coada de erori cu diagnostic), prompt, spec F6.4.
+  - Hotărâri (D-007): durata o calculează sistemul din cuvinte, nu modelul; verificarea duratei rămâne în autor, nu în G1 (versiunea G1 și seturile F5 neschimbate; propunere notată).
+  - Verificat: 3 teste; postările F6.3 trec în continuare (al cincilea hook, scurt, nu schimbă alegerea pentru postări).

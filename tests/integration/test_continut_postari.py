@@ -46,9 +46,9 @@ def test_zece_postari_trec_validarea_cel_mult_doua_cu_reparatie(
             c = validare.continut.citeste(db, lid)
             assert c.autor == "E4" and c.campuri["hook"] and c.campuri["hashtaguri"] == ["cafea", "Brasov"]
             assert c.text.startswith(c.campuri["hook"])
-            # E1: patru variante salvate, cu tiparul și scorul lor; aleasă e întrebarea legată de subiect
+            # E1: cinci variante salvate, cu tiparul și scorul lor; aleasă e întrebarea legată de subiect
             v = scriere.variante(db, lid)
-            assert len(v) == 4 and [x.nr for x in v if x.ales] == [3]
+            assert len(v) == 5 and [x.nr for x in v if x.ales] == [3]
             assert "cifra_fara_fapt" in v[0].probleme and "G8.hook_deschidere_slaba" in v[1].probleme
             assert productie.aprobari.cerere_activa(db, lid) is not None
         assert cu_reparatie == 2 <= 2
