@@ -22,6 +22,8 @@ pe o funcție `(Intrare) -> Verdict | list[Verdict] | None`.
 """
 
 from app.validare import agregare, autor, cascada, ciclu, continut, depozit, registru, verdict
+from app.validare import limba as _limba  # noqa: F401  (înregistrează G10)
+from app.validare import structura as _structura  # noqa: F401  (înregistrează G1)
 from app.validare.agregare import Agregat, Decizie, agrega, unifica_instructiunile
 from app.validare.autor import ContinutNou, SarcinaReparatie
 from app.validare.cascada import Evaluare, FaraValidatori, evalueaza, ruleaza_pasii

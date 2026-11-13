@@ -1,4 +1,5 @@
-"""F5.1 — nucleele pure ale cadrului de validare: forma verdictului (9.2), agregarea, unirea instrucțiunilor, cascada
+"""F5.1 — nucleele pure ale cadrului de validare: forma verdictului (9.2), agregarea, unirea
+instrucțiunilor, cascada
 (ordine, oprire) și registrul. Fără bază de date, fără model."""
 
 import datetime as dt
@@ -32,7 +33,8 @@ def intrare(text: str = "Un text.", tip: str = "postare", canal: str = "facebook
     return Intrare(sit, Continut(1, text), dt.datetime(2026, 11, 13, tzinfo=dt.UTC))
 
 
-# --- forma verdictului ---------------------------------------------------------------------------------------
+# --- forma verdictului
+# ---------------------------------------------------------------------------------------
 
 
 def test_un_esec_cere_dovada_instructiune_si_severitate_de_cel_putin_majora() -> None:
@@ -66,7 +68,8 @@ def test_costul_se_aduna_si_fragmentul_dovezii_e_taiat() -> None:
     assert len(Dovada("a" * 1000, "r").fragment) == 300
 
 
-# --- agregarea ------------------------------------------------------------------------------------------------
+# --- agregarea
+# ------------------------------------------------------------------------------------------------
 
 
 def _av(cod: str, sev: Severitate, instr: str) -> Verdict:
@@ -122,7 +125,8 @@ def test_instructiunile_tuturor_validatorilor_devin_un_singur_mesaj() -> None:
     assert agregare.unifica_instructiunile((), (w,)).startswith("Textul poate fi îmbunătățit")
 
 
-# --- registrul --------------------------------------------------------------------------------------------------
+# --- registrul
+# --------------------------------------------------------------------------------------------------
 
 
 def _def(cod: str, treapta: Treapta, ordine: int = 100, **kw: object) -> DefinitieValidator:
@@ -160,7 +164,8 @@ def test_judecatorii_si_v4_sunt_optionali_si_treptele_se_potrivesc_cu_modelul() 
             registru.inregistreaza(_def("X", Treapta.V5, foloseste_model=True), lambda i: None)
 
 
-# --- cascada ---------------------------------------------------------------------------------------------------
+# --- cascada
+# ---------------------------------------------------------------------------------------------------
 
 
 class Jurnal:

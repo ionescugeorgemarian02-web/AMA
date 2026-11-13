@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F5.2 — G1 Structură și G10 Limbă
+- G1 (V0): câmpuri obligatorii pe cele 12 tipuri de livrabil, liste cu limite, lungimi pe canal [I], limba română (determinist, fără model), linkuri bine formate (fără rețea), toate într-un singur verdict. G10 (V1): diacritice lipsă (dicționar + raportul literelor), ș / ț cu sedilă, „î” / „â”, ghilimele, cratimă, repetiții; G10 (V3, opțional): acord și registru, prin judecător cu rubrică da / nu, dovadă literală și model diferit de autor.
+- Date în `app/validare/date/*.toml`; infrastructura comună a judecătorilor (`judecator.py`) și a problemelor (`probleme.py`) pentru F5.3–F5.6; prompt versionat `validare.g10_limba`.
+
 ### F5.1 — Cadrul de validare
 - Forma verdictului (validator + versiune, treaptă, trece / avertisment / eșec, severitate, scor, dovezi cu fragmentul exact și regula, instrucțiune, cost), cascada V0 → V5 (oprire după treapta cu eșec; la treptele cu cost, la primul eșec), agregarea (eșec critic → carantină, eșec major → reparație, avertismente în puncte, peste prag la om) și unirea instrucțiunilor într-un singur mesaj pentru autor. Registrul de validatori ca date (cod G, treaptă, tipuri și canale).
 - Bucla `în validare` → `în reparație` → `în validare` peste mașina de stări (limita de 2 runde rămâne a `productie.muta`), fluxul durabil `validare.livrabil`, punctul de extensie pentru autorii reparațiilor (F6).

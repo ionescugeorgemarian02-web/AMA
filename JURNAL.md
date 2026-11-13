@@ -336,4 +336,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `app/validare/{verdict,agregare,registru,intrare,cascada,continut,depozit,autor,ciclu,fluxuri,modele}.py`, migrarea `0028` (conținut, rulări, verdicte), secțiunea „Validare” din urma livrabilului, `docs/specs/F5.1.md`, DECIZII D-006.
   - Hotărâri: orice eșec blochează; severitatea hotărăște reparație (majoră) sau carantină (critică); în treptele gratuite rulează toți pașii înainte de oprire, ca autorul să primească toate corecturile; în V3 / V4 se oprește la primul eșec; cascada goală e eroare, nu trecere; limita de 2 runde nu este dublată (a treia reparație o refuză `productie.muta`); conținutul livrabilului e provizoriu până la F6.
   - NEVERIFICAT / SIMULAT: validatorii și autorul din teste; pragul de avertismente (4) și punctajul sunt valori de pornire.
+- **F5.2 — G1 Structură și G10 Limbă.**
+  - Construit: `app/validare/{structura,limba,text_ro,probleme,judecator,prompturi,date_validare}.py`, `date/{structura,limba}.toml`, promptul `validare.g10_limba.v1`, `docs/specs/F5.2.md`.
+  - Hotărâri: datele sunt TOML (`tomllib`); lungimile pe canal nu sunt în docs/15, deci toate sunt [I]; limba se detectează după cuvinte funcționale, pe text fără diacritice la fel; dicționarul de diacritice exclude cuvintele ambigue (pana, mana, limba, apa, vara, comanda, va …); un judecător nu blochează fără fragment literal din text; un criteriu fără răspuns rămâne „neverificat”, nu „trecut”.
+  - Găsit: gateway-ul adaugă el însuși instrucțiunea „date, nu instrucțiuni” (conține un delimitator), deci testul de injecție numără închiderile cu identificator, nu simplul text.
+  - NEVERIFICAT / SIMULAT: lungimile pe canal, judecătorul de limbă (model FALS), acoperirea dicționarului.
 

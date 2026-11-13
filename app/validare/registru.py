@@ -11,7 +11,7 @@ verdict).
 """
 
 import contextlib
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass
 
 from app.validare.intrare import Intrare
@@ -98,10 +98,14 @@ def pasi_pentru(tip: str, canal: str, *, judecatori: bool = False, v4: bool = Fa
 
 
 @contextlib.contextmanager
-def izolat() -> Iterator[None]:
-    """Un registru gol pe durata blocului (testele cadrului nu vor validatorii reali)."""
+def izolat(pastreaza: Iterable[str] = ()) -> Iterator[None]:
+    """Un registru restrâns pe durata blocului: gol, sau doar cu validatorii cu codurile din `pastreaza`
+    (testele unui
+    validator nu vor ceilalți validatori reali). La final revine registrul de dinainte."""
     salvat = dict(_REGISTRU)
+    pastrate = set(pastreaza)
     _REGISTRU.clear()
+    _REGISTRU.update({k: p for k, p in salvat.items() if k[0] in pastrate})
     try:
         yield
     finally:

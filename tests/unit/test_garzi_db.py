@@ -40,6 +40,7 @@ CONTEXT_AGENTIE = {
     "app/creier/fluxuri.py",
     "app/creier/pregatire.py",  # comanda de pregătire a unui brand propriu: creează clientul (nivel de agenție)
     "app/onboarding/prompturi.py",  # prompturile versionate se aduc în registrul global al gateway-ului (F4.4)
+    "app/validare/prompturi.py",  # la fel, pentru prompturile judecătorilor (F5.2)
 }
 
 
