@@ -23,7 +23,9 @@ pe o funcție `(Intrare) -> Verdict | list[Verdict] | None`.
 
 from app.validare import agregare, autor, cascada, ciclu, continut, depozit, intrebari, registru, verdict
 from app.validare import conversie as _conversie  # noqa: F401  (înregistrează G8)
+from app.validare import juridic as _juridic  # noqa: F401  (înregistrează G9)
 from app.validare import limba as _limba  # noqa: F401  (înregistrează G10)
+from app.validare import originalitate as _originalitate  # noqa: F401  (înregistrează G7)
 from app.validare import politici as _politici  # noqa: F401  (înregistrează G3)
 from app.validare import structura as _structura  # noqa: F401  (înregistrează G1)
 from app.validare import ton as _ton  # noqa: F401  (înregistrează G4)

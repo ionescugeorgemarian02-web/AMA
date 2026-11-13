@@ -1,0 +1,33 @@
+pachet = "juridic"
+tip = "juridic"
+titlu = "Mențiuni obligatorii pe tip de comunicare comercială (G9)"
+versiune = 1
+canale = ["*"]
+
+[[reguli]]
+id = "jur-reducere-pret-anterior"
+text = "O reducere se prezintă cu prețul anterior sau de referință (cel mai mic din ultimele 30 de zile), nu doar cu procentul (21.11)."
+potrivire = "obligatoriu"
+daca_text = ['\d+ ?% (?:reducere|discount)', '\breducere de \d+', '\breducere \d+ ?%', '-\d+ ?%']
+tipare = ['pret(?:ul)? (?:anterior|vechi|de referinta|initial)', 'in loc de', 'redus de la', 'de la \d']
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Indicarea reducerilor de preț (OUG 34/2014 modificată de Legea 2/2023 – Directiva Omnibus; OG 99/2000)", url = "https://legislatie.just.ro" }
+instructiune = "Adaugă prețul anterior (cel mai mic din ultimele 30 de zile) lângă reducere."
+exemple_blocate = ["Reducere 30% la toate cafelele din magazin."]
+exemple_trece = ["Reducere 30%: Etiopia Guji costă 49 lei, în loc de 70 lei.", "Cafea proaspătă prăjită la comandă."]
+
+[[reguli]]
+id = "jur-concurs-regulament"
+text = "Un concurs, o tombolă sau un giveaway trebuie să trimită la regulamentul oficial (21.8, 21.11)."
+potrivire = "obligatoriu"
+daca_text = ['\b(?:concurs\w*|tombola|giveaway)\b']
+tipare = ['regulament\w*']
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Regulile campaniilor promoționale (OG 99/2000; Legea 363/2007)", url = "https://legislatie.just.ro" }
+instructiune = "Adaugă un link sau o trimitere la regulamentul oficial al concursului."
+exemple_blocate = ["Participă la concursul nostru și câștigă un pachet de cafea."]
+exemple_trece = ["Participă la concursul nostru; regulamentul complet: https://zorilor.ro/regulament.", "Vino sâmbătă la degustare."]

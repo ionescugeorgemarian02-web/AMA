@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F5.6 — G7 Originalitate și G9 Juridic
+- G7: suprapunere de shingle-uri cu sursele colectate (concurența blochează, materialele clientului doar avertizează), parafraze prin vectori, active fără licență. G9: reducerea cere ofertă cu preț de referință egal cu cel mai mic preț din ultimele 30 de zile (din versiunile aprobate ale ofertei; lipsa istoricului se semnalează explicit), promisiuni de rezultat, mențiuni obligatorii (pachetul `juridic`), judecător puternic opțional (V4).
+
 ### F5.5 — G4 Ton și G8 Lizibilitate și conversie
 - G4: vocabularul interzis / preferat al ghidului de brand APROBAT (V1), similaritatea cu exemplele aprobate prin vectori (V2, prag [I] dependent de model), rubrica de ton doar la semnal, cu dovadă literală (V3). Fără ghid aprobat nu trece tăcut.
 - G8: un singur apel la acțiune (grupe de forme imperative în română; mai multe grupe → respins), hook (prima frază), lizibilitate (indice ILA documentat, praguri [I]), rubrica «hook clar» doar la semnal. Date în `date/ton.toml` și `date/conversie.toml`.

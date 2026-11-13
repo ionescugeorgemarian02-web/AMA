@@ -157,7 +157,7 @@ class Regula(BaseModel):
 class Pachet(BaseModel):
     model_config = ConfigDict(extra="forbid")
     pachet: str = Field(pattern=r"^[a-z][a-z0-9-]{1,40}$")
-    tip: Literal["general", "platforma", "nisa"]
+    tip: Literal["general", "platforma", "nisa", "juridic"]
     titlu: str = Field(min_length=5, max_length=200)
     versiune: int = Field(ge=1)
     canale: list[str] = Field(default_factory=list)
@@ -167,7 +167,7 @@ class Pachet(BaseModel):
 
     @model_validator(mode="after")
     def _coerenta(self) -> "Pachet":
-        if self.tip in ("general", "platforma") and not self.canale:
+        if self.tip in ("general", "platforma", "juridic") and not self.canale:
             raise ValueError("un pachet general / de platformă își numește canalele (sau „*”)")
         if self.tip == "nisa" and self.nisa is None:
             raise ValueError("un pachet de nișă își numește nișa")
@@ -229,6 +229,8 @@ def selecteaza(
     iesire = []
     for p in incarca(director):
         pk = p.pachet
+        if pk.tip == "juridic":
+            continue  # pachetul juridic îl aplică G9, nu G3
         if pk.tip == "nisa":
             if pk.se_aplica == "mereu" or pk.nisa in nise:
                 iesire.append(p)
@@ -239,6 +241,15 @@ def selecteaza(
 
 # --- evaluare (pură) --------------------------------------------------------------------------------------
 # ---------------------
+
+
+def pachete_juridice(canal: str, director: Path = DIRECTOR) -> list[PachetIncarcat]:
+    """Pachetele de mențiuni obligatorii (tip `juridic`), aplicate de G9."""
+    return [
+        p
+        for p in incarca(director)
+        if p.pachet.tip == "juridic" and ("*" in p.pachet.canale or canal in p.pachet.canale)
+    ]
 
 
 def se_aplica(r: Regula, ctx: Context) -> bool:

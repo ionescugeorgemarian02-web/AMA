@@ -145,7 +145,7 @@ def judecator(
     )
     j = JudecatorFals(m.cod)
     fals.text = j
-    profiluri = ("judecata",)
+    profiluri = ("judecata", "strategie")
     with admin_engine.connect() as c:
         originale = {
             p: list(

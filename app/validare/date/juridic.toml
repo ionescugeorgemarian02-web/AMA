@@ -1,0 +1,17 @@
+# Datele validatorului G9 Juridic (F5.6, docs/09 §9.4, docs/21 §21.11). Valori de pornire [I].
+
+[pret_referinta]
+zile = 30                     # prețul de referință = cel mai mic preț din ultimele 30 de zile (21.11)
+cuvinte_reducere = ["reducere", "reduceri", "redus", "redusa", "discount", "promotie", "pret special"]
+
+[promisiuni_rezultat]
+# promisiuni despre rezultatul pentru client (fără diacritice); blochează
+expresii = [
+  '\brezultate (?:garantate|sigure|asigurate|imediate)\b',
+  '\bgarantam (?:ca )?(?:vei|veti|o sa)\b',
+  '\bsigur (?:vei|veti|o sa) (?:slabi|castiga|reusi|vindeca)',
+  '\bfara (?:nicio|nici o) (?:indoiala|dubla)\b',
+  '\bpromitem (?:ca )?(?:vei|veti|o sa)\b',
+  '\bsucces (?:garantat|asigurat|100 ?%)',
+  '\b100 ?% (?:eficient|eficace|sigur)\b',
+]
