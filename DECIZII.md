@@ -44,3 +44,15 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
 - **Consecințe:** ecranul „Creierul de brand” (F4.8) le arată împreună cu celelalte; `tests/unit/test_creier_compartimente.py` numără 13 și păstrează verificarea
   celor zece din 10.1. Documentul 10.1 se actualizează odată cu poarta F4 (propunere).
 
+
+### D-006 (2026-11-13) — Faza F5: severitatea hotărăște unde merge un eșec; conținutul livrabilului provizoriu; reguli în TOML
+
+- **Context:** `docs/09` spune „un eșec critic blochează” (9.2) și „un livrabil blocat critic intră în carantină” (9.8), iar 7.3 cere cel mult 2 reparații. Nu spune
+  ce eșec merge la reparație și ce eșec la carantină. Nu există încă tabel de conținut (F6) și nici bibliotecă YAML în dependențele de rulare.
+- **Hotărâre (propusă de agentul de cod, de confirmat de proprietar):** (1) orice `esec` blochează și oprește cascada; severitatea `majora` = reparabil (autorul primește
+  instrucțiunea, cel mult 2 runde, apoi om), `critica` = nu se repară prin rescriere (nișă refuzată, injecție) → carantină; avertismentele se numără în puncte (minoră 1,
+  majoră 2), peste `AMA_VALIDARE_PRAG_AVERTISMENTE` (4, de pornire) livrabilul cere aprobarea unui om. (2) Până la F6, `livrabile_continut` ține versiunile de conținut ale
+  livrabilului (text + câmpuri pe canal + active); F6 îl refolosește. (3) Pachetele de reguli (F5.4) sunt fișiere TOML (`tomllib`, bibliotecă standard), nu YAML:
+  nicio dependență nouă.
+- **Consecințe:** F5.10 construiește ieșirea din carantină; un eșec `critica` nu intră în bucla de reparație. Dacă proprietarul vrea ca și eșecurile critice să fie reparate
+  întâi, se schimbă o singură decizie în `app/validare/agregare.py`.

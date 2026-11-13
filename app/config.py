@@ -90,6 +90,11 @@ class Settings(BaseSettings):
     # Autonomia (F2.10, 7.4): ponderea livrabilelor care merg totuși la om la L2 (10–20%) și la L3+ (5–10%).
     autonomie_esantion_l2: float = Field(default=0.15, ge=0.0, le=1.0)
     autonomie_esantion_l3: float = Field(default=0.075, ge=0.0, le=1.0)
+    # Validarea (F5.1, docs/09): peste pragul de puncte de avertisment livrabilul cere un om
+    # (valori de pornire, nemăsurate). Judecătorii (V3) și V4 sunt opționali: fără ei rulează V0–V2.
+    validare_prag_avertismente: int = Field(default=4, ge=0)
+    validare_judecatori: bool = False
+    validare_v4: bool = False
     # Canale cu consimțământ per postare: rămân la cel mult L1 (TikTok, 7.4). Separate prin virgulă.
     canale_consimtamant: str = "tiktok"
     # Executorul de efecte externe (F2.5, 7.5): reîncercări cu pauză crescătoare, plasa de siguranță a

@@ -4,6 +4,11 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F5.1 — Cadrul de validare
+- Forma verdictului (validator + versiune, treaptă, trece / avertisment / eșec, severitate, scor, dovezi cu fragmentul exact și regula, instrucțiune, cost), cascada V0 → V5 (oprire după treapta cu eșec; la treptele cu cost, la primul eșec), agregarea (eșec critic → carantină, eșec major → reparație, avertismente în puncte, peste prag la om) și unirea instrucțiunilor într-un singur mesaj pentru autor. Registrul de validatori ca date (cod G, treaptă, tipuri și canale).
+- Bucla `în validare` → `în reparație` → `în validare` peste mașina de stări (limita de 2 runde rămâne a `productie.muta`), fluxul durabil `validare.livrabil`, punctul de extensie pentru autorii reparațiilor (F6).
+- Tabele `livrabile_continut` (versiuni de conținut ale livrabilului, provizoriu până la F6), `validari_rulari`, `validari_verdicte` (doar adăugare, RLS), migrarea `0028`; secțiunea „Validare” în urma livrabilului din ecranul Producție. DECIZII D-006.
+
 ### Poarta F4 — lanțul verificat local
 - Test cap-coadă cu brandul fictiv (colectare → fapte → interviu → brief → ghid → citate și public → insight → strategie → aprobări → pachet de context) și comanda `python -m app.creier.pregatire --client <nume>` care creează clientul și sursele unui brand propriu. Poarta propriu-zisă (CariereAI și BigBrain) rămâne deschisă până la materialele și aprobarea proprietarului.
 

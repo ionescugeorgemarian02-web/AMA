@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse, Response
 from sqlalchemy import select
 
-from app import productie
+from app import productie, validare
 from app.config import get_settings
 from app.conturi import (
     DbSession,
@@ -260,6 +260,10 @@ def _detaliu(
         etichete_job=ETICHETE_JOB,
         clasa_job=CLASA_JOB,
         pachete_context=context_creier.ale_livrabilului(db, livrabil.id),
+        validari=validare.pentru_ecran(db, livrabil.id),
+        continuturi=validare.continut.versiuni(db, livrabil.id),
+        etichete_rezultat=validare.verdict.ETICHETE_REZULTAT,
+        etichete_severitate=validare.verdict.ETICHETE_SEVERITATE,
         cereri=aprobari.ale_livrabilului(db, livrabil.id),
         etichete_aprobare=ETICHETE_STARE,
         etichete_decident=ETICHETE_DECIDENT,

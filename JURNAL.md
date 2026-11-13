@@ -327,3 +327,13 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Defecte reale găsite și reparate: (1) `test_gateway_cote::test_zece_la_suta_…` aștepta resetarea zilnică „2026-11-13” cu ceasul real al zilei în care fusese scris (pica din 13.11.2026 00:00 UTC); acum folosește ceasul controlat. (2) `test_gateway_evaluare::test_fluxul_de_evaluare_…` compara amânarea calculată cu ceasul controlat (2026-11-13 00:00:01) cu `datetime.now()` real, deci pica după acel moment; acum compară cu ceasul controlat. (3) Mascarea datelor personale (`app/gateway/mascare.py`) lua cifrele unui UUIDv7, despărțite prin `-`, drept card (≈0,26% dintre UUID; 527 din 200 000) sau telefon, iar marcajul `[afirmatie:<uuid>]` din prompt ajungea mascat: modelul nu mai putea cita sursa, deci testele `test_onboarding_*` picau aleatoriu (≈1 rulare din 10 pe `test_onboarding_piata`/`strategie`, „assert 8 >= 9”). Detecțiile care ating un UUID se ignoră acum; testele noi pică fără reparație.
   - Plafon de timp: `faulthandler_timeout = 100` în `pyproject.toml` (tracebackurile tuturor firelor în jurnal) și, în `tests/conftest.py`, un plafon de 120 s pe test (SIGALRM, biblioteca standard; `AMA_TEST_PLAFON_SEC`) care îl pică cu numele lui; după 3 teste depășite rularea se oprește (cod 3), ca un blocaj să nu consume tot jobul de 15 minute. Testele picate sau mai lente de 20 s se scriu imediat în jurnal (`[PICAT] …`, `[LENT] …`). `timeout-minutes` rămâne 15.
   - Verificat: `make check` (2177 de teste, 6 min 7 s) și `make guards` verzi, local, ca root. Rămâne deschis: o nouă rulare CI; dacă se blochează din nou, jurnalul va conține numele testului și tracebackul firelor.
+
+## 2026-11-13 — Sesiunea 8: faza F5, Validare și aprobări (F5.1–F5.6)
+
+### 22. Un agent de cod (Sonnet), pe ramura `claude/amazing-volta-ou9t2u`
+- Un commit pe pas, `make check` verde înainte de fiecare. F5.7–F5.10 nu s-au construit (rămân pentru pașii următori).
+- **F5.1 — Cadrul de validare.**
+  - Construit: `app/validare/{verdict,agregare,registru,intrare,cascada,continut,depozit,autor,ciclu,fluxuri,modele}.py`, migrarea `0028` (conținut, rulări, verdicte), secțiunea „Validare” din urma livrabilului, `docs/specs/F5.1.md`, DECIZII D-006.
+  - Hotărâri: orice eșec blochează; severitatea hotărăște reparație (majoră) sau carantină (critică); în treptele gratuite rulează toți pașii înainte de oprire, ca autorul să primească toate corecturile; în V3 / V4 se oprește la primul eșec; cascada goală e eroare, nu trecere; limita de 2 runde nu este dublată (a treia reparație o refuză `productie.muta`); conținutul livrabilului e provizoriu până la F6.
+  - NEVERIFICAT / SIMULAT: validatorii și autorul din teste; pragul de avertismente (4) și punctajul sunt valori de pornire.
+
