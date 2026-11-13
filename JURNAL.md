@@ -380,4 +380,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri: eșantion stratificat pe judecător (un judecător rar nu dispare); acordul se exprimă și ca kappa față de adevărul
     stabilit de om; deriva se compară doar în aceeași versiune (prompt + model + validator); pragurile sunt [I].
   - Verificat: 22 de verdicte reale ale cascadei cu judecător FALS, etichete simulate → 81,8%, alertă, 4 exemple propuse.
+- **F5.10 — Carantina și contestațiile.**
+  - Construit: `app/validare/carantina.py`, ecranele de carantină, verdict și exemple propuse, legătura „Contestă” în urma livrabilului.
+  - Hotărâri: respingerea definitivă = `anulat` (mașina de stări neschimbată); contestația este rândul din `exemple_propuse`
+    (sursa `contestatie`), fără tabel separat; eliberarea în validare pornește jobul după commit.
+  - Verificat: lanțul complet contestat → propus → promovat → inclus în banc.
 

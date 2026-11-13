@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F5.10 — Carantina și contestațiile
+- Ecranele `/validatoare/carantina` (listă, detaliu cu dovezi, eliberare cu motiv spre validare / reparație, respingere definitivă), `/validatoare/verdicte/{id}` (contestă orice verdict) și `/validatoare/exemple` (promovarea exemplelor propuse în setul de aur); statistica contestațiilor pe validator.
+
 ### F5.8 — Calibrarea judecătorilor (G14)
 - Eșantion săptămânal programat de verdicte V3 / V4 la om, coada de etichetare `/validatoare/calibrare`, acordul pe judecător (procent, kappa, interval Wilson), alertă sub 85% și la derivă, etichetele „greșit” devin exemple propuse; tabelul `calibrare_etichete` (migrarea `0032`).
 

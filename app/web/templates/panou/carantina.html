@@ -1,0 +1,21 @@
+{% extends "panou/baza.html" %}
+{% block title %}Carantină · AMA{% endblock %}
+{% block pagina %}
+<h1>Carantină</h1>
+<p class="slab">Livrabilele blocate critic (docs/09 §9.8). Ies doar prin decizia unui om: înapoi în validare, la reparație sau respinse definitiv. Niciunul nu se publică din carantină.</p>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% for i in intrari %}
+<section class="card" aria-labelledby="c-{{ i.livrabil.id }}">
+  <h2 id="c-{{ i.livrabil.id }}"><a href="/validatoare/carantina/{{ i.livrabil.id }}">{{ i.livrabil.tip }} · {{ i.livrabil.canal }}</a></h2>
+  {% for v in i.verdicte %}<p class="slab"><strong>{{ v.validator }}</strong> {{ v.severitate or '' }}{% for d in v.dovezi %} · {{ d.regula }}{% if d.fragment %}: „{{ d.fragment }}”{% endif %}{% endfor %}</p>{% endfor %}
+</section>
+{% else %}
+<div class="card gol"><p><strong>Nimic în carantină.</strong></p></div>
+{% endfor %}
+<section class="card" aria-labelledby="t-contestatii">
+  <h2 id="t-contestatii">Contestații pe validator</h2>
+  {% for g, s in statistica.items() %}
+  <div class="rand"><span class="eticheta">{{ g }}</span><span>{{ s.contestate }} din {{ s.verdicte }} verdicte ({{ procent(s.rata) }}) · {{ s.promovate }} în setul de aur</span></div>
+  {% else %}<p class="slab">Niciun verdict salvat încă.</p>{% endfor %}
+</section>
+{% endblock %}

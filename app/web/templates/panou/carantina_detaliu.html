@@ -1,0 +1,39 @@
+{% extends "panou/baza.html" %}
+{% block title %}Livrabil în carantină · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/validatoare/carantina">← Carantină</a></p>
+<h1>{{ livrabil.tip }} · {{ livrabil.canal }}</h1>
+<p class="slab">Starea: <strong>{{ livrabil.stare }}</strong> · <a href="/productie/{{ livrabil.id }}">urma completă</a></p>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+{% if continut %}<section class="card" aria-labelledby="t-text"><h2 id="t-text">Textul (versiunea {{ continut.versiune }})</h2><p>{{ continut.text }}</p></section>{% endif %}
+<section class="card" aria-labelledby="t-dovezi">
+  <h2 id="t-dovezi">De ce a fost blocat</h2>
+  {% for v in esecuri %}
+  <div class="rand"><span><strong>{{ v.validator }}</strong> · {{ v.treapta }} · {{ v.severitate or '' }}
+    {% for d in v.dovezi %}<br><span class="slab">{{ d.regula }}{% if d.fragment %}: „{{ d.fragment }}”{% endif %}</span>{% endfor %}
+    {% if v.instructiune %}<br>{{ v.instructiune }}{% endif %}</span>
+    {% if v.id in contestate %}<span class="insigna atentie">contestat</span>{% else %}<a class="buton secundar" href="/validatoare/verdicte/{{ v.id }}">Contestă</a>{% endif %}</div>
+  {% else %}<p class="slab">Nicio dovadă de eșec în ultima rulare.</p>{% endfor %}
+</section>
+{% if livrabil.stare == 'carantina' %}
+<section class="card" aria-labelledby="t-decizie">
+  <h2 id="t-decizie">Decizia ta</h2>
+  <form method="post" action="/validatoare/carantina/{{ livrabil.id }}/elibereaza">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="m-el">Motivul eliberării (obligatoriu)</label>
+    <textarea id="m-el" name="motiv" rows="2" maxlength="500" required></textarea>
+    <p class="actiuni">
+      <button type="submit" name="spre" value="validare">Înapoi în validare</button>
+      <button type="submit" name="spre" value="reparatie" class="secundar">La reparație</button>
+    </p>
+  </form>
+  <form method="post" action="/validatoare/carantina/{{ livrabil.id }}/respinge">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="m-rs">Motivul respingerii definitive (obligatoriu)</label>
+    <textarea id="m-rs" name="motiv" rows="2" maxlength="500" required></textarea>
+    <button type="submit" class="pericol">Respinge definitiv</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

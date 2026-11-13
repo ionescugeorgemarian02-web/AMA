@@ -1,0 +1,23 @@
+{% extends "panou/baza.html" %}
+{% block title %}Verdict · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/productie/{{ verdict.livrabil_id }}">← Urma livrabilului</a></p>
+<h1>Verdictul {{ verdict.validator }} · {{ verdict.treapta }}</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<section class="card" aria-labelledby="t-v">
+  <h2 id="t-v">{{ verdict.rezultat }}{% if verdict.severitate %} · {{ verdict.severitate }}{% endif %} · versiunea {{ verdict.versiune }}</h2>
+  {% for d in verdict.dovezi %}<p class="slab">{{ d.regula }}{% if d.fragment %}: „{{ d.fragment }}”{% endif %}</p>{% endfor %}
+  {% if verdict.instructiune %}<p>{{ verdict.instructiune }}</p>{% endif %}
+</section>
+{% if contestat %}
+<p class="slab">Verdictul este contestat; contestația așteaptă în exemplele propuse pentru setul de aur.</p>
+{% else %}
+<form method="post" action="/validatoare/verdicte/{{ verdict.id }}/contesta">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label for="m-c">De ce este verdictul greșit (obligatoriu)</label>
+  <textarea id="m-c" name="motiv" rows="3" maxlength="500" required></textarea>
+  <button type="submit">Verdict greșit</button>
+</form>
+{% endif %}
+{% endblock %}

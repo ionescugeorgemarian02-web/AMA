@@ -95,6 +95,7 @@ __all__ = [
     "autor",
     "avertisment",
     "calibrare",
+    "carantina",
     "cascada",
     "ciclu",
     "continut",

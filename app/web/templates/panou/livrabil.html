@@ -89,7 +89,8 @@
   {% for x in v.verdicte %}
   <div class="rand"><span><strong>{{ x.validator }}</strong> <span class="slab">v{{ x.validator_versiune }} · {{ x.treapta }} · scor {{ '%.2f'|format(x.scor) }}</span>
     {% for d in x.dovezi %}<br><span class="slab">{{ d.regula }}{% if d.fragment %}: „{{ d.fragment }}”{% endif %}</span>{% endfor %}
-    {% if x.instructiune %}<br>{{ x.instructiune }}{% endif %}</span>
+    {% if x.instructiune %}<br>{{ x.instructiune }}{% endif %}
+    <br><a href="/validatoare/verdicte/{{ x.id }}">Contestă verdictul</a></span>
     <span class="insigna {{ 'ok' if x.rezultat == 'trece' else ('pericol' if x.rezultat == 'esec' else 'atentie') }}">{{ etichete_rezultat[x.rezultat] }}{% if x.severitate %} · {{ etichete_severitate[x.severitate] }}{% endif %}</span></div>
   {% endfor %}
   {% if r.instructiune %}<details><summary>Mesajul unic trimis autorului</summary><pre class="slab">{{ r.instructiune }}</pre></details>{% endif %}
