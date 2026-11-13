@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F5.5 — G4 Ton și G8 Lizibilitate și conversie
+- G4: vocabularul interzis / preferat al ghidului de brand APROBAT (V1), similaritatea cu exemplele aprobate prin vectori (V2, prag [I] dependent de model), rubrica de ton doar la semnal, cu dovadă literală (V3). Fără ghid aprobat nu trece tăcut.
+- G8: un singur apel la acțiune (grupe de forme imperative în română; mai multe grupe → respins), hook (prima frază), lizibilitate (indice ILA documentat, praguri [I]), rubrica «hook clar» doar la semnal. Date în `date/ton.toml` și `date/conversie.toml`.
+
 ### F5.4 — Pachetele de reguli și G3 Politici
 - `rulepacks/`: 25 de reguli de început în 10 pachete TOML (generale; Meta, TikTok, LinkedIn, email; nișe refuzate: jocuri de noroc, adulți, politică, scheme financiare; nișa sănătate), fiecare cu sursă, severitate, marcaj [I], data scrierii și exemple blocate / care trec, rulate automat; încărcare cu validare de schemă; garda interzice scrierea în `rulepacks/` din cod. Regulile pe client în bază (`reguli_client`, migrarea `0030`): autor uman obligatoriu, doar adăugare, aceleași exemple verificate la scriere.
 - G3 (V1) aplică pachetele potrivite livrabilului (generale + canal + nișe + client) și păstrează în verdict versiunea și amprenta pachetelor; G3 (V3, opțional) pentru promisiuni formulate liber. Nișele refuzate merg în carantină. Dockerfile copiază `rulepacks/`.

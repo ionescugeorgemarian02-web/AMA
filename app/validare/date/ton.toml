@@ -1,0 +1,13 @@
+# Datele validatorului G4 Ton (F5.5, docs/09 §9.4). Valori de pornire [I].
+
+[similaritate]
+# Similaritatea cosinus (0–1) dintre text și cel mai apropiat exemplu aprobat din ghidul de brand (de același canal, dacă
+# există). Pragul DEPINDE de modelul de vectori: se calibrează pe setul de aur (F5.7 / F5.8), nu se ia ca atare.
+prag = 0.35
+exemple_maxim = 8
+text_minim_cuvinte = 5   # sub atâtea cuvinte tonul nu se judecă
+
+[vocabular]
+# un cuvânt interzis se potrivește și cu formele lui (prefix de cel puțin `prefix_minim` litere, dar nu mai scurt decât cuvântul − 2)
+prefix_minim = 4
+cuvinte_minim_pentru_preferat = 30   # un text mai lung fără niciun cuvânt preferat primește un avertisment

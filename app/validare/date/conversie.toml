@@ -1,0 +1,50 @@
+# Datele validatorului G8 Lizibilitate și conversie (F5.5, docs/09 §9.4, docs/13 §13.1 „un singur apel la acțiune”).
+# Tiparele se potrivesc pe textul fără diacritice și cu litere mici. Toate pragurile sunt valori de pornire [I]: se
+# calibrează pe setul de aur (F5.7 / F5.8).
+
+[cta]
+# Un APEL LA ACȚIUNE = o formă imperativă din una dintre grupe. Mai multe forme din ACEEAȘI grupă („Comandă acum și profită de
+# reducere”) sunt tot un singur apel; forme din grupe diferite („Comandă acum și urmărește-ne”) sunt apeluri diferite → respins.
+# Formele ambigue cu substantive sau cu alte verbe („comandă”, „sună”, „vezi”) cer un complement tipic.
+tipuri_cu_apel = ["postare", "script_video_scurt", "script_video_lung", "carusel", "pagina_captare", "reclama_text", "email", "studiu_caz"]
+
+[cta.grupe]
+cumparare = [
+  '\bcumpar(?:a|ati)\b', '\bcomand(?:a (?:acum|azi|online|pe|la|prin|chiar|de)|ati\b|a-ti\b)', '\brezerv(?:a (?:acum|azi|online|un|o|locul|masa|pe)|ati\b)',
+  '\bprofit(?:a|ati)\b', '\bia (?:acum|azi|oferta)\b', '\bachizitioneaza\b',
+]
+contact = [
+  '\bsuna (?:acum|azi|la|ne)\b', '\bsunati\b', '\bscrie-?ne\b', '\bscrieti-?ne\b', '\bcontact(?:eaza|ati)\b',
+  '\btrimite-?ne\b', '\btrimiteti-?ne\b', '\bia legatura\b', '\bprogram(?:eaza|ati)\b', '\bcere (?:oferta|o oferta)\b',
+]
+navigare = [
+  '\bintr(?:a|ati) pe\b', '\bda(?:ti)? click\b', '\bapas(?:a|ati)\b', '\bafl(?:a|ati) mai mult\w*', '\bvezi (?:oferta|mai mult|detalii|meniul|produsele|pe)\b',
+  '\bvedeti (?:oferta|mai mult|detalii|meniul|produsele)\b', '\bcit(?:este|iti) mai mult\b', '\bdescarc(?:a|ati)\b', '\bcauta (?:pe|in)\b',
+]
+inscriere = [
+  '\binscri\w*-?(?:te|va)\b', '\binscrieri\b(?= (?:acum|deschise|pana))', '\babon(?:eaza|ati)-?(?:te|va)\b', '\binregistr(?:eaza|ati)-?(?:te|va)\b',
+  '\balatur(?:a|ati)-?(?:te|va)\b', '\bcompleteaza (?:formularul|datele)\b', '\bcompletati (?:formularul|datele)\b',
+]
+vizita = ['\bvino\b', '\bveniti\b', '\btreci pe la\b', '\btreceti pe la\b', '\bte asteptam\b', '\bva asteptam\b']
+social = ['\burmar(?:este|iti)-?(?:ne|ne)\b', '\bdistribu(?:ie|iti)\b', '\bda(?:ti)? (?:un )?(?:like|share)\b', '\bda mai departe\b', '\bcomenteaza\b']
+incercare = ['\bincerc(?:a|ati)\b', '\btest(?:eaza|ati)\b', '\bgusta\b', '\bdegusta\b']
+
+[hook]
+# prima frază: deschideri fără conținut (fără diacritice, la începutul frazei)
+deschideri_slabe = ["buna ziua", "buna dimineata", "buna seara", "salut", "salutare", "draga", "dragi", "stimati", "stimata", "va informam",
+                    "suntem incantati", "ne face placere", "in aceasta postare", "astazi vrem sa", "dorim sa va anuntam", "bine ati venit",
+                    "hello", "hei, "]
+cuvinte_maxim = 25    # o primă frază mai lungă de atât nu mai e un cârlig
+
+[lizibilitate]
+# Indicele AMA de lizibilitate pentru română (ILA), 0–100, mai mare = mai ușor:
+#   ILA = 100 − 2 × (cuvinte pe propoziție, în medie) − 0,8 × (procent de cuvinte lungi)
+# unde un cuvânt lung are cel puțin `cuvant_lung_litere` litere. Nu e formula Flesch (calibrată pe engleză, cu silabe): în română
+# silabele se numără greu fără dicționar, iar lungimea cuvântului și a propoziției sunt proxy-uri stabile. Interpretare [I]:
+# ≥ 60 ușor, 40–60 mediu, < 40 greu. Pragurile se calibrează pe setul de aur.
+cuvinte_minim = 20
+fraza_maxima_cuvinte = 30
+medie_maxima_cuvinte = 22
+cuvant_lung_litere = 11
+procent_cuvinte_lungi_maxim = 20
+indice_minim = 40
