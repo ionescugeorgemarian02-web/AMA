@@ -1,0 +1,94 @@
+# Datele extractorului de afirmații verificabile (G2, F5.3, docs/09 §9.3).
+# Expresiile sunt scrise FĂRĂ diacritice, cu litere mici; se potrivesc pe textul fără diacritice, deci prind și textul scris
+# fără ele. Fiecare potrivire trebuie acoperită de registrul de fapte: toate cuvintele ei semnificative (cel puțin 3 litere,
+# fără cele din `cuvinte_goale`) trebuie să apară, ca rădăcini de 6 litere, în ACEEAȘI intrare din registru.
+
+[moneda]
+RON = ["lei", "leu", "ron"]
+EUR = ["euro", "eur", "€"]
+USD = ["usd", "dolari", "dolar", "$"]
+
+[unitati_timp]
+# unitate (fără diacritice) → rădăcina cu care trebuie să apară în registru
+zi = "zi"
+zile = "zi"
+ora = "or"
+ore = "or"
+minut = "minut"
+minute = "minut"
+saptamana = "saptam"
+saptamani = "saptam"
+luna = "lun"
+luni = "lun"
+an = "an"
+ani = "an"
+
+[luni_an]
+ianuarie = 1
+februarie = 2
+martie = 3
+aprilie = 4
+mai = 5
+iunie = 6
+iulie = 7
+august = 8
+septembrie = 9
+octombrie = 10
+noiembrie = 11
+decembrie = 12
+
+[cifre_neutre]
+# numărul urmat de aceste cuvinte nu este o afirmație despre client („3 pași simpli”, „top 5 sfaturi”)
+cuvinte = ["pasi", "moduri", "motive", "sfaturi", "idei", "lucruri", "trucuri", "greseli", "intrebari", "variante",
+           "metode", "tipuri", "reguli", "etape", "secrete", "ponturi", "cauze", "beneficii", "avantaje", "exemple"]
+# numărul precedat de aceste cuvinte este o etichetă de ordine („Cadrul 4:”, „Pasul 2”), nu o afirmație (adăugat în F5.7)
+etichete = ["cadrul", "cadru", "pasul", "slide", "slide-ul", "partea", "capitolul", "episodul", "sectiunea", "punctul", "lectia",
+            "intrebarea", "varianta", "optiunea", "etapa", "modulul"]
+
+[superlative]
+# regex-uri pe text fără diacritice
+expresii = [
+  '\bce(?:l|a|i|le) mai (?!probabil\b|putin\b|mult\b)[a-z]{3,}',
+  '\b(?:numarul|nr\.?|locul) ?(?:1|unu)\b',
+  '#1\b',
+  '\blider(?:ul)? (?:pe piata|in domeniu|in romania)',
+  '\b(?:singur(?:ul|a|ii|ele)?|unic[a]?) (?:care|din|pe piata|in romania|in brasov)',
+  '\bfara egal\b',
+  '\bnemaiintalnit\w*',
+  '\bimbatabil\w*',
+  '\bperfect[a]?\b',
+  '\bde top\b',
+  '\bnumarul unu\b',
+]
+
+[comparatii]
+expresii = [
+  '\bmai (?:ieftin|bun|rapid|proaspat|eficient|sanatos|scump|usor|mare|mic|multi|multe|mult|putin)\w* (?:decat|ca)\b',
+  '\bfata de\b',
+  '\bcomparativ cu\b',
+  '\bspre deosebire de\b',
+  '\bin comparatie cu\b',
+]
+
+[promisiuni]
+expresii = [
+  '\bgarant\w+',
+  '\bpromit\w*',
+  '\bfara risc\b',
+  '\b100 ?% (?:sigur|garantat|natural|organic)\w*',
+  '\bbanii inapoi\b',
+  '\brezultate (?:garantate|sigure|asigurate)\b',
+  '\bretur\w*',
+  '\b(?:livrare|transport) gratuit\w*',
+  '\bgratuit\w*',
+  '\bfara (?:costuri|taxe|comision) \w+',
+  '\bpe viata\b',
+  '\bfara obligatii\b',
+]
+
+[acoperire]
+cuvinte_goale = ["cel", "cea", "cei", "cele", "mai", "fara", "pentru", "este", "sunt", "decat", "fata", "pe", "din",
+                 "care", "singur", "unic", "numarul", "locul"]
+radacina = 6                  # litere folosite la potrivirea cuvintelor
+toleranta_reducere = 0.5      # puncte procentuale: reducerea afirmată față de cea calculată din preț și preț de referință
+fereastra_subiect = 90        # caractere în jurul unei cifre în care se caută numele ofertei sau al faptului

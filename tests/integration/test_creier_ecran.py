@@ -59,7 +59,8 @@ def audit(admin: Engine, actiune: str, intrare_id: uuid.UUID) -> list[dict[str, 
             dict(r._mapping)
             for r in c.execute(
                 text(
-                    "SELECT utilizator_id, detalii FROM jurnal_audit WHERE actiune = :a AND detalii->>'intrare' = :i"
+                    "SELECT utilizator_id, detalii FROM jurnal_audit WHERE actiune = :a AND detalii->>'intrare' = :i "
+                    "ORDER BY creat_la, id"
                 ),
                 {"a": actiune, "i": str(intrare_id)},
             )

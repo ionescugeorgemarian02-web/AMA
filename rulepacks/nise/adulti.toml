@@ -1,0 +1,18 @@
+pachet = "adulti"
+tip = "nisa"
+titlu = "Nișă refuzată: conținut pentru adulți (21.12)"
+versiune = 2
+se_aplica = "mereu"
+nisa = "adulti"
+
+[[reguli]]
+id = "ad-continut-adulti"
+text = "Conținutul pentru adulți este o nișă refuzată (21.12): livrabilul merge la un om."
+potrivire = "regex"
+tipare = ['\bcontinut (?:pentru|doar pentru) adulti\b', '\berotic\w*', '\bescorte?\b', '\bwebcam\b', '\bporn(?:o|ografi)\w*', '\bsex ?shop\b', '\b18\+']
+severitate = "critica"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "Politicile platformelor privind conținutul pentru adulți și lista de nișe refuzate (docs/21 §21.12)", url = "https://transparency.meta.com/policies/ad-standards/" }
+exemple_blocate = ["Sex shop online, discreție garantată.", "Conținut pentru adulți, doar 18+."]
+exemple_trece = ["Cafea pentru adulți și copii deopotrivă, fără cofeină la cerere.", "Am pornit prăjitoria acum zece ani, cu un prăjitor mic."]

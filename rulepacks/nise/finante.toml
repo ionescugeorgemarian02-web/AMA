@@ -1,0 +1,27 @@
+pachet = "finante"
+tip = "nisa"
+titlu = "Nișă refuzată: scheme financiare (21.12)"
+versiune = 2
+se_aplica = "mereu"
+nisa = "finante"
+
+[[reguli]]
+id = "fin-scheme-financiare"
+text = "Schemele financiare și investițiile cu profit garantat sunt o nișă refuzată (21.12): livrabilul merge la un om."
+potrivire = "regex"
+tipare = [
+  '\bprofit garantat\b',
+  '\bdublezi (?:banii|investitia)\b',
+  '\bschema piramidala\b',
+  '\binvesteste (?:acum )?si (?:castigi|faci)\b',
+  '\bforex\b',
+  '\bcriptomoned\w+.{0,40}(?:garantat|dublu|rapid)',
+  '\bbanii\b.{0,30}\b(?:cresc|se dubleaza|se tripleaza)\b.{0,20}\bgarantat\b',
+  '\bcresc garantat\b',
+]
+severitate = "critica"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Reglementarea investițiilor și a schemelor piramidale (Legea 297/2004; Legea 24/2017) și lista de nișe refuzate (docs/21 §21.12)", url = "https://legislatie.just.ro" }
+exemple_blocate = ["Investește acum și câștigi profit garantat.", "Dublezi banii în 30 de zile cu criptomonede.", "În clubul nostru, banii se dublează garantat într-un trimestru."]
+exemple_trece = ["Investim în boabe de cafea de cea mai bună calitate pentru tine.", "Cardul cadou se poate folosi la orice comandă."]

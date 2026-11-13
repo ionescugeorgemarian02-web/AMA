@@ -1,0 +1,35 @@
+{% extends "panou/baza.html" %}
+{% block title %}Exemple propuse · AMA{% endblock %}
+{% block pagina %}
+<h1>Exemple propuse pentru setul de aur</h1>
+<p class="slab">Din contestații și din etichetele de calibrare. Un exemplu promovat intră în rularea bancului; pentru a-l face permanent în <code>evaluare/aur/</code> îl pui într-un commit (codul nu scrie acolo). Anonimizează textul dacă are date ale clientului.</p>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+{% for e in propuse %}
+<section class="card" aria-labelledby="x-{{ e.id }}">
+  <h2 id="x-{{ e.id }}">{{ e.validator }} · {{ e.sursa }} · așteptat: {{ e.asteptat }}{% if e.severitate %} ({{ e.severitate }}){% endif %}</h2>
+  <p class="slab">{{ e.tip }} / {{ e.canal }} · motiv: {{ e.motiv }}</p>
+  <form method="post" action="/validatoare/exemple/{{ e.id }}/promoveaza">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="t-{{ e.id }}">Text (anonimizat)</label>
+    <textarea id="t-{{ e.id }}" name="text" rows="4" maxlength="20000">{{ e.text }}</textarea>
+    <label for="c-{{ e.id }}">Profilul de context</label>
+    <select id="c-{{ e.id }}" name="context_profil">{% for c in contexte %}<option value="{{ c }}"{% if c == e.context_profil %} selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+    <label for="a-{{ e.id }}">Eticheta</label>
+    <select id="a-{{ e.id }}" name="asteptat"><option value="">păstrează</option><option value="trece">trece</option><option value="esec">eșec</option></select>
+    <label for="s-{{ e.id }}">Severitatea (la eșec)</label>
+    <select id="s-{{ e.id }}" name="severitate"><option value="">–</option><option value="majora">majoră</option><option value="critica">critică</option></select>
+    <button type="submit">Promovează</button>
+  </form>
+  <form method="post" action="/validatoare/exemple/{{ e.id }}/respinge">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="motiv" value="respins de om">
+    <button type="submit" class="secundar">Respinge</button>
+  </form>
+</section>
+{% else %}
+<div class="card gol"><p><strong>Niciun exemplu propus.</strong></p></div>
+{% endfor %}
+{% if promovate %}<section class="card" aria-labelledby="t-prom"><h2 id="t-prom">Promovate</h2>
+{% for e in promovate %}<div class="rand"><span>{{ e.validator }} · {{ e.asteptat }}</span><span class="slab">{{ e.decis_la|moment }}</span></div>{% endfor %}</section>{% endif %}
+{% endblock %}

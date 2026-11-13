@@ -367,6 +367,16 @@ def muta(
             f"din „{stari.ETICHETE[curenta]}” iese doar un om",
             cerere,
         )
+    editare = (curenta, la) == (Stare.ASTEAPTA_APROBARE, Stare.IN_VALIDARE)
+    if editare and utilizator_id is None:  # editarea pe loc din biroul de aprobări (F5.9): doar un om
+        raise refuza(
+            db,
+            livrabil,
+            TranzitieNepermisa,
+            "doar_om",
+            "din „Așteaptă aprobare” înapoi în validare duce doar editarea unui om",
+            cerere,
+        )
     fara_temei = _motiv_fara_temei(db, livrabil, cerere, temei)
     if fara_temei:
         raise refuza(db, livrabil, TranzitieNepermisa, "fara_temei", fara_temei, cerere)
@@ -402,6 +412,18 @@ def muta(
             utilizator_id=utilizator_id,
             diagnostic=detalii,
         )
+    if editare:  # cererea în așteptare era pentru o versiune care nu mai e cea de aprobat
+        veche = aprobari_baza.anuleaza_in_asteptare(db, livrabil.id)
+        if veche is not None:
+            audit.record(
+                db,
+                "aprobare.anulata",
+                obiect_tip="aprobare",
+                obiect_id=veche.id,
+                utilizator_id=utilizator_id,
+                tenant_id=veche.tenant_id,
+                detalii={"livrabil": livrabil.id, "motiv": "editare pe loc"},
+            )
     _aplica(db, livrabil, cerere, motiv=motiv, detalii=detalii)
     return Rezultat(livrabil=livrabil, cerut=la, stare=la)
 

@@ -1,0 +1,232 @@
+# Profilurile de context ale seturilor de aur (F5.7). Totul este INVENTAT: firme, produse, prețuri, texte. Nicio persoană,
+# adresă, telefon sau email real. Momentele sunt relative la `la`, nu la ceasul real. Fiecare exemplu trimite la un profil
+# prin `ctx`; bancul construiește profilul într-o tranzacție anulată (vezi app/validare/banc/context.py).
+
+[meta]
+la = "2026-11-12T12:00:00Z"
+
+[contexte.gol]
+nume = "Fără nicio informație despre client"
+
+# --- Cafeneaua Zorilor: prăjitorie de cafea de specialitate (fictivă) --------------------------------------------------
+[contexte.zorilor]
+nume = "Cafeneaua Zorilor (prăjitorie, Brașov)"
+
+[contexte.zorilor.ghid]
+nume = "Barista prietenos"
+descriere = "Brandul sună cald și simplu, ca un barista care explică pe îndelete, fără cuvinte pretențioase."
+reguli_da = ["Spune pe nume ce e în pachet", "Dă data prăjirii", "Invită la degustare"]
+reguli_nu = ["Nu promite efecte medicale", "Nu compara cu alte firme"]
+vocabular_preferat = ["proaspăt", "degustare", "prăjit în loturi mici", "boabe"]
+vocabular_interzis = ["ieftin", "miraculos", "revoluționar"]
+exemple = [
+  { canal = "facebook", text = "Sâmbătă la 11:00 facem degustare gratuită la cafenea, vino să guști cafea proaspăt prăjită și să afli cum o prepari acasă." },
+  { canal = "email", text = "Salut! Pachetul tău de cafea pleacă marți, proaspăt prăjit, direct din cafeneaua noastră din Brașov." },
+  { canal = "site", text = "Prăjim cafeaua în loturi mici, ca fiecare pachet să ajungă proaspăt la tine acasă, cu data prăjirii pe etichetă." },
+]
+
+[[contexte.zorilor.fapte]]
+tip = "termen"
+subiect = "Livrare"
+afirmatie = "Livrăm în 2-3 zile lucrătoare în toată țara"
+valoare = { text = "2-3 zile" }
+
+[[contexte.zorilor.fapte]]
+tip = "garantie"
+subiect = "Garanție"
+afirmatie = "Garanție: schimbăm cafeaua dacă nu ți-a plăcut, fără întrebări"
+
+[[contexte.zorilor.fapte]]
+tip = "program"
+subiect = "Program"
+afirmatie = "Cafeneaua este deschisă de luni până vineri între 8:00 și 18:00, iar sâmbăta între 9:00 și 14:00"
+
+[[contexte.zorilor.fapte]]
+tip = "cifra"
+subiect = "Echipa"
+afirmatie = "Echipa Cafeneaua Zorilor are 8 angajați"
+valoare = { numar = "8" }
+
+[[contexte.zorilor.fapte]]
+tip = "cifra"
+subiect = "Înființare"
+afirmatie = "Cafeneaua Zorilor a fost înființată în 2014"
+valoare = { numar = "2014" }
+
+[[contexte.zorilor.fapte]]
+tip = "adresa"
+subiect = "Adresă"
+afirmatie = "Cafeneaua Zorilor se află pe Strada Fabricii nr. 12, în Brașov"
+
+[[contexte.zorilor.fapte]]
+tip = "caracteristica"
+subiect = "Prăjire"
+afirmatie = "Prăjim cafeaua în loturi mici, de maximum 12 kilograme"
+
+[[contexte.zorilor.fapte]]
+tip = "program"
+subiect = "Degustare"
+afirmatie = "Degustarea este în prima sâmbătă a lunii, de la ora 11:00"
+
+[[contexte.zorilor.oferte]]
+tip = "abonament"
+nume = "Abonament Lunar"
+pret = "89"
+descriere = "Două pachete de 250 g pe lună, alese de noi"
+
+[[contexte.zorilor.oferte]]
+tip = "promotie"
+nume = "Pachet Etiopia Guji 250 g"
+pret = "49"
+pret_referinta = "59"
+istoric = [["59", 60]]
+
+[[contexte.zorilor.oferte]]
+tip = "produs"
+nume = "Columbia Huila 250 g"
+pret = "42"
+
+[[contexte.zorilor.oferte]]
+tip = "produs"
+nume = "Amestecul Zorilor 1 kg"
+pret = "119"
+
+[[contexte.zorilor.surse]]
+statut = "site_concurenta"
+nume = "Prăjitoria Nordului (site public)"
+texte = [
+  "Prăjitoria Nordului prepară cafea de specialitate în loturi foarte mici, direct din boabe verzi aduse din Etiopia, apoi o ambalează manual și o trimite în toată țara în cel mult patru zile de la comandă.",
+  "La Prăjitoria Nordului fiecare client primește împreună cu pachetul un card cu sfaturi de preparare, scrise de maestrul nostru prăjitor, ca să obții acasă aceeași ceașcă pe care o gusti la degustările din atelier.",
+]
+
+[[contexte.zorilor.surse]]
+statut = "material_client"
+nume = "Materialele cafenelei"
+texte = [
+  "Pe site-ul nostru poți citi povestea cafenelei: doi prieteni au pornit în 2014 la drum cu un prăjitor mic și cu dorința de a face o cafea mai bună decât cea din supermarket, iar de atunci prăjim zilnic în loturi mici.",
+]
+
+# --- Prețuri cu istoric (pentru G9): fiecare ofertă are o poveste de preț diferită -----------------------------------------
+[contexte.preturi]
+nume = "Catalog cu istoric de prețuri"
+
+[[contexte.preturi.oferte]]
+tip = "promotie"
+nume = "Cafea Brazilia 500 g"
+pret = "40"
+pret_referinta = "50"
+istoric = [["50", 90]]
+
+[[contexte.preturi.oferte]]
+tip = "promotie"
+nume = "Ceai Matcha 100 g"
+pret = "60"
+pret_referinta = "80"
+istoric = [["80", 90], ["65", 20]]
+
+[[contexte.preturi.oferte]]
+tip = "promotie"
+nume = "Râșniță manuală Kuro"
+pret = "150"
+pret_referinta = "200"
+
+[[contexte.preturi.oferte]]
+tip = "produs"
+nume = "Filtre de hârtie V60"
+pret = "18"
+
+[[contexte.preturi.oferte]]
+tip = "promotie"
+nume = "Set degustare Trei Origini"
+pret = "70"
+pret_referinta = "90"
+istoric = [["90", 10]]
+
+[[contexte.preturi.oferte]]
+tip = "produs"
+nume = "Cană termică Zori"
+pret = "55"
+istoric = [["55", 90]]
+
+# --- Salonul Floarea de Piersic (fictiv) -----------------------------------------------------------------------------------
+[contexte.salon]
+nume = "Salonul Floarea de Piersic (coafor și manichiură, Cluj)"
+
+[contexte.salon.ghid]
+nume = "Prietena care știe"
+descriere = "Ton blând, de prietenă cu experiență, care sfătuiește fără să facă promisiuni mari."
+reguli_da = ["Vorbește la persoana a doua", "Spune ce include serviciul"]
+reguli_nu = ["Nu promite rezultate garantate", "Nu critica alte saloane"]
+vocabular_preferat = ["răsfăț", "îngrijire", "programare", "stilist"]
+vocabular_interzis = ["ieftin", "miraculos", "garantat"]
+exemple = [
+  { canal = "instagram", text = "Vino la un răsfăț pentru păr: spălat, tuns și coafat, cu produse pe care le alegem împreună în funcție de părul tău." },
+  { canal = "facebook", text = "Programările de weekend se umplu repede. Scrie-ne și îți găsim un loc la îngrijirea mâinilor sau la coafat." },
+  { canal = "email", text = "Bună! Îți mulțumim că ai trecut pe la noi. Dacă vrei o programare nouă, răspunde la acest mesaj și ne ocupăm de tot." },
+]
+
+[[contexte.salon.fapte]]
+tip = "program"
+subiect = "Program"
+afirmatie = "Salonul este deschis de marți până sâmbătă între 10:00 și 19:00"
+
+[[contexte.salon.fapte]]
+tip = "termen"
+subiect = "Manichiură"
+afirmatie = "O manichiură semi-permanentă durează 90 de minute"
+valoare = { text = "90 de minute" }
+
+[[contexte.salon.fapte]]
+tip = "cifra"
+subiect = "Echipa"
+afirmatie = "În salon lucrează 5 stiliști"
+valoare = { numar = "5" }
+
+[[contexte.salon.fapte]]
+tip = "garantie"
+subiect = "Reprogramare"
+afirmatie = "Dacă anulezi cu cel puțin 24 de ore înainte, reprogramăm fără taxă"
+
+[[contexte.salon.oferte]]
+tip = "serviciu"
+nume = "Tuns și coafat"
+pret = "120"
+
+[[contexte.salon.oferte]]
+tip = "serviciu"
+nume = "Manichiură semi-permanentă"
+pret = "100"
+
+[[contexte.salon.oferte]]
+tip = "pachet"
+nume = "Pachet Mireasă"
+pret = "650"
+descriere = "Coafură, machiaj și o ședință de probă"
+
+# --- Un context cu doar un ghid mai sobru (pentru G4 / G8 pe canale formale) -------------------------------------------------
+[contexte.birou]
+nume = "Cabinet de contabilitate (ton sobru)"
+
+[contexte.birou.ghid]
+nume = "Contabilul de încredere"
+descriere = "Ton calm, clar și respectuos, cu explicații scurte, fără jargon și fără glume."
+reguli_da = ["Explică termenii", "Dă termene exacte"]
+reguli_nu = ["Nu promite reduceri de taxe", "Nu folosi argou"]
+vocabular_preferat = ["declarație", "termen", "documente", "clarificare"]
+vocabular_interzis = ["fentăm", "scăpăm", "evaziune"]
+exemple = [
+  { canal = "linkedin", text = "Termenul pentru depunerea declarației se apropie. Pregătește documentele din timp, iar noi te ajutăm să le verifici împreună." },
+  { canal = "email", text = "Bună ziua, vă transmitem lista documentelor necesare pentru închiderea lunii. Ne puteți scrie oricând pentru clarificări." },
+  { canal = "facebook", text = "În fiecare lună explicăm pe scurt un termen contabil, ca declarațiile tale să fie mai ușor de înțeles." },
+]
+
+[[contexte.birou.fapte]]
+tip = "program"
+subiect = "Program"
+afirmatie = "Cabinetul primește clienți de luni până joi între 9:00 și 16:00"
+
+[[contexte.birou.fapte]]
+tip = "pret"
+subiect = "Consultanță"
+afirmatie = "O oră de consultanță costă 150 lei"
+valoare = { numar = "150", moneda = "RON" }

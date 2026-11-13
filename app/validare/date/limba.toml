@@ -1,0 +1,252 @@
+# Datele validatorului G10 Limbă și ale detecției limbii din G1 (F5.2).
+# Cuvintele sunt scrise FĂRĂ diacritice (forma de căutat); valoarea este forma corectă.
+
+[cuvinte_frecvente_fara_diacritice]
+# doar cuvinte a căror formă fără diacritice NU este ea însăși un cuvânt românesc obișnuit
+# (excluse: pana, mana, limba, apa, seara, vara, iarna, comanda, afla, suna, va, platforma, firma, sigura, ciocolata, usa).
+si = "și"
+sa = "să"
+in = "în"
+iti = "îți"
+imi = "îmi"
+fara = "fără"
+cand = "când"
+cat = "cât"
+cate = "câte"
+daca = "dacă"
+dupa = "după"
+tara = "țară"
+viata = "viața"
+saptamana = "săptămâna"
+saptamani = "săptămâni"
+noastra = "noastră"
+voastra = "voastră"
+buna = "bună"
+mica = "mică"
+prajita = "prăjită"
+prajit = "prăjit"
+prajim = "prăjim"
+prajitorie = "prăjitorie"
+proaspat = "proaspăt"
+proaspata = "proaspătă"
+romania = "România"
+romana = "română"
+romanesc = "românesc"
+brasov = "Brașov"
+bucuresti = "București"
+iasi = "Iași"
+timisoara = "Timișoara"
+constanta = "Constanța"
+clienti = "clienți"
+oferta = "ofertă"
+ofera = "oferă"
+pret = "preț"
+preturi = "prețuri"
+garantie = "garanție"
+informatii = "informații"
+informatie = "informație"
+conditii = "condiții"
+solutii = "soluții"
+solutie = "soluție"
+experienta = "experiență"
+echipa = "echipă"
+intr = "într"
+intre = "între"
+intotdeauna = "întotdeauna"
+inca = "încă"
+incepe = "începe"
+inceput = "început"
+inapoi = "înapoi"
+inainte = "înainte"
+intelege = "înțelege"
+inteles = "înțeles"
+intrebare = "întrebare"
+intrebari = "întrebări"
+intalnire = "întâlnire"
+intreg = "întreg"
+intreaga = "întreagă"
+toti = "toți"
+parinti = "părinți"
+mancare = "mâncare"
+bautura = "băutură"
+bauturi = "băuturi"
+aroma = "aromă"
+macinata = "măcinată"
+macinat = "măcinat"
+traditie = "tradiție"
+calda = "caldă"
+dimineata = "dimineața"
+sambata = "sâmbătă"
+duminica = "duminică"
+marti = "marți"
+invata = "învață"
+invatam = "învățăm"
+invatare = "învățare"
+ajuta = "ajută"
+ajutam = "ajutăm"
+gasesti = "găsești"
+gasim = "găsim"
+gasi = "găsi"
+gaseste = "găsește"
+cauti = "cauți"
+cauta = "caută"
+contacteaza = "contactează"
+alatura = "alătură"
+inscrie = "înscrie"
+inscrieri = "înscrieri"
+inregistreaza = "înregistrează"
+cumpara = "cumpără"
+cumparaturi = "cumpărături"
+cumparator = "cumpărător"
+vanzari = "vânzări"
+vanzare = "vânzare"
+castig = "câștig"
+castiga = "câștigă"
+castigi = "câștigi"
+economisesti = "economisești"
+garantam = "garantăm"
+livram = "livrăm"
+primesti = "primești"
+poti = "poți"
+esti = "ești"
+stii = "știi"
+stim = "știm"
+stiu = "știu"
+stiinta = "știință"
+stire = "știre"
+stiri = "știri"
+sansa = "șansă"
+sanse = "șanse"
+sef = "șef"
+scoala = "școala"
+sedinta = "ședința"
+simpla = "simplă"
+usor = "ușor"
+usoara = "ușoară"
+frumoasa = "frumoasă"
+placuta = "plăcută"
+placut = "plăcut"
+placere = "plăcere"
+multumim = "mulțumim"
+multumesc = "mulțumesc"
+multumire = "mulțumire"
+putin = "puțin"
+putina = "puțină"
+niciodata = "niciodată"
+oricand = "oricând"
+acasa = "acasă"
+afara = "afară"
+langa = "lângă"
+maine = "mâine"
+primavara = "primăvara"
+paine = "pâine"
+branza = "brânză"
+reteta = "rețeta"
+retete = "rețete"
+retea = "rețea"
+retele = "rețele"
+aplicatie = "aplicație"
+aplicatii = "aplicații"
+functie = "funcție"
+functii = "funcții"
+functioneaza = "funcționează"
+performanta = "performanță"
+rapida = "rapidă"
+aveti = "aveți"
+veti = "veți"
+puteti = "puteți"
+doriti = "doriți"
+vreti = "vreți"
+faceti = "faceți"
+sunteti = "sunteți"
+stiti = "știți"
+cititi = "citiți"
+alegeti = "alegeți"
+comandati = "comandați"
+incercati = "încercați"
+incearca = "încearcă"
+incercam = "încercăm"
+descoperiti = "descoperiți"
+mestesugar = "meșteșugar"
+
+# adăugate în F5.7 (bancul a arătat că dicționarul nu prindea formele de plural de politețe și verbele frecvente)
+asteptam = "așteptăm"
+asteptati = "așteptați"
+ceasca = "ceașcă"
+coafura = "coafură"
+cumparam = "cumpărăm"
+cumparati = "cumpărați"
+declaratia = "declarația"
+declaratie = "declarație"
+doresti = "dorești"
+gandim = "gândim"
+gasiti = "găsiți"
+imbunatati = "îmbunătăți"
+imbunatatim = "îmbunătățim"
+impreuna = "împreună"
+incepem = "începem"
+incerca = "încerca"
+inchidem = "închidem"
+intelegem = "înțelegem"
+lucratoare = "lucrătoare"
+lucratori = "lucrători"
+manichiura = "manichiură"
+orasul = "orașul"
+pastram = "păstrăm"
+pastreaza = "păstrează"
+prajire = "prăjire"
+prajirii = "prăjirii"
+pregatim = "pregătim"
+pregatit = "pregătit"
+pregatiti = "pregătiți"
+raspundem = "răspundem"
+scrieti = "scrieți"
+spuneti = "spuneți"
+stilista = "stilistă"
+stilisti = "stiliști"
+tari = "țări"
+vedeti = "vedeți"
+veniti = "veniți"
+verificam = "verificăm"
+
+[sedila]
+# ş ţ Ş Ţ (cu sedilă, U+015F U+0163 U+015E U+0162) → ș ț Ș Ț (cu virgulă, U+0219 U+021B U+0218 U+021A)
+literele = { "ş" = "ș", "ţ" = "ț", "Ş" = "Ș", "Ţ" = "Ț" }
+
+[diacritice]
+# raportul literelor cu diacritice românești în textul scris corect este de ordinul a 8–9%; sub acest prag, într-un
+# text de cel puțin `cuvinte_minim` cuvinte, diacriticele lipsesc cu totul.
+prag_raport_minim = 0.005
+cuvinte_minim = 25
+# o singură greșeală din dicționar → avertisment; de atâtea ori sau mai mult → eșec
+greseli_pentru_esec = 2
+
+[i_a]
+# „î” în interiorul cuvântului este corect doar după aceste prefixe (neînțeles, reîncepe, preîntâmpina …)
+prefixe_cu_i = ["ne", "re", "pre", "sub", "supra", "auto", "anti", "co", "de", "dez", "ex", "extra", "inter",
+                "intra", "mini", "mega", "micro", "multi", "neo", "pan", "post", "proto", "semi", "super", "tele",
+                "trans", "ultra", "vice", "contra", "radio", "bine", "prea"]
+
+[detectie_limba]
+# Cuvinte funcționale, fără diacritice, ca textul fără diacritice să fie recunoscut la fel. Cuvintele care apar în ambele
+# limbi (în, a, o, i, an, or, so) nu sunt incluse.
+romana = ["si", "de", "la", "cu", "pentru", "este", "sa", "nu", "un", "care", "ce", "pe", "din", "mai", "ca",
+          "sunt", "sau", "dar", "se", "ne", "le", "am", "ai", "are", "avem", "aveti", "fi", "fie", "al", "ale",
+          "cum", "cand", "unde", "toate", "tot", "acest", "aceasta", "acesta", "noi", "voi", "ei", "ele", "te",
+          "imi", "iti", "fara", "dupa", "peste", "intre", "prin", "spre", "doar", "foarte", "acum", "azi", "aici",
+          "acolo", "cel", "cea", "cei", "cele", "lui", "nostru", "tau", "poti", "pot", "putem", "vrei", "vreau",
+          "bine", "atunci", "daca", "deci", "inca", "deja", "orice", "fiecare", "va", "vor", "vom", "mult", "multe"]
+engleza = ["the", "and", "of", "to", "is", "for", "with", "that", "you", "your", "are", "this", "it", "on", "as",
+           "be", "at", "by", "from", "we", "our", "have", "has", "not", "but", "all", "can", "will", "what", "how",
+           "more", "about", "they", "their", "was", "were", "which", "its", "if", "just", "get", "now", "new"]
+prag_straina = 0.12      # o limbă străină (franceză, spaniolă, italiană, germană) peste acest raport și mai frecventă decât româna → limbă greșită
+franceza = ["le", "les", "des", "est", "et", "du", "que", "qui", "pour", "avec", "dans", "une", "sur", "par", "pas", "vous", "nous",
+            "votre", "notre", "chaque", "sans", "aux", "cette", "sont", "ont", "plus", "tous", "ou", "comme", "mais", "chez", "afin"]
+spaniola = ["el", "los", "las", "una", "del", "con", "para", "por", "que", "es", "y", "su", "sus", "mas", "pero", "como", "muy", "esta",
+            "son", "este", "todos", "todo", "nuestro", "nuestra"]
+italiana = ["il", "gli", "della", "delle", "che", "per", "sono", "una", "non", "piu", "nel", "nella", "anche", "con", "tutti", "ogni",
+            "questo", "questa", "nostro", "nostra"]
+germana = ["der", "die", "das", "und", "ist", "nicht", "mit", "fur", "ein", "eine", "auf", "den", "dem", "zu", "wir", "sie", "von",
+           "bei", "auch", "jede", "jeden"]
+prag_engleza = 0.15      # dacă engleza depășește acest raport și e mai frecventă decât româna → limbă greșită
+prag_romana_minim = 0.06 # sub acest raport (text lung) limba nu pare română (franceză, spaniolă, litere la întâmplare)

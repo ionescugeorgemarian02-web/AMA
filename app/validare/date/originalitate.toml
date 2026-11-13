@@ -1,0 +1,20 @@
+# Datele validatorului G7 Originalitate (F5.6, docs/09 §9.4, docs/21 §21.11). Valori de pornire [I].
+
+[shingles]
+n = 5                         # cuvinte consecutive într-un shingle
+text_minim_cuvinte = 12       # sub atâtea cuvinte nu se judecă
+documente_maxim = 500         # câte documente colectate ale clientului se compară
+
+[prag.nereutilizabila]
+# surse al căror text NU se reutilizează (concurența, forumuri; docs/21 §21.11): blocare
+containment = 0.30            # partea din shingle-urile textului care apare în sursă
+rand_minim_cuvinte = 15       # sau un fragment copiat cel puțin atât de lung
+
+[prag.reutilizabila]
+# materialele clientului: reutilizarea parțială e legitimă; doar copierea aproape integrală e avertisment
+containment = 0.60
+rand_minim_cuvinte = 40
+
+[vectori]
+prag = 0.92                   # cosinus față de un pasaj al unei surse nereutilizabile: parafrază apropiată (avertisment); depinde de model
+pasaje_maxim = 5

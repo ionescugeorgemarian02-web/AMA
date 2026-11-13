@@ -1,0 +1,38 @@
+{# Scorurile unei rulări a bancului (F5.7): poarta F5 și cardurile pe validator. Primește `scoruri`, `procent`, `nume_validatori`. #}
+{% set p = scoruri.poarta %}
+<section class="card" aria-labelledby="t-poarta">
+  <h2 id="t-poarta">Poarta F5
+    {% if p.trece %}<span class="insigna ok">trece</span>{% else %}<span class="insigna pericol">nu trece</span>{% endif %}</h2>
+  <div class="rand"><span class="eticheta">Materiale greșite blocate</span>
+    <span><strong>{{ p.rele_blocate }}</strong> din {{ p.rele_total }} ({{ procent(p.rata_blocare) }}; țintă ≥ {{ procent(p.prag_blocare) }})</span></div>
+  <div class="rand"><span class="eticheta">Materiale bune respinse pe nedrept</span>
+    <span><strong>{{ p.bune_respinse }}</strong> din {{ p.bune_total }} ({{ procent(p.rata_respingere_pe_nedrept) }}; țintă ≤ {{ procent(p.prag_respingere_pe_nedrept) }})</span></div>
+  <p class="slab">Doar treptele deterministe (V0–V2), judecătorii opriți. {% if scoruri.omise %}Omise (cer vectori prin gateway): {{ scoruri.omise|join(', ') }}.{% endif %}
+    {{ scoruri.exemple }} exemple · seturi <code>{{ scoruri.amprenta_seturi[:12] }}</code> · {{ scoruri.durata_ms }} ms</p>
+</section>
+
+{% for g, v in scoruri.validatori.items() %}
+<section class="card" aria-labelledby="v-{{ g }}">
+  <h2 id="v-{{ g }}">{{ g }} {{ nume_validatori.get(g, '') }}</h2>
+  <div class="rand"><span class="eticheta">Exemple</span><span>{{ v.exemple }}{% if v.promovate %} (din care {{ v.promovate }} promovate de un om){% endif %}</span></div>
+  <div class="rand"><span class="eticheta">Precizie · recall</span><span><strong>{{ procent(v.precizie) }}</strong> · <strong>{{ procent(v.recall) }}</strong></span></div>
+  <div class="rand"><span class="eticheta">Respinse pe nedrept</span><span>{{ procent(v.rata_fals_pozitive) }}</span></div>
+  <div class="rand"><span class="eticheta">Defecte prinse / scăpate</span><span>{{ v.tp }} / {{ v.fn }}</span></div>
+  <div class="rand"><span class="eticheta">Bune lăsate / oprite</span><span>{{ v.tn }} / {{ v.fp }}</span></div>
+  {% set r = scoruri.rele.pe_validator.get(g) %}
+  {% if r %}<div class="rand"><span class="eticheta">Materiale greșite vizate</span><span>{{ r.blocate }} din {{ r.total }} blocate ({{ procent(r.rata_blocare) }})</span></div>{% endif %}
+  <details><summary>Matricea de confuzie (rând = așteptat, coloană = prezis)</summary>
+    {% for a, rand in v.matrice.items() %}
+    <div class="rand"><span class="eticheta">{{ a }}</span><span>{% for pz, n in rand.items() %}{{ pz }}: <strong>{{ n }}</strong>{{ ' · ' if not loop.last }}{% endfor %}</span></div>
+    {% endfor %}
+    {% if v.gresite %}<p class="slab">Greșite: {% for x in v.gresite %}<code>{{ x.id }}</code> ({{ x.asteptat }} → {{ x.prezis }}){{ ', ' if not loop.last }}{% endfor %}</p>{% endif %}
+  </details>
+</section>
+{% endfor %}
+
+{% if scoruri.bune.respinse_ids %}
+<section class="card" aria-labelledby="t-bune">
+  <h2 id="t-bune">Materiale bune respinse pe nedrept</h2>
+  {% for x in scoruri.bune.respinse_ids %}<div class="rand"><code>{{ x.id }}</code><span>{{ x.validatori|join(', ') }}</span></div>{% endfor %}
+</section>
+{% endif %}

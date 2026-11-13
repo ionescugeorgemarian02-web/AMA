@@ -128,3 +128,12 @@ th, td { text-align: left; padding: 6px 4px; border-top: 1px solid var(--linie);
 .defilare { overflow-x: auto; }
 code { background: var(--suprafata-2); padding: 1px 5px; border-radius: 4px; word-break: break-all; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* Biroul de aprobări (F5.9): previzualizarea pe canal și acțiunile mari, fără derulare orizontală pe telefon */
+.previzualizare { border: 1px solid var(--linie); border-radius: var(--raza); padding: .75rem; margin: .5rem 0; overflow-wrap: anywhere; }
+.previzualizare .text-canal { white-space: pre-wrap; }
+.birou textarea, .birou input[type="text"], .birou select { max-width: 100%; box-sizing: border-box; }
+.birou details p, .birou .slab { overflow-wrap: anywhere; }
+button.mare { width: 100%; min-height: 3rem; font-size: 1.1rem; }
+ins { background: var(--ok-fundal); text-decoration: none; }
+del { background: var(--pericol-fundal); }

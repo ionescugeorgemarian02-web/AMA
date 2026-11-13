@@ -16,6 +16,7 @@ Toate funcțiile scriu auditul (cine, când, ce versiune) și emit evenimente; a
 
 import datetime as dt
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from sqlalchemy import func, select
@@ -73,6 +74,22 @@ class NuSeCereAprobare(EroareAprobare):
 
 
 TermenTrecut = reguli_aprobare.TermenTrecut
+
+
+class VersiuneNevalidata(EroareAprobare):
+    """Versiunea de aprobat nu a trecut validarea (F5.9: nicio aprobare pe o versiune nevalidată)."""
+
+
+# Verificări înainte de o APROBARE, înregistrate de modulele de deasupra (validarea, F5.9): primesc
+# livrabilul blocat și
+# întorc motivul refuzului sau `None`. Producția nu importă validarea; validarea se înregistrează aici la
+# import.
+VERIFICARI_APROBARE: list[Callable[[Session, Livrabil], str | None]] = []
+
+
+def inregistreaza_verificare(f: Callable[[Session, Livrabil], str | None]) -> None:
+    if f not in VERIFICARI_APROBARE:
+        VERIFICARI_APROBARE.append(f)
 
 
 @dataclass(frozen=True)
@@ -246,8 +263,8 @@ def decide(
         raise AprobareInexistenta(str(aprobare_id))
     if not reguli_aprobare.poate_decide(rol, Decident(initiala.decident)):
         raise FaraDrept(f"rolul nu poate decide o cerere adresată {initiala.decident}ului")
-    if hotarare is Hotarare.RESPINS and not reguli_aprobare.motiv_valid(motiv):
-        raise MotivLipsa("respingerea cere un motiv (cel puțin 3 caractere)")
+    if hotarare is Hotarare.RESPINS and not motiv_standard and not reguli_aprobare.motiv_valid(motiv):
+        raise MotivLipsa("respingerea cere un motiv: unul din listă sau o frază (cel puțin 3 caractere)")
     if motiv_standard is not None and motiv_standard not in reguli_aprobare.MOTIVE_RESPINGERE:
         raise MotivLipsa("motiv standard necunoscut")
     livrabil = blocheaza(db, initiala.livrabil_id)  # întâi livrabilul, apoi cererea: aceeași ordine peste tot
@@ -255,6 +272,11 @@ def decide(
         raise NivelUmbra(
             "nivelul de autonomie al clientului a coborât la L0 (umbră): nu se aprobă pentru publicare"
         )
+    if hotarare is Hotarare.APROBAT:
+        for verificare in VERIFICARI_APROBARE:
+            refuz = verificare(db, livrabil)
+            if refuz:
+                raise VersiuneNevalidata(refuz)
     ap = aprobari_baza.gaseste(db, aprobare_id, blocheaza=True)
     if ap is None:  # pragmatic: nu dispare, dar tipurile o cer
         raise AprobareInexistenta(str(aprobare_id))
@@ -276,7 +298,8 @@ def decide(
     ap.decis_de = utilizator_id
     ap.decis_la = func.now()
     if hotarare is Hotarare.RESPINS:
-        ap.motiv, ap.motiv_cod = motiv[: reguli_aprobare.MOTIV_MAXIM], motiv_standard
+        text_motiv = motiv or reguli_aprobare.MOTIVE_RESPINGERE.get(motiv_standard or "", "")
+        ap.motiv, ap.motiv_cod = text_motiv[: reguli_aprobare.MOTIV_MAXIM], motiv_standard
     elif motiv:
         ap.motiv = motiv[: reguli_aprobare.MOTIV_MAXIM]
     db.flush()

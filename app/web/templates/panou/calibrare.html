@@ -1,0 +1,41 @@
+{% extends "panou/baza.html" %}
+{% block title %}Calibrarea judecătorilor · AMA{% endblock %}
+{% block pagina %}
+<h1>Calibrarea judecătorilor</h1>
+<p class="slab">Eșantionul săptămânal de verdicte V3 / V4 (docs/09 §9.6). Spune dacă judecătorul a avut dreptate; un verdict greșit devine exemplu propus pentru setul de aur.</p>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+<section class="card" aria-labelledby="t-acord">
+  <h2 id="t-acord">Acordul cu omul, pe judecător</h2>
+  {% for j, s in statistici.items() %}
+  <div class="rand"><span class="eticheta">{{ j }}</span>
+    <span>{% if s.procent is not none %}<strong>{{ procent(s.procent) }}</strong> pe {{ s.etichete }} etichete{% if s.interval %} (95%: {{ procent(s.interval[0]) }}–{{ procent(s.interval[1]) }}){% endif %} · kappa {{ s.kappa if s.kappa is not none else '–' }}{% else %}fără etichete{% endif %}
+    {% if s.sub_prag %}<span class="insigna pericol">sub 85%</span>{% elif s.etichete < s.minim_etichete %}<span class="insigna atentie">sub {{ s.minim_etichete }} etichete</span>{% endif %}
+    · {{ s.de_etichetat }} de etichetat</span></div>
+  {% else %}
+  <p class="slab">Niciun verdict de judecător în eșantion încă.</p>
+  {% endfor %}
+</section>
+
+{% for el in coada %}
+<section class="card" aria-labelledby="e-{{ el.eticheta.id }}">
+  <h2 id="e-{{ el.eticheta.id }}">{{ el.eticheta.judecator }} · {{ el.tip }} / {{ el.canal }}
+    <span class="insigna {{ 'pericol' if el.eticheta.judecator_esec else 'ok' }}">{{ 'a blocat' if el.eticheta.judecator_esec else 'a trecut' }}</span></h2>
+  <p>{{ el.text }}</p>
+  {% for d in el.verdict.dovezi %}<p class="slab">Dovadă: „{{ d.fragment }}” · {{ d.regula }}{% if d.detalii %} · {{ d.detalii }}{% endif %}</p>{% endfor %}
+  {% if el.verdict.instructiune %}<p class="slab">Instrucțiune: {{ el.verdict.instructiune }}</p>{% endif %}
+  <form method="post" action="/validatoare/calibrare/{{ el.eticheta.id }}/eticheta">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="m-{{ el.eticheta.id }}">Motiv (obligatoriu la „greșit”)</label>
+    <input type="text" id="m-{{ el.eticheta.id }}" name="motiv" maxlength="500" autocomplete="off">
+    <p class="actiuni">
+      <button type="submit" name="eticheta" value="corect">Corect</button>
+      <button type="submit" name="eticheta" value="gresit" class="secundar">Greșit</button>
+    </p>
+  </form>
+</section>
+{% else %}
+<div class="card gol"><p><strong>Nimic de etichetat.</strong></p><p class="slab">Eșantionul se alege luni dimineața.</p></div>
+{% endfor %}
+{% endblock %}

@@ -4,6 +4,46 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F5
+- Testul de poartă `tests/integration/test_poarta_f5.py`: pe seturile înghețate, cu validatorii deterministe și fără niciun model, 107 / 107 materiale greșite blocate și 3 / 63 bune respinse pe nedrept; cifrele pe validator în `docs/specs/F5-poarta.md`.
+
+### F5.9 — Biroul de aprobări
+- Ecranul `/aprobari` complet, întâi pentru telefon: ordine după urgență, termen și prioritate; card cu previzualizarea pe canal, verdicte și dovezi, pachetul de context, istoricul versiunilor cu diferențe și întrebările către client; respingere cu motiv standard și frază opțională, statistica motivelor; editare pe loc (versiune nouă validată din nou, perechea `asteapta_aprobare → in_validare`, migrarea `0033`); nicio aprobare pe o versiune nevalidată.
+
+### F5.10 — Carantina și contestațiile
+- Ecranele `/validatoare/carantina` (listă, detaliu cu dovezi, eliberare cu motiv spre validare / reparație, respingere definitivă), `/validatoare/verdicte/{id}` (contestă orice verdict) și `/validatoare/exemple` (promovarea exemplelor propuse în setul de aur); statistica contestațiilor pe validator.
+
+### F5.8 — Calibrarea judecătorilor (G14)
+- Eșantion săptămânal programat de verdicte V3 / V4 la om, coada de etichetare `/validatoare/calibrare`, acordul pe judecător (procent, kappa, interval Wilson), alertă sub 85% și la derivă, etichetele „greșit” devin exemple propuse; tabelul `calibrare_etichete` (migrarea `0032`).
+
+### F5.7 — Seturile de aur și bancul de evaluare (K4)
+- Seturi de aur înghețate în `evaluare/aur/` (8 validatoare, 107 materiale greșite, 63 bune), bancul `python -m app.validare.banc` și butonul din ecranul „Validatoare” (job durabil `validare.banc`), scoruri pe validator (matrice, precizie, recall, respingeri pe nedrept) salvate în `banc_rulari`; exemple propuse pentru setul de aur (`exemple_propuse`), migrarea `0031`.
+- `db.restrans_la_client` (îngustare într-un punct de salvare anulat) în locul comutării libere de context; validatorii îmbunătățiți (limbă străină, linkuri, etichete de ordine, tipare G3, registrul G4, „încearcă”, promisiuni negate). Workerul importă acum `app.validare.fluxuri`.
+
+### F5.6 — G7 Originalitate și G9 Juridic
+- G7: suprapunere de shingle-uri cu sursele colectate (concurența blochează, materialele clientului doar avertizează), parafraze prin vectori, active fără licență. G9: reducerea cere ofertă cu preț de referință egal cu cel mai mic preț din ultimele 30 de zile (din versiunile aprobate ale ofertei; lipsa istoricului se semnalează explicit), promisiuni de rezultat, mențiuni obligatorii (pachetul `juridic`), judecător puternic opțional (V4).
+
+### F5.5 — G4 Ton și G8 Lizibilitate și conversie
+- G4: vocabularul interzis / preferat al ghidului de brand APROBAT (V1), similaritatea cu exemplele aprobate prin vectori (V2, prag [I] dependent de model), rubrica de ton doar la semnal, cu dovadă literală (V3). Fără ghid aprobat nu trece tăcut.
+- G8: un singur apel la acțiune (grupe de forme imperative în română; mai multe grupe → respins), hook (prima frază), lizibilitate (indice ILA documentat, praguri [I]), rubrica «hook clar» doar la semnal. Date în `date/ton.toml` și `date/conversie.toml`.
+
+### F5.4 — Pachetele de reguli și G3 Politici
+- `rulepacks/`: 25 de reguli de început în 10 pachete TOML (generale; Meta, TikTok, LinkedIn, email; nișe refuzate: jocuri de noroc, adulți, politică, scheme financiare; nișa sănătate), fiecare cu sursă, severitate, marcaj [I], data scrierii și exemple blocate / care trec, rulate automat; încărcare cu validare de schemă; garda interzice scrierea în `rulepacks/` din cod. Regulile pe client în bază (`reguli_client`, migrarea `0030`): autor uman obligatoriu, doar adăugare, aceleași exemple verificate la scriere.
+- G3 (V1) aplică pachetele potrivite livrabilului (generale + canal + nișe + client) și păstrează în verdict versiunea și amprenta pachetelor; G3 (V3, opțional) pentru promisiuni formulate liber. Nișele refuzate merg în carantină. Dockerfile copiază `rulepacks/`.
+
+### F5.3 — G2 Verificatorul de fapte
+- Extragerea deterministă a afirmațiilor verificabile (prețuri cu monedă, procente, termene, date, ore, cifre, superlative, comparații, promisiuni) cu fragmentul exact, potrivirea EXACTĂ cu registrul (fapte aprobate și valabile la data publicării, oferte, reducere calculată din prețul de referință, citate din surse verificate literal), blocare la preț diferit sau afirmație neacoperită; V3 opțional pentru afirmațiile nestructurate, cu verificare deterministă a răspunsului.
+- Fapt lipsă → livrabilul se oprește cu o ÎNTREBARE către client (`validari_intrebari`, migrarea `0029`, vizibilă în urma livrabilului), nu cu o presupunere.
+
+### F5.2 — G1 Structură și G10 Limbă
+- G1 (V0): câmpuri obligatorii pe cele 12 tipuri de livrabil, liste cu limite, lungimi pe canal [I], limba română (determinist, fără model), linkuri bine formate (fără rețea), toate într-un singur verdict. G10 (V1): diacritice lipsă (dicționar + raportul literelor), ș / ț cu sedilă, „î” / „â”, ghilimele, cratimă, repetiții; G10 (V3, opțional): acord și registru, prin judecător cu rubrică da / nu, dovadă literală și model diferit de autor.
+- Date în `app/validare/date/*.toml`; infrastructura comună a judecătorilor (`judecator.py`) și a problemelor (`probleme.py`) pentru F5.3–F5.6; prompt versionat `validare.g10_limba`.
+
+### F5.1 — Cadrul de validare
+- Forma verdictului (validator + versiune, treaptă, trece / avertisment / eșec, severitate, scor, dovezi cu fragmentul exact și regula, instrucțiune, cost), cascada V0 → V5 (oprire după treapta cu eșec; la treptele cu cost, la primul eșec), agregarea (eșec critic → carantină, eșec major → reparație, avertismente în puncte, peste prag la om) și unirea instrucțiunilor într-un singur mesaj pentru autor. Registrul de validatori ca date (cod G, treaptă, tipuri și canale).
+- Bucla `în validare` → `în reparație` → `în validare` peste mașina de stări (limita de 2 runde rămâne a `productie.muta`), fluxul durabil `validare.livrabil`, punctul de extensie pentru autorii reparațiilor (F6).
+- Tabele `livrabile_continut` (versiuni de conținut ale livrabilului, provizoriu până la F6), `validari_rulari`, `validari_verdicte` (doar adăugare, RLS), migrarea `0028`; secțiunea „Validare” în urma livrabilului din ecranul Producție. DECIZII D-006.
+
 ### Poarta F4 — lanțul verificat local
 - Test cap-coadă cu brandul fictiv (colectare → fapte → interviu → brief → ghid → citate și public → insight → strategie → aprobări → pachet de context) și comanda `python -m app.creier.pregatire --client <nume>` care creează clientul și sursele unui brand propriu. Poarta propriu-zisă (CariereAI și BigBrain) rămâne deschisă până la materialele și aprobarea proprietarului.
 

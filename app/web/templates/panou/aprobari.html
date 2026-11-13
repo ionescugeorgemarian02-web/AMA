@@ -10,6 +10,83 @@
   <a class="buton {{ '' if toate else 'secundar' }}" href="/aprobari?stare=toate">Toate</a>
 </p>
 
+{% if not toate %}
+{% for c in carduri %}
+{% set a = c.aprobare %}
+<section class="card birou" aria-labelledby="c-{{ a.id }}">
+  <h2 id="c-{{ a.id }}">{{ c.livrabil.tip }} · {{ c.livrabil.canal }}
+    <span class="insigna">{{ etichete_aprobare[a.stare] }}</span>
+    {% if c.urgent %}<span class="insigna pericol">urgent</span>{% endif %}</h2>
+  <p class="slab">{{ etichete_livrabil.get(c.livrabil.stare, c.livrabil.stare) }} · versiunea {{ a.versiune }} · decide {{ etichete_decident[a.decident] }} · termen {{ a.termen_la|moment }}</p>
+  <div class="previzualizare" aria-label="Previzualizare pe {{ c.livrabil.canal }}">
+    <p class="slab">{{ c.livrabil.canal }}</p>
+    {% for k in ('titlu', 'subiect', 'preantet') %}{% if c.campuri.get(k) %}<p><strong>{{ c.campuri[k] }}</strong></p>{% endif %}{% endfor %}
+    <p class="text-canal">{{ c.text }}</p>
+    {% if c.campuri.get('cta') %}<p><span class="buton secundar">{{ c.campuri['cta'] }}</span></p>{% endif %}
+  </div>
+  <div class="rand"><span class="eticheta">Validare</span><span>{{ {'trece': 'a trecut cascada', 'versiune_noua': 'versiune nevalidată', '': 'fără validare'}.get(c.decizie_validare, c.decizie_validare) }}</span></div>
+  {% for v in c.verdicte %}<p class="slab"><strong>{{ v.validator }}</strong> {{ v.treapta }} · {{ v.rezultat }}{% for d in v.dovezi %} · {{ d.regula }}{% if d.fragment %}: „{{ d.fragment }}”{% endif %}{% endfor %}</p>{% endfor %}
+  <details><summary>Pachetul de context ({{ c.fapte|length }} fapte, {{ c.oferte|length }} oferte)</summary>
+    {% for f in c.fapte %}<p class="slab">{{ f.subiect }}: {{ f.afirmatie }}</p>{% else %}<p class="slab">Niciun fapt aprobat valabil.</p>{% endfor %}
+    {% for o in c.oferte %}<p class="slab">{{ o.nume }}: {{ o.pret.get('numar') }} {{ o.pret.get('moneda') }}</p>{% endfor %}
+  </details>
+  <details><summary>Istoricul versiunilor ({{ c.versiuni|length }})</summary>
+    {% for ver in c.versiuni %}<p class="slab">v{{ ver.versiune }} · {{ ver.autor }} · {{ ver.creat_la|moment }}</p>
+    {% if ver.diferenta %}<p>{% for b in ver.diferenta %}{% if b.tip == 'scos' %}<del>{{ b.text }}</del>{% elif b.tip == 'adaugat' %}<ins>{{ b.text }}</ins>{% else %}{{ b.text }}{% endif %} {% endfor %}</p>{% endif %}
+    {% endfor %}
+  </details>
+  {% for q in c.intrebari %}
+  <form method="post" action="/aprobari/intrebari/{{ q.id }}/raspunde">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="q-{{ q.id }}">Întrebare către client: {{ q.intrebare }}</label>
+    <input type="text" id="q-{{ q.id }}" name="raspuns" maxlength="2000" required autocomplete="off">
+    <button type="submit" class="secundar">Răspunde</button>
+  </form>
+  {% endfor %}
+  {% if poate[a.id] %}
+  <form method="post" action="/aprobari/{{ a.id }}/aproba">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ a.versiune }}">
+    <button type="submit" class="mare">Aprobă</button>
+  </form>
+  <form method="post" action="/aprobari/{{ a.id }}/respinge">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ a.versiune }}">
+    <label for="ms-{{ a.id }}">Motivul respingerii</label>
+    <select id="ms-{{ a.id }}" name="motiv_standard">
+      {% for cod, eticheta in motive.items() %}<option value="{{ cod }}">{{ eticheta }}</option>{% endfor %}
+    </select>
+    <label for="m-{{ a.id }}">O frază (opțional)</label>
+    <input type="text" id="m-{{ a.id }}" name="motiv" maxlength="300" autocomplete="off">
+    <button type="submit" class="secundar">Respinge</button>
+  </form>
+  <details><summary>Editează pe loc</summary>
+    <form method="post" action="/aprobari/{{ a.id }}/editeaza">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="versiune" value="{{ a.versiune }}">
+      <label for="e-{{ a.id }}">Textul (versiunea nouă trece din nou validarea)</label>
+      <textarea id="e-{{ a.id }}" name="text" rows="6" maxlength="20000" required>{{ c.text }}</textarea>
+      <button type="submit" class="secundar">Salvează versiunea nouă</button>
+    </form>
+  </details>
+  {% else %}
+  <p class="slab">{% if a.decident == 'client' %}Așteaptă decizia clientului.{% else %}Nu ai dreptul să decizi această cerere.{% endif %}</p>
+  {% endif %}
+</section>
+{% else %}
+<div class="card gol">
+  <span class="pictograma" aria-hidden="true">✓</span>
+  <p><strong>Nicio cerere în așteptare.</strong></p>
+  <p class="slab">Livrabilele validate care cer decizia ta apar aici, cu termen. Fără decizie la timp, un livrabil nu se publică.</p>
+</div>
+{% endfor %}
+{% if statistica_motive %}
+<section class="card" aria-labelledby="t-motive">
+  <h2 id="t-motive">Motivele respingerilor</h2>
+  {% for cod, eticheta, n in statistica_motive %}<div class="rand"><span class="eticheta">{{ eticheta }}</span><span>{{ n }}</span></div>{% endfor %}
+</section>
+{% endif %}
+{% else %}
 {% for r in randuri %}
 {% set a = r.a %}
 <section class="card" aria-labelledby="c-{{ a.id }}">
@@ -49,4 +126,5 @@
   <p class="slab">Livrabilele validate care cer decizia ta apar aici, cu termen. Fără decizie la timp, un livrabil nu se publică.</p>
 </div>
 {% endfor %}
+{% endif %}
 {% endblock %}

@@ -79,6 +79,38 @@
   {% else %}<p class="slab">Niciun pachet de context legat de acest livrabil.</p>{% endfor %}
 </section>
 
+<section class="card" aria-labelledby="t-validare">
+  <h2 id="t-validare">Validare</h2>
+  <p class="slab">Fiecare rulare a cascadei (V0–V5) peste o versiune a livrabilului, cu verdictul fiecărui validator: dovada (fragmentul exact și regula), instrucțiunea de corectare și costul.</p>
+  {% for v in validari %}
+  {% set r = v.rulare %}
+  <h3>Versiunea {{ r.versiune }} · runda {{ r.runda }} <span class="insigna {{ 'ok' if r.decizie == 'trece' else 'pericol' }}">{{ {'trece': 'a trecut', 'reparatie': 'blocată, în reparație', 'carantina': 'carantină', 'intrebare': 'întrebare către client'}[r.decizie] }}</span>{% if r.cere_om %} <span class="insigna atentie">cere aprobarea unui om</span>{% endif %}</h3>
+  <p class="slab">{{ r.creat_la|moment }} · avertismente {{ r.puncte }} / {{ r.prag }} puncte{% if r.oprit_la_treapta %} · cascada s-a oprit la {{ r.oprit_la_treapta }}{% endif %} · amprenta textului <code>{{ r.amprenta[:12] }}</code></p>
+  {% for x in v.verdicte %}
+  <div class="rand"><span><strong>{{ x.validator }}</strong> <span class="slab">v{{ x.validator_versiune }} · {{ x.treapta }} · scor {{ '%.2f'|format(x.scor) }}</span>
+    {% for d in x.dovezi %}<br><span class="slab">{{ d.regula }}{% if d.fragment %}: „{{ d.fragment }}”{% endif %}</span>{% endfor %}
+    {% if x.instructiune %}<br>{{ x.instructiune }}{% endif %}
+    <br><a href="/validatoare/verdicte/{{ x.id }}">Contestă verdictul</a></span>
+    <span class="insigna {{ 'ok' if x.rezultat == 'trece' else ('pericol' if x.rezultat == 'esec' else 'atentie') }}">{{ etichete_rezultat[x.rezultat] }}{% if x.severitate %} · {{ etichete_severitate[x.severitate] }}{% endif %}</span></div>
+  {% endfor %}
+  {% if r.instructiune %}<details><summary>Mesajul unic trimis autorului</summary><pre class="slab">{{ r.instructiune }}</pre></details>{% endif %}
+  {% else %}<p class="slab">Livrabilul nu a fost încă validat.</p>{% endfor %}
+  {% if intrebari_client %}
+  <h3>Întrebări către client</h3>
+  <p class="slab">Livrabilul s-a oprit fiindcă lipsește un fapt necesar. Faptul se adaugă în Creierul clientului (propus, apoi aprobat de un om), apoi livrabilul se reia.</p>
+  {% for q in intrebari_client %}
+  <div class="rand"><span>{{ q.intrebare }}<br><span class="slab">{{ q.validator }} · versiunea {{ q.versiune }}{% if q.raspuns %} · {{ q.stare }}: {{ q.raspuns }}{% endif %}</span></span>
+    <span class="insigna {{ 'atentie' if q.stare == 'deschisa' else 'ok' }}">{{ {'deschisa': 'deschisă', 'raspunsa': 'cu răspuns', 'inchisa': 'închisă'}[q.stare] }}</span></div>
+  {% endfor %}
+  {% endif %}
+  {% if continuturi %}
+  <h3>Versiunile de conținut</h3>
+  {% for c in continuturi %}
+  <div class="rand"><span>Versiunea {{ c.versiune }} · autor {{ c.autor }}{% if c.model_autor %} <span class="slab">({{ c.model_autor }})</span>{% endif %}<br><span class="slab">{{ c.text|truncate(240) }}</span></span><code>{{ c.amprenta[:12] }}</code></div>
+  {% endfor %}
+  {% endif %}
+</section>
+
 <section class="card" aria-labelledby="t-aprobari">
   <h2 id="t-aprobari">Cererile de aprobare</h2>
   {% for a in cereri %}

@@ -1,0 +1,32 @@
+pachet = "sanatate"
+tip = "nisa"
+titlu = "Nișa sănătate și suplimente (se aplică când clientul o declară)"
+versiune = 1
+se_aplica = "nisa"
+nisa = "sanatate"
+
+[[reguli]]
+id = "san-supliment-mentiune"
+text = "Un supliment alimentar trebuie însoțit de mențiunea că nu înlocuiește o dietă variată și echilibrată."
+potrivire = "obligatoriu"
+daca_text = ['\bsupliment\w*']
+tipare = ['nu inlocuiesc[a]? o (?:dieta|alimentatie) (?:variata|echilibrata|sanatoasa)', 'nu inlocuieste o (?:dieta|alimentatie) (?:variata|echilibrata|sanatoasa)']
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Suplimentele alimentare: etichetare și comunicare (Legea 56/2011; Ordinul MS 1069/2007)", url = "https://legislatie.just.ro" }
+instructiune = "Adaugă mențiunea: „Suplimentele alimentare nu înlocuiesc o dietă variată și echilibrată.”"
+exemple_blocate = ["Suplimentul nostru cu magneziu te ajută în fiecare zi."]
+exemple_trece = ["Suplimentul nostru cu magneziu te ajută în fiecare zi. Suplimentele alimentare nu înlocuiesc o dietă variată și echilibrată.", "Cafea de specialitate, prăjită în loturi mici."]
+
+[[reguli]]
+id = "san-afirmatii-sanatate"
+text = "Pentru sănătate sunt permise doar afirmațiile autorizate; nu se atribuie produsului efecte asupra bolilor."
+potrivire = "regex"
+tipare = ['\bimbunatateste (?:sistemul imunitar|memoria|circulatia)\b', '\bintareste imunitatea\b', '\breduce (?:inflamatia|stresul|riscul)\b']
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Afirmații nutriționale și de sănătate (Regulamentul (CE) 1924/2006)", url = "https://eur-lex.europa.eu" }
+exemple_blocate = ["Întărește imunitatea cu fiecare capsulă.", "Reduce riscul bolilor de inimă."]
+exemple_trece = ["Magneziul contribuie la funcționarea normală a sistemului nervos."]

@@ -1,0 +1,9 @@
+{% extends "panou/baza.html" %}
+{% block title %}Rularea bancului · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/validatoare">← Validatoare</a></p>
+<h1>Rularea bancului</h1>
+<p class="slab">Pornită {{ rulare.pornit_la|moment }} · stare: {{ {'terminat': 'terminată', 'esuat': 'eșuată', 'in_curs': 'în curs'}[rulare.stare] }}{% if rulare.terminat_la %} · terminată {{ rulare.terminat_la|moment }}{% endif %}</p>
+{% if rulare.eroare %}<p class="mesaj eroare" role="alert">{{ rulare.eroare }}</p>{% endif %}
+{% if rulare.stare == 'terminat' and scoruri %}{% include "panou/_banc_scoruri.html" %}{% endif %}
+{% endblock %}

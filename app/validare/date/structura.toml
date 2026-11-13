@@ -1,0 +1,91 @@
+# Datele validatorului G1 Structură (F5.2, docs/09 §9.4, docs/13 §13.3, docs/15 §15.1).
+# `text` este corpul livrabilului; celelalte câmpuri sunt cheile din `campuri`.
+# Lungimile pe canal NU sunt în docs/15 (acolo sunt condițiile de publicare): toate sunt valori de pornire [I],
+# neverificate la documentația platformelor, de confirmat la F9 (conectorii reali).
+
+[generale]
+text_minim = 10          # caractere; un text mai scurt nu e un livrabil
+cuvinte_minim_limba = 12 # sub atâtea cuvinte nu se judecă limba
+
+# --- câmpuri obligatorii pe tip de livrabil (13.3) -------------------------------------------------------------
+# `obligatorii`: text sau chei din `campuri` (șir nevid sau listă nevidă). `liste`: lungimea minimă / maximă a unei liste.
+
+[tipuri.script_video_scurt]
+obligatorii = ["text", "hook", "batai", "cta"]
+liste = { batai = { min = 3, max = 6 } }
+
+[tipuri.script_video_lung]
+obligatorii = ["text", "cta"]
+
+[tipuri.postare]
+obligatorii = ["text"]
+
+[tipuri.carusel]
+obligatorii = ["cadre", "cta"]
+liste = { cadre = { min = 5, max = 10 } }
+
+[tipuri.articol_seo]
+obligatorii = ["text", "titlu", "descriere"]
+
+[tipuri.pagina_captare]
+obligatorii = ["text", "titlu", "cta"]
+
+[tipuri.reclama_text]
+obligatorii = ["text", "titluri", "descriere"]
+liste = { titluri = { min = 1, max = 15 } }
+
+[tipuri.email]
+obligatorii = ["text", "subiect", "preantet", "link_dezabonare"]
+
+[tipuri.studiu_caz]
+obligatorii = ["text", "cta"]
+
+[tipuri.youtube]
+obligatorii = ["titlu", "descriere"]
+
+[tipuri.raspuns_inbox]
+obligatorii = ["text"]
+
+[tipuri.raport_lunar]
+obligatorii = ["text"]
+
+# --- lungimi pe canal: [limite.<canal>.<camp>] cu `maxim` (blochează) și/sau `recomandat` (avertizează) ------------
+# Câmpurile cu sufixul `_nr` numără elementele unei liste (hashtag-uri, titluri).
+
+[limite.facebook.text]
+maxim = 63206
+recomandat = 1500
+[limite.instagram.text]
+maxim = 2200
+[limite.instagram.hashtaguri_nr]
+maxim = 30
+[limite.tiktok.text]
+maxim = 2200
+[limite.tiktok.hashtaguri_nr]
+recomandat = 5
+[limite.linkedin.text]
+maxim = 3000
+[limite.linkedin.hashtaguri_nr]
+recomandat = 5
+[limite.youtube.titlu]
+maxim = 100
+recomandat = 70
+[limite.youtube.descriere]
+maxim = 5000
+[limite.email.subiect]
+maxim = 150
+recomandat = 60
+[limite.email.preantet]
+maxim = 150
+[limite.site.titlu]
+maxim = 70
+recomandat = 60
+[limite.site.descriere]
+maxim = 170
+recomandat = 160
+[limite.reclama.titlu]
+maxim = 40
+[limite.reclama.descriere]
+maxim = 125
+[limite.whatsapp.text]
+maxim = 4096

@@ -1,11 +1,20 @@
-"""Punctul minim din panou pentru aprobări (F2.8): lista cererilor și două acțiuni, „Aprobă” și „Respinge”.
+"""Biroul de aprobări (F5.9, docs/18 §18.3; înlocuiește punctul minim din F2.8), întâi pentru telefon.
 
-Ecranul complet (card cu previzualizare, verdicte, aprobare în grup, editare pe loc) este F5. Aici: lista
-simplă a cererilor, cu termen și versiune, și acțiunile, fiecare cu CSRF, permisiune (`livrabil.aproba`),
-verificarea dreptului pe decident (operator / client) și audit (scris de `productie.aprobari`). Decizia se
-leagă de versiunea văzută de om: dacă livrabilul s-a schimbat între timp, decizia este refuzată.
+Lista cererilor în așteptare după urgență, termen și prioritate; pe fiecare card: textul așa cum apare pe
+canal, verdictele
+și dovezile ultimei validări, pachetul de context (faptele și ofertele aprobate), istoricul versiunilor cu
+diferențele și
+întrebările deschise către client. Acțiuni: aprobă; respinge cu motiv standard (listă ca date) și, opțional, o
+frază;
+editează pe loc (versiune nouă, care trece din nou validarea: nicio aprobare pe o versiune nevalidată);
+răspunde la o
+întrebare către client. Fiecare cu CSRF, permisiunea `livrabil.aproba`, dreptul pe decident și audit. Decizia
+se leagă de
+versiunea văzută de om. Statistica motivelor de respingere stă sub listă. Aprobarea în grup rămâne o propunere
+(F6).
 """
 
+import datetime as dt
 import uuid
 from typing import Annotated
 
@@ -33,15 +42,20 @@ from app.productie.reguli_aprobare import (
 )
 from app.productie.stari import ETICHETE as ETICHETE_LIVRABIL
 from app.productie.stari import Stare
+from app.validare import birou, intrebari
+from app.validare import trimite as trimite_validare
 
 router = APIRouter(prefix="/aprobari", tags=["aprobari"])
 Agentie = Annotated[SesiuneCurenta, Depends(require_role(*ROLURI_AGENTIE))]
 PoateAproba = Annotated[SesiuneCurenta, Depends(require_permission(Permisiune.LIVRABIL_APROBA))]
+PoateEdita = Annotated[SesiuneCurenta, Depends(require_permission(Permisiune.LIVRABIL_EDITEAZA))]
 SoloAgentie = Depends(require_role(*ROLURI_AGENTIE))  # portalul clientului (F7) va avea rutele lui
 
 MESAJE = {
     "aprobat": "Aprobarea a fost înregistrată. Livrabilul poate merge mai departe.",
     "respins": "Respingerea a fost înregistrată, cu motivul tău.",
+    "editat": "Versiunea nouă a fost salvată și trece din nou validarea; revine aici dacă trece.",
+    "raspuns": "Răspunsul a fost salvat; faptul intră în Creier după aprobarea unui om.",
 }
 
 
@@ -63,10 +77,16 @@ def _pagina(
         }
         for a, liv in aprobari.listeaza(db, doar_in_asteptare=not toate)
     ]
+    carduri = [] if toate else birou.coada(db, dt.datetime.now(dt.UTC))
+    poate = {c.aprobare.id: productie.poate_decide(u.rol, Decident(c.aprobare.decident)) for c in carduri}
     return pagina(
         request,
         u,
         "panou/aprobari.html",
+        carduri=carduri,
+        poate=poate,
+        statistica_motive=birou.statistica_motive(db),
+        etichete_livrabil={k.value: v for k, v in ETICHETE_LIVRABIL.items()},
         tab="aprobari",
         status=status,
         randuri=randuri,
@@ -120,7 +140,12 @@ def _decide(
         raise HTTPException(status_code=403, detail="Nu ai dreptul să decizi această cerere.") from None
     except aprobari.MotivLipsa as exc:
         return _pagina(request, u, db, status=422, eroare=str(exc))
-    except (aprobari.DejaDecisa, aprobari.VersiuneVeche, aprobari.NivelUmbra) as exc:
+    except (
+        aprobari.DejaDecisa,
+        aprobari.VersiuneVeche,
+        aprobari.NivelUmbra,
+        aprobari.VersiuneNevalidata,
+    ) as exc:
         return _pagina(request, u, db, status=409, eroare=str(exc))
     if not r.aplicat:
         return _pagina(
@@ -160,3 +185,43 @@ def respinge(
         motiv_standard=motiv_standard,
         motiv=motiv,
     )
+
+
+@router.post("/{id_cerere}/editeaza", dependencies=[SoloAgentie, Depends(csrf_protect)])
+def editeaza(
+    request: Request,
+    u: PoateEdita,
+    db: DbSession,
+    id_cerere: str,
+    versiune: Annotated[int, Form(ge=1)],
+    text: Annotated[str, Form(max_length=20000)],
+) -> Response:
+    ap = aprobari.citeste(db, _id(id_cerere))
+    if ap is None:
+        raise HTTPException(status_code=404, detail="Cererea nu există.")
+    if not productie.poate_decide(u.rol, Decident(ap.decident)):
+        raise HTTPException(status_code=403, detail="Nu ai dreptul să editezi această cerere.")
+    try:
+        lv = birou.editeaza(db, ap.id, versiune=versiune, text=text, utilizator_id=u.utilizator_id)
+    except birou.EditareInvalida as exc:
+        return _pagina(request, u, db, status=409, eroare=str(exc))
+    db.commit()  # versiunea nouă și starea `în validare` sunt în bază înainte ca jobul să le citească
+    trimite_validare(lv.tenant_id, lv.id, cheie=f"validare:{lv.id}:{lv.versiune}")
+    return RedirectResponse("/aprobari?mesaj=editat", status_code=303)
+
+
+@router.post("/intrebari/{id_intrebare}/raspunde", dependencies=[SoloAgentie, Depends(csrf_protect)])
+def raspunde(
+    request: Request,
+    u: PoateAproba,
+    db: DbSession,
+    id_intrebare: str,
+    raspuns: Annotated[str, Form(max_length=2000)],
+) -> Response:
+    try:
+        intrebari.raspunde(db, _id(id_intrebare), raspuns, utilizator_id=u.utilizator_id)
+    except LookupError:
+        raise HTTPException(status_code=404, detail="Întrebarea nu există.") from None
+    except ValueError as exc:  # întrebare închisă sau răspuns gol
+        return _pagina(request, u, db, status=422, eroare=str(exc))
+    return RedirectResponse("/aprobari?mesaj=raspuns", status_code=303)

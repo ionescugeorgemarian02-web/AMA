@@ -1,0 +1,16 @@
+# Amprentele fișierelor de bază ale seturilor de aur, puse de un OM la înghețare (sha256). Seturile se scriu înainte de prima rulare și nu se mai
+# ajustează după rezultate (docs/specs/F5.7.md). Un test compară aceste valori cu fișierele; o schimbare deliberată (exemple noi, promovate de un om)
+# se face printr-un commit care actualizează și amprentele de aici, cu motivul în mesaj. Codul nu scrie niciodată în acest director.
+
+[fisiere]
+"G1.jsonl" = "e6be3617f3d95486ff46e7f1b96c98f50067d85883f8acdecf3db97c5a69d580"  # pragma: allowlist secret
+"G2.jsonl" = "0c27f7fe24e248ed92897c3a8154cd3a7a5a54d97929226f84b7eba0d05b92d7"  # pragma: allowlist secret
+"G3.jsonl" = "976858d52d875a37b4fb61fd6c3e63a93717c5d565b02eed8d8c57334b037fbe"  # pragma: allowlist secret
+"G4.jsonl" = "866571455b26c8efef6d042955914eb57f122f68b5aa039c4080fc0f9f77f921"  # pragma: allowlist secret
+"G7.jsonl" = "e0d855d3bf11becb2b585d8d7e638a5c1fd3b6a4a0fbf4b75a9664085840de89"  # pragma: allowlist secret
+"G8.jsonl" = "7ed1f7f39c12357fdfcfddbd47fb55455e31031a85b6d778cbb0f636cc916fa1"  # pragma: allowlist secret
+"G9.jsonl" = "8d7f495eef0b3d50488580589a6e193ae2c85aa43a6a635d7515367d517a933d"  # pragma: allowlist secret
+"G10.jsonl" = "e38ca34eebb1d6a4682d775f3aae3570bb43ed11bdceb7774b36076e0e2931b3"  # pragma: allowlist secret
+"rele.jsonl" = "cf4ba68c015b916ef189915ceaaf8586e6987a1fb762e3db4b44995191c93dcd"  # pragma: allowlist secret
+"bune.jsonl" = "4fb733acb39a1e3fef7eff261336167ace193980e55c4e35f09d345b31db8299"  # pragma: allowlist secret
+"contexte.toml" = "9b30b00a1a12a0ac71e3b8b685e35dece845159535c86647ce3316f5141b7aae"  # pragma: allowlist secret

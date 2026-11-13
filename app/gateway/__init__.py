@@ -13,6 +13,7 @@ from app.gateway import bugete, evaluare, garda, inventar, jurnal, prompturi, re
 from app.gateway.amanare import cheie_reluare, reprogrameaza
 from app.gateway.apel import ContextApel, Rezultat
 from app.gateway.candidat import Candidat
+from app.gateway.ceas import acum
 from app.gateway.erori import (
     Amanat,
     ApelRefuzat,
@@ -66,6 +67,7 @@ __all__ = [
     "PromptGateway",
     "Rezultat",
     "activeaza",
+    "acum",
     "adauga_interceptor",
     "apeleaza",
     "bugete",

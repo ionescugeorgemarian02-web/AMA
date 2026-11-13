@@ -1,0 +1,42 @@
+pachet = "tiktok"
+tip = "platforma"
+titlu = "TikTok"
+versiune = 1
+canale = ["tiktok"]
+
+[[reguli]]
+id = "tt-slabit-detox"
+text = "TikTok nu permite promovarea produselor de slăbit sau a curelor „detox”."
+potrivire = "regex"
+tipare = ['\bslabit\w*', '\bslabeste\w*', '\bdetox\w*', '\bardere(?:a)? (?:de )?grasime\b']
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "TikTok: ghidurile comunității și politicile de reclame (slăbit, suplimente)", url = "https://www.tiktok.com/community-guidelines" }
+exemple_blocate = ["Slăbește rapid cu ceaiul nostru detox.", "Cura de detox din weekend."]
+exemple_trece = ["Ceai de fructe, bun cald sau rece.", "Un weekend la cafenea, cu degustare."]
+
+[[reguli]]
+id = "tt-bani-rapizi"
+text = "TikTok nu permite promisiuni de bani rapizi sau câștiguri ușoare."
+potrivire = "regex"
+tipare = ['\bbani (?:rapizi|usori|multi|fara efort)\b', '\bcastiga (?:bani )?(?:rapid|usor)\b', '\bdevino (?:milionar|bogat)\b']
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "TikTok: ghidurile comunității (scheme financiare, înșelătorii)", url = "https://www.tiktok.com/community-guidelines" }
+exemple_blocate = ["Câștigă bani rapid din telefon!", "Devino milionar în șase luni."]
+exemple_trece = ["Câștigă o cafea gratuită la tombola de sâmbătă."]
+
+[[reguli]]
+id = "tt-hashtag-excesiv"
+text = "Evită hashtag-urile în exces (peste 8): pe TikTok par spam."
+potrivire = "calcul"
+calcul = "hashtaguri"
+parametri = { maxim = 8 }
+severitate = "minora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "TikTok: ghidurile comunității (spam)", url = "https://www.tiktok.com/community-guidelines" }
+exemple_blocate = ["Cafea bună #a1 #a2 #a3 #a4 #a5 #a6 #a7 #a8 #a9"]
+exemple_trece = ["Cafea bună #cafea #brasov #degustare"]

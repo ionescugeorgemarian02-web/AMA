@@ -1,0 +1,18 @@
+pachet = "jocuri-de-noroc"
+tip = "nisa"
+titlu = "Nișă refuzată: jocuri de noroc (21.12)"
+versiune = 1
+se_aplica = "mereu"
+nisa = "jocuri_de_noroc"
+
+[[reguli]]
+id = "jn-jocuri-de-noroc"
+text = "Jocurile de noroc sunt o nișă refuzată (21.12): livrabilul nu se repară prin rescriere, ci merge la un om."
+potrivire = "regex"
+tipare = ['\bcazino\w*', '\bpariuri\b', '\bpariaza\b', '\bloterie\w*', '\bruleta\b', '\bjocuri de noroc\b', '\bsloturi online\b', '\baparate de jocuri\b']
+severitate = "critica"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Publicitatea la jocurile de noroc (OUG 77/2009) și lista de nișe refuzate (docs/21 §21.12)", url = "https://legislatie.just.ro" }
+exemple_blocate = ["Joacă la cazino online și câștigă mare.", "Pariază pe meciul de sâmbătă."]
+exemple_trece = ["Joc de societate pentru familie, cu degustare de cafea.", "Slot de degustare liber sâmbătă la 11:00."]

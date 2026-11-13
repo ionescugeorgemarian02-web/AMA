@@ -1,0 +1,35 @@
+pachet = "linkedin"
+tip = "platforma"
+titlu = "LinkedIn"
+versiune = 1
+canale = ["linkedin"]
+
+[[reguli]]
+id = "li-mlm-piramida"
+text = "LinkedIn nu permite scheme piramidale, marketing multi-nivel sau recrutare „de echipă” cu promisiuni de venit."
+potrivire = "regex"
+tipare = [
+  '\bnetwork marketing\b',
+  '\bschema piramidala\b',
+  '\bmarketing multi.?nivel\b',
+  '\bconstruieste-?ti echipa\b',
+  '\brecruteaza (?:prieteni|membri|oameni)\b',
+]
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "LinkedIn: politicile comunității profesionale (înșelătorii și scheme)", url = "https://www.linkedin.com/legal/professional-community-policies" }
+exemple_blocate = ["Oportunitate de network marketing: construiește-ți echipa!", "Recrutează prieteni și crește venitul."]
+exemple_trece = ["Căutăm un coleg pentru echipa noastră de la cafenea."]
+
+[[reguli]]
+id = "li-engagement-pod"
+text = "Evită cererile de interacțiune în schimbul unui conținut („comentează EU ca să primești ghidul”): par manipulare de acoperire."
+potrivire = "regex"
+tipare = ['\bcomenteaza (?:\w+ )?(?:ca sa|pentru a) (?:prim\w*|afla|obtine\w*)\b', '\bdistribuie (?:ca sa|pentru a) (?:prim\w*|afla)\b']
+severitate = "minora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "LinkedIn: politicile comunității profesionale (interacțiune autentică)", url = "https://www.linkedin.com/legal/professional-community-policies" }
+exemple_blocate = ["Comentează EU ca să primești ghidul gratuit."]
+exemple_trece = ["Ghidul gratuit se descarcă de pe site."]

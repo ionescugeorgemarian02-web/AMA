@@ -1,0 +1,123 @@
+pachet = "general"
+tip = "general"
+titlu = "Reguli valabile pe orice canal"
+versiune = 2
+canale = ["*"]
+
+[[reguli]]
+id = "gen-promisiune-medicala"
+text = "Fără promisiuni de vindecare, tratament sau prevenire a bolilor (promisiunile medicale sunt refuzate, 21.12)."
+potrivire = "regex"
+tipare = [
+  '\bvindec\w+',
+  '\belimina (?:definitiv )?(?:durerea|diabetul|cancerul|anxietatea|depresia|colesterolul|tensiunea)\b',
+  '\bprevine (?:cancerul|diabetul|infarctul|bolile)\b',
+  '\btratament (?:garantat|miraculos|natural pentru)\b',
+  '\bleac\w* pentru (?:cancer|diabet|depresie|artroza)\b',
+]
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Reguli privind publicitatea la medicamente și afirmațiile de sănătate (Legea 95/2006; Regulamentul (CE) 1924/2006)", url = "https://legislatie.just.ro" }
+exemple_blocate = ["Cafeaua noastră vindecă anxietatea în câteva zile.", "Un ceai care previne diabetul."]
+exemple_trece = ["Cafeaua noastră are aromă de ciocolată și note de portocală.", "Un ceai cald pentru serile reci."]
+
+[[reguli]]
+id = "gen-slabit-rapid"
+text = "Fără promisiuni de slăbit rapid sau de arderea grăsimii (afirmație de sănătate nedovedită)."
+potrivire = "regex"
+tipare = [
+  '\bslab\w+ (?:cu )?\d+ ?(?:kg|kilograme|de kilograme)\b',
+  '\bar(?:de|deti|zi)\b (?:\w+ )?grasim\w*',
+  '\bpierzi? (?:rapid )?in greutate\b',
+  '\bslabit(?:ul)? (?:rapid|garantat|fara efort)\b',
+]
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "Standardele de publicitate Meta / TikTok: afirmații despre slăbit", url = "https://transparency.meta.com/policies/ad-standards/" }
+exemple_blocate = ["Slăbești 10 kg în două săptămâni cu ceaiul nostru.", "Arde grăsimea fără efort.", "Cu siropul nostru arzi ușor grăsimile."]
+exemple_trece = ["Un ceai ușor, fără zahăr adăugat.", "Cafea cu 10 la sută mai puțin cofeină."]
+
+[[reguli]]
+id = "gen-venit-nerealist"
+text = "Fără promisiuni de câștig financiar nerealist sau garantat (scheme financiare, 21.12)."
+potrivire = "regex"
+tipare = [
+  '\bcastig\w* (?:garantat|sigur|asigurat|rapid)\b',
+  '\b(?:castigi|faci|aduni) \d[\d. ]* ?(?:de )?(?:lei|euro|ron|\$) (?:pe zi|pe saptamana|pe luna|din casa|fara efort)',
+  '\bcomision\w* din vanzarile (?:lor|celor|oamenilor)\b',
+  '\brecrut\w*(?: \w+){0,4},? (?:si )?castig\w* (?:un )?comision\w*',
+  '\bvenit pasiv\b',
+  '\bbani (?:rapizi|usori|fara efort)\b',
+  '\bimbogate\w+',
+]
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "Standardele de publicitate Meta: afirmații înșelătoare despre câștiguri", url = "https://transparency.meta.com/policies/ad-standards/" }
+exemple_blocate = ["Faci 500 lei pe zi din casă, fără experiență.", "Câștig garantat din prima lună.", "Aduni 3.000 de lei pe lună stând pe canapea.", "Adu-ți prietenii în rețea și primești comision din vânzările lor."]
+exemple_trece = ["Abonamentul îți aduce cafea proaspătă în fiecare lună.", "Câștigă o degustare gratuită la cafenea."]
+
+[[reguli]]
+id = "gen-atribute-personale"
+text = "Textul nu are voie să sugereze că știi atribute personale sensibile ale cititorului (boală, datorii, handicap)."
+potrivire = "regex"
+tipare = [
+  '\b(?:esti|ai|suferi de|te lupti cu|te confrunti cu) (?:diabet|depresie|anxietate|cancer|obezitate|calvitie|datorii|handicap|boli cronice)\b',
+  '\bstim ca (?:ai|esti|suferi)\b',
+]
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "Standardele de publicitate Meta: atribute personale", url = "https://transparency.meta.com/policies/ad-standards/" }
+exemple_blocate = ["Ai diabet? Încearcă dulciurile noastre fără zahăr.", "Știm că ai datorii și te ajutăm."]
+exemple_trece = ["Dulciuri fără zahăr adăugat pentru oricine.", "Ai o sâmbătă liberă? Vino la degustare."]
+
+[[reguli]]
+id = "gen-minori-alcool-tutun"
+text = "Alcoolul, tutunul și produsele de vapat nu se promovează minorilor sau în legătură cu minorii."
+potrivire = "regex"
+tipare = [
+  '\b(?:alcool\w*|bere|berea|vinul|vinuri|tigari|tutun|vape\w*)\b.{0,60}\b(?:minor\w*|copii\w*|adolescent\w*|elev\w*|liceen\w*|de liceu)\b',
+  '\b(?:minor\w*|copii\w*|adolescent\w*|elev\w*|liceen\w*)\b.{0,60}\b(?:alcool\w*|bere|berea|vinul|vinuri|tigari|tutun|vape\w*)\b',
+]
+severitate = "critica"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Protecția minorilor în publicitate (Legea 148/2000 a publicității, art. 7–8)", url = "https://legislatie.just.ro" }
+exemple_blocate = ["Bere artizanală, perfectă și pentru adolescenți la petreceri.", "Bere rece la reducere pentru liceenii din clasa a XII-a."]
+exemple_trece = ["Limonadă artizanală pentru copii și părinți.", "Vin de casă, doar pentru adulți."]
+
+[[reguli]]
+id = "gen-discriminare-angajare"
+text = "Anunțurile și textele de recrutare nu discriminează după sex, vârstă sau situație familială."
+potrivire = "regex"
+tipare = [
+  '\bdoar (?:barbati|femei|tineri|romani)\b',
+  '\b(?:sub|pana in) \d{2} de ani\b',
+  '\bfara copii\b',
+  '\bcautam (?:doar )?(?:baieti|fete)\b',
+]
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Egalitatea de șanse și interzicerea discriminării (OG 137/2000; Legea 202/2002)", url = "https://legislatie.just.ro" }
+exemple_blocate = ["Angajăm barista, doar femei sub 30 de ani.", "Căutăm vânzător, fără copii."]
+exemple_trece = ["Angajăm barista cu sau fără experiență, program flexibil.", "Căutăm un coleg la cafenea, cu răbdare și zâmbet."]
+
+[[reguli]]
+id = "gen-sponsorizat-marcat"
+text = "Conținutul sponsorizat sau în parteneriat plătit trebuie marcat ca atare (21.11)."
+potrivire = "obligatoriu"
+tipare = ['(?:\b(?:sponsorizat\w*|parteneriat (?:platit|cu)|reclama|colaborare platita)\b|#ad\b|#colaborare\b|#sponsorizat\b)']
+conditie = { camp = "sponsorizat", este = true }
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Marcarea comunicărilor comerciale și a conținutului sponsorizat (Legea 148/2000; Legea 365/2002)", url = "https://legislatie.just.ro" }
+exemple_blocate = [{ text = "Noul nostru amestec de cafea e de neratat, încearcă-l azi.", campuri = { sponsorizat = true } }]
+exemple_trece = [
+  { text = "Parteneriat plătit cu Cafeneaua Zorilor: noul amestec e de încercat azi.", campuri = { sponsorizat = true } },
+  { text = "Noul nostru amestec de cafea e de neratat, încearcă-l azi.", campuri = { sponsorizat = false } },
+]
