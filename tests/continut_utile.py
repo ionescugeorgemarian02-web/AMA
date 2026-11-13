@@ -2,10 +2,11 @@
 cheie reală. Fiecare handler răspunde după o frază care apare doar în promptul lui; testele pot cere greșeli (de exemplu un
 text fără diacritice) ca să dovedească validarea și reparația."""
 
+import re
 from typing import Any
 
 from tests.furnizor_fals import CerereInregistrata
-from tests.onboarding_utile import ModelFals, raspuns_json
+from tests.onboarding_utile import ModelFals, prompt_complet, raspuns_json
 
 PILONI = [
     {
@@ -61,3 +62,31 @@ def model_calendar(modele: ModelFals, calendar: dict[str, Any] | None = None) ->
         return raspuns_json(calendar=calendar or calendar_valid())
 
     modele.handlere["Propune calendarul de conținut"] = handler
+
+
+def aliasuri(prompt: str) -> list[str]:
+    """Aliasurile faptelor disponibile din promptul autorului de brief."""
+    bucata = prompt.split("Fapte disponibile", 1)[1].split("Context aprobat", 1)[0]
+    return re.findall(r"^\[(F\d+)\] ", bucata, re.M)
+
+
+def model_brief(modele: ModelFals, *, inventeaza: bool = False) -> None:
+    """Brieful permite toate faptele din pachet (cel mult 3); `inventeaza=True` citează un fapt care nu există."""
+
+    def handler(c: CerereInregistrata) -> str:
+        p = prompt_complet(c)
+        subiect = re.search(r"Subiect: (.*?)\. Unghi", p)
+        fapte = aliasuri(p)[:3] + (["F99"] if inventeaza else [])
+        return raspuns_json(
+            brief={
+                "scop": "Să aducem comenzi noi de cafea proaspătă din magazinul online.",
+                "public": "Iubitori de cafea de 25–45 de ani din Brașov și din țară.",
+                "mesaj_unic": f"Cafeaua noastră ajunge proaspătă: {subiect.group(1) if subiect else 'cafea'}.",
+                "fapte_permise": fapte,
+                "format": "Prima linie ca hook, corp scurt, un singur apel la acțiune.",
+                "apel_la_actiune": "Comandă acum din magazinul online.",
+                "interdictii": ["Fără promisiuni medicale", "Fără cuvântul „ieftin”"],
+            }
+        )
+
+    modele.handlere["Scrie brieful livrabilului"] = handler

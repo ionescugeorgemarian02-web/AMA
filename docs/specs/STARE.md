@@ -117,7 +117,9 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F6.1 Strategul de conținut și calendarul | verificat local (Postgres real, motor durabil, rute HTTP; model FALS, brand FICTIV): din strategia aprobată, strategul propune piloni, formate și idei, nucleul determinist așază 21 de sloturi pe 30 de zile, un om aprobă și fiecare slot devine livrabil `planificat`; canalele în afara strategiei și propunerile incomplete sunt refuzate. **Orele pe canal, frecvențele și limita de 3 sloturi pe zi sunt [I]** | `tests/unit/test_continut_calendar.py`, `tests/integration/test_continut_calendar.py` |
+| F6.2 Autorul de brief | verificat local (Postgres real, motor durabil; model FALS, brand FICTIV): fiecare din cele 21 de sloturi ale calendarului aprobat are brief cu scop, public, mesaj unic, format, apel la acțiune și cel puțin un fapt permis, rezolvat la intrarea și versiunea lui din Creier; un fapt din afara pachetului respinge brieful | `tests/integration/test_continut_brief.py` |
 
 ### De verificat la migrare (F6)
 
 - F6.1: calendarul CariereAI și BigBrain pe modelul real (profilul `strategie`, cu amânare la cotă epuizată); calitatea pilonilor și a ideilor; orele pe canal (`ORE_CANAL`) și frecvențele calibrate pe memoria de performanță (F11); ecranul Calendar pe un telefon real.
+- F6.2: calitatea briefurilor pe modelul real (profilul `clasificare`): alegerea faptelor potrivite, mesajul unic; bugetul de 3000 de tokeni pe tokenizatori reali.

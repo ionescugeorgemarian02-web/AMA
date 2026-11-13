@@ -56,3 +56,17 @@ class IntrareCalendar(BazaContinut):
     unghi: Mapped[str] = mapped_column(Text, default="")
     livrabil_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Brief(BazaContinut):
+    """Brieful unui livrabil (D5, F6.2): scop, public, mesaj unic, fapte permise, format.
+    Unul pe livrabil, neschimbat."""
+
+    __tablename__ = "briefuri"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    pachet_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    continut: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    model: Mapped[str | None] = mapped_column(Text)
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

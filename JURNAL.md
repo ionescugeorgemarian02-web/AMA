@@ -407,3 +407,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit: pachetul de context citea strategia aprobată în aceeași secundă ca „neaprobată încă” (momentul trunchiat la secundă); calendarul cere pachetul la momentul exact.
   - Găsit: `test_gateway_apeluri_panou` depindea de ordinea testelor (apelurile lui purtau momentul fix T0, din trecut, iar lista arată ultimele 50); acum poartă momentul curent.
   - Verificat: 6 teste noi (unitare + integrare + HTTP); `make check`: 2553 trecute.
+- **F6.2 — Autorul de brief.**
+  - Construit: `continut.brief`, fluxul `continut.briefuri`, migrarea `0035`, spec F6.2.
+  - Hotărâri (D-007): lume închisă prin aliasuri scurte; întrebarea pentru relevanță include ce vinde clientul (altfel o idee ca „degustarea de sâmbătă” nu primea niciun fapt); fără fapte în pachet lipsa se scrie explicit.
+  - Verificat: 3 teste de integrare.

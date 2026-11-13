@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F6.2 — Autorul de brief
+- Autorul de brief (D5): pentru fiecare slot aprobat, pachetul de context la data publicării, faptele permise alese de model doar dintre cele din pachet (aliasuri F1, F2, … rezolvate la intrarea și versiunea din Creier), restul din slot. Tabelul `briefuri` (migrarea `0035`), prompt `continut.brief@1`, fluxul durabil `continut.briefuri`; livrabilul trece `planificat → briefat`.
+
 ### F6.1 — Strategul de conținut și calendarul
 - Modulul nou `app/continut`: strategul de conținut (D3) propune piloni, formate pe canal și idei din strategia aprobată (prompt `continut.calendar@1`, profilul `strategie`, flux durabil `continut.calendar`); nucleul determinist `calendar.planifica` așază sloturile pe 30 de zile; aprobarea unui om transformă sloturile în livrabile `planificat`. Tabelele `calendare` și `calendar_intrari` (migrarea `0034`, RLS), ecranul `/calendar/{client}`.
 
