@@ -118,7 +118,8 @@ TABEL: dict[Stare, frozenset[Stare]] = {
     ),
     S.IN_REPARATIE: frozenset({S.IN_VALIDARE, S.ESEC_TEMPORAR, S.COADA_DE_ERORI, S.ANULAT}),
     S.VALIDAT: frozenset({S.ASTEAPTA_APROBARE, S.APROBAT, S.EXPIRAT, S.COADA_DE_ERORI, S.ANULAT}),
-    S.ASTEAPTA_APROBARE: frozenset({S.APROBAT, S.RESPINS, S.EXPIRAT, S.ANULAT}),
+    # editarea pe loc din biroul de aprobări (F5.9): versiunea nouă se validează din nou (doar un om o cere)
+    S.ASTEAPTA_APROBARE: frozenset({S.APROBAT, S.RESPINS, S.EXPIRAT, S.ANULAT, S.IN_VALIDARE}),
     S.APROBAT: frozenset({S.IN_RANDARE, S.PROGRAMAT, S.COADA_DE_ERORI, S.ANULAT}),
     S.IN_RANDARE: frozenset({S.CONTROL_MEDIA, S.ESEC_TEMPORAR, S.COADA_DE_ERORI, S.ANULAT}),
     S.CONTROL_MEDIA: frozenset(

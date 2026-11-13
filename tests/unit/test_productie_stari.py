@@ -15,7 +15,7 @@ in_scriere > in_validare esec_temporar coada_de_erori anulat
 in_validare > validat in_reparatie carantina esec_temporar coada_de_erori anulat
 in_reparatie > in_validare esec_temporar coada_de_erori anulat
 validat > asteapta_aprobare aprobat expirat coada_de_erori anulat
-asteapta_aprobare > aprobat respins expirat anulat
+asteapta_aprobare > aprobat respins expirat anulat in_validare
 aprobat > in_randare programat coada_de_erori anulat
 in_randare > control_media esec_temporar coada_de_erori anulat
 control_media > gata in_randare carantina esec_temporar coada_de_erori anulat

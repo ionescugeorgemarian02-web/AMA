@@ -25,7 +25,7 @@ from app.logging import get_logger
 from app.operare import evenimente
 from app.productie import Stare
 from app.validare import autor as autori
-from app.validare import cascada, continut, depozit, intrebari, registru
+from app.validare import birou, cascada, continut, depozit, intrebari, registru
 from app.validare.agregare import Decizie
 from app.validare.intrare import Intrare, SituatieLivrabil
 from app.validare.verdict import Verdict
@@ -143,8 +143,11 @@ def ruleaza_runda(
             detalii={"rulare": str(rulare.id), "puncte": ag.puncte},
         )  # fmt: skip
         stare_noua = r.stare
-        if ag.cere_om:
-            stare_noua = _cere_om(db, livrabil.id, ag.puncte, ag.prag, utilizator_id) or stare_noua
+        anterioara = birou.a_mai_fost_la_aprobare(db, livrabil.id)
+        if ag.cere_om or anterioara is not None:
+            # peste prag la om; sau livrabilul a fost editat la aprobare: se întoarce la același decident
+            decident = productie.Decident(anterioara.decident) if anterioara else productie.Decident.OPERATOR
+            stare_noua = _cere_om(db, livrabil.id, ag.puncte, ag.prag, utilizator_id, decident) or stare_noua
     elif ag.decizie is Decizie.INTREBARE:
         # lipsește un fapt necesar: livrabilul se oprește cu o ÎNTREBARE către client (înregistrare
         # vizibilă), nu cu o
@@ -190,13 +193,20 @@ def ruleaza_runda(
 
 
 def _cere_om(
-    db: Session, livrabil_id: uuid.UUID, puncte: int, prag: int, utilizator_id: uuid.UUID | None
+    db: Session,
+    livrabil_id: uuid.UUID,
+    puncte: int,
+    prag: int,
+    utilizator_id: uuid.UUID | None,
+    decident: productie.Decident = productie.Decident.OPERATOR,
 ) -> Stare | None:
     """Avertismentele au trecut pragul: livrabilul merge la om, oricare ar fi nivelul de autonomie. La
     nivelul L0
     (umbră) nu se cere aprobare (livrabilul se produce, dar nu merge mai departe): rămâne `validat`."""
     try:
-        productie.aprobari.cere(db, livrabil_id, utilizator_id=utilizator_id, componenta=COMPONENTA)
+        productie.aprobari.cere(
+            db, livrabil_id, decident=decident, utilizator_id=utilizator_id, componenta=COMPONENTA
+        )
     except (
         productie.aprobari.NuSeCereAprobare,
         productie.aprobari.NivelUmbra,

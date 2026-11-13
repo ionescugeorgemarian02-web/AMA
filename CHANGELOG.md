@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F5.9 — Biroul de aprobări
+- Ecranul `/aprobari` complet, întâi pentru telefon: ordine după urgență, termen și prioritate; card cu previzualizarea pe canal, verdicte și dovezi, pachetul de context, istoricul versiunilor cu diferențe și întrebările către client; respingere cu motiv standard și frază opțională, statistica motivelor; editare pe loc (versiune nouă validată din nou, perechea `asteapta_aprobare → in_validare`, migrarea `0033`); nicio aprobare pe o versiune nevalidată.
+
 ### F5.10 — Carantina și contestațiile
 - Ecranele `/validatoare/carantina` (listă, detaliu cu dovezi, eliberare cu motiv spre validare / reparație, respingere definitivă), `/validatoare/verdicte/{id}` (contestă orice verdict) și `/validatoare/exemple` (promovarea exemplelor propuse în setul de aur); statistica contestațiilor pe validator.
 

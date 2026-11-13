@@ -385,4 +385,10 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri: respingerea definitivă = `anulat` (mașina de stări neschimbată); contestația este rândul din `exemple_propuse`
     (sursa `contestatie`), fără tabel separat; eliberarea în validare pornește jobul după commit.
   - Verificat: lanțul complet contestat → propus → promovat → inclus în banc.
+- **F5.9 — Biroul de aprobări.**
+  - Construit: `validare.birou` + `birou_nucleu`, rutele de editare și răspuns, șablonul nou, CSS, migrarea `0033`, spec F5.9.
+  - Găsit: în F2 editarea unui livrabil care aștepta aprobare redeschidea cererea pe versiunea NOUĂ, nevalidată; acum aprobarea
+    cere ca versiunea curentă să fi trecut validarea (punct de extensie în `productie.aprobari`), iar editarea din birou trimite
+    livrabilul înapoi în validare.
+  - Verificat: teste HTTP; 390 px în Chrome headless (iframe), fără derulare orizontală; captura în scratchpad.
 

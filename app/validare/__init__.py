@@ -94,6 +94,7 @@ __all__ = [
     "amprenta_text",
     "autor",
     "avertisment",
+    "birou",
     "calibrare",
     "carantina",
     "cascada",
