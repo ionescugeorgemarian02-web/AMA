@@ -131,7 +131,9 @@ def variante(db: Session, livrabil_id: uuid.UUID) -> list[VariantaHook]:
 
 def exemple_text(db: Session, lv: productie.Livrabil) -> str:
     """Exemplele aprobate și respinse pentru același tip și canal (F6.7); șir gol dacă nu există."""
-    return ""
+    from app.continut import feedback
+
+    return feedback.exemple_text(db, lv)
 
 
 def hook_ales(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> str:

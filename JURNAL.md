@@ -428,3 +428,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri (D-007): modul asistat nu e un efect extern al platformei (publică omul), deci nu trece prin executor; cheia de idempotență se păstrează pentru F9; pachetul se pregătește automat la aprobare doar pentru livrabilele din calendar.
   - Găsit: jurnalul de evenimente refuză cheia `cheie` în date (filtrul de secrete); cheia de idempotență intră ca `idem`.
   - Verificat: 5 teste (unitare + HTTP). Telefonul real și postarea reală rămân la migrare.
+- **F6.7 — Capturarea feedbackului.**
+  - Construit: `continut.feedback`, secțiunile `exemple` / `exemple_negative` în constructorul de context, spec F6.7.
+  - Hotărâri (D-007): exemplele trăiesc în compartimentele Creierului (aprobate prin sistem), nu într-un tabel nou; contextul le aduce pe tip și canal, fără să le declare lipsă.
+  - Sesiunea a fost întreruptă de limita de utilizare la mijlocul pasului; reluată după resetare (Postgres-ul de test repornit).
+  - Verificat: testul de integrare.

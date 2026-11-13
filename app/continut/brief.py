@@ -115,6 +115,7 @@ def scrie(db: Session, livrabil_id: uuid.UUID, *, utilizator_id: uuid.UUID | Non
         buget_tokeni=BUGET_TOKENI,
         utilizator_id=utilizator_id,
         sectiuni_extra=SECTIUNI,
+        exemple=(lv.tip, lv.canal),
     )
     if "ghid_brand" in pachet.lipsuri:
         raise creier.RegulaCreier("brieful cere ghidul de brand aprobat")

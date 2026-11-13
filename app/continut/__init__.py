@@ -1,7 +1,8 @@
 """Producția de conținut text (F6, docs/13): strategul de conținut și calendarul (D3),
 autorul de brief (D5),
 hook-urile, postările și scripturile video (E1, E4, E2, E8), cu validarea și aprobarea lor,
-adaptorul pe platformă (E10).
+adaptorul pe platformă (E10),
+capturarea feedbackului (respingeri și editări → exemple în contextul sarcinilor următoare).
 
 Restul aplicației folosește doar ce se exportă aici:
 
@@ -20,7 +21,7 @@ Restul aplicației folosește doar ce se exportă aici:
     rez = continut.adaptor.adapteaza(db, livrabil_id, ["instagram", "linkedin", "tiktok"])
 """
 
-from app.continut import adaptor, brief, calendar, editor, fluxuri, pipeline, scriere, scripturi
+from app.continut import adaptor, brief, calendar, editor, feedback, fluxuri, pipeline, scriere, scripturi
 from app.continut.modele import Adaptare, Brief, Calendar, IntrareCalendar, VariantaHook
 
 __all__ = [
@@ -33,6 +34,7 @@ __all__ = [
     "brief",
     "calendar",
     "editor",
+    "feedback",
     "fluxuri",
     "pipeline",
     "scriere",

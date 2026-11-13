@@ -63,13 +63,15 @@ def cu_briefuri(tenant: uuid.UUID, om: uuid.UUID, modele: ModelFals) -> tuple[uu
 @pytest.fixture
 def fara_cereri_ramase(admin_engine: Engine) -> Iterator[None]:
     """Cererile de aprobare în așteptare sunt vizibile proprietarului pe toți clienții: testele F6 nu lasă niciuna în
-    urmă (ecranele altor teste așteaptă o listă goală)."""
+    urmă, nici pachete de publicare (ecranele altor teste așteaptă liste goale)."""
 
     def anuleaza() -> None:
         with admin_engine.begin() as c:
             c.execute(
                 text("UPDATE aprobari SET stare = 'anulat', decis_la = now() WHERE stare = 'in_asteptare'")
             )
+            c.execute(text("UPDATE publicari_asistate SET stare = 'anulat' WHERE stare = 'pregatit'"))
 
+    anuleaza()
     yield
     anuleaza()

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F6.7 — Capturarea feedbackului
+- Respingerile (cu motivul standard și fraza omului) devin exemple negative, aprobările (cu ciorna, dacă omul a editat) exemple de aur, automat, în aceeași tranzacție cu decizia; pachetul de context primește exemplele aceluiași tip și canal (`creier.context.construieste(..., exemple=(tip, canal))`), iar brieful și autorii le văd în prompt.
+
 ### F6.6 — Publicarea asistată
 - Modulul `app/publicare`: pachetul de publicare asistată se pregătește la aprobare (text final cu hashtag-uri, ora recomandată, dezvăluirea AI, pașii obligatorii, cheia de idempotență din 7.3), ecranul `/publicare` cu butonul „Partajează” (Web Share sau copiere) și formularul pentru linkul postării, verificat pe domeniul canalului; livrabilul trece `programat → publicat`. Tabelul `publicari_asistate` (migrarea `0038`).
 - `productie.aprobari`: punctul de extensie după decizie (`inregistreaza_dupa_decizie`).
