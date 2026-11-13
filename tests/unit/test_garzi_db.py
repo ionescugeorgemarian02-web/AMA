@@ -41,6 +41,7 @@ CONTEXT_AGENTIE = {
     "app/creier/pregatire.py",  # comanda de pregătire a unui brand propriu: creează clientul (nivel de agenție)
     "app/onboarding/prompturi.py",  # prompturile versionate se aduc în registrul global al gateway-ului (F4.4)
     "app/validare/prompturi.py",  # la fel, pentru prompturile judecătorilor (F5.2)
+    "app/continut/prompturi.py",  # la fel, pentru prompturile producției de conținut (F6)
     # Bancul de evaluare (F5.7): rulările sunt la nivelul platformei; clienții de probă se creează într-o tranzacție
     # anulată, iar validarea rulează îngustată la client (`restrans_la_client`)
     "app/validare/banc/__main__.py",

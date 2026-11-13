@@ -398,3 +398,12 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Propuneri: aprobarea în grup (F6, cu loturile calendarului); un set de control scris de altcineva decât autorul
     ajustărilor; exportul periodic al exemplelor promovate într-un commit revizuit.
 
+## 2026-11-13 — Sesiunea 10: faza F6, producția de text și publicarea asistată
+
+### 24. Un agent de cod (Opus), pe ramura `claude/amazing-volta-ou9t2u`
+- **F6.1 — Strategul de conținut și calendarul.**
+  - Construit: `app/continut` (calendar, fluxuri, prompturi, modele), ecranul `/calendar/{client}`, migrarea `0034`, spec F6.1, ajutorul de test `lant_continut.pana_la_strategie` și modelul fals `tests/continut_utile.py`.
+  - Hotărâri (D-007): modelul propune doar conținutul, datele le așază un nucleu determinist; canalele vin din strategia aprobată; aprobarea calendarului e a unui om și creează livrabilele.
+  - Găsit: pachetul de context citea strategia aprobată în aceeași secundă ca „neaprobată încă” (momentul trunchiat la secundă); calendarul cere pachetul la momentul exact.
+  - Găsit: `test_gateway_apeluri_panou` depindea de ordinea testelor (apelurile lui purtau momentul fix T0, din trecut, iar lista arată ultimele 50); acum poartă momentul curent.
+  - Verificat: 6 teste noi (unitare + integrare + HTTP); `make check`: 2553 trecute.

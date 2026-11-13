@@ -111,3 +111,13 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F5.10: ecranele de carantină și contestații pe un telefon real; volumul real de contestații.
 - F5.9: biroul de aprobări pe un telefon real (Android și iOS), cu notificări push reale; timpul pe decizie (ținta < 1 minut pe postare).
 - Poarta F5: bancul rulat cu judecătorii reali (V3 / V4) și cu modelul real de vectori (G4@V2, G7@V2); seturi completate cu texte reale anonimizate.
+
+## Faza F6 — Producția de text și publicarea asistată
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F6.1 Strategul de conținut și calendarul | verificat local (Postgres real, motor durabil, rute HTTP; model FALS, brand FICTIV): din strategia aprobată, strategul propune piloni, formate și idei, nucleul determinist așază 21 de sloturi pe 30 de zile, un om aprobă și fiecare slot devine livrabil `planificat`; canalele în afara strategiei și propunerile incomplete sunt refuzate. **Orele pe canal, frecvențele și limita de 3 sloturi pe zi sunt [I]** | `tests/unit/test_continut_calendar.py`, `tests/integration/test_continut_calendar.py` |
+
+### De verificat la migrare (F6)
+
+- F6.1: calendarul CariereAI și BigBrain pe modelul real (profilul `strategie`, cu amânare la cotă epuizată); calitatea pilonilor și a ideilor; orele pe canal (`ORE_CANAL`) și frecvențele calibrate pe memoria de performanță (F11); ecranul Calendar pe un telefon real.

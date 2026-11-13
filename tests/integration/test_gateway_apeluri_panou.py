@@ -1,6 +1,7 @@
 """F3.7 „Gata când”: orice apel se vede în panou, cu prompt, model, tokeni, durată și preț-umbră (listă + detaliu,
 filtre pe client / model / rezultat), respectând izolarea."""
 
+import datetime as dt
 import re
 import uuid
 from collections.abc import Callable
@@ -24,7 +25,10 @@ Fabrica = Callable[..., Cont]
 
 
 @pytest.fixture(autouse=True)
-def _mediu(cheie_proba: str, ceas_controlat: object, fals: FurnizorFals) -> None:
+def _mediu(cheie_proba: str, ceas_controlat: Any, fals: FurnizorFals) -> None:
+    # Lista din panou e ordonată după moment, ultimele 50: apelurile acestui test poartă momentul de acum, nu T0 (din
+    # trecut), ca să nu fie împinse afară de apelurile reale ale altor teste (F6 adaugă multe).
+    ceas_controlat.t = dt.datetime.now(dt.UTC)
     fals.text = '{"eticheta": "pozitiv", "dovezi": [], "incredere": 0.8}'
     fals.tokeni = (1234, 56)
 

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F6.1 — Strategul de conținut și calendarul
+- Modulul nou `app/continut`: strategul de conținut (D3) propune piloni, formate pe canal și idei din strategia aprobată (prompt `continut.calendar@1`, profilul `strategie`, flux durabil `continut.calendar`); nucleul determinist `calendar.planifica` așază sloturile pe 30 de zile; aprobarea unui om transformă sloturile în livrabile `planificat`. Tabelele `calendare` și `calendar_intrari` (migrarea `0034`, RLS), ecranul `/calendar/{client}`.
+
 ### Poarta F5
 - Testul de poartă `tests/integration/test_poarta_f5.py`: pe seturile înghețate, cu validatorii deterministe și fără niciun model, 107 / 107 materiale greșite blocate și 3 / 63 bune respinse pe nedrept; cifrele pe validator în `docs/specs/F5-poarta.md`.
 

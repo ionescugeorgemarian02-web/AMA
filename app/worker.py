@@ -35,6 +35,7 @@ MODULE_FLUXURI: tuple[str, ...] = (
     "app.onboarding.fluxuri",
     "app.validare.fluxuri",
     "app.validare.banc.fluxuri",
+    "app.continut.fluxuri",
 )
 
 
