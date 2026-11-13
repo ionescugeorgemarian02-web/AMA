@@ -1,0 +1,18 @@
+pachet = "politica"
+tip = "nisa"
+titlu = "Nișă refuzată: politică (21.12)"
+versiune = 1
+se_aplica = "mereu"
+nisa = "politica"
+
+[[reguli]]
+id = "pol-continut-politic"
+text = "Conținutul politic și electoral este o nișă refuzată (21.12): livrabilul merge la un om."
+potrivire = "regex"
+tipare = ['\bvoteaza (?:pentru|cu)\b', '\balegerile (?:parlamentare|locale|prezidentiale)\b', '\bcampanie electorala\b', '\bpartidul \w+', '\bcandidat(?:ul|a)? (?:la|pentru)\b']
+severitate = "critica"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "Politicile de reclame ale platformelor pentru probleme sociale, alegeri și politică; lista de nișe refuzate (docs/21 §21.12)", url = "https://transparency.meta.com/policies/ad-standards/" }
+exemple_blocate = ["Votează pentru candidatul nostru la primărie.", "Susține partidul Verde la alegerile locale."]
+exemple_trece = ["Cafea pentru alegerea perfectă a dimineții.", "Votăm împreună ce cafea intră în meniul de toamnă."]

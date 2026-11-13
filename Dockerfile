@@ -15,6 +15,7 @@ COPY app ./app
 COPY pyproject.toml alembic.ini* ./
 COPY migrations ./migrations
 COPY prompts ./prompts
+COPY rulepacks ./rulepacks
 COPY evaluare ./evaluare
 
 # Etapa de rulare: fără uv, fără compilator, utilizator fără drepturi, sistem de fișiere compatibil cu read-only.

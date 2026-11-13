@@ -159,8 +159,8 @@ def incarca_registru(intrare: Intrare) -> Registru:
 
 
 def probleme_afirmatii(text: str, reg: Registru) -> list[Problema]:
-    """O problemă pentru fiecare afirmație diferită de registru sau neacoperită (aceeași afirmație o "
-    "dată)."""
+    """O problemă pentru fiecare afirmație diferită de registru sau neacoperită (aceeași afirmație o
+    dată)."""
     probleme: list[Problema] = []
     vazute: set[tuple[str, str]] = set()
     for c in acoperire.verifica(text, reg):

@@ -25,7 +25,8 @@ MAXIM_ITERATII = (
 
 @motor.pas(nume="validare.pas_valideaza", reincercari=1)
 def _valideaza(tenant_id: str, livrabil_id: str) -> str:
-    """Starea după o rundă de validare, `amanat:<moment ISO>` sau starea găsită (dacă nu e în validare)."""
+    """Starea după o rundă de validare, `amanat:<moment ISO>` sau starea găsită (dacă nu e în
+    validare)."""
     lid = uuid.UUID(livrabil_id)
     with sesiune_tenant(uuid.UUID(tenant_id)) as db:
         livrabil = productie.citeste(db, lid)

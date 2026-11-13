@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F5.4 — Pachetele de reguli și G3 Politici
+- `rulepacks/`: 25 de reguli de început în 10 pachete TOML (generale; Meta, TikTok, LinkedIn, email; nișe refuzate: jocuri de noroc, adulți, politică, scheme financiare; nișa sănătate), fiecare cu sursă, severitate, marcaj [I], data scrierii și exemple blocate / care trec, rulate automat; încărcare cu validare de schemă; garda interzice scrierea în `rulepacks/` din cod. Regulile pe client în bază (`reguli_client`, migrarea `0030`): autor uman obligatoriu, doar adăugare, aceleași exemple verificate la scriere.
+- G3 (V1) aplică pachetele potrivite livrabilului (generale + canal + nișe + client) și păstrează în verdict versiunea și amprenta pachetelor; G3 (V3, opțional) pentru promisiuni formulate liber. Nișele refuzate merg în carantină. Dockerfile copiază `rulepacks/`.
+
 ### F5.3 — G2 Verificatorul de fapte
 - Extragerea deterministă a afirmațiilor verificabile (prețuri cu monedă, procente, termene, date, ore, cifre, superlative, comparații, promisiuni) cu fragmentul exact, potrivirea EXACTĂ cu registrul (fapte aprobate și valabile la data publicării, oferte, reducere calculată din prețul de referință, citate din surse verificate literal), blocare la preț diferit sau afirmație neacoperită; V3 opțional pentru afirmațiile nestructurate, cu verificare deterministă a răspunsului.
 - Fapt lipsă → livrabilul se oprește cu o ÎNTREBARE către client (`validari_intrebari`, migrarea `0029`, vizibilă în urma livrabilului), nu cu o presupunere.

@@ -200,3 +200,46 @@ def test_o_intrebare_nu_se_leaga_de_livrabilul_altui_client(
             ),
             {"i": new_id(), "t": date.a, "l": date_validare["b"]["livrabil"]},
         )
+
+
+# --- regulile pe client (F5.4) -----------------------------------------------------------------------------------------
+
+
+@pytest.fixture
+def reguli_client_ids(date: Date, admin_engine: Engine) -> dict[str, uuid.UUID]:
+    ids = {}
+    with admin_engine.begin() as c:
+        for cheie, tenant, om in (("a", date.a, date.user_a), ("b", date.b, date.user_b)):
+            ids[cheie] = new_id()
+            c.execute(
+                text(
+                    "INSERT INTO reguli_client (id, tenant_id, regula_id, versiune, definitie, creat_de) "
+                    "VALUES (:i, :t, 'regula-de-proba', 1, '{}'::jsonb, :u)"
+                ),
+                {"i": ids[cheie], "t": tenant, "u": om},
+            )
+    return ids
+
+
+def test_regulile_clientului_se_vad_doar_la_el(date: Date, reguli_client_ids: dict[str, uuid.UUID]) -> None:
+    ale_a = vazute(ContextDb(tenant_id=date.a, user_id=date.user_a), "reguli_client")
+    assert reguli_client_ids["a"] in ale_a and reguli_client_ids["b"] not in ale_a
+    assert vazute(ContextDb(), "reguli_client") == set()
+    assert {reguli_client_ids["a"], reguli_client_ids["b"]} <= vazute(ContextDb(agency=True), "reguli_client")
+
+
+def test_un_client_nu_scrie_reguli_pe_numele_altuia_si_nu_le_modifica(
+    date: Date, reguli_client_ids: dict[str, uuid.UUID]
+) -> None:
+    sql = text(
+        "INSERT INTO reguli_client (id, tenant_id, regula_id, versiune, definitie, creat_de) "
+        "VALUES (:i, :t, 'regula-furata', 1, '{}'::jsonb, :u)"
+    )
+    with (
+        sesiune(ContextDb(tenant_id=date.a, user_id=date.user_a)) as db,
+        pytest.raises(DBAPIError),
+        db.begin_nested(),
+    ):
+        db.execute(sql, {"i": new_id(), "t": date.b, "u": date.user_a})
+    with pytest.raises(DBAPIError), sesiune(ContextDb(tenant_id=date.a, user_id=date.user_a)) as db:
+        db.execute(text("UPDATE reguli_client SET retrasa = true"))

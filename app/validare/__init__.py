@@ -23,6 +23,7 @@ pe o funcție `(Intrare) -> Verdict | list[Verdict] | None`.
 
 from app.validare import agregare, autor, cascada, ciclu, continut, depozit, intrebari, registru, verdict
 from app.validare import limba as _limba  # noqa: F401  (înregistrează G10)
+from app.validare import politici as _politici  # noqa: F401  (înregistrează G3)
 from app.validare import structura as _structura  # noqa: F401  (înregistrează G1)
 from app.validare import verifica_fapte as _verifica_fapte  # noqa: F401  (înregistrează G2)
 from app.validare.agregare import Agregat, Decizie, agrega, unifica_instructiunile
@@ -86,6 +87,8 @@ __all__ = [
     "intrebari",
     "pentru_ecran",
     "registru",
+    "reguli",
+    "reguli_client",
     "rulari",
     "ruleaza_pasii",
     "ruleaza_repararea",

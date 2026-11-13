@@ -79,7 +79,8 @@ def linkuri_in_text(text: str) -> list[str]:
 
 
 def linkuri_stricate_in_text(text: str) -> list[str]:
-    """Ce arată a link, dar are schema greșită (`http:/x.ro`, `https//x.ro`, `htps://x.ro`, `https://`)."""
+    """Ce arată a link, dar are schema greșită (`http:/x.ro`, `https//x.ro`, `htps://x.ro`,
+    `https://`)."""
     return [m.group(0).rstrip(FINAL_LINK) or m.group(0) for m in URL_STRICAT.finditer(text)]
 
 

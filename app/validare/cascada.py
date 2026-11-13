@@ -21,7 +21,8 @@ from app.validare.verdict import Cost, Treapta, Verdict, VerdictInvalid
 
 
 class FaraValidatori(RuntimeError):
-    """Niciun validator nu se aplică livrabilului: cascada goală ar lăsa totul să treacă, deci e o eroare."""
+    """Niciun validator nu se aplică livrabilului: cascada goală ar lăsa totul să treacă, deci e o
+    eroare."""
 
 
 @dataclass(frozen=True)

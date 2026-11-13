@@ -235,3 +235,18 @@ def sursa_cu_pasaje(
         pasaje = list(db.execute(select(creier.Pasaj).where(creier.Pasaj.sursa_id == sid)).scalars())
         db.expunge_all()
     return sid, pasaje
+
+
+def profil_aprobat(
+    tenant: uuid.UUID, om: uuid.UUID, continut: dict[str, Any], *, aprobat_la: dt.datetime = T_APROB
+) -> uuid.UUID:
+    """Profilul de brand al clientului (intrarea `profil`), aprobat de un om la un moment fix."""
+    from app.creier.compartimente import Compartiment
+
+    with sesiune_tenant(tenant, om) as db:
+        i, v = creier.creeaza_intrare(
+            db, tenant_id=tenant, compartiment=Compartiment.PROFIL_BRAND, cheie="profil", continut=continut,
+            sursa=Sursa(SursaTip.OM), utilizator_id=om, acum=aprobat_la,
+        )  # fmt: skip
+        creier.aproba(db, i.id, v.nr, utilizator_id=om, acum=aprobat_la)
+        return i.id

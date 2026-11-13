@@ -58,7 +58,8 @@ class Rulare(BazaValidare):
 
 
 class VerdictSalvat(BazaValidare):
-    """Verdictul unui validator într-o rulare. Doar adăugare; identitatea și versiunea validatorului rămân."""
+    """Verdictul unui validator într-o rulare. Doar adăugare; identitatea și versiunea validatorului
+    rămân."""
 
     __tablename__ = "validari_verdicte"
     id: Mapped[uuid.UUID] = _pk()
@@ -97,4 +98,19 @@ class Intrebare(BazaValidare):
     raspuns: Mapped[str | None] = mapped_column(Text)
     raspuns_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     raspuns_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class RegulaClient(BazaValidare):
+    """O versiune a unei reguli proprii a unui client. Doar adăugare; autorul uman e obligatoriu."""
+
+    __tablename__ = "reguli_client"
+    id: Mapped[uuid.UUID] = _pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    regula_id: Mapped[str] = mapped_column(Text)
+    versiune: Mapped[int] = mapped_column(Integer)
+    definitie: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    retrasa: Mapped[bool] = mapped_column(Boolean, default=False)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    creat_de: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

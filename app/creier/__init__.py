@@ -32,7 +32,7 @@ Pachetul de context al unei sarcini (F4.7, 10.3): reguli, fapte aprobate și val
 
 import uuid
 
-from app.creier import context, fapte, oferte
+from app.creier import citire, context, fapte, oferte
 from app.creier.cautare import CautareRefuzata, Raspuns, Rezultat, cauta
 from app.creier.citat import citat_in_text, verifica_propunere
 from app.creier.compartimente import (
@@ -148,6 +148,7 @@ __all__ = [
     "cauta",
     "citat_in_text",
     "citeste",
+    "citire",
     "context",
     "creeaza_intrare",
     "diferenta",

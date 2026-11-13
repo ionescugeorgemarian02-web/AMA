@@ -62,7 +62,8 @@ def _probleme_campuri(tip: str, continut: Continut) -> list[Problema]:
                 Problema(
                     "G1.lista_in_afara_limitelor",
                     f"{camp}: {n} elemente",
-                    f"„{camp}” trebuie să aibă între {lim.get('min', 0)} și {lim.get('max', '∞')} elemente "
+                    f"„{camp}” trebuie să aibă între {lim.get('min', 0)} și {lim.get('max', '∞')} "
+                    f"elemente "
                     f"(are {n}).",
                     detalii=f"{camp}: {n}",
                 )

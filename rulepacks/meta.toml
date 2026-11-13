@@ -1,0 +1,59 @@
+pachet = "meta"
+tip = "platforma"
+titlu = "Facebook și Instagram (Meta)"
+versiune = 1
+canale = ["facebook", "instagram"]
+
+[[reguli]]
+id = "meta-engagement-bait"
+text = "Fără momeală de interacțiune (a cere like, distribuiri sau etichetări în schimbul unui premiu sau al unei acțiuni)."
+potrivire = "regex"
+tipare = [
+  '\bda(?:ti)? like (?:daca|ca sa|pentru)\b',
+  '\bdistribuie\w* (?:ca sa|pentru a|si castigi)\b',
+  '\beticheteaza (?:un|doi|trei|\d+) (?:prieten|prieteni|prietena)\b',
+  '\bcomenteaza (?:ca sa|pentru a) (?:castig\w+|participa)\b',
+]
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "Meta: recomandări și momeala de interacțiune", url = "https://transparency.meta.com/policies/recommendation-guidelines/" }
+exemple_blocate = ["Dă like dacă iubești cafeaua!", "Etichetează doi prieteni ca să câștigi un pachet."]
+exemple_trece = ["Spune-ne în comentarii ce cafea preferi.", "Vino sâmbătă la degustare, intrarea e liberă."]
+
+[[reguli]]
+id = "meta-inainte-dupa"
+text = "Fără imagini sau texte „înainte și după” care implică rezultate corporale sau de sănătate."
+potrivire = "regex"
+tipare = ['\b(?:poze|imagini|rezultate|transformare)\w* inainte si dupa\b', '\binainte si dupa (?:slabit|tratament|cura)\b']
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "Standardele de publicitate Meta: imagini înainte și după", url = "https://transparency.meta.com/policies/ad-standards/" }
+exemple_blocate = ["Vezi rezultate înainte și după cura noastră.", "Poze înainte și după slăbit."]
+exemple_trece = ["Înainte de a prăji, boabele sunt verzi; după, au aromă de caramel."]
+
+[[reguli]]
+id = "meta-clickbait"
+text = "Evită titlurile care ascund informația esențială (clickbait): cititorul trebuie să știe despre ce este vorba."
+potrivire = "lista"
+tipare = ["nu o sa-ti vina sa crezi", "nu o să-ți vină să crezi", "ce s-a intamplat apoi", "vei fi socat", "secretul pe care nu vor sa-l afli"]
+severitate = "minora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "Meta: conținut care încearcă să păcălească algoritmul sau cititorul", url = "https://transparency.meta.com/policies/recommendation-guidelines/" }
+exemple_blocate = ["Nu o să-ți vină să crezi ce am găsit în depozit!"]
+exemple_trece = ["Am primit un lot nou de cafea din Etiopia."]
+
+[[reguli]]
+id = "meta-majuscule"
+text = "Evită textul scris în majuscule (sunet de strigăt, risc de dezaprobare pe platformă)."
+potrivire = "calcul"
+calcul = "raport_majuscule"
+parametri = { prag = 0.5, minim_litere = 20 }
+severitate = "minora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "Meta: calitatea conținutului (majuscule excesive)", url = "https://transparency.meta.com/policies/ad-standards/" }
+exemple_blocate = ["OFERTA ZILEI LA TOATE CAFELELE DIN MAGAZIN ACUM"]
+exemple_trece = ["Oferta zilei la toate cafelele din magazin, doar astăzi."]

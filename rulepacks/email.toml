@@ -1,0 +1,42 @@
+pachet = "email"
+tip = "platforma"
+titlu = "Email comercial"
+versiune = 1
+canale = ["email"]
+
+[[reguli]]
+id = "email-dezabonare-obligatorie"
+text = "Emailul comercial trebuie să conțină o modalitate clară și imediată de dezabonare (21.8)."
+potrivire = "obligatoriu"
+tipare = ['dezabon\w*', 'unsubscribe', 'nu mai doresti sa primesti', 'renunta la abonare']
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Comunicări comerciale prin email: consimțământ și dezabonare (Legea 506/2004; Legea 365/2002)", url = "https://legislatie.just.ro" }
+instructiune = "Adaugă în email linkul de dezabonare dintr-un clic."
+exemple_blocate = ["Salut! Pachetul tău pleacă marți, proaspăt prăjit."]
+exemple_trece = ["Salut! Pachetul tău pleacă marți. Dacă nu mai dorești emailuri: dezabonare https://zorilor.ro/dezabonare"]
+
+[[reguli]]
+id = "email-motiv-primire"
+text = "Spune de ce primește cititorul emailul (ex.: „Primești acest email deoarece te-ai abonat”) (21.8, dovada consimțământului)."
+potrivire = "obligatoriu"
+tipare = ['primesti acest (?:email|mesaj)', 'te-ai abonat', 'ai acceptat sa primesti', 'ai cerut sa primesti']
+severitate = "minora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "lege", titlu = "Comunicări comerciale prin email: consimțământ (Legea 506/2004)", url = "https://legislatie.just.ro" }
+exemple_blocate = ["Salut! Avem un pachet nou. Dezabonare: https://zorilor.ro/dezabonare"]
+exemple_trece = ["Primești acest email deoarece te-ai abonat la newsletter. Dezabonare: https://zorilor.ro/dezabonare"]
+
+[[reguli]]
+id = "email-tipare-spam"
+text = "Evită formulările tipice de spam: „100% gratis”, „ai câștigat”, semne de exclamare în șir."
+potrivire = "regex"
+tipare = ['\b100 ?% gratis\b', '\bai castigat\b', '!{3,}', '\bfelicitari, ai fost ales\b', '\bclick aici acum\b']
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-13
+sursa = { tip = "politica_platformei", titlu = "Cerințele Google pentru expeditorii de emailuri (filtre anti-spam)", url = "https://support.google.com/a/answer/81126" }
+exemple_blocate = ["Ai câștigat un pachet 100% gratis!!!", "Click aici acum și primești totul."]
+exemple_trece = ["Pachetul tău de cafea a plecat, ajunge în două zile."]

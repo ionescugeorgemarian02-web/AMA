@@ -44,7 +44,8 @@ class Continut:
         return amprenta_text(self.text, self.campuri)
 
     def texte(self) -> list[tuple[str, str]]:
-        """Bucățile de text ale conținutului, ca (nume câmp, text): corpul și câmpurile text de pe canal."""
+        """Bucățile de text ale conținutului, ca (nume câmp, text): corpul și câmpurile text de pe
+        canal."""
         iesire = [("text", self.text)] if self.text.strip() else []
         for nume in sorted(self.campuri):
             val = self.campuri[nume]
