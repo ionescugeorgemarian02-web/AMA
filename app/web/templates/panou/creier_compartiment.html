@@ -1,0 +1,21 @@
+{% extends "panou/baza.html" %}
+{% block title %}{{ info.nume }} · {{ client.nume }} · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/creier/client/{{ client.id }}">← Creierul de brand</a></p>
+<h1>{{ info.nume }}</h1>
+<p class="slab">{{ info.contine }}. Schimbă: {{ info.cine_schimba }}.</p>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if dedicat %}<p class="mesaj atentie" role="status">Ofertele au propriul circuit de aprobare (legate de fapte valabile); aici le vezi, nu le editezi.</p>{% endif %}
+{% for r in randuri %}
+<section class="card" aria-labelledby="i-{{ r.intrare.id }}">
+  <h2 id="i-{{ r.intrare.id }}"><a href="/creier/intrare/{{ r.intrare.id }}">{{ r.intrare.cheie }}</a></h2>
+  {% if r.aprobata %}
+  <p><span class="insigna ok">aprobată: versiunea {{ r.aprobata.nr }}</span></p>
+  <p>{{ r.text }}</p>
+  {% else %}<p><span class="insigna">fără versiune aprobată</span></p>{% endif %}
+  {% if r.asteptare %}<p><span class="insigna atentie">{{ r.asteptare|length }} propunere(i) în așteptare</span></p>{% endif %}
+</section>
+{% else %}
+<div class="card gol"><p><strong>Nicio intrare încă.</strong></p></div>
+{% endfor %}
+{% endblock %}

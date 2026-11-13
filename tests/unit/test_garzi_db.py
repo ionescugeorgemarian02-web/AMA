@@ -36,6 +36,10 @@ CONTEXT_AGENTIE = {
     "app/gateway/masurare.py",  # viteza modelelor locale se scrie în registru (comandă, F3.5)
     # Planificatorul de capacitate (F3.11) citește livrabilele tuturor clienților și le amână; scrie planul zilei.
     "app/planificare/capacitate.py",
+    "app/creier/extragere.py",
+    "app/creier/fluxuri.py",
+    "app/creier/pregatire.py",  # comanda de pregătire a unui brand propriu: creează clientul (nivel de agenție)
+    "app/onboarding/prompturi.py",  # prompturile versionate se aduc în registrul global al gateway-ului (F4.4)
 }
 
 

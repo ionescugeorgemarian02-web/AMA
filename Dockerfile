@@ -14,6 +14,8 @@ COPY app ./app
 # alembic.ini poate lipsi cât timp migrările nu există; glob-ul nu pică dacă pyproject.toml se potrivește.
 COPY pyproject.toml alembic.ini* ./
 COPY migrations ./migrations
+COPY prompts ./prompts
+COPY evaluare ./evaluare
 
 # Etapa de rulare: fără uv, fără compilator, utilizator fără drepturi, sistem de fișiere compatibil cu read-only.
 FROM python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90 AS runtime

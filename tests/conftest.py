@@ -1,7 +1,12 @@
 """Fixture-uri comune. Testele de bază de date rulează ca `ama_app`, pe o bază nouă pe sesiune."""
 
+import atexit
 import os
 import secrets
+import shutil
+import signal
+import tempfile
+import threading
 import uuid
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
@@ -19,7 +24,85 @@ from app.operare.motor.migrare import migreaza_sistem
 os.environ.setdefault("AMA_ENV", "test")
 os.environ.setdefault("AMA_EFECTE_PAUZA_SEC", "0.05")  # reîncercările efectelor, fără pauze lungi în teste
 
+# Mediile din teste merg într-un director temporar, nu în `/var/lib/ama/media` (implicitul din producție:
+# în CI rulăm fără drepturi de root și scrierea acolo pică cu PermissionError). Testele care vor alt loc
+# îl suprascriu cu `monkeypatch.setenv("AMA_MEDIA_DIR", ...)`.
+if "AMA_MEDIA_DIR" not in os.environ:
+    _MEDIA_TEST = tempfile.mkdtemp(prefix="ama-media-test-")
+    os.environ["AMA_MEDIA_DIR"] = _MEDIA_TEST
+    atexit.register(shutil.rmtree, _MEDIA_TEST, ignore_errors=True)
+
 ROOT = Path(__file__).resolve().parents[1]
+
+# Plafon de timp pe test (biblioteca standard, fără dependențe): un test blocat pică în câteva minute, cu numele
+# lui în mesaj, în loc să consume tot jobul CI (15 minute). Cel mai lent test durează ~12 s local; 120 s lasă
+# loc și pentru un executor CI de câteva ori mai lent. Se poate schimba cu `AMA_TEST_PLAFON_SEC`.
+PLAFON_TEST_SEC = float(os.environ.get("AMA_TEST_PLAFON_SEC", "120"))
+# Un test care trece, dar durează mai mult de atât, apare în jurnal pe loc (nu doar în rezumatul de la final,
+# care lipsește dacă jobul e anulat).
+PRAG_TEST_LENT_SEC = 20.0
+
+# După atâtea teste depășite, rularea se oprește: un executor sau o bază blocată ar duce fiecare test la plafon, iar
+# jobul ar consuma timpul fără să spună mai mult decât primele cazuri.
+MAX_TESTE_DEPASITE = 3
+_depasite: list[str] = []
+
+_config: pytest.Config | None = None
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    global _config
+    _config = config
+
+
+def pytest_runtest_logreport(report: pytest.TestReport) -> None:
+    """Testele picate sau lente se scriu imediat în jurnal. Fără asta, `pytest -q` arată doar `F` până la final,
+    iar un job anulat de limita de timp nu spune nimic despre ce test a picat sau s-a blocat."""
+    if _config is None:
+        return
+    lent = report.when == "call" and report.duration > PRAG_TEST_LENT_SEC
+    if not (report.failed or lent):
+        return
+    tr = _config.pluginmanager.get_plugin("terminalreporter")
+    if tr is None:
+        return
+    eticheta = "PICAT" if report.failed else "LENT"
+    tr.ensure_newline()
+    tr.write_line(f"[{eticheta}] {report.nodeid} ({report.when}, {report.duration:.1f} s)")
+
+
+@pytest.fixture(autouse=True)
+def _plafon_de_timp(request: pytest.FixtureRequest) -> Iterator[None]:
+    """Un test care depășește plafonul pică cu mesaj clar (SIGALRM în firul principal; nu există pe Windows)."""
+    if (
+        PLAFON_TEST_SEC <= 0
+        or not hasattr(signal, "setitimer")
+        or threading.current_thread() is not threading.main_thread()
+    ):
+        yield
+        return
+
+    def depasit(_semnal: int, _cadru: object) -> None:
+        _depasite.append(request.node.nodeid)
+        if len(_depasite) >= MAX_TESTE_DEPASITE:
+            pytest.exit(
+                f"{len(_depasite)} teste au depășit plafonul de {PLAFON_TEST_SEC:.0f} s, rularea se oprește: "
+                + "; ".join(_depasite),
+                returncode=3,
+            )
+        pytest.fail(
+            f"{request.node.nodeid} a depășit plafonul de {PLAFON_TEST_SEC:.0f} s (blocat sau mult prea lent); "
+            "tracebackurile tuturor firelor sunt în jurnal",
+            pytrace=False,
+        )
+
+    anterior = signal.signal(signal.SIGALRM, depasit)
+    signal.setitimer(signal.ITIMER_REAL, PLAFON_TEST_SEC)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, anterior)
 
 
 @pytest.fixture

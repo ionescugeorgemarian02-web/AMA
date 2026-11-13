@@ -126,10 +126,12 @@ def test_consumul_pe_client_arata_azi_si_luna_fata_de_buget(
         )
     apeleaza(tenant, mediu.prompt, prioritate=Prioritate.P2)
     apeleaza(tenant, mediu.prompt, prioritate=Prioritate.P2)
+    # numele clienților de probă pornesc de la prefixul unui UUID de timp (același ~4,6 minute): nu identifică
+    # clientul, deci testul își dă un nume unic înainte să citească ecranul
+    nume = f"Firma unică {tenant.hex}"
+    with admin_engine.begin() as c:
+        c.execute(text("UPDATE clienti SET nume = :n WHERE id = :t"), {"n": nume, "t": tenant})
     html = client.get("/gateway/registru").text
-    with admin_engine.connect() as c:
-        nume = c.execute(text("SELECT nume FROM clienti WHERE id = :t"), {"t": tenant}).scalar_one()
-    # numele clienților de probă pornesc de la prefixul unui UUID de timp: mai multe pot avea același nume
     randuri = [
         re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", r))
         for r in re.findall(r"<tr>.*?</tr>", html, re.S)

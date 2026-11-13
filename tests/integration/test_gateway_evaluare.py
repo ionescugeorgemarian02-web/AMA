@@ -1,7 +1,6 @@
 """F3.6 — testul comparativ pe română, cu furnizori falși de calități diferite. „Gata când”: fiecare model are scor pe fiecare
 profil, iar rutarea folosește scorurile (dovedit mai jos). NEVERIFICAT: rularea pe modele reale și evaluarea umană reală."""
 
-import datetime as dt
 import json
 import uuid
 import zlib
@@ -211,7 +210,7 @@ def test_un_model_care_raspunde_in_afara_schemei_primeste_zero_pe_acele_sarcini(
 
 
 def test_fluxul_de_evaluare_ruleaza_pe_coada_de_invatare_si_se_reprogrameaza_la_amanare(
-    fabrica_modele: FabricaModele, fals: FurnizorFals, porneste_executor: Any
+    fabrica_modele: FabricaModele, fals: FurnizorFals, porneste_executor: Any, ceas_controlat: CeasControlat
 ) -> None:
     from app.gateway import fluxuri
 
@@ -226,5 +225,5 @@ def test_fluxul_de_evaluare_ruleaza_pe_coada_de_invatare_si_se_reprogrameaza_la_
     assert (
         rulare["stare"] == "amanata"
         and rulare["sarcini_facute"] == 4
-        and rulare["amanata_pana_la"] > dt.datetime.now(dt.UTC)
+        and rulare["amanata_pana_la"] > ceas_controlat.t  # ceasul aplicației e cel controlat, nu cel real
     )

@@ -64,6 +64,21 @@
   {% endfor %}
 </section>
 
+<section class="card" aria-labelledby="t-context">
+  <h2 id="t-context">Pachetul de context</h2>
+  <p class="slab">Ce a primit sarcina din Creierul clientului: fiecare element cu identificator și versiunea sursei.</p>
+  {% for p in pachete_context %}
+  <h3>{{ p.tip_sarcina }}{% if p.canal %} · {{ p.canal }}{% endif %} <span class="insigna {{ 'pericol' if p.depasit else 'ok' }}">{{ p.tokeni_folositi }} / {{ p.buget_tokeni }} tokeni</span>{% if p.depasit %} <span class="insigna pericol">regulile obligatorii depășesc bugetul</span>{% endif %}</h3>
+  <p class="slab">construit pentru {{ p.la|moment }} · amprenta <code>{{ p.amprenta[:12] }}</code>{% if p.lipsuri %} · lipsuri: {{ p.lipsuri|join(', ') }}{% endif %}{% if p.taiate %} · tăiate la buget: {{ p.taiate|length }}{% endif %}</p>
+  <div class="defilare"><table>
+    <tr><th>Secțiune</th><th>Element</th><th>Sursă (id · versiune)</th></tr>
+    {% for e in p.elemente %}
+    <tr><td>{{ e.sectiune }}</td><td>{{ e.text|truncate(300) }}</td><td><code>{{ e.id }}</code>{% if e.versiune is not none %} · v{{ e.versiune }}{% endif %}</td></tr>
+    {% endfor %}
+  </table></div>
+  {% else %}<p class="slab">Niciun pachet de context legat de acest livrabil.</p>{% endfor %}
+</section>
+
 <section class="card" aria-labelledby="t-aprobari">
   <h2 id="t-aprobari">Cererile de aprobare</h2>
   {% for a in cereri %}

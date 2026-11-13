@@ -35,3 +35,12 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
 - **Context:** 8.5 cere bugete pe client și spune „P0 și P1 au cotă garantată; P2 și P3 se amână la epuizare; P0 continuă”, dar nu spune ce se întâmplă cu P1 peste buget.
 - **Hotărâre (propusă de agentul de cod, de confirmat de proprietar):** consumul se ține în contoare proprii (nu se citește din jurnal: jurnalul se scrie după apel, deci nu este corect la concurență). P0 nu este atins niciodată; P1 continuă până la 1,5 × bugetul (configurabil), apoi se amână; P2 și P3 se amână la atingerea bugetului. Valorile implicite de buget sunt de pornire, nemăsurate.
 - **Consecințe:** `gateway.Amanat(pana_la)` cu momentul resetării (miezul nopții UTC, ora este setare). Se revizuiește după primele luni de consum real.
+
+### D-005 (2026-11-12) — Trei compartimente adăugate Creierului în F4: `brief`, `insight_piata`, `strategie`
+
+- **Context:** `docs/10` §10.1 are zece compartimente. Brieful de onboarding (F4.4), harta pieței și brieful de insight (F4.10) și strategia pe 90 de zile
+  (F4.11) cer același regim ca restul Creierului: versiuni, sursă obligatorie, aprobare de om, citire „la o dată”, diferență între versiuni.
+- **Hotărâre:** se adaugă trei compartimente ca date (`app/creier/compartimente.py`), fără a le schimba pe cele zece. Nu se creează tabele paralele.
+- **Consecințe:** ecranul „Creierul de brand” (F4.8) le arată împreună cu celelalte; `tests/unit/test_creier_compartimente.py` numără 13 și păstrează verificarea
+  celor zece din 10.1. Documentul 10.1 se actualizează odată cu poarta F4 (propunere).
+

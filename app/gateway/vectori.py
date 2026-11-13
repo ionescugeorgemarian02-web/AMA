@@ -16,6 +16,7 @@ import datetime as dt
 import time
 import uuid
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 from app.config import get_settings
 from app.db import sesiune_tenant
@@ -50,6 +51,21 @@ def modele_de_vectori(candidati: Sequence[Candidat]) -> list[Candidat]:
     return sorted(ok, key=lambda c: c.cod)
 
 
+@dataclass(frozen=True)
+class ModelVectori:
+    """Modelul de vectori activ acum: `cod` (`furnizor/identificator`) se scrie pe fiecare vector, ca la
+    schimbarea modelului vectorii vechi să fie recunoscuți și re-calculați (F4.3)."""
+
+    cod: str
+    dimensiune: int
+
+
+def model_activ(tenant_id: uuid.UUID) -> ModelVectori | None:
+    with sesiune_tenant(tenant_id) as db:
+        m = modele_de_vectori(registru.candidati(db))
+    return ModelVectori(m[0].cod, m[0].dimensiune_vector or 0) if m else None
+
+
 def dimensiune(tenant_id: uuid.UUID) -> int | None:
     """Dimensiunea vectorilor modelului activ (pentru coloana pgvector), sau `None` dacă nu există model."""
     with sesiune_tenant(tenant_id) as db:
@@ -66,6 +82,18 @@ def vectorizeaza(
 ) -> list[list[float]]:
     """Vectorii textelor, în aceeași ordine. Ridică `Amanat` (niciun model activ, server căzut) sau
     `FurnizoriIndisponibili` (serverul a refuzat cererea)."""
+    return vectorizeaza_cu_model(texte, tenant_id=tenant_id, componenta=componenta, prioritate=prioritate)[0]
+
+
+def vectorizeaza_cu_model(
+    texte: Sequence[str],
+    *,
+    tenant_id: uuid.UUID,
+    componenta: str = "vectori",
+    prioritate: Prioritate = Prioritate.P2,
+) -> tuple[list[list[float]], str]:
+    """La fel ca `vectorizeaza`, dar întoarce și modelul care a produs vectorii (`furnizor/identificator`),
+    exact cel folosit la apel, ca apelantul să-l poată scrie pe vectori (reindexare la schimbare)."""
     if not texte or len(texte) > MAX_TEXTE:
         raise VectoriInvalizi(f"între 1 și {MAX_TEXTE} de texte")
     if any(not t.strip() or len(t) > MAX_CARACTERE_TEXT for t in texte):
@@ -90,7 +118,7 @@ def vectorizeaza(
         _jurnal(tenant_id, componenta, prioritate, c, len(lista), 0, start, "esec", "cerere_respinsa")
         raise
     _jurnal(tenant_id, componenta, prioritate, c, len(lista), tokeni, start, "ok", "")
-    return vectori
+    return vectori, c.cod
 
 
 def _cu_reincercari(c: Candidat, texte: list[str]) -> tuple[list[list[float]], int]:

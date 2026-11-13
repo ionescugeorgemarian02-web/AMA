@@ -1,0 +1,14 @@
+{% extends "panou/baza.html" %}
+{% block title %}Onboarding · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/meniu">← Meniu</a></p>
+<h1>Onboarding clienți</h1>
+<p class="slab">Interviul, brieful și ghidul de brand al fiecărui client. Alege un client.</p>
+<ul class="lista-meniu">
+  {% for c in clienti %}
+  <li><a href="/onboarding/{{ c.id }}">{{ c.nume }} <span>{% if stari[c.id] %}<span class="insigna atentie">în lucru</span>{% endif %} ›</span></a></li>
+  {% else %}
+  <li class="slab">Niciun client încă.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

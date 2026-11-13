@@ -1,0 +1,123 @@
+{% extends "panou/baza.html" %}
+{% block title %}{{ info.nume }} · {{ intrare.cheie }} · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/creier/client/{{ intrare.tenant_id }}/{{ comp.value }}">← {{ info.nume }}</a></p>
+<h1>{{ info.nume }} · {{ intrare.cheie }}</h1>
+<p class="slab">{{ client_nume }} · intrare creată {{ intrare.creat_la|moment }}</p>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+{% if aprobata %}
+<section class="card" aria-labelledby="ap">
+  <h2 id="ap">Versiunea aprobată <span class="insigna ok">v{{ aprobata.nr }}</span></h2>
+  <p class="slab">Aprobată {{ aprobata.aprobat_la|moment }} · sursa: {{ aprobata.sursa_tip }}</p>
+  {% for k, v in aprobata.continut.items()|sort %}
+  <div class="rand"><span class="eticheta">{{ k }}</span></div>
+  <p>{{ afisare(v) }}</p>
+  {% endfor %}
+  {% if poate_aproba %}
+  <details>
+    <summary>Retrage versiunea aprobată</summary>
+    <form method="post" action="/creier/intrare/{{ intrare.id }}/retrage">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="versiune" value="{{ aprobata.nr }}">
+      <label for="mr">Motivul (obligatoriu)</label>
+      <input type="text" id="mr" name="motiv" maxlength="300" minlength="3" required autocomplete="off">
+      <button type="submit" class="pericol">Retrage</button>
+    </form>
+  </details>
+  {% endif %}
+</section>
+{% else %}
+<p class="mesaj atentie" role="status">Nicio versiune aprobată: intrarea nu intră în context.</p>
+{% endif %}
+
+{% for v in asteptare %}
+<section class="card" aria-labelledby="pr-{{ v.nr }}">
+  <h2 id="pr-{{ v.nr }}">Propunere în așteptare <span class="insigna atentie">v{{ v.nr }}</span></h2>
+  <p class="slab">Propusă {{ v.creat_la|moment }} · sursa: {{ v.sursa_tip }}{% if v.motiv %} · {{ v.motiv }}{% endif %}</p>
+  {% if aprobata and diff_b == v.nr %}<p class="slab">Diferența față de v{{ diff_a }} este mai jos.</p>{% endif %}
+  {% for k, x in v.continut.items()|sort %}<div class="rand"><span class="eticheta">{{ k }}</span></div><p>{{ afisare(x) }}</p>{% endfor %}
+  {% if poate_aproba %}
+  <form method="post" action="/creier/intrare/{{ intrare.id }}/aproba">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ v.nr }}">
+    <button type="submit">Aprobă v{{ v.nr }}</button>
+  </form>
+  <form method="post" action="/creier/intrare/{{ intrare.id }}/respinge">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ v.nr }}">
+    <label for="mp-{{ v.nr }}">Motivul respingerii (obligatoriu)</label>
+    <input type="text" id="mp-{{ v.nr }}" name="motiv" maxlength="300" minlength="3" required autocomplete="off">
+    <button type="submit" class="secundar">Respinge</button>
+  </form>
+  {% else %}<p class="slab">Doar proprietarul poate aproba sau respinge.</p>{% endif %}
+</section>
+{% endfor %}
+
+{% for v in ciorne %}
+<section class="card">
+  <h2>Ciornă <span class="insigna">v{{ v.nr }}</span></h2>
+  {% for k, x in v.continut.items()|sort %}<div class="rand"><span class="eticheta">{{ k }}</span></div><p>{{ afisare(x) }}</p>{% endfor %}
+  {% if poate_propune %}
+  <form method="post" action="/creier/intrare/{{ intrare.id }}/trimite">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ v.nr }}">
+    <button type="submit">Trimite spre aprobare</button>
+  </form>
+  {% endif %}
+</section>
+{% endfor %}
+
+{% if schimbari %}
+<section class="card" aria-labelledby="dif">
+  <h2 id="dif">Diferența v{{ diff_a }} → v{{ diff_b }}</h2>
+  {% for s in schimbari %}
+  <div class="rand"><span class="eticheta">{{ s.cale }}</span><span class="insigna">{{ s.fel.value }}</span></div>
+  {% if s.inainte is not none %}<p class="slab">înainte: {{ afisare(s.inainte) }}</p>{% endif %}
+  {% if s.dupa is not none %}<p>după: {{ afisare(s.dupa) }}</p>{% endif %}
+  {% endfor %}
+</section>
+{% elif diff_a and diff_b %}
+<p class="slab">Nicio diferență între v{{ diff_a }} și v{{ diff_b }}.</p>
+{% endif %}
+
+{% if versiuni|length > 1 %}
+<section class="card" aria-labelledby="cmp">
+  <h2 id="cmp">Compară versiuni</h2>
+  <form method="get" action="/creier/intrare/{{ intrare.id }}">
+    <label for="va">De la</label>
+    <select id="va" name="a">{% for v in versiuni %}<option value="{{ v.nr }}"{{ ' selected' if v.nr == diff_a else '' }}>v{{ v.nr }} · {{ etichete_stare[v.stare] }}</option>{% endfor %}</select>
+    <label for="vb">La</label>
+    <select id="vb" name="b">{% for v in versiuni %}<option value="{{ v.nr }}"{{ ' selected' if v.nr == diff_b else '' }}>v{{ v.nr }} · {{ etichete_stare[v.stare] }}</option>{% endfor %}</select>
+    <button type="submit" class="secundar">Arată diferența</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="card" aria-labelledby="ist">
+  <h2 id="ist">Istoric</h2>
+  {% for v in versiuni|reverse %}
+  <div class="rand"><span>v{{ v.nr }} · {{ etichete_stare[v.stare] }}</span><span class="slab">{{ v.creat_la|moment }}</span></div>
+  {% if v.retras_motiv %}<p class="slab">{{ v.retras_cauza }}: {{ v.retras_motiv }}</p>{% endif %}
+  {% endfor %}
+</section>
+
+{% if poate_propune and campuri and not dedicat %}
+<section class="card" aria-labelledby="ed">
+  <h2 id="ed">Editează</h2>
+  <p class="slab">Salvarea creează o propunere nouă; versiunea aprobată rămâne în vigoare până o aprobi pe cea nouă.</p>
+  <form method="post" action="/creier/intrare/{{ intrare.id }}/editeaza">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% for c in campuri %}
+    <label for="c_{{ c.nume }}">{{ c.nume }}{% if c.tip == 'lista' %} (un element pe rând){% elif c.tip == 'json' %} (JSON){% endif %}</label>
+    {% if c.lung %}<textarea id="c_{{ c.nume }}" name="c_{{ c.nume }}" rows="{{ 8 if c.tip == 'json' else 5 }}">{{ c.valoare }}</textarea>
+    {% else %}<input type="text" id="c_{{ c.nume }}" name="c_{{ c.nume }}" value="{{ c.valoare }}">{% endif %}
+    {% endfor %}
+    <label for="motiv">Ce ai schimbat și de ce</label>
+    <input type="text" id="motiv" name="motiv" maxlength="500">
+    <button type="submit">Salvează ca propunere</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

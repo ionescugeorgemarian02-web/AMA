@@ -29,6 +29,7 @@ from app.conturi import (
     require_role,
 )
 from app.conturi.roluri import ROLURI_AGENTIE
+from app.creier import context as context_creier
 from app.logging import get_logger
 from app.operare import audit, coada_erori, efecte, motor
 from app.operare.efecte import ETICHETE as ETICHETE_EFECT
@@ -258,6 +259,7 @@ def _detaliu(
         pasi=_pasi(joburi),
         etichete_job=ETICHETE_JOB,
         clasa_job=CLASA_JOB,
+        pachete_context=context_creier.ale_livrabilului(db, livrabil.id),
         cereri=aprobari.ale_livrabilului(db, livrabil.id),
         etichete_aprobare=ETICHETE_STARE,
         etichete_decident=ETICHETE_DECIDENT,

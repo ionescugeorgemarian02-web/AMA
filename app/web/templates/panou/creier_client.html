@@ -1,0 +1,67 @@
+{% extends "panou/baza.html" %}
+{% block title %}Creierul de brand {{ client.nume }} · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/meniu">← Meniu</a> · <a href="/onboarding/{{ client.id }}">Onboarding</a> · <a href="/campanii/{{ client.id }}">Campanii</a></p>
+<h1>Creierul de brand · {{ client.nume }}</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+{% if asteptare %}
+<section class="card" aria-labelledby="asteptare">
+  <h2 id="asteptare">Propuneri în așteptare ({{ asteptare|length }})</h2>
+  <ul class="lista-meniu">
+    {% for x in asteptare %}
+    <li><a href="/creier/intrare/{{ x.intrare.id }}">{{ x.nume }} · versiunea {{ x.versiune.nr }}<span class="slab">{{ x.text }}</span></a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<h2>Compartimente</h2>
+{% for c in carduri %}
+<section class="card" aria-labelledby="c-{{ c.info.cod.value }}">
+  <h3 id="c-{{ c.info.cod.value }}"><a href="/creier/client/{{ client.id }}/{{ c.info.cod.value }}">{{ c.info.nume }}</a></h3>
+  <p class="slab">{{ c.info.contine }}</p>
+  <p>
+    {% if c.rez %}
+    <span class="insigna">{{ c.rez.intrari }} intrări</span>
+    <span class="insigna ok">{{ c.rez.aprobate }} aprobate</span>
+    {% if c.rez.in_asteptare %}<span class="insigna atentie">{{ c.rez.in_asteptare }} în așteptare</span>{% endif %}
+    {% else %}<span class="insigna">gol</span>{% endif %}
+  </p>
+  {% if c.dedicat and c.info.cod.value == 'registru_fapte' %}<p class="slab">Faptele se aprobă pe ecranul lor, cu sursa și citatul exact ({{ fapte_propuse }} de aprobat).</p>{% endif %}
+</section>
+{% endfor %}
+
+<h2>Surse</h2>
+{% for s in surse %}
+<section class="card">
+  <p><strong>{{ s.nume }}</strong> <span class="insigna">{{ statute[s.statut].eticheta }}</span></p>
+  <p class="slab">{{ s.tip }}{% if s.url_radacina %} · {{ s.url_radacina }}{% endif %}{% if not statute[s.statut].reutilizare_text %} · doar pentru analiză, textul nu se reutilizează{% endif %}</p>
+</section>
+{% else %}
+<p class="slab">Nicio sursă încă. Surse noi se adaugă din colector.</p>
+{% endfor %}
+<p><a class="buton secundar" href="/creier/fapte?client={{ client.id }}">Fapte de aprobat ({{ fapte_propuse }})</a></p>
+
+{% if poate_completa %}
+<h2>Pregătirea Creierului</h2>
+<p class="slab">Pașii se rulează în ordine; fiecare se aprobă apoi aici. Modelele pot amâna un pas când cota s-a epuizat.</p>
+<div class="actiuni">
+  {% for cod, eticheta in [("ton", "Propune ghidul de ton"), ("citate", "Extrage citate din recenzii"), ("public", "Propune profilul de public"), ("afirmatii", "Extrage afirmațiile concurenței"), ("insight", "Propune brieful de insight"), ("strategie", "Propune strategia")] %}
+  <form method="post" action="/creier/client/{{ client.id }}/pas/{{ cod }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit" class="secundar">{{ eticheta }}</button>
+  </form>
+  {% endfor %}
+</div>
+<form method="post" action="/creier/client/{{ client.id }}/concurent">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label for="nume-c">Concurent (3–5 pe client)</label>
+  <input type="text" id="nume-c" name="nume" maxlength="200" required>
+  <label for="adresa-c">Adresa site-ului (opțional)</label>
+  <input type="text" id="adresa-c" name="adresa" maxlength="500" placeholder="https://…">
+  <button type="submit" class="secundar">Adaugă concurentul</button>
+</form>
+{% endif %}
+{% endblock %}

@@ -30,6 +30,9 @@ MODULE_FLUXURI: tuple[str, ...] = (
     "app.operare.efecte",
     "app.gateway.fluxuri",
     "app.planificare.fluxuri",
+    "app.cercetare.fluxuri",
+    "app.creier.fluxuri",
+    "app.onboarding.fluxuri",
 )
 
 
@@ -71,6 +74,9 @@ def main() -> int:
     signal.signal(signal.SIGINT, la_semnal)
 
     _incarca_module()
+    from app.creier import fluxuri as fluxuri_creier
+
+    fluxuri_creier.activeaza_indexarea_dupa_colectare()  # colectarea terminată pornește indexarea
     motor.porneste()
     watchdog = Watchdog.din_configurare()
     watchdog.porneste()

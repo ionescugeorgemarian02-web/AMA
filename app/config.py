@@ -121,6 +121,22 @@ class Settings(BaseSettings):
     planificare_cpu_factor: float = Field(
         default=0.6, gt=0.0, le=1.0
     )  # cât din timpul culoarelor grele se poate planifica
+    # Media pe disc (ADR-15) și colectorul de surse (F4.2, 12.3). User-Agent-ul identifică onest platforma;
+    # adresa de contact reală se pune în configurarea serverului (NEVERIFICAT: domeniul agenției, F0.1).
+    media_dir: str = "/var/lib/ama/media"
+    colector_user_agent: str = Field(
+        default=(
+            "AMA-Colector/1.0 (robot de citit pagini pentru clientii agentiei de marketing; "
+            "contact: setati AMA_COLECTOR_USER_AGENT)"
+        ),
+        pattern=r"^[\x20-\x7e]{10,300}$",  # antet HTTP: ASCII vizibil
+    )
+    # Modelul de vectori (F4.3): unele modele (familia E5) cer prefixe diferite pentru pasaje și pentru
+    # întrebări
+    # („passage: ” / „query: ”). Goale = fără prefix. NEVERIFICAT: modelul real și prefixele lui se aleg la
+    # migrare.
+    vectori_prefix_pasaj: str = ""
+    vectori_prefix_intrebare: str = ""
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

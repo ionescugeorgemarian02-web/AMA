@@ -4,6 +4,55 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F4 — lanțul verificat local
+- Test cap-coadă cu brandul fictiv (colectare → fapte → interviu → brief → ghid → citate și public → insight → strategie → aprobări → pachet de context) și comanda `python -m app.creier.pregatire --client <nume>` care creează clientul și sursele unui brand propriu. Poarta propriu-zisă (CariereAI și BigBrain) rămâne deschisă până la materialele și aprobarea proprietarului.
+
+### F4.8 — Ecranul „Creierul de brand”
+- Pe client: compartimentele cu intrările lor, versiunea aprobată și propunerile în așteptare, diferența între versiuni, editare (creează propunere nouă, nu suprascrie; trece prin schema și poarta compartimentului), aprobare / respingere / retragere cu motiv, sursele, concurenții și pașii de pregătire; faptele rămân pe `/creier/fapte` (legate, nu dublate). Întâi pentru telefon: carduri și formulare, fără tabele. `creier.rezumat_pe_compartimente`, `creier.propuneri_in_asteptare`.
+
+### F4.11 — Strategia pe 90 de zile, prima formă
+- Strategia (ipoteză, plan pe 30 și 90 de zile, indicator principal, prag minim, fereastră de măsurare, criteriu de oprire — toate obligatorii, schemă strictă și poartă) propusă prin gateway pe profilul `strategie` (se amână, nu se degradează) din pachetul de context al clientului (brief, ghid, fapte, public, insight aprobate), versionată și aprobată de un om. Ecranul „Campanii” (`/campanii`): lista pe client, detaliu, aprobă / respinge cu motiv.
+- Constructorul de context: secțiuni la cerere `brief`, `public`, `insight`, `strategie` (`sectiuni_extra`); implicit pachetele nu se schimbă.
+
+### F4.10 — Harta pieței și brieful de insight
+- Concurenți ca surse (3–5 pe client, citire cu colectorul existent, text lipit altfel; textul lor nu se reutilizează), afirmațiile lor (ofertă, preț, mesaj) extrase pe pasaje cu citat verificat literal în `insight_piata`, brief de insight pe o pagină cu trimitere la sursă pe fiecare afirmație (profilul `strategie`, se amână), poarta care blochează afirmațiile fără trimitere, trimiterile fără sursă și sondajul de citate picat; sondaj cu eșantion determinist (`sondaj.esantion`).
+
+### F4.9 — Profilul de public și vocea clientului
+- Citate reale din recenzii, comentarii și întrebări (flux durabil pe pasaje, gateway cu schemă strictă): fiecare citat verificat LITERAL în pasaj, fără date personale (garda din F3.9) și fără numele autorului, cu sursă și poziție, în `insight_public` (aprobat de sistem). Profilul clientului ideal (segmente, nevoi, obiecții, declanșatori, canale, limbaj, dovezi) propus din brief și citate, cu poartă (≥ 20 de citate aprobate, dovezi reale) și aprobat doar de un om.
+- `gateway.detecteaza_date_personale` (export). Mecanism comun de extragere pe pasaje (`onboarding.extractie`).
+
+### F4.5 — Profilul de brand
+- Trei variante de ton propuse prin gateway din brieful aprobat și din materiale (descriere, reguli da / nu, vocabular preferat / interzis, ≥ 3 exemple pe ≥ 3 canale, fără vocabular interzis în exemple — verificate determinist); omul alege, combină sau corectează (versiune nouă, nu suprascriere); ghidul aprobat intră în `profil_brand` și este preluat de constructorul de context. Migrarea `0027`, ecranul `/onboarding/{client}/ghid`.
+- Creier: randare pe compartiment (`inregistreaza_randare`) și intrări aprobate doar de om într-un compartiment cu aprobare automată (`inregistreaza_cere_om`).
+
+### F4.4 — Asistentul de onboarding
+- Interviul din 19.3 ca date (5 secțiuni, 11 întrebări), sesiune persistentă și reluabilă (`onboarding_sesiuni`, `onboarding_intrebari`, migrarea `0026`), întrebări de clarificare generate prin gateway și limitate (2 pe întrebare, 6 pe sesiune), brief cu 11 câmpuri obligatorii (schemă Pydantic) compus ca flux durabil din răspunsuri + materialele colectate, cu sursă și citat verificat literal pe fiecare câmp.
+- Poarta de aprobare a Creierului (`creier.inregistreaza_poarta`): un brief cu câmpuri goale nu poate deveni „propus” sau „aprobat” pe nicio cale. Compartimente noi `brief`, `insight_piata`, `strategie` (DECIZII D-005). Permisiunea `onboarding.completeaza` (operator, proprietar). Ecranul `/onboarding`.
+
+### F4.7 — Constructorul de context
+- Pachetul de context al unei sarcini (client, tip, canal, întrebare, livrabil): reguli și interdicții (obligatorii), fapte aprobate și valabile relevante (doar prin `fapte.pentru_context`), oferte valabile, ghidul de brand aprobat (lipsa lui e spusă explicit) și pasaje din materialele clientului prin căutarea hibridă (doar din surse reutilizabile; în prompt doar marcate ca externe). Fiecare element poartă identificatorul și versiunea sursei.
+- Buget de tokeni cu priorități între secțiuni și trunchiere deterministă (un element intră întreg sau deloc; regulile intră mereu); aceleași intrări dau aceeași amprentă.
+- Pachetul se salvează (`pachete_context`, migrarea `0025`, RLS, doar adăugări) și se leagă de livrabil: apare în secțiunea „Pachetul de context” de pe `/productie/{id}`.
+- Corecție la F4.6: valoarea numerică a unui fapt nu se mai stochează în notație științifică (`50` devenea „5E+1”). `cautare.cauta` primește `surse=[…]`.
+
+### F4.6 — Registrul de fapte și catalogul de oferte
+- Fapte (tip, afirmație atomică, valoare structurată cu număr exact, sursă obligatorie: pasaj / document / URL / declarația clientului, stare propus / aprobat / respins / expirat, valabilitate, cine a aprobat) și catalog de oferte (preț, monedă, condiții, valabilitate, legate de fapte), peste depozitul versionat. Singura citire pentru context, `pentru_context`, întoarce doar ce a aprobat un om și e valabil la data cerută; o gardă statică o impune și constructorului de context.
+- Extragere din materiale ca flux durabil: pasajele trec prin gateway cu schemă strictă (`prompts/creier.extrage_fapte.v1.md`), fiecare fapt păstrează citatul exact, iar un verificator determinist respinge propunerile al căror citat nu apare literal în pasaj sau ale căror cifre nu apar în citat. Expirare automată (job zilnic) cu anunț; punct minim în panou (`/creier/fapte`: aprobă / respinge cu CSRF, permisiune, audit).
+- Migrarea `0024` (`creier_extrageri`, RLS). `Dockerfile`: `COPY prompts`.
+
+### F4.3 — Vectori și căutare hibridă
+- Materialele colectate se taie în pasaje (paragrafe întregi, suprapunere, legătură pasaj → document → sursă → URL / poziție), se vectorizează în loturi prin gateway (flux durabil `creier.indexeaza_sursa`, cu reprogramare la `Amanat`; pornește singur după fiecare colectare) și se caută hibrid: vectori (pgvector) + text fără diacritice + trigrame, combinate prin fuziune de ranguri, cu filtrare pe client (RLS) și opțional pe sursă / compartiment. Fiecare vector poartă modelul care l-a produs: la schimbarea modelului pasajele se re-vectorizează.
+- Migrarea `0023` (`pasaje`, RLS). Gateway: `vectorizeaza_cu_model`, `model_vectori`. Setări: `AMA_VECTORI_PREFIX_PASAJ`, `AMA_VECTORI_PREFIX_INTREBARE`.
+
+### F4.2 — Colectorul de surse
+- `app/cercetare`: crawl politicos al site-urilor (robots.txt cu `Crawl-delay`, User-Agent propriu, o cerere odată pe gazdă cu pauză, doar același domeniu înregistrat, sitemap, fără formulare și fără autentificare), cu apărare SSRF (doar http / https, adrese private / loopback / link-local / metadate refuzate la fiecare redirecționare, limită de octeți în flux, tipuri permise) și limite de pagini, adâncime, octeți, timp, capcane de linkuri. Text extras cu parserul din biblioteca standard; originalul pe disc (`AMA_MEDIA_DIR`) cu hash; deduplicare; re-colectare incrementală; flux durabil pe coada `io` cu stare vizibilă (găsite / citite / sărite și de ce).
+- Statutul surselor din 12.1 ca date; materiale manuale (text lipit, `.txt`, `.md`; PDF amânat); `ca_continut_extern` pentru prompturi.
+- Migrarea `0022`: `surse`, `colectari`, `colectari_pagini`, `documente_colectate` (RLS). Setări noi: `AMA_MEDIA_DIR`, `AMA_COLECTOR_USER_AGENT`.
+
+### F4.1 — Modelul Creierului
+- `app/creier`: cele zece compartimente din 10.1 ca date, intrări cu versiuni (`ciornă → propus → aprobat → retras`), sursă obligatorie, valabilitate, cine și când a aprobat, nivelurile de cunoaștere din 10.2. API: `creeaza_intrare`, `propune_schimbare`, `aproba`, `retrage`, `citeste`, `la_data`, `istoric`, `diferenta_versiuni`.
+- Migrarea `0021` (`creier_intrari`, `creier_versiuni`, RLS): conținutul unei versiuni nu se mai poate schimba (declanșator în bază), cel mult o versiune aprobată pe intrare.
+
 ### Poarta F3 — Gateway de modele
 - Test cap-coadă cu furnizori falși (`tests/integration/test_poarta_f3.py`): testul comparativ rulat pe modelele de text din configurarea de probă, iar cu fiecare dintre cei cinci furnizori oprit pe rând un flux de probă pe fiecare profil se termină (degradare marcată la modelul local pe coada `greu`, trecere pe alt furnizor sau amânare curată, fără eșecuri). Testul comparativ pe modele reale rămâne deschis până la migrare.
 
