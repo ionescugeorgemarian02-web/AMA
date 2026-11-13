@@ -1,0 +1,62 @@
+{% extends "panou/baza.html" %}
+{% block title %}Calendar {{ client.nume }} · AMA{% endblock %}
+{% block pagina %}
+<p><a href="/campanii/{{ client.id }}">← Strategia</a> · <a href="/publicare">Publicare asistată</a></p>
+<h1>Calendar · {{ client.nume }}</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+
+{% if poate_propune %}
+<form method="post" action="/calendar/{{ client.id }}/propune">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label for="inceput">Începe la</label>
+  <input type="date" id="inceput" name="inceput" value="{{ maine }}">
+  <button type="submit" class="secundar">Propune calendarul pe 30 de zile</button>
+</form>
+<p class="slab">Pleacă din strategia aprobată: piloni, formate pe canal și idei.</p>
+{% endif %}
+
+{% for r in calendare %}
+<section class="card" aria-labelledby="cal-{{ r.cal.id }}">
+  <h2 id="cal-{{ r.cal.id }}">De la {{ r.cal.inceput }}, {{ r.cal.zile }} de zile
+    <span class="insigna {% if r.cal.stare == 'aprobat' %}ok{% elif r.cal.stare == 'propus' %}atentie{% endif %}">{{ r.stare }}</span></h2>
+  <p class="slab">Din strategia aprobată, versiunea {{ r.cal.strategie_versiune }}. {{ r.sloturi|length }} sloturi.
+    {% if r.cal.motiv %}Motiv: {{ r.cal.motiv }}{% endif %}</p>
+  <details{% if r.cal.stare == 'propus' %} open{% endif %}>
+    <summary>Piloni</summary>
+    <ul>{% for p in r.cal.propunere.piloni %}<li><strong>{{ p.nume }}</strong> ({{ p.pondere }}): {{ p.descriere }}</li>{% endfor %}</ul>
+  </details>
+  <details>
+    <summary>Sloturi ({{ r.sloturi|length }})</summary>
+    <ol>
+    {% for s in r.sloturi %}
+      <li><strong>{{ s.local.strftime('%d.%m %H:%M') }}</strong> · {{ s.i.canal }} · {{ s.i.tip }} · <em>{{ s.i.pilon }}</em><br>
+        {{ s.i.subiect }}{% if s.stare %} <span class="slab">({{ s.stare }})</span>{% endif %}</li>
+    {% endfor %}
+    </ol>
+  </details>
+  {% if r.cal.stare == 'propus' %}
+    {% if poate_decide %}
+    <form method="post" action="/calendar/{{ client.id }}/{{ r.cal.id }}/aproba">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit">Aprobă calendarul</button>
+    </form>
+    <form method="post" action="/calendar/{{ client.id }}/{{ r.cal.id }}/respinge">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="m-{{ r.cal.id }}">Motivul respingerii (obligatoriu)</label>
+      <input type="text" id="m-{{ r.cal.id }}" name="motiv" maxlength="300" minlength="3" required autocomplete="off">
+      <button type="submit" class="secundar">Respinge</button>
+    </form>
+    {% else %}
+    <p class="slab">Doar proprietarul poate aproba sau respinge calendarul.</p>
+    {% endif %}
+  {% endif %}
+</section>
+{% else %}
+<div class="card gol">
+  <span class="pictograma" aria-hidden="true">▦</span>
+  <p><strong>Niciun calendar încă.</strong></p>
+  <p class="slab">Calendarul apare după ce strategia pe 90 de zile este aprobată.</p>
+</div>
+{% endfor %}
+{% endblock %}

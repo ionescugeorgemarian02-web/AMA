@@ -92,6 +92,17 @@ def inregistreaza_verificare(f: Callable[[Session, Livrabil], str | None]) -> No
         VERIFICARI_APROBARE.append(f)
 
 
+# Punct de extensie (F6): ce urmează după o decizie aplicată, în aceeași tranzacție (pachetul de publicare
+# asistată la aprobare, exemplele pozitive și negative din feedback). Fiecare funcție decide singură dacă
+# livrabilul e al ei.
+DUPA_DECIZIE: list[Callable[[Session, Aprobare, Livrabil, Hotarare], None]] = []
+
+
+def inregistreaza_dupa_decizie(f: Callable[[Session, Aprobare, Livrabil, Hotarare], None]) -> None:
+    if f not in DUPA_DECIZIE:
+        DUPA_DECIZIE.append(f)
+
+
 @dataclass(frozen=True)
 class RezultatDecizie:
     aprobare: Aprobare
@@ -339,7 +350,10 @@ def decide(
         utilizator_id=utilizator_id,
         date={"livrabil": str(livrabil.id), "versiune": ap.versiune},
     )
-    return RezultatDecizie(ap, aplicat=True, stare_livrabil=tinta)
+    for dupa in DUPA_DECIZIE:
+        dupa(db, ap, livrabil, hotarare)
+    db.refresh(livrabil)
+    return RezultatDecizie(ap, aplicat=True, stare_livrabil=Stare(livrabil.stare))
 
 
 # --- expirare și reamintiri (jobul programat) ---------------------------------------------------

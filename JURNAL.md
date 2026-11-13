@@ -398,3 +398,47 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Propuneri: aprobarea în grup (F6, cu loturile calendarului); un set de control scris de altcineva decât autorul
     ajustărilor; exportul periodic al exemplelor promovate într-un commit revizuit.
 
+## 2026-11-13 — Sesiunea 10: faza F6, producția de text și publicarea asistată
+
+### 24. Un agent de cod (Opus), pe ramura `claude/amazing-volta-ou9t2u`
+- **F6.1 — Strategul de conținut și calendarul.**
+  - Construit: `app/continut` (calendar, fluxuri, prompturi, modele), ecranul `/calendar/{client}`, migrarea `0034`, spec F6.1, ajutorul de test `lant_continut.pana_la_strategie` și modelul fals `tests/continut_utile.py`.
+  - Hotărâri (D-007): modelul propune doar conținutul, datele le așază un nucleu determinist; canalele vin din strategia aprobată; aprobarea calendarului e a unui om și creează livrabilele.
+  - Găsit: pachetul de context citea strategia aprobată în aceeași secundă ca „neaprobată încă” (momentul trunchiat la secundă); calendarul cere pachetul la momentul exact.
+  - Găsit: `test_gateway_apeluri_panou` depindea de ordinea testelor (apelurile lui purtau momentul fix T0, din trecut, iar lista arată ultimele 50); acum poartă momentul curent.
+  - Verificat: 6 teste noi (unitare + integrare + HTTP); `make check`: 2553 trecute.
+- **F6.2 — Autorul de brief.**
+  - Construit: `continut.brief`, fluxul `continut.briefuri`, migrarea `0035`, spec F6.2.
+  - Hotărâri (D-007): lume închisă prin aliasuri scurte; întrebarea pentru relevanță include ce vinde clientul (altfel o idee ca „degustarea de sâmbătă” nu primea niciun fapt); fără fapte în pachet lipsa se scrie explicit.
+  - Verificat: 3 teste de integrare.
+- **F6.3 — Hook-uri și postări.**
+  - Construit: `continut.scriere`, `continut.editor`, `continut.pipeline`, fluxul `continut.produ`, migrarea `0036`, trei prompturi, spec F6.3.
+  - Hotărâri (D-007): alegerea hook-ului e deterministă (G8 + cifre fără fapt), nu prin model; autorul de reparații e o „sursă” care răspunde doar pentru livrabilele cu brief, ca testele și comportamentul F5 („fără autor”) să rămână neschimbate; aprobarea după validare printr-un punct de extensie, nu în ciclul validării.
+  - Verificat: 6 teste (unitare + integrare): 10 / 10 postări validate, 2 cu reparație.
+- **F6.4 — Scripturi video.**
+  - Construit: `continut.scripturi`, autorul pe tip în `scriere.AUTORI`, `AutorEsuat` (coada de erori cu diagnostic), prompt, spec F6.4.
+  - Hotărâri (D-007): durata o calculează sistemul din cuvinte, nu modelul; verificarea duratei rămâne în autor, nu în G1 (versiunea G1 și seturile F5 neschimbate; propunere notată).
+  - Verificat: 3 teste; postările F6.3 trec în continuare (al cincilea hook, scurt, nu schimbă alegerea pentru postări).
+- **F6.5 — Adaptorul pe platformă.**
+  - Construit: `continut.adaptor`, migrarea `0037`, prompt, spec F6.5.
+  - Hotărâri (D-007): o adaptare = un livrabil nou (aprobat și publicat separat, cu cheia lui de idempotență); ținte native [I] mai stricte decât maximele G1; canalele țintă nu se limitează la strategie.
+  - Verificat: 2 teste de integrare.
+- **F6.6 — Publicarea asistată.**
+  - Construit: `app/publicare` (asistata, modele), ecranul `/publicare`, partajarea în `app.js`, migrarea `0038`, punctul de extensie după decizie în aprobări, spec F6.6.
+  - Hotărâri (D-007): modul asistat nu e un efect extern al platformei (publică omul), deci nu trece prin executor; cheia de idempotență se păstrează pentru F9; pachetul se pregătește automat la aprobare doar pentru livrabilele din calendar.
+  - Găsit: jurnalul de evenimente refuză cheia `cheie` în date (filtrul de secrete); cheia de idempotență intră ca `idem`.
+  - Verificat: 5 teste (unitare + HTTP). Telefonul real și postarea reală rămân la migrare.
+- **F6.7 — Capturarea feedbackului.**
+  - Construit: `continut.feedback`, secțiunile `exemple` / `exemple_negative` în constructorul de context, spec F6.7.
+  - Hotărâri (D-007): exemplele trăiesc în compartimentele Creierului (aprobate prin sistem), nu într-un tabel nou; contextul le aduce pe tip și canal, fără să le declare lipsă.
+  - Sesiunea a fost întreruptă de limita de utilizare la mijlocul pasului; reluată după resetare (Postgres-ul de test repornit).
+  - Verificat: testul de integrare.
+- **F6.8 — Proba de două săptămâni (simulată).**
+  - Construit: `continut.proba`, spec F6.8 cu rezultatul simulării.
+  - Hotărâri (D-007): proba devine simulare accelerată; incidentul critic definit [I] (publicare fără validare / fără om / dublă / fără pachet; eroare neprinsă); carantina și coada de erori nu sunt incidente.
+  - Verificat: 32 de livrabile în 14 zile pe două branduri, 0 incidente, rata 0,75 (dată de omul simulat). Proba reală, la migrare.
+- **Poarta F6.**
+  - Testul de poartă parcurge toți pașii F6.1–F6.8 pe brandul fictiv, cu aprobările, respingerea și linkul lipit prin rutele reale; trecut (21 s).
+  - Găsit: în poartă briefurile tuturor sloturilor se scriu înaintea respingerii, deci exemplul negativ ajunge la sarcina următoare prin promptul autorului, nu prin pachetul brieful (ambele drumuri sunt testate: F6.7 și poarta).
+  - Rămâne deschis (la migrare): proba reală, postarea reală, primul val F0, backupul pe VPS.
+  - Propuneri: verificarea duratei scriptului ca pas G1 cu set de aur propriu; aprobarea în grup pe loturile calendarului; partea cu model a editorului E8 după F11.

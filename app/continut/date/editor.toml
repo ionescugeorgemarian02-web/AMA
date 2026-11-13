@@ -1,0 +1,21 @@
+# Datele editorului (E8, F6.3, docs/13 §13.5): formulări șablon de eliminat, în română. Scopul este un text bun, concret,
+# nu păcălirea detectoarelor. Toate intrările sunt [I] (lista din playbook, de întreținut); se potrivesc la începutul unei
+# fraze, fără diferență de majuscule. Editorul NU schimbă fapte: dacă afirmațiile verificabile diferă după editare, se
+# păstrează textul original.
+
+[sabloane]
+inceput_de_fraza = [
+  "În concluzie, ",
+  "În lumea de azi, ",
+  "În lumea agitată de astăzi, ",
+  "Este important de menționat că ",
+  "Nu este un secret că ",
+  "Fără îndoială, ",
+  "Haideți să vedem ",
+  "Iată de ce ",
+]
+
+[ghilimele]
+# ghilimelele drepte devin ghilimele românești
+deschise = "„"
+inchise = "”"

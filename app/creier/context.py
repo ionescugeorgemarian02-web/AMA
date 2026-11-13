@@ -32,16 +32,25 @@ from app.creier.pachete import Element, PachetContext
 
 BUGET_IMPLICIT = 3000
 MAX_FAPTE, MAX_OFERTE, MAX_PASAJE = 20, 8, 6
-PRIORITATI = ["reguli", "fapte", "oferte", "ghid", "strategie", "brief", "public", "insight", "pasaje"]
+PRIORITATI = [
+    "reguli", "fapte", "oferte", "ghid", "exemple_negative", "exemple", "strategie", "brief", "public",
+    "insight", "pasaje",
+]  # fmt: skip
 OBLIGATORII = frozenset({"reguli"})
-ORDINE_IN_TEXT = ["ghid", "strategie", "brief", "public", "insight", "reguli", "fapte", "oferte", "pasaje"]
+ORDINE_IN_TEXT = [
+    "ghid", "strategie", "brief", "public", "insight", "reguli", "fapte", "oferte", "exemple",
+    "exemple_negative", "pasaje",
+]  # fmt: skip
 TITLURI = {
     "ghid": "Ghid de brand (aprobat)", "reguli": "Reguli și interdicții", "fapte": "Fapte aprobate",
     "oferte": "Oferte valabile", "pasaje": "Pasaje din materialele clientului",
     "brief": "Brief de onboarding (aprobat)", "public": "Profil de public (aprobat)",
     "insight": "Insight de piață (aprobat)",
     "strategie": "Strategie aprobată (90 de zile)",
+    "exemple": "Exemple aprobate (același tip și canal)",
+    "exemple_negative": "Exemple respinse, de evitat (același tip și canal), cu motivul",
 }  # fmt: skip
+MAX_EXEMPLE, MAX_EXEMPLE_NEGATIVE = 3, 3
 SEMNALE_MEREU = frozenset({"mentiune_legala"})  # mențiunile legale intră mereu printre faptele relevante
 CARACTERE_PASAJ_IN_PROMPT = 1200
 # Secțiuni cerute explicit (strategia, F4.11): compartimentul și, unde compartimentul amestecă mai multe
@@ -86,6 +95,26 @@ def _text_oferta(o: oferte.OfertaContext) -> str:
     return "; ".join(bucati)
 
 
+def exemple_pentru(
+    db: Session, tenant_id: uuid.UUID, tip: str, canal: str, la: dt.datetime
+) -> tuple[list[citire.IntrareContext], list[citire.IntrareContext]]:
+    """Exemplele de aur și cele negative (F6.7) ale aceluiași tip și canal, valabile la `la`, cele mai
+    noi primele."""
+
+    def ale(comp: Compartiment, n: int) -> list[citire.IntrareContext]:
+        gasite = [
+            r
+            for r in citire.pentru_context(db, tenant_id, comp, la)
+            if r.continut.get("tip") == tip and r.continut.get("canal") == canal
+        ]
+        gasite.sort(key=lambda r: (r.aprobat_la or la, str(r.intrare_id)), reverse=True)
+        return gasite[:n]
+
+    return ale(Compartiment.EXEMPLE_AUR, MAX_EXEMPLE), ale(
+        Compartiment.EXEMPLE_NEGATIVE, MAX_EXEMPLE_NEGATIVE
+    )
+
+
 def construieste(
     db: Session,
     *,
@@ -99,10 +128,12 @@ def construieste(
     utilizator_id: uuid.UUID | None = None,
     salveaza: bool = True,
     sectiuni_extra: tuple[str, ...] = (),
+    exemple: tuple[str, str] | None = None,
 ) -> PachetContext:
     """Pachetul de context al unei sarcini. `intrebare` este brieful / întrebarea. `la`: data pentru care se
     citesc faptele (implicit acum, la secundă). Cu `salveaza=True` pachetul se scrie (și se leagă de
-    `livrabil_id`)."""
+    `livrabil_id`). `exemple=(tip, canal)`: exemplele aprobate și respinse ale aceluiași tip și canal (F6.7);
+    lipsa lor nu e o lipsă (un client nou nu are exemple)."""
     la = la or dt.datetime.now(dt.UTC).replace(microsecond=0)
     if buget_tokeni < 1:
         raise ValueError("bugetul de tokeni trebuie să fie pozitiv")
@@ -174,6 +205,19 @@ def construieste(
             adauga(sectiune, sectiune, str(r.intrare_id), r.versiune, r.text, cheie_intrare=r.cheie)
         if not gasite:
             lipsuri.append(sectiune)  # cerută și lipsă (neaprobată): spusă explicit
+    if exemple is not None:
+        aur, negative = exemple_pentru(db, tenant_id, exemple[0], exemple[1], la)
+        for r in aur:
+            adauga("exemple", "exemplu", str(r.intrare_id), r.versiune, r.text, cheie_intrare=r.cheie)
+        for r in negative:
+            adauga(
+                "exemple_negative",
+                "exemplu_negativ",
+                str(r.intrare_id),
+                r.versiune,
+                r.text,
+                cheie_intrare=r.cheie,
+            )
     surse_ok = [s.id for s in cercetare.surse(db, tenant_id) if cercetare.STATUTE[s.statut].reutilizare_text]
     if surse_ok:
         raspuns = cautare_hibrida.cauta(

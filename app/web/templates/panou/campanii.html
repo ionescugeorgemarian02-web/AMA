@@ -17,7 +17,7 @@
   <p>{{ c.criteriu_oprire }}</p>
 {% endmacro %}
 {% block pagina %}
-<p><a href="/campanii">← Campanii</a> · <a href="/creier/client/{{ client.id }}">Creierul de brand</a></p>
+<p><a href="/campanii">← Campanii</a> · <a href="/creier/client/{{ client.id }}">Creierul de brand</a> · <a href="/calendar/{{ client.id }}">Calendarul de conținut</a></p>
 <h1>Strategie · {{ client.nume }}</h1>
 {% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
 {% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}

@@ -4,6 +4,35 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F6
+- Testul de poartă `tests/integration/test_poarta_f6.py`: lanțul complet al producției de text și al publicării asistate, cu acțiunile omului prin panou, și proba accelerată de 14 zile pe două branduri, fără incident critic. Detalii și condițiile rămase în `docs/specs/F6-poarta.md`.
+
+### F6.8 — Proba de două săptămâni (simulată)
+- `continut.proba`: proba zi cu zi pe ceasul calendarului, pentru mai multe branduri (producție, decizia omului, publicare asistată), cu verificarea incidentelor critice și rata de aprobare din prima; raportul intră în audit. Rulată accelerat pe două branduri fictive: 14 zile, 0 incidente critice.
+
+### F6.7 — Capturarea feedbackului
+- Respingerile (cu motivul standard și fraza omului) devin exemple negative, aprobările (cu ciorna, dacă omul a editat) exemple de aur, automat, în aceeași tranzacție cu decizia; pachetul de context primește exemplele aceluiași tip și canal (`creier.context.construieste(..., exemple=(tip, canal))`), iar brieful și autorii le văd în prompt.
+
+### F6.6 — Publicarea asistată
+- Modulul `app/publicare`: pachetul de publicare asistată se pregătește la aprobare (text final cu hashtag-uri, ora recomandată, dezvăluirea AI, pașii obligatorii, cheia de idempotență din 7.3), ecranul `/publicare` cu butonul „Partajează” (Web Share sau copiere) și formularul pentru linkul postării, verificat pe domeniul canalului; livrabilul trece `programat → publicat`. Tabelul `publicari_asistate` (migrarea `0038`).
+- `productie.aprobari`: punctul de extensie după decizie (`inregistreaza_dupa_decizie`).
+
+### F6.5 — Adaptorul pe platformă
+- Adaptorul pe platformă (E10): din postarea validată, câte un livrabil nou pe canal (Instagram, LinkedIn, TikTok, Facebook), cu lungimi-țintă native verificate determinist împreună cu G1, o cerere de corectură, apoi validarea obișnuită. Tabelul `adaptari` (migrarea `0037`), prompt `continut.adapteaza@1`.
+
+### F6.4 — Scripturi video
+- Scenaristul video (E2): scriptul scurt pe bătăi (voce, text pe ecran, vizual, apel la acțiune) pe hook-ul ales de E1 cu limita video de 7 cuvinte; durata estimată determinist din cuvinte, încadrarea la ±15% din țintă, o singură cerere de scurtare / lungire, altfel coada de erori. Prompt `continut.script@1`.
+
+### F6.3 — Hook-uri și postări
+- Generatorul de hook-uri (E1, 3–5 variante pe tipare, alegere deterministă, tabelul `variante_hook`, migrarea `0036`), autorul de postări (E4) în lume închisă, editorul determinist (E8, `date/editor.toml`), lanțul `continut.pipeline` și fluxul durabil `continut.produ` (brief → scriere → validare cu ≤ 2 reparații → aprobare după nivelul de autonomie).
+- `validare`: sursele de autori de reparații (`autor.inregistreaza_sursa`), punctul de extensie după validare (`ciclu.inregistreaza_dupa_validare`) și nucleele exportate (`probleme_hook`, `probleme_structura`, `extrage_afirmatii`, `corecteaza_sedila`, `propozitii`).
+
+### F6.2 — Autorul de brief
+- Autorul de brief (D5): pentru fiecare slot aprobat, pachetul de context la data publicării, faptele permise alese de model doar dintre cele din pachet (aliasuri F1, F2, … rezolvate la intrarea și versiunea din Creier), restul din slot. Tabelul `briefuri` (migrarea `0035`), prompt `continut.brief@1`, fluxul durabil `continut.briefuri`; livrabilul trece `planificat → briefat`.
+
+### F6.1 — Strategul de conținut și calendarul
+- Modulul nou `app/continut`: strategul de conținut (D3) propune piloni, formate pe canal și idei din strategia aprobată (prompt `continut.calendar@1`, profilul `strategie`, flux durabil `continut.calendar`); nucleul determinist `calendar.planifica` așază sloturile pe 30 de zile; aprobarea unui om transformă sloturile în livrabile `planificat`. Tabelele `calendare` și `calendar_intrari` (migrarea `0034`, RLS), ecranul `/calendar/{client}`.
+
 ### Poarta F5
 - Testul de poartă `tests/integration/test_poarta_f5.py`: pe seturile înghețate, cu validatorii deterministe și fără niciun model, 107 / 107 materiale greșite blocate și 3 / 63 bune respinse pe nedrept; cifrele pe validator în `docs/specs/F5-poarta.md`.
 
