@@ -4,7 +4,7 @@ import uuid
 from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import Date, DateTime, Integer, Text, func
+from sqlalchemy import Boolean, Date, DateTime, Integer, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -68,5 +68,22 @@ class Brief(BazaContinut):
     livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     pachet_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     continut: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    model: Mapped[str | None] = mapped_column(Text)
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class VariantaHook(BazaContinut):
+    """O deschidere propusă de E1 pentru un livrabil, cu tiparul, scorul determinist și alegerea (F6.3)."""
+
+    __tablename__ = "variante_hook"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    nr: Mapped[int] = mapped_column(Integer)
+    text: Mapped[str] = mapped_column(Text)
+    tipar: Mapped[str] = mapped_column(Text)
+    scor: Mapped[int] = mapped_column(Integer)
+    probleme: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    ales: Mapped[bool] = mapped_column(Boolean, default=False)
     model: Mapped[str | None] = mapped_column(Text)
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

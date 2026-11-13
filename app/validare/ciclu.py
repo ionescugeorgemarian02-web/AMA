@@ -14,6 +14,7 @@ lăsat.
 
 import datetime as dt
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -32,6 +33,17 @@ from app.validare.verdict import Verdict
 
 log = get_logger("app.validare")
 COMPONENTA = "validare"
+
+
+# Punct de extensie (F6): ce urmează după `validat`, în aceeași tranzacție (de exemplu aprobarea cerută de
+# nivelul de
+# autonomie, docs/13 §13.2 pasul 9). Fiecare funcție decide singură dacă livrabilul e al ei.
+_DUPA_VALIDARE: list[Callable[[Session, productie.Livrabil], None]] = []
+
+
+def inregistreaza_dupa_validare(f: Callable[[Session, productie.Livrabil], None]) -> None:
+    if f not in _DUPA_VALIDARE:
+        _DUPA_VALIDARE.append(f)
 
 
 class NuSeValideaza(RuntimeError):
@@ -148,6 +160,10 @@ def ruleaza_runda(
             # peste prag la om; sau livrabilul a fost editat la aprobare: se întoarce la același decident
             decident = productie.Decident(anterioara.decident) if anterioara else productie.Decident.OPERATOR
             stare_noua = _cere_om(db, livrabil.id, ag.puncte, ag.prag, utilizator_id, decident) or stare_noua
+        if stare_noua is Stare.VALIDAT:
+            for dupa in _DUPA_VALIDARE:
+                dupa(db, productie.blocheaza(db, livrabil.id))
+            stare_noua = Stare(productie.blocheaza(db, livrabil.id).stare)
     elif ag.decizie is Decizie.INTREBARE:
         # lipsește un fapt necesar: livrabilul se oprește cu o ÎNTREBARE către client (înregistrare
         # vizibilă), nu cu o
@@ -245,6 +261,8 @@ def ruleaza_repararea(db: Session, livrabil_id: uuid.UUID) -> str:
         instructiune=ultima.instructiune if ultima else "",
     )
     nou = f(db, sarcina)
+    if nou is None:  # nicio sursă de autori nu răspunde de acest livrabil
+        return "fara_autor"
     continut.scrie(
         db, livrabil.id, text=nou.text, campuri=nou.campuri, active=nou.active, autor=nou.autor,
         model_autor=nou.model_autor,

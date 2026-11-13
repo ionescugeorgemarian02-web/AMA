@@ -3,7 +3,11 @@ reale (lanțul Creierului din F4). Doar modelul este FALS (# SIMULAT)."""
 
 import datetime as dt
 import uuid
+from collections.abc import Iterator
 from typing import Any
+
+import pytest
+from sqlalchemy import Engine, text
 
 from app import creier
 from app.db import sesiune_tenant
@@ -54,3 +58,18 @@ def cu_briefuri(tenant: uuid.UUID, om: uuid.UUID, modele: ModelFals) -> tuple[uu
     job = continut.fluxuri.trimite_briefurile(tenant, cal, cheie=f"lant:briefuri:{tenant}")
     assert motor.asteapta_flux(job, timeout_sec=120).stare.value == "terminat"
     return cal, livrabile
+
+
+@pytest.fixture
+def fara_cereri_ramase(admin_engine: Engine) -> Iterator[None]:
+    """Cererile de aprobare în așteptare sunt vizibile proprietarului pe toți clienții: testele F6 nu lasă niciuna în
+    urmă (ecranele altor teste așteaptă o listă goală)."""
+
+    def anuleaza() -> None:
+        with admin_engine.begin() as c:
+            c.execute(
+                text("UPDATE aprobari SET stare = 'anulat', decis_la = now() WHERE stare = 'in_asteptare'")
+            )
+
+    yield
+    anuleaza()

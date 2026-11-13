@@ -411,3 +411,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `continut.brief`, fluxul `continut.briefuri`, migrarea `0035`, spec F6.2.
   - Hotărâri (D-007): lume închisă prin aliasuri scurte; întrebarea pentru relevanță include ce vinde clientul (altfel o idee ca „degustarea de sâmbătă” nu primea niciun fapt); fără fapte în pachet lipsa se scrie explicit.
   - Verificat: 3 teste de integrare.
+- **F6.3 — Hook-uri și postări.**
+  - Construit: `continut.scriere`, `continut.editor`, `continut.pipeline`, fluxul `continut.produ`, migrarea `0036`, trei prompturi, spec F6.3.
+  - Hotărâri (D-007): alegerea hook-ului e deterministă (G8 + cifre fără fapt), nu prin model; autorul de reparații e o „sursă” care răspunde doar pentru livrabilele cu brief, ca testele și comportamentul F5 („fără autor”) să rămână neschimbate; aprobarea după validare printr-un punct de extensie, nu în ciclul validării.
+  - Verificat: 6 teste (unitare + integrare): 10 / 10 postări validate, 2 cu reparație.

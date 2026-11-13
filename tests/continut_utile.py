@@ -90,3 +90,74 @@ def model_brief(modele: ModelFals, *, inventeaza: bool = False) -> None:
         )
 
     modele.handlere["Scrie brieful livrabilului"] = handler
+
+
+FARA_DIACRITICE = str.maketrans("ăâîșțĂÂÎȘȚ", "aaistAAIST")
+
+
+def _subiect(p: str) -> str:
+    m = re.search(r"Mesaj unic: Cafeaua noastră ajunge proaspătă: (.*?)\.\n", p)
+    return m.group(1) if m else "cafeaua proaspătă"
+
+
+def model_hookuri(modele: ModelFals) -> None:
+    """Patru deschideri: una cu o cifră din afara faptelor, una slabă, o întrebare bună și o poveste lungă."""
+
+    def handler(c: CerereInregistrata) -> str:
+        s = _subiect(prompt_complet(c))
+        return raspuns_json(
+            hookuri=[
+                {"text": "În 10 zile, totul se schimbă pentru cafeaua ta.", "tipar": "cifra"},
+                {"text": "Bună ziua, azi vă spunem o poveste despre cafea.", "tipar": "poveste"},
+                {"text": f"Știi ce înseamnă „{s}”?", "tipar": "intrebare"},
+                {"text": "Am prăjit, am gustat, am mai prăjit o dată și abia apoi am trimis cafeaua la tine acasă, "
+                 "în pachetul cu data pe el.", "tipar": "rezultat"},
+            ]
+        )  # fmt: skip
+
+    modele.handlere["Propune deschideri pentru materialul"] = handler
+
+
+class AutorPostari:
+    """Autorul fals de postări (E4) și de reparații. `stricate`: a câta postare (de la 1) iese fără diacritice; reparația
+    o readuce corectă."""
+
+    def __init__(self, stricate: set[int] | None = None) -> None:
+        self.stricate = stricate or set()
+        self.scrise = 0
+        self.reparatii: list[str] = []
+        self._bune: dict[str, str] = {}
+
+    def postare(self, c: CerereInregistrata) -> str:
+        p = prompt_complet(c)
+        self.scrise += 1
+        hook = re.search(r"Hook \(prima frază, păstrată exact\): (.*)\n", p)
+        fapte = re.findall(r"^- (.*)$", p.split("Fapte permise", 1)[1], re.M) if "Fapte permise" in p else []
+        fapt = next((f for f in fapte if "costă" in f or "gratuită" in f), "")
+        corp = (
+            "La Cafeneaua Zorilor prăjim cafeaua în loturi mici, ca să ajungă la tine proaspătă, cu data prăjirii "
+            f"scrisă pe pachet. {fapt + '.' if fapt and not fapt.endswith('.') else fapt} "
+            "Comandă acum din magazinul online."
+        ).replace("  ", " ")
+        if self.scrise in self.stricate:
+            stricat = corp.translate(FARA_DIACRITICE)
+            self._bune[stricat] = corp
+            corp = stricat
+        text = f"{hook.group(1) if hook else ''}\n\n{corp}"
+        return raspuns_json(text=text, hashtaguri=["cafea", "#Brasov"])
+
+    def repara(self, c: CerereInregistrata) -> str:
+        p = prompt_complet(c)
+        material = p.split("Material:\n", 1)[1].split("\n\nCorecturile cerute:", 1)[0]
+        self.reparatii.append(p.split("Corecturile cerute:\n", 1)[1][:300])
+        for rau, bun in self._bune.items():
+            material = material.replace(rau, bun)
+        return raspuns_json(text=material)
+
+
+def model_postari(modele: ModelFals, stricate: set[int] | None = None) -> AutorPostari:
+    a = AutorPostari(stricate)
+    model_hookuri(modele)
+    modele.handlere["Scrie postarea pentru"] = a.postare
+    modele.handlere["Corectează materialul de mai jos"] = a.repara
+    return a

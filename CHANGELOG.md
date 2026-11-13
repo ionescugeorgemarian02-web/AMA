@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F6.3 — Hook-uri și postări
+- Generatorul de hook-uri (E1, 3–5 variante pe tipare, alegere deterministă, tabelul `variante_hook`, migrarea `0036`), autorul de postări (E4) în lume închisă, editorul determinist (E8, `date/editor.toml`), lanțul `continut.pipeline` și fluxul durabil `continut.produ` (brief → scriere → validare cu ≤ 2 reparații → aprobare după nivelul de autonomie).
+- `validare`: sursele de autori de reparații (`autor.inregistreaza_sursa`), punctul de extensie după validare (`ciclu.inregistreaza_dupa_validare`) și nucleele exportate (`probleme_hook`, `probleme_structura`, `extrage_afirmatii`, `corecteaza_sedila`, `propozitii`).
+
 ### F6.2 — Autorul de brief
 - Autorul de brief (D5): pentru fiecare slot aprobat, pachetul de context la data publicării, faptele permise alese de model doar dintre cele din pachet (aliasuri F1, F2, … rezolvate la intrarea și versiunea din Creier), restul din slot. Tabelul `briefuri` (migrarea `0035`), prompt `continut.brief@1`, fluxul durabil `continut.briefuri`; livrabilul trece `planificat → briefat`.
 

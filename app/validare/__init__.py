@@ -42,16 +42,20 @@ from app.validare import politici as _politici  # noqa: F401  (înregistrează G
 from app.validare import structura as _structura  # noqa: F401  (înregistrează G1)
 from app.validare import ton as _ton  # noqa: F401  (înregistrează G4)
 from app.validare import verifica_fapte as _verifica_fapte  # noqa: F401  (înregistrează G2)
+from app.validare.afirmatii import extrage as extrage_afirmatii
 from app.validare.agregare import Agregat, Decizie, agrega, unifica_instructiunile
 from app.validare.autor import ContinutNou, SarcinaReparatie
 from app.validare.cascada import Evaluare, FaraValidatori, evalueaza, ruleaza_pasii
 from app.validare.ciclu import NuSeValideaza, RezultatRunda, ruleaza_repararea, ruleaza_runda
 from app.validare.continut import FaraContinut
+from app.validare.conversie import probleme_hook, propozitii
 from app.validare.depozit import pentru_ecran, rulari, ultima_rulare, verdicte, verdicte_rulare
 from app.validare.fluxuri import trimite
 from app.validare.intrare import Continut, Intrare, SituatieLivrabil, amprenta_text
+from app.validare.limba import corecteaza_sedila
 from app.validare.modele import ContinutLivrabil, Rulare, VerdictSalvat
 from app.validare.registru import DefinitieValidator
+from app.validare.structura import probleme_structura
 from app.validare.verdict import (
     Cost,
     Dovada,
@@ -100,12 +104,17 @@ __all__ = [
     "cascada",
     "ciclu",
     "continut",
+    "corecteaza_sedila",
     "depozit",
     "esec",
     "evalueaza",
     "exemple",
+    "extrage_afirmatii",
     "intrebari",
     "pentru_ecran",
+    "probleme_hook",
+    "probleme_structura",
+    "propozitii",
     "registru",
     "reguli",
     "reguli_client",
