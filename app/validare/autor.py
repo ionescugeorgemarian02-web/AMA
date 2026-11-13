@@ -40,8 +40,7 @@ Autor = Callable[[Session, SarcinaReparatie], ContinutNou | None]
 
 _autor: Autor | None = None
 # Surse de autori (F6): fiecare întoarce conținutul corectat pentru livrabilele ei și `None` pentru celelalte.
-# Un autor
-# înregistrat explicit cu `inregistreaza` (testele F5) are întâietate.
+# Un autor înregistrat explicit cu `inregistreaza` (testele F5) are întâietate.
 _surse: list[Autor] = []
 
 

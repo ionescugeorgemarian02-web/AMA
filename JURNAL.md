@@ -423,3 +423,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `continut.adaptor`, migrarea `0037`, prompt, spec F6.5.
   - Hotărâri (D-007): o adaptare = un livrabil nou (aprobat și publicat separat, cu cheia lui de idempotență); ținte native [I] mai stricte decât maximele G1; canalele țintă nu se limitează la strategie.
   - Verificat: 2 teste de integrare.
+- **F6.6 — Publicarea asistată.**
+  - Construit: `app/publicare` (asistata, modele), ecranul `/publicare`, partajarea în `app.js`, migrarea `0038`, punctul de extensie după decizie în aprobări, spec F6.6.
+  - Hotărâri (D-007): modul asistat nu e un efect extern al platformei (publică omul), deci nu trece prin executor; cheia de idempotență se păstrează pentru F9; pachetul se pregătește automat la aprobare doar pentru livrabilele din calendar.
+  - Găsit: jurnalul de evenimente refuză cheia `cheie` în date (filtrul de secrete); cheia de idempotență intră ca `idem`.
+  - Verificat: 5 teste (unitare + HTTP). Telefonul real și postarea reală rămân la migrare.

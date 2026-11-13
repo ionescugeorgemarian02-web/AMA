@@ -36,8 +36,7 @@ COMPONENTA = "validare"
 
 
 # Punct de extensie (F6): ce urmează după `validat`, în aceeași tranzacție (de exemplu aprobarea cerută de
-# nivelul de
-# autonomie, docs/13 §13.2 pasul 9). Fiecare funcție decide singură dacă livrabilul e al ei.
+# nivelul de autonomie, docs/13 §13.2 pasul 9). Fiecare funcție decide singură dacă livrabilul e al ei.
 _DUPA_VALIDARE: list[Callable[[Session, productie.Livrabil], None]] = []
 
 

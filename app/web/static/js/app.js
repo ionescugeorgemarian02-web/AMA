@@ -89,4 +89,25 @@
       };
     });
   });
+
+  // Publicarea asistată (F6.6): „Partajează” deschide meniul de partajare al telefonului cu textul pachetului; fără
+  // Web Share, textul se copiază în clipboard. A doua atingere este alegerea aplicației.
+  document.addEventListener('click', function (ev) {
+    var b = ev.target && ev.target.closest ? ev.target.closest('[data-partajeaza]') : null;
+    if (!b) return;
+    var sursa = document.getElementById(b.getAttribute('data-partajeaza'));
+    var stare = document.querySelector('[data-stare-partajare="' + b.getAttribute('data-partajeaza') + '"]');
+    if (!sursa) return;
+    var text = sursa.value || sursa.textContent || '';
+    function spune(m) { if (stare) stare.textContent = m; }
+    function copiaza() {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { spune('Text copiat. Deschide aplicația și lipește-l.'); },
+          function () { spune('Copierea a eșuat: selectează textul și copiază-l.'); });
+      } else { sursa.select && sursa.select(); spune('Selectează textul și copiază-l.'); }
+    }
+    if (navigator.share) {
+      navigator.share({ title: b.getAttribute('data-titlu') || '', text: text }).catch(function () { copiaza(); });
+    } else { copiaza(); }
+  });
 })();

@@ -1,0 +1,43 @@
+{% extends "panou/baza.html" %}
+{% block title %}Publicare asistată · AMA{% endblock %}
+{% block pagina %}
+<h1>Publicare asistată</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab">Pachetele aprobate, gata de publicat din telefon: atinge „Partajează”, alege aplicația, publică. Apoi lipește linkul postării aici.</p>
+
+{% for p, ora in pregatite %}
+<section class="card" aria-labelledby="p-{{ p.id }}">
+  <h2 id="p-{{ p.id }}">{{ clienti.get(p.tenant_id, "Client") }} · {{ p.canal }} <span class="insigna atentie">de publicat</span></h2>
+  {% if ora %}<p class="slab">Ora recomandată: {{ ora|moment }}</p>{% endif %}
+  <label for="t-{{ p.id }}">Textul postării</label>
+  <textarea id="t-{{ p.id }}" rows="8" readonly>{{ p.pachet.text }}</textarea>
+  <button type="button" data-partajeaza="t-{{ p.id }}" data-titlu="{{ p.canal }}">Partajează</button>
+  <p class="slab" data-stare-partajare="t-{{ p.id }}" role="status"></p>
+  {% if p.pachet.dezvaluire_ai %}<p><span class="insigna">AI</span> Conținut creat cu ajutorul AI: pune eticheta, dacă platforma o are.</p>{% endif %}
+  <details>
+    <summary>Pașii obligatorii</summary>
+    <ol>{% for pas in p.pachet.pasi_obligatorii %}<li>{{ pas }}</li>{% endfor %}</ol>
+  </details>
+  <form method="post" action="/publicare/{{ p.id }}/link">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="l-{{ p.id }}">Linkul postării publicate</label>
+    <input type="url" id="l-{{ p.id }}" name="link" required inputmode="url" autocomplete="off" placeholder="https://">
+    <button type="submit" class="secundar">Salvează linkul</button>
+  </form>
+</section>
+{% else %}
+<div class="card gol">
+  <span class="pictograma" aria-hidden="true">↗</span>
+  <p><strong>Nimic de publicat acum.</strong></p>
+  <p class="slab">Pachetele apar aici după aprobare.</p>
+</div>
+{% endfor %}
+
+{% if publicate %}
+<section class="card">
+  <h2>Publicate recent</h2>
+  <ul>{% for p in publicate %}<li>{{ clienti.get(p.tenant_id, "Client") }} · {{ p.canal }}: <a href="{{ p.link }}" rel="noopener noreferrer" target="_blank">{{ p.link }}</a></li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}
