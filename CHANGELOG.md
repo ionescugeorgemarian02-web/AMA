@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F5
+- Testul de poartă `tests/integration/test_poarta_f5.py`: pe seturile înghețate, cu validatorii deterministe și fără niciun model, 107 / 107 materiale greșite blocate și 3 / 63 bune respinse pe nedrept; cifrele pe validator în `docs/specs/F5-poarta.md`.
+
 ### F5.9 — Biroul de aprobări
 - Ecranul `/aprobari` complet, întâi pentru telefon: ordine după urgență, termen și prioritate; card cu previzualizarea pe canal, verdicte și dovezi, pachetul de context, istoricul versiunilor cu diferențe și întrebările către client; respingere cu motiv standard și frază opțională, statistica motivelor; editare pe loc (versiune nouă validată din nou, perechea `asteapta_aprobare → in_validare`, migrarea `0033`); nicio aprobare pe o versiune nevalidată.
 

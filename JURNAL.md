@@ -391,4 +391,10 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
     cere ca versiunea curentă să fi trecut validarea (punct de extensie în `productie.aprobari`), iar editarea din birou trimite
     livrabilul înapoi în validare.
   - Verificat: teste HTTP; 390 px în Chrome headless (iframe), fără derulare orizontală; captura în scratchpad.
+- **Poarta F5.**
+  - Testul de poartă afirmă pragurile, verifică înghețarea seturilor și interzice orice apel la gateway: 107 / 107 blocate,
+    3 / 63 respinse pe nedrept (4,76%), fiecare validator vizat ≥ 95%. Cifrele pe validator în `docs/specs/F5-poarta.md`.
+  - Rămâne de măsurat la migrare: judecătorii reali și vectorii reali; scorul local e optimist (documentat).
+  - Propuneri: aprobarea în grup (F6, cu loturile calendarului); un set de control scris de altcineva decât autorul
+    ajustărilor; exportul periodic al exemplelor promovate într-un commit revizuit.
 
