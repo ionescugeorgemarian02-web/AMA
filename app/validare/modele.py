@@ -158,3 +158,22 @@ class ExempluPropus(BazaValidare):
     motiv_decizie: Mapped[str] = mapped_column(Text, default="")
     creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class EtichetaCalibrare(BazaValidare):
+    """Un verdict V3 / V4 din eșantionul săptămânal, cu eticheta unui om (F5.8, migrarea 0032)."""
+
+    __tablename__ = "calibrare_etichete"
+    id: Mapped[uuid.UUID] = _pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    verdict_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    judecator: Mapped[str] = mapped_column(Text)
+    versiune: Mapped[str] = mapped_column(Text)
+    judecator_esec: Mapped[bool] = mapped_column(Boolean)
+    saptamana: Mapped[str] = mapped_column(Text)
+    stare: Mapped[str] = mapped_column(Text, default="de_etichetat")
+    eticheta: Mapped[str | None] = mapped_column(Text)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    etichetat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    etichetat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

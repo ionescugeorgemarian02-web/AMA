@@ -13,23 +13,29 @@ printr-un commit.
 import datetime as dt
 import uuid
 from typing import Annotated, Any
+from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
-from app.conturi import DbSession, SesiuneCurenta, csrf_protect, require_role
-from app.conturi.roluri import Rol
+from app.conturi import DbSession, Permisiune, SesiuneCurenta, csrf_protect, require_permission, require_role
+from app.conturi.roluri import ROLURI_AGENTIE, Rol
 from app.operare import audit
 from app.panou.sabloane import pagina
-from app.validare import banc
+from app.validare import banc, calibrare
 
 router = APIRouter(prefix="/validatoare", tags=["validatoare"])
 Proprietar = Annotated[SesiuneCurenta, Depends(require_role(Rol.PROPRIETAR))]
+Agentie = Annotated[SesiuneCurenta, Depends(require_role(*ROLURI_AGENTIE))]
+PoateEticheta = Annotated[SesiuneCurenta, Depends(require_permission(Permisiune.LIVRABIL_APROBA))]
 
 FEREASTRA_IN_CURS = dt.timedelta(minutes=20)  # o rulare „în curs” mai veche de atât nu mai blochează una nouă
 MESAJE = {
     "banc": "Bancul a fost pus în coadă (prioritate P3). Scorurile apar aici când se termină.",
     "banc_in_curs": "O rulare a bancului este deja în curs; așteaptă să se termine.",
+    "eticheta": "Eticheta a fost salvată.",
+    "eticheta_gresit": "Eticheta a fost salvată; verdictul greșit a devenit exemplu propus "
+    "pentru setul de aur.",
 }
 NUME_VALIDATORI = {
     "G1": "Structură",
@@ -94,3 +100,47 @@ def porneste_banc(u: Proprietar, db: DbSession) -> Response:
     db.commit()  # rularea există în bază înainte ca jobul să o caute
     banc.fluxuri.trimite(rulare.id)
     return RedirectResponse("/validatoare?mesaj=banc", status_code=303)
+
+
+# --- calibrarea judecătorilor (F5.8)
+# ----------------------------------------------------------------------------
+
+
+@router.get("/calibrare")
+def ecran_calibrare(
+    request: Request, u: Agentie, db: DbSession, mesaj: str = "", eroare: str = ""
+) -> Response:
+    """Coada de etichetare (clientul curent prin RLS; proprietarul: toți) și acordul pe judecător."""
+    return pagina(
+        request,
+        u,
+        "panou/calibrare.html",
+        tab="meniu",
+        **_ctx(
+            coada=calibrare.coada(db),
+            statistici=calibrare.statistici(db),
+            mesaj=MESAJE.get(mesaj, ""),
+            eroare=eroare,
+        ),
+    )
+
+
+@router.post("/calibrare/{eticheta_id}/eticheta", dependencies=[Depends(csrf_protect)])
+def eticheteaza(
+    u: PoateEticheta,
+    db: DbSession,
+    eticheta_id: uuid.UUID,
+    eticheta: Annotated[str, Form(max_length=10)],
+    motiv: Annotated[str, Form(max_length=500)] = "",
+) -> Response:
+    try:
+        _, propus = calibrare.eticheteaza(
+            db, eticheta_id, eticheta=eticheta, motiv=motiv, utilizator_id=u.utilizator_id
+        )
+    except LookupError:
+        raise HTTPException(status_code=404, detail="Verdictul nu există în coadă.") from None
+    except calibrare.EtichetaInvalida as exc:
+        return RedirectResponse(f"/validatoare/calibrare?eroare={quote(str(exc))}", status_code=303)
+    return RedirectResponse(
+        "/validatoare/calibrare?mesaj=" + ("eticheta_gresit" if propus else "eticheta"), status_code=303
+    )

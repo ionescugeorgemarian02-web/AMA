@@ -46,6 +46,8 @@ CONTEXT_AGENTIE = {
     "app/validare/banc/__main__.py",
     "app/validare/banc/executie.py",
     "app/validare/banc/fluxuri.py",
+    # Calibrarea (F5.8): eșantionul săptămânal și alertele privesc verdictele tuturor clienților
+    "app/validare/fluxuri.py",
 }
 
 

@@ -11,7 +11,7 @@ import datetime as dt
 import uuid
 
 from app import gateway, productie
-from app.db import sesiune_tenant
+from app.db import sesiune_agentie, sesiune_tenant
 from app.operare import motor
 from app.operare.motor import Coada, Prioritate
 from app.productie import Stare
@@ -86,3 +86,33 @@ def trimite(tenant_id: uuid.UUID, livrabil_id: uuid.UUID, *, cheie: str) -> str:
         prioritate=Prioritate.P1,
         cheie=cheie,
     )
+
+
+# --- calibrarea judecătorilor (F5.8, G14)
+# ----------------------------------------------------------------------
+NUME_CALIBRARE = "validare.calibrare_saptamanala"
+FEREASTRA_DERIVA_ZILE = 56  # 8 săptămâni de istoric pentru referința de derivă
+
+
+@motor.pas(nume="validare.pas_calibrare")
+def _calibreaza(moment_iso: str) -> str:
+    from app.validare import calibrare  # import târziu: calibrarea trage exemplele și seturile
+
+    moment = dt.datetime.fromisoformat(moment_iso)
+    with sesiune_agentie() as db:
+        noi = calibrare.esantioneaza(db, moment - dt.timedelta(days=7), moment)
+        alerte = calibrare.verifica_si_anunta(db, moment - dt.timedelta(days=FEREASTRA_DERIVA_ZILE), moment)
+    return f"esantion={len(noi)} alerte={len(alerte)}"
+
+
+@motor.flux(NUME_CALIBRARE)
+def calibrare_saptamanala(moment: dt.datetime, context: dict[str, object] | None) -> str:
+    """Luni 05:41 (ora României): eșantionul săptămânii trecute la om, apoi alertele de acord și de derivă."""
+    return _calibreaza(moment.isoformat())
+
+
+def declara_programari() -> None:
+    motor.programeaza_recurent(NUME_CALIBRARE, "41 5 * * 1", calibrare_saptamanala, coada=Coada.INVATARE)
+
+
+declara_programari()

@@ -21,7 +21,19 @@ Un validator nou se adaugă cu `@validare.registru.validator(DefinitieValidator(
 pe o funcție `(Intrare) -> Verdict | list[Verdict] | None`.
 """
 
-from app.validare import agregare, autor, cascada, ciclu, continut, depozit, intrebari, registru, verdict
+from app.validare import (
+    agregare,
+    autor,
+    calibrare,
+    cascada,
+    ciclu,
+    continut,
+    depozit,
+    exemple,
+    intrebari,
+    registru,
+    verdict,
+)
 from app.validare import conversie as _conversie  # noqa: F401  (înregistrează G8)
 from app.validare import juridic as _juridic  # noqa: F401  (înregistrează G9)
 from app.validare import limba as _limba  # noqa: F401  (înregistrează G10)
@@ -82,12 +94,14 @@ __all__ = [
     "amprenta_text",
     "autor",
     "avertisment",
+    "calibrare",
     "cascada",
     "ciclu",
     "continut",
     "depozit",
     "esec",
     "evalueaza",
+    "exemple",
     "intrebari",
     "pentru_ecran",
     "registru",

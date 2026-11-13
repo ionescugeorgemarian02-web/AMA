@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F5.8 — Calibrarea judecătorilor (G14)
+- Eșantion săptămânal programat de verdicte V3 / V4 la om, coada de etichetare `/validatoare/calibrare`, acordul pe judecător (procent, kappa, interval Wilson), alertă sub 85% și la derivă, etichetele „greșit” devin exemple propuse; tabelul `calibrare_etichete` (migrarea `0032`).
+
 ### F5.7 — Seturile de aur și bancul de evaluare (K4)
 - Seturi de aur înghețate în `evaluare/aur/` (8 validatoare, 107 materiale greșite, 63 bune), bancul `python -m app.validare.banc` și butonul din ecranul „Validatoare” (job durabil `validare.banc`), scoruri pe validator (matrice, precizie, recall, respingeri pe nedrept) salvate în `banc_rulari`; exemple propuse pentru setul de aur (`exemple_propuse`), migrarea `0031`.
 - `db.restrans_la_client` (îngustare într-un punct de salvare anulat) în locul comutării libere de context; validatorii îmbunătățiți (limbă străină, linkuri, etichete de ordine, tipare G3, registrul G4, „încearcă”, promisiuni negate). Workerul importă acum `app.validare.fluxuri`.

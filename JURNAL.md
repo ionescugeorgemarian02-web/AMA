@@ -374,4 +374,10 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
     amprentele neschimbate): 107/107 și 3/63 (4,8%). Scor optimist (aceleași seturi au arătat ce lipsea), documentat.
   - Găsit: workerul nu importa `app.validare.fluxuri` (din F5.1); `porn\w*` prindea „pornit”; „încearcă” nu era recunoscut.
   - NEVERIFICAT / SIMULAT: vectorii și judecătorii nu sunt în scor; seturi inventate.
+- **F5.8 — Calibrarea judecătorilor.**
+  - Construit: `calibrare_nucleu` (eșantion, Wilson, kappa, acord, derivă), `calibrare` (coadă, etichete, statistici, alerte), jobul
+    săptămânal, ecranul `/validatoare/calibrare`, migrarea `0032`, spec F5.8.
+  - Hotărâri: eșantion stratificat pe judecător (un judecător rar nu dispare); acordul se exprimă și ca kappa față de adevărul
+    stabilit de om; deriva se compară doar în aceeași versiune (prompt + model + validator); pragurile sunt [I].
+  - Verificat: 22 de verdicte reale ale cascadei cu judecător FALS, etichete simulate → 81,8%, alertă, 4 exemple propuse.
 
