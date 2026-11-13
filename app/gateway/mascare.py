@@ -30,6 +30,11 @@ IPV4 = re.compile(
 )
 IPV6 = re.compile(r"(?<![\w:])(?:[0-9A-Fa-f]{0,4}:){2,7}[0-9A-Fa-f]{0,4}(?![\w:])")
 TELEFON = re.compile(r"(?<![\d+])(?:(?:\+|00)40|0)[\s.\-()]*[2-37](?:[\s.\-()]*\d){8}(?!\d)")
+# Identificatorii (UUID, ex. `[afirmatie:<uuid>]` din prompturi) nu sunt date personale. Cifrele lor,
+# despărțite
+# prin `-`, imitau un card (13–19 cifre cu Luhn valid, ~0,3% din UUIDv7) sau un telefon, iar marcajul de
+# trimitere ajungea mascat în prompt: modelul nu mai putea cita sursa.
+UUID = re.compile(r"(?<![0-9A-Fa-f])[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}(?![0-9A-Fa-f])")
 CUI_CUVANT = re.compile(r"(?i)\b(?:CUI|CIF|cod fiscal)\s*:?\s*(?:RO\s?)?(\d{2,10})\b")
 CUI_RO = re.compile(r"\bRO\s?(\d{2,10})\b")
 
@@ -157,10 +162,13 @@ def detecteaza(text: str, *, cui: bool = False) -> list[Detectie]:
     """Detecțiile fără suprapuneri, în ordinea din text. La suprapunere câștigă tipul mai specific
     (ordinea din `TIPURI`), apoi cea mai lungă."""
     prioritate = {t: i for i, t in enumerate(TIPURI)}
+    uuid_uri = [(m.start(), m.end()) for m in UUID.finditer(text)]
     alese: list[Detectie] = []
     for d in sorted(
         _candidati(text, cui), key=lambda d: (prioritate[d.tip], -(d.sfarsit - d.start), d.start)
     ):
+        if any(d.start < sf and d.sfarsit > st for st, sf in uuid_uri):
+            continue  # o detecție care atinge un UUID e o falsă pozitivă
         if all(d.sfarsit <= a.start or d.start >= a.sfarsit for a in alese):
             alese.append(d)
     return sorted(alese, key=lambda d: d.start)

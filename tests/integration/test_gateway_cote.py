@@ -64,8 +64,10 @@ def test_o_cerere_mai_mare_decat_limita_nu_se_amana_la_nesfarsit(model: Callable
     assert refuz(limitator.rezerva(m, 2000, P1)).imposibil
 
 
-def test_zece_la_suta_din_limita_zilnica_ramane_pentru_p0(model: Callable[..., Candidat]) -> None:
-    m = model(cereri_zi=10)
+def test_zece_la_suta_din_limita_zilnica_ramane_pentru_p0(
+    model: Callable[..., Candidat], ceas_controlat: CeasControlat
+) -> None:
+    m = model(cereri_zi=10)  # ceasul controlat: resetarea zilnică nu depinde de ziua în care rulează testul
     for _ in range(9):
         ok(limitator.rezerva(m, 10, P1))
     r = refuz(limitator.rezerva(m, 10, Prioritate.P2))

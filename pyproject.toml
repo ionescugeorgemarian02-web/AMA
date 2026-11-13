@@ -59,6 +59,9 @@ ignore_missing_imports = true  # biblioteca nu are adnotări de tip
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-q --strict-markers"
+# Dacă un test durează peste 100 s, tracebackurile tuturor firelor ajung în jurnal (biblioteca standard), înainte să
+# taie plafonul din tests/conftest.py (120 s) testul: se vede unde stă blocat.
+faulthandler_timeout = 100
 markers = [
     "db: testul are nevoie de Postgres",
     "isolation: test de izolare între clienți",

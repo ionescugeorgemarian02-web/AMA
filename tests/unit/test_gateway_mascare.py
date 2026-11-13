@@ -79,3 +79,27 @@ def test_suprapunerile_se_rezolva_dupa_tipul_mai_specific() -> None:
     cnp = DATE["pozitive"][5]["asteptat"][0]["valoare"]
     assert [d.tip for d in detecteaza(cnp)] == ["CNP"]
     assert [d.tip for d in detecteaza("RO49AAAA1B31007593840000")] == ["IBAN"]
+
+
+def test_un_uuid_nu_este_card_sau_telefon_dar_un_card_de_langa_el_ramane_mascat() -> None:
+    # UUIDv7 reale care imitau un card (cifre separate prin `-`, Luhn valid): marcajul de trimitere se pierdea în prompt
+    for u in (
+        "01a1d316-7740-7622-93fc-7e087db2ed4c",
+        "01a1d316-7742-7836-869f-b9799831fdca",
+        "01a1d316-7743-7956-871c-b401f0dd31bf",
+    ):
+        assert detecteaza(f"[afirmatie:{u}] Cafeneaua Brumei (pret): 52 lei") == []
+    text = "[afirmatie:01a1d316-7740-7622-93fc-7e087db2ed4c] plătit cu cardul 4111 1111 1111 1111."
+    assert [(d.tip, d.valoare) for d in detecteaza(text)] == [("CARD", "4111 1111 1111 1111")]
+
+
+def test_niciun_uuid_v7_generat_nu_este_mascat() -> None:
+    import random
+    import uuid
+
+    gen = random.Random(7)  # noqa: S311 — secvență fixă de probă, nu criptografie
+    for _ in range(30_000):  # înainte de reparație ~0,3% dintre ele erau detectate drept card
+        valoare = (gen.getrandbits(48) << 80) | (0x7 << 76) | (gen.getrandbits(12) << 64) | (0b10 << 62)
+        valoare |= gen.getrandbits(62)
+        u = uuid.UUID(int=valoare)
+        assert detecteaza(f"[afirmatie:{u}]") == [], u
