@@ -217,3 +217,36 @@ def model_scripturi(modele: ModelFals, **kw: Any) -> ScenaristFals:
     model_hookuri(modele)
     modele.handlere["Scrie scriptul video scurt"] = s
     return s
+
+
+class AdaptorFals:
+    """E10 fals: Instagram și LinkedIn primesc textul sursei cu hashtag-uri; TikTok primește la prima cerere un text prea
+    lung (peste 300 de caractere), apoi unul scurt."""
+
+    def __init__(self) -> None:
+        self.cereri: list[str] = []
+
+    def __call__(self, c: CerereInregistrata) -> str:
+        p = prompt_complet(c)
+        self.cereri.append(p)
+        text = p.split("):\n", 1)[1].split("\n\nLimite pe canal", 1)[0]
+        hook = text.split("\n", 1)[0]
+        cerute = re.findall(r"^- (\w+): \d+ / \d+$", p, re.M)
+        if "Corecturi pentru" in p:
+            cerute = re.findall(r"^- (\w+): ", p.split("Corecturi pentru", 1)[1], re.M)
+        variante = []
+        for canal in cerute:
+            if canal == "tiktok":
+                scurt = f"{hook} Comandă acum din magazinul online."
+                t = f"{text}\n\n{text}" if len(self.cereri) == 1 else scurt
+                variante.append({"canal": canal, "text": t, "hashtaguri": ["cafea", "brasov"]})
+            else:
+                tag = ["cafea", "cafeadespecialitate", "brasov"] if canal == "instagram" else ["cafea"]
+                variante.append({"canal": canal, "text": text, "hashtaguri": tag})
+        return raspuns_json(adaptari=variante)
+
+
+def model_adaptor(modele: ModelFals) -> AdaptorFals:
+    a = AdaptorFals()
+    modele.handlere["Adaptează postarea de mai jos"] = a
+    return a

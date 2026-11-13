@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F6.5 — Adaptorul pe platformă
+- Adaptorul pe platformă (E10): din postarea validată, câte un livrabil nou pe canal (Instagram, LinkedIn, TikTok, Facebook), cu lungimi-țintă native verificate determinist împreună cu G1, o cerere de corectură, apoi validarea obișnuită. Tabelul `adaptari` (migrarea `0037`), prompt `continut.adapteaza@1`.
+
 ### F6.4 — Scripturi video
 - Scenaristul video (E2): scriptul scurt pe bătăi (voce, text pe ecran, vizual, apel la acțiune) pe hook-ul ales de E1 cu limita video de 7 cuvinte; durata estimată determinist din cuvinte, încadrarea la ±15% din țintă, o singură cerere de scurtare / lungire, altfel coada de erori. Prompt `continut.script@1`.
 

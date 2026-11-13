@@ -419,3 +419,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `continut.scripturi`, autorul pe tip în `scriere.AUTORI`, `AutorEsuat` (coada de erori cu diagnostic), prompt, spec F6.4.
   - Hotărâri (D-007): durata o calculează sistemul din cuvinte, nu modelul; verificarea duratei rămâne în autor, nu în G1 (versiunea G1 și seturile F5 neschimbate; propunere notată).
   - Verificat: 3 teste; postările F6.3 trec în continuare (al cincilea hook, scurt, nu schimbă alegerea pentru postări).
+- **F6.5 — Adaptorul pe platformă.**
+  - Construit: `continut.adaptor`, migrarea `0037`, prompt, spec F6.5.
+  - Hotărâri (D-007): o adaptare = un livrabil nou (aprobat și publicat separat, cu cheia lui de idempotență); ținte native [I] mai stricte decât maximele G1; canalele țintă nu se limitează la strategie.
+  - Verificat: 2 teste de integrare.

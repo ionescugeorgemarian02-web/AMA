@@ -1,6 +1,7 @@
 """Producția de conținut text (F6, docs/13): strategul de conținut și calendarul (D3),
 autorul de brief (D5),
-hook-urile, postările și scripturile video (E1, E4, E2, E8), cu validarea și aprobarea lor.
+hook-urile, postările și scripturile video (E1, E4, E2, E8), cu validarea și aprobarea lor,
+adaptorul pe platformă (E10).
 
 Restul aplicației folosește doar ce se exportă aici:
 
@@ -15,16 +16,20 @@ Restul aplicației folosește doar ce se exportă aici:
     # un livrabil: brief → hook-uri → postare → editare → validare (≤ 2 reparații) → aprobare:
     job = continut.fluxuri.trimite_productia(tenant, livrabil_id, cheie="produ:…")
     stare = continut.pipeline.produ(tenant, livrabil_id)  # același lanț, sincron (proba, testele)
+    # E10: aceeași idee, câte un livrabil nou pe canal, în limitele de lungime:
+    rez = continut.adaptor.adapteaza(db, livrabil_id, ["instagram", "linkedin", "tiktok"])
 """
 
-from app.continut import brief, calendar, editor, fluxuri, pipeline, scriere, scripturi
-from app.continut.modele import Brief, Calendar, IntrareCalendar, VariantaHook
+from app.continut import adaptor, brief, calendar, editor, fluxuri, pipeline, scriere, scripturi
+from app.continut.modele import Adaptare, Brief, Calendar, IntrareCalendar, VariantaHook
 
 __all__ = [
+    "Adaptare",
     "Brief",
     "Calendar",
     "IntrareCalendar",
     "VariantaHook",
+    "adaptor",
     "brief",
     "calendar",
     "editor",

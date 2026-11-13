@@ -87,3 +87,16 @@ class VariantaHook(BazaContinut):
     ales: Mapped[bool] = mapped_column(Boolean, default=False)
     model: Mapped[str | None] = mapped_column(Text)
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Adaptare(BazaContinut):
+    """Legătura sursă → adaptare pe alt canal (E10, F6.5)."""
+
+    __tablename__ = "adaptari"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    sursa_livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    canal: Mapped[str] = mapped_column(Text)
+    model: Mapped[str | None] = mapped_column(Text)
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
