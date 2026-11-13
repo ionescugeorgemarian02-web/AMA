@@ -262,6 +262,7 @@ def _detaliu(
         pachete_context=context_creier.ale_livrabilului(db, livrabil.id),
         validari=validare.pentru_ecran(db, livrabil.id),
         continuturi=validare.continut.versiuni(db, livrabil.id),
+        intrebari_client=validare.intrebari.ale_livrabilului(db, livrabil.id),
         etichete_rezultat=validare.verdict.ETICHETE_REZULTAT,
         etichete_severitate=validare.verdict.ETICHETE_SEVERITATE,
         cereri=aprobari.ale_livrabilului(db, livrabil.id),

@@ -1,5 +1,7 @@
-"""F5.1 — cadrul de validare, cu Postgres real. „Gata când”: un validator de probă blochează și trimite autorului
-instrucțiunea de corectare. Validatorii de probă sunt SIMULAȚI (`# SIMULAT`), autorul reparațiilor e scriptat."""
+"""F5.1 — cadrul de validare, cu Postgres real. „Gata când”: un validator de probă blochează și trimite
+autorului
+instrucțiunea de corectare. Validatorii de probă sunt SIMULAȚI (`# SIMULAT`), autorul reparațiilor e
+scriptat."""
 
 # ruff: noqa: F811
 import uuid
@@ -26,7 +28,8 @@ INTERZIS = "INTERZIS"
 
 @pytest.fixture
 def probe(registru_gol: None) -> None:
-    """# SIMULAT: doi validatori de probă. GP (V1) blochează textul care conține „INTERZIS” (reparabil), GC (V1) pe cel
+    """# SIMULAT: doi validatori de probă. GP (V1) blochează textul care conține „INTERZIS” (reparabil), GC
+    (V1) pe cel
     cu „CRITIC” (carantină), GA (V1) avertizează pentru fiecare „SLAB” din text."""
 
     def gp(i: validare.Intrare) -> validare.Verdict:

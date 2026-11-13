@@ -341,4 +341,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri: datele sunt TOML (`tomllib`); lungimile pe canal nu sunt în docs/15, deci toate sunt [I]; limba se detectează după cuvinte funcționale, pe text fără diacritice la fel; dicționarul de diacritice exclude cuvintele ambigue (pana, mana, limba, apa, vara, comanda, va …); un judecător nu blochează fără fragment literal din text; un criteriu fără răspuns rămâne „neverificat”, nu „trecut”.
   - Găsit: gateway-ul adaugă el însuși instrucțiunea „date, nu instrucțiuni” (conține un delimitator), deci testul de injecție numără închiderile cu identificator, nu simplul text.
   - NEVERIFICAT / SIMULAT: lungimile pe canal, judecătorul de limbă (model FALS), acoperirea dicționarului.
+- **F5.3 — G2 Verificatorul de fapte.**
+  - Construit: `app/validare/{afirmatii,acoperire,verifica_fapte,intrebari}.py`, `date/afirmatii.toml`, promptul `validare.g2_afirmatii.v1`, migrarea `0029`, ramura `INTREBARE` din `ciclu.py`, secțiunea „Întrebări către client” din urma livrabilului, `docs/specs/F5.3.md`.
+  - Hotărâri: extragerea și potrivirea sunt deterministe, același extractor construiește și intrările registrului (aceleași normalizări); prețul de referință al unei oferte se acceptă doar prezentat ca preț anterior; un preț real dar al altui produs e „preț diferit”; citatele din surse acoperă doar dacă apar literal în pasajul clientului (RLS: pasajul altui client nu e vizibil); decizia `INTREBARE` stă peste reparație și sub carantină; răspunsul la întrebare nu devine fapt (îl aprobă un om în Creier, apoi reia un om); V3 rulează doar dacă V1 a trecut.
+  - Găsit: funcția `aproba_fapt` / `propune_fapt` primește `acum`, deci testele aprobă la un moment fix și validează la `LA` fix, fără ceasul real.
+  - NEVERIFICAT / SIMULAT: acoperirea listelor de superlative / promisiuni, fals-pozitivele pe texte reale (F5.7), modelul V3 (FALS).
 

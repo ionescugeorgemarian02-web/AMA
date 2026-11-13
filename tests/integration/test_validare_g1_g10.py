@@ -1,5 +1,7 @@
-"""F5.2 — G1 Structură și G10 Limbă în cascadă, cu Postgres real. „Gata când”: textele fără diacritice sau peste limită
-sunt respinse (și un text bun trece). Judecătorul mic (V3) este opțional și folosește un model FALS (# SIMULAT)."""
+"""F5.2 — G1 Structură și G10 Limbă în cascadă, cu Postgres real. „Gata când”: textele fără diacritice sau
+peste limită
+sunt respinse (și un text bun trece). Judecătorul mic (V3) este opțional și folosește un model FALS (#
+SIMULAT)."""
 
 # ruff: noqa: F811
 import re
@@ -100,7 +102,8 @@ def test_judecatorii_sunt_optionali_implicit_nu_se_cheama_niciun_model(
     assert r.stare is Stare.VALIDAT and judecator.cereri == []
 
 
-# --- V3: acord gramatical și registru -------------------------------------------------------------------------------------
+# --- V3: acord gramatical și registru
+# -------------------------------------------------------------------------------------
 
 FRAZA_JUDECATOR = "Ești un corector de limba română"
 
@@ -198,7 +201,8 @@ def test_fluxul_cu_judecator_amanat_se_reprogrameaza_fara_degradare(
     fals: FurnizorFals,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    # SIMULAT: furnizorul răspunde „429” permanent → profilul `judecata` amână (nu coboară la un model mai slab)
+    # SIMULAT: furnizorul răspunde „429” permanent → profilul `judecata` amână (nu coboară la un model mai
+    # slab)
     from app.config import get_settings
     from app.operare import motor
 

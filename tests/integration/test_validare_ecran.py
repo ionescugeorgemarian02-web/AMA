@@ -1,4 +1,5 @@
-"""F5.1 — verdictele se afișează în urma livrabilului din ecranul Producție (18.4): validatorul și versiunea lui,
+"""F5.1 — verdictele se afișează în urma livrabilului din ecranul Producție (18.4): validatorul și versiunea
+lui,
 rezultatul, dovada (fragmentul exact și regula), instrucțiunea de corectare și versiunile de conținut."""
 
 # ruff: noqa: F811
@@ -62,3 +63,24 @@ def test_urma_livrabilului_arata_verdictele_dovezile_si_instructiunea(
     assert "cuvânt interzis de probă: „INTERZIS”" in h and "Scoate cuvântul INTERZIS." in h
     assert "Mesajul unic trimis autorului" in h and "1. [GP] Scoate cuvântul INTERZIS." in h
     assert "Versiunile de conținut" in h and "autor E4" in h and "p/m" in h
+
+
+def test_urma_arata_intrebarea_deschisa_catre_client(
+    client: TestClient, proprietar: Cont, tenant: uuid.UUID, om: uuid.UUID
+) -> None:
+    from app.db import sesiune_tenant
+    from tests.validare_utile import LA, registru_doar
+
+    with registru_doar("G2"):
+        lid = livrabil_in_validare(
+            tenant,
+            "Abonamentul Birou costă 310 lei.",
+            campuri={"fapte_necesare": [{"tip": "pret", "subiect": "Abonament Birou"}]},
+        )
+        ruleaza(tenant, lid, la=LA)
+    with sesiune_tenant(tenant, om) as db:
+        [q] = validare.intrebari.ale_livrabilului(db, lid)
+        validare.intrebari.raspunde(db, q.id, "310 lei", utilizator_id=om)
+    h = client.get(f"/productie/{lid}").text
+    assert "Întrebări către client" in h and "Abonament Birou" in h and "cu răspuns" in h and "310 lei" in h
+    assert "întrebare către client" in h  # decizia rulării

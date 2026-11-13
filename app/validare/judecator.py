@@ -13,8 +13,6 @@ constatarea nu
 - un criteriu la care modelul nu a răspuns rămâne neverificat (avertisment minor), nu „trecut”.
 """
 
-import time
-
 from pydantic import BaseModel, ConfigDict, Field
 
 from app import gateway
@@ -106,6 +104,79 @@ def probleme_din_rubrica(
     return probleme, {"criterii": sorted(criterii), "nedovedite": nedovedite}
 
 
+def apeleaza(
+    intrare: Intrare,
+    *,
+    validator: str,
+    prompt: str,
+    schema: type[gateway.Iesire],
+    variabile: dict[str, str],
+    profil: str = PROFIL,
+    max_tokeni: int = 700,
+) -> tuple[gateway.Rezultat | None, str | None]:
+    """Un apel la judecător prin gateway: (rezultatul, None) sau (None, tipul erorii) dacă gateway-ul a
+    refuzat / a
+    eșuat. `gateway.Amanat` iese neprins (cascada se reprogramează). Textul de validat TREBUIE pus de
+    apelant în
+    `variabile` prin `gateway.marcheaza_extern`; modelul autorului e exclus (`alt_model_decat`)."""
+    db = intrare.baza()
+    if gateway.prompturi.rezolva(db, prompt) is None:
+        prompturi.asigura()
+    try:
+        r = gateway.apeleaza(
+            db,
+            prompt=prompt,
+            variabile=variabile,
+            schema=schema,
+            tenant_id=intrare.tenant_id,
+            componenta=f"validare.{validator.lower()}",
+            prioritate=Prioritate.P1,
+            profil=profil,
+            livrabil_id=intrare.livrabil.id,
+            alt_model_decat=intrare.continut.model_autor,
+            max_tokeni=max_tokeni,
+            temperatura=0.0,
+        )
+    except gateway.Amanat:
+        raise
+    except gateway.EroareGateway as exc:
+        return None, type(exc).__name__
+    return r, None
+
+
+def cost_din(r: gateway.Rezultat) -> Cost:
+    return Cost(1, r.tokeni_intrare, r.tokeni_iesire, r.pret_umbra, r.durata_ms)
+
+
+def detalii_din(r: gateway.Rezultat, intrare: Intrare) -> dict[str, object]:
+    return {
+        "prompt": f"{r.prompt_nume}@{r.prompt_versiune}",
+        "model": r.model,
+        "model_autor": intrare.continut.model_autor,
+        "degradat": r.degradat,
+    }
+
+
+def indisponibil(validator: str, versiune: str, treapta: Treapta, eroare: str, prompt: str) -> Verdict:
+    """Judecătorul n-a putut rula: avertisment minor, nu trecere tăcută."""
+    return verdict_din_probleme(
+        validator,
+        versiune,
+        treapta,
+        [
+            Problema(
+                f"{validator}.judecator_indisponibil",
+                "",
+                "Judecătorul automat nu a putut rula; punctul acesta cere verificare umană.",
+                blocant=False,
+                severitate=Severitate.MINORA,
+                detalii=eroare,
+            )
+        ],
+        detalii={"prompt": prompt, "eroare": eroare},
+    )
+
+
 def judeca(
     intrare: Intrare,
     *,
@@ -124,67 +195,27 @@ def judeca(
     """Un verdict de la un judecător cu rubrică. `gateway.Amanat` iese neprins (cascada se reprogramează);
     alte erori ale
     gateway-ului dau un avertisment minor („judecătorul nu a putut rula”), nu o trecere tăcută."""
-    db = intrare.baza()
-    if gateway.prompturi.rezolva(db, prompt) is None:
-        prompturi.asigura()
     variabile = {
         "text": gateway.marcheaza_extern(intrare.text, sursa="livrabil"),
         "criterii": "\n".join(f"- {cod}: {intrebare}" for cod, intrebare in criterii.items()),
         **(extra or {}),
     }
-    start = time.monotonic()
-    try:
-        r = gateway.apeleaza(
-            db,
-            prompt=prompt,
-            variabile=variabile,
-            schema=Rubrica,
-            tenant_id=intrare.tenant_id,
-            componenta=f"validare.{validator.lower()}",
-            prioritate=Prioritate.P1,
-            profil=profil,
-            livrabil_id=intrare.livrabil.id,
-            alt_model_decat=intrare.continut.model_autor,
-            max_tokeni=max_tokeni,
-            temperatura=0.0,
-        )
-    except gateway.Amanat:
-        raise
-    except gateway.EroareGateway as exc:
-        return verdict_din_probleme(
-            validator,
-            versiune,
-            treapta,
-            [
-                Problema(
-                    f"{validator}.judecator_indisponibil",
-                    "",
-                    "Judecătorul automat nu a putut rula; punctul acesta cere verificare umană.",
-                    blocant=False,
-                    severitate=Severitate.MINORA,
-                    detalii=type(exc).__name__,
-                )
-            ],
-            cost=Cost(durata_ms=int((time.monotonic() - start) * 1000)),
-            detalii={"prompt": prompt, "eroare": type(exc).__name__},
-        )
-    assert isinstance(r.iesire, Rubrica)  # noqa: S101  (schema ceruta de apel)
+    r, eroare = apeleaza(
+        intrare, validator=validator, prompt=prompt, schema=Rubrica, variabile=variabile, profil=profil,
+        max_tokeni=max_tokeni,
+    )  # fmt: skip
+    if r is None:
+        return indisponibil(validator, versiune, treapta, eroare or "", prompt)
+    assert isinstance(r.iesire, Rubrica)  # noqa: S101  (schema cerută de apel)
     probleme, detalii = probleme_din_rubrica(
         r.iesire, intrare.text, validator=validator, criterii=criterii, instructiuni=instructiuni,
         blocant=blocant, severitate=severitate,
     )  # fmt: skip
-    cost = Cost(1, r.tokeni_intrare, r.tokeni_iesire, r.pret_umbra, r.durata_ms)
     return verdict_din_probleme(
         validator,
         versiune,
         treapta,
         probleme,
-        cost=cost,
-        detalii={
-            **detalii,
-            "prompt": f"{r.prompt_nume}@{r.prompt_versiune}",
-            "model": r.model,
-            "model_autor": intrare.continut.model_autor,
-            "degradat": r.degradat,
-        },
+        cost=cost_din(r),
+        detalii={**detalii, **detalii_din(r, intrare)},
     )

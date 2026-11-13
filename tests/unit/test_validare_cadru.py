@@ -249,3 +249,14 @@ def test_continutul_expune_toate_bucatile_de_text_si_o_amprenta_stabila() -> Non
     assert c.text_complet == "Corp\n#cafea\n#brasov\nTitlu"
     assert c.amprenta == amprenta_text("Corp", c.campuri) and len(c.amprenta) == 64
     assert amprenta_text("Corp", {"a": 1, "b": 2}) == amprenta_text("Corp", {"b": 2, "a": 1})
+
+
+def test_un_fapt_lipsa_opreste_livrabilul_cu_o_intrebare_nu_il_trimite_la_reparatie() -> None:
+    intrebare = esec(
+        "G2", "1", Treapta.V1, dovezi=D, instructiune="Lipsește faptul.", detalii={"intrebare": True}
+    )
+    pret = esec("G2", "1", Treapta.V1, dovezi=D, instructiune="Preț greșit.")
+    critic = esec("G3", "1", Treapta.V1, dovezi=D, instructiune="Refuzat.", severitate=Severitate.CRITICA)
+    assert agrega([pret, intrebare], prag=4).decizie is Decizie.INTREBARE
+    assert agrega([pret], prag=4).decizie is Decizie.REPARATIE
+    assert agrega([intrebare, critic], prag=4).decizie is Decizie.CARANTINA, "carantina are întâietate"

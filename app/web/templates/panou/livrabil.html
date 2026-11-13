@@ -94,6 +94,14 @@
   {% endfor %}
   {% if r.instructiune %}<details><summary>Mesajul unic trimis autorului</summary><pre class="slab">{{ r.instructiune }}</pre></details>{% endif %}
   {% else %}<p class="slab">Livrabilul nu a fost încă validat.</p>{% endfor %}
+  {% if intrebari_client %}
+  <h3>Întrebări către client</h3>
+  <p class="slab">Livrabilul s-a oprit fiindcă lipsește un fapt necesar. Faptul se adaugă în Creierul clientului (propus, apoi aprobat de un om), apoi livrabilul se reia.</p>
+  {% for q in intrebari_client %}
+  <div class="rand"><span>{{ q.intrebare }}<br><span class="slab">{{ q.validator }} · versiunea {{ q.versiune }}{% if q.raspuns %} · {{ q.stare }}: {{ q.raspuns }}{% endif %}</span></span>
+    <span class="insigna {{ 'atentie' if q.stare == 'deschisa' else 'ok' }}">{{ {'deschisa': 'deschisă', 'raspunsa': 'cu răspuns', 'inchisa': 'închisă'}[q.stare] }}</span></div>
+  {% endfor %}
+  {% endif %}
   {% if continuturi %}
   <h3>Versiunile de conținut</h3>
   {% for c in continuturi %}

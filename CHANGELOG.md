@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F5.3 — G2 Verificatorul de fapte
+- Extragerea deterministă a afirmațiilor verificabile (prețuri cu monedă, procente, termene, date, ore, cifre, superlative, comparații, promisiuni) cu fragmentul exact, potrivirea EXACTĂ cu registrul (fapte aprobate și valabile la data publicării, oferte, reducere calculată din prețul de referință, citate din surse verificate literal), blocare la preț diferit sau afirmație neacoperită; V3 opțional pentru afirmațiile nestructurate, cu verificare deterministă a răspunsului.
+- Fapt lipsă → livrabilul se oprește cu o ÎNTREBARE către client (`validari_intrebari`, migrarea `0029`, vizibilă în urma livrabilului), nu cu o presupunere.
+
 ### F5.2 — G1 Structură și G10 Limbă
 - G1 (V0): câmpuri obligatorii pe cele 12 tipuri de livrabil, liste cu limite, lungimi pe canal [I], limba română (determinist, fără model), linkuri bine formate (fără rețea), toate într-un singur verdict. G10 (V1): diacritice lipsă (dicționar + raportul literelor), ș / ț cu sedilă, „î” / „â”, ghilimele, cratimă, repetiții; G10 (V3, opțional): acord și registru, prin judecător cu rubrică da / nu, dovadă literală și model diferit de autor.
 - Date în `app/validare/date/*.toml`; infrastructura comună a judecătorilor (`judecator.py`) și a problemelor (`probleme.py`) pentru F5.3–F5.6; prompt versionat `validare.g10_limba`.

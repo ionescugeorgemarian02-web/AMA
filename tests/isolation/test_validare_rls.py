@@ -129,3 +129,74 @@ def test_nici_proprietarul_clientului_nu_modifica_si_nu_sterge(
 ) -> None:
     with pytest.raises(DBAPIError), sesiune(ContextDb(tenant_id=date.a, user_id=date.user_a)) as db:
         db.execute(text(sql.format(t=tabel)))
+
+
+# --- întrebările către client (F5.3) -----------------------------------------------------------------------------------
+
+
+@pytest.fixture
+def intrebari(
+    date: Date, date_validare: dict[str, dict[str, uuid.UUID]], admin_engine: Engine
+) -> dict[str, uuid.UUID]:
+    ids = {}
+    with admin_engine.begin() as c:
+        for cheie, tenant in (("a", date.a), ("b", date.b)):
+            ids[cheie] = new_id()
+            c.execute(
+                text(
+                    "INSERT INTO validari_intrebari (id, tenant_id, livrabil_id, versiune, validator, intrebare) "
+                    "VALUES (:i, :t, :l, 1, 'G2', 'Care este prețul abonamentului?')"
+                ),
+                {"i": ids[cheie], "t": tenant, "l": date_validare[cheie]["livrabil"]},
+            )
+    return ids
+
+
+def test_intrebarile_se_vad_doar_la_clientul_lor(date: Date, intrebari: dict[str, uuid.UUID]) -> None:
+    ale_a = vazute(ContextDb(tenant_id=date.a, user_id=date.user_a), "validari_intrebari")
+    assert intrebari["a"] in ale_a and intrebari["b"] not in ale_a
+    assert vazute(ContextDb(), "validari_intrebari") == set()
+    assert {intrebari["a"], intrebari["b"]} <= vazute(ContextDb(agency=True), "validari_intrebari")
+
+
+def test_intrebarea_nu_se_poate_rescrie_doar_starea_ei_se_schimba(
+    date: Date, intrebari: dict[str, uuid.UUID]
+) -> None:
+    ctx = ContextDb(tenant_id=date.a, user_id=date.user_a)
+    with sesiune(ctx) as db:
+        n = db.execute(
+            text(
+                "UPDATE validari_intrebari SET stare = 'raspunsa', raspuns = 'da', raspuns_la = now() WHERE id = :i"
+            ),
+            {"i": intrebari["a"]},
+        ).rowcount
+        assert n == 1
+    with pytest.raises(DBAPIError), sesiune(ctx) as db:
+        db.execute(
+            text("UPDATE validari_intrebari SET intrebare = 'altceva' WHERE id = :i"), {"i": intrebari["a"]}
+        )
+    with pytest.raises(DBAPIError), sesiune(ctx) as db:
+        db.execute(text("DELETE FROM validari_intrebari WHERE id = :i"), {"i": intrebari["a"]})
+    with sesiune(ctx) as db:  # întrebarea altui client nu e vizibilă, deci nici modificabilă
+        n = db.execute(
+            text("UPDATE validari_intrebari SET stare = 'inchisa', raspuns_la = now() WHERE id = :i"),
+            {"i": intrebari["b"]},
+        ).rowcount
+        assert n == 0
+
+
+def test_o_intrebare_nu_se_leaga_de_livrabilul_altui_client(
+    date: Date, date_validare: dict[str, dict[str, uuid.UUID]]
+) -> None:
+    with (
+        sesiune(ContextDb(tenant_id=date.a, user_id=date.user_a)) as db,
+        pytest.raises(DBAPIError),
+        db.begin_nested(),
+    ):
+        db.execute(
+            text(
+                "INSERT INTO validari_intrebari (id, tenant_id, livrabil_id, versiune, validator, intrebare) "
+                "VALUES (:i, :t, :l, 1, 'G2', 'Întrebare furată')"
+            ),
+            {"i": new_id(), "t": date.a, "l": date_validare["b"]["livrabil"]},
+        )

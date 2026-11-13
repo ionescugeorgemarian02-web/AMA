@@ -25,7 +25,7 @@ from app.logging import get_logger
 from app.operare import evenimente
 from app.productie import Stare
 from app.validare import autor as autori
-from app.validare import cascada, continut, depozit, registru
+from app.validare import cascada, continut, depozit, intrebari, registru
 from app.validare.agregare import Decizie
 from app.validare.intrare import Intrare, SituatieLivrabil
 from app.validare.verdict import Verdict
@@ -145,6 +145,25 @@ def ruleaza_runda(
         stare_noua = r.stare
         if ag.cere_om:
             stare_noua = _cere_om(db, livrabil.id, ag.puncte, ag.prag, utilizator_id) or stare_noua
+    elif ag.decizie is Decizie.INTREBARE:
+        # lipsește un fapt necesar: livrabilul se oprește cu o ÎNTREBARE către client (înregistrare
+        # vizibilă), nu cu o
+        # presupunere; un om răspunde, adaugă faptul în Creier și reia livrabilul
+        nr = 0
+        for v in ag.blocante:
+            for q in v.detalii.get("intrebari", []):
+                intrebari.deschide(
+                    db, tenant_id=livrabil.tenant_id, livrabil_id=livrabil.id, versiune=livrabil.versiune,
+                    validator=v.validator, intrebare=q["intrebare"],
+                    tip_fapt=q.get("tip"), subiect=q.get("subiect"),
+                )  # fmt: skip
+                nr += 1
+        r = productie.muta(
+            db, livrabil.id, Stare.IN_VALIDARE, Stare.COADA_DE_ERORI, componenta=COMPONENTA,
+            motiv="lipsește un fapt necesar: întrebare către client", utilizator_id=utilizator_id,
+            detalii={**detalii, "intrebari": nr},
+        )  # fmt: skip
+        stare_noua = r.stare
     elif ag.decizie is Decizie.CARANTINA:
         r = productie.muta(
             db, livrabil.id, Stare.IN_VALIDARE, Stare.CARANTINA, componenta=COMPONENTA,

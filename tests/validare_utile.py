@@ -15,7 +15,10 @@ import pytest
 from sqlalchemy import Engine, text
 from sqlalchemy.orm import Session
 
-from app import productie, validare
+from app import cercetare, creier, productie, validare
+from app.creier import fapte, oferte
+from app.creier.compartimente import SursaTip
+from app.creier.versiuni import Sursa
 from app.db import sesiune_tenant
 from app.productie import Stare
 from app.validare import registru
@@ -160,3 +163,75 @@ def judecator(
                 text("UPDATE gateway_profiluri SET lant = :l WHERE nume = :n"), {"l": originale[p], "n": p}
             )
         c.execute(text("DELETE FROM gateway_prompturi WHERE nume LIKE 'validare.%'"))
+
+
+# --- registrul de fapte (Creier) pentru testele validatorilor
+# --------------------------------------------------------
+# Momentele sunt FIXE (nu depind de ceasul real): faptele se aprobă la T_APROB, textul se validează la LA.
+
+LA = dt.datetime(2026, 11, 12, 12, 0, tzinfo=dt.UTC)
+T_APROB = LA - dt.timedelta(days=1)
+
+
+def fapt_aprobat(
+    tenant: uuid.UUID,
+    om: uuid.UUID,
+    tip: str,
+    subiect: str,
+    afirmatie: str,
+    *,
+    valoare: dict[str, Any] | None = None,
+    valabil_de_la: dt.datetime | None = None,
+    valabil_pana_la: dt.datetime | None = None,
+    aprobat_la: dt.datetime = T_APROB,
+) -> uuid.UUID:
+    continut: dict[str, Any] = {"tip": tip, "subiect": subiect, "afirmatie": afirmatie}
+    if valoare:
+        continut["valoare"] = valoare
+    with sesiune_tenant(tenant, om) as db:
+        i, v, _ = fapte.propune_fapt(
+            db, tenant_id=tenant, continut=continut, sursa=Sursa(SursaTip.DECLARATIE_CLIENT), utilizator_id=om,
+            valabil_de_la=valabil_de_la, valabil_pana_la=valabil_pana_la, acum=aprobat_la,
+        )  # fmt: skip
+        fapte.aproba_fapt(db, i.id, v.nr, utilizator_id=om, acum=aprobat_la)
+        return i.id
+
+
+def oferta_aprobata(
+    tenant: uuid.UUID,
+    om: uuid.UUID,
+    nume: str,
+    pret: str,
+    *,
+    tip: str = "produs",
+    pret_referinta: str | None = None,
+    valabil_pana_la: dt.datetime | None = None,
+    aprobat_la: dt.datetime = T_APROB,
+    **campuri: Any,
+) -> uuid.UUID:
+    continut: dict[str, Any] = {"tip": tip, "nume": nume, "pret": {"numar": pret, "moneda": "RON"}, **campuri}
+    if pret_referinta:
+        continut["pret_referinta"] = {"numar": pret_referinta, "moneda": "RON"}
+    with sesiune_tenant(tenant, om) as db:
+        i, v, _ = oferte.propune_oferta(
+            db, tenant_id=tenant, continut=continut, sursa=Sursa(SursaTip.DECLARATIE_CLIENT), utilizator_id=om,
+            valabil_pana_la=valabil_pana_la, acum=aprobat_la,
+        )  # fmt: skip
+        oferte.aproba_oferta(db, i.id, v.nr, utilizator_id=om, acum=aprobat_la)
+        return i.id
+
+
+def sursa_cu_pasaje(
+    tenant: uuid.UUID, texte: list[str], *, statut: str = "material_client", nume: str = "Surse de probă"
+) -> tuple[uuid.UUID, list[creier.Pasaj]]:
+    """O sursă manuală cu aceste texte, tăiate în pasaje (fără vectori). Întoarce sursa și pasajele ei."""
+    from sqlalchemy import select
+
+    with sesiune_tenant(tenant) as db:
+        sid = cercetare.creeaza_sursa(db, tenant_id=tenant, tip="manual", statut_cod=statut, nume=nume).id
+        for i, t in enumerate(texte):
+            cercetare.adauga_text(db, tenant_id=tenant, sursa_id=sid, titlu=f"Document {i}", text=t)
+        creier.pregateste_sursa(db, sid)
+        pasaje = list(db.execute(select(creier.Pasaj).where(creier.Pasaj.sursa_id == sid)).scalars())
+        db.expunge_all()
+    return sid, pasaje
