@@ -21,7 +21,18 @@ Restul aplicației folosește doar ce se exportă aici:
     rez = continut.adaptor.adapteaza(db, livrabil_id, ["instagram", "linkedin", "tiktok"])
 """
 
-from app.continut import adaptor, brief, calendar, editor, feedback, fluxuri, pipeline, scriere, scripturi
+from app.continut import (
+    adaptor,
+    brief,
+    calendar,
+    editor,
+    feedback,
+    fluxuri,
+    pipeline,
+    proba,
+    scriere,
+    scripturi,
+)
 from app.continut.modele import Adaptare, Brief, Calendar, IntrareCalendar, VariantaHook
 
 __all__ = [
@@ -37,6 +48,7 @@ __all__ = [
     "feedback",
     "fluxuri",
     "pipeline",
+    "proba",
     "scriere",
     "scripturi",
 ]

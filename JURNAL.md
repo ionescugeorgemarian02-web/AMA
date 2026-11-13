@@ -433,3 +433,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Hotărâri (D-007): exemplele trăiesc în compartimentele Creierului (aprobate prin sistem), nu într-un tabel nou; contextul le aduce pe tip și canal, fără să le declare lipsă.
   - Sesiunea a fost întreruptă de limita de utilizare la mijlocul pasului; reluată după resetare (Postgres-ul de test repornit).
   - Verificat: testul de integrare.
+- **F6.8 — Proba de două săptămâni (simulată).**
+  - Construit: `continut.proba`, spec F6.8 cu rezultatul simulării.
+  - Hotărâri (D-007): proba devine simulare accelerată; incidentul critic definit [I] (publicare fără validare / fără om / dublă / fără pachet; eroare neprinsă); carantina și coada de erori nu sunt incidente.
+  - Verificat: 32 de livrabile în 14 zile pe două branduri, 0 incidente, rata 0,75 (dată de omul simulat). Proba reală, la migrare.

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F6.8 — Proba de două săptămâni (simulată)
+- `continut.proba`: proba zi cu zi pe ceasul calendarului, pentru mai multe branduri (producție, decizia omului, publicare asistată), cu verificarea incidentelor critice și rata de aprobare din prima; raportul intră în audit. Rulată accelerat pe două branduri fictive: 14 zile, 0 incidente critice.
+
 ### F6.7 — Capturarea feedbackului
 - Respingerile (cu motivul standard și fraza omului) devin exemple negative, aprobările (cu ciorna, dacă omul a editat) exemple de aur, automat, în aceeași tranzacție cu decizia; pachetul de context primește exemplele aceluiași tip și canal (`creier.context.construieste(..., exemple=(tip, canal))`), iar brieful și autorii le văd în prompt.
 
