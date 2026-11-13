@@ -437,3 +437,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `continut.proba`, spec F6.8 cu rezultatul simulării.
   - Hotărâri (D-007): proba devine simulare accelerată; incidentul critic definit [I] (publicare fără validare / fără om / dublă / fără pachet; eroare neprinsă); carantina și coada de erori nu sunt incidente.
   - Verificat: 32 de livrabile în 14 zile pe două branduri, 0 incidente, rata 0,75 (dată de omul simulat). Proba reală, la migrare.
+- **Poarta F6.**
+  - Testul de poartă parcurge toți pașii F6.1–F6.8 pe brandul fictiv, cu aprobările, respingerea și linkul lipit prin rutele reale; trecut (21 s).
+  - Găsit: în poartă briefurile tuturor sloturilor se scriu înaintea respingerii, deci exemplul negativ ajunge la sarcina următoare prin promptul autorului, nu prin pachetul brieful (ambele drumuri sunt testate: F6.7 și poarta).
+  - Rămâne deschis (la migrare): proba reală, postarea reală, primul val F0, backupul pe VPS.
+  - Propuneri: verificarea duratei scriptului ca pas G1 cu set de aur propriu; aprobarea în grup pe loturile calendarului; partea cu model a editorului E8 după F11.

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F6
+- Testul de poartă `tests/integration/test_poarta_f6.py`: lanțul complet al producției de text și al publicării asistate, cu acțiunile omului prin panou, și proba accelerată de 14 zile pe două branduri, fără incident critic. Detalii și condițiile rămase în `docs/specs/F6-poarta.md`.
+
 ### F6.8 — Proba de două săptămâni (simulată)
 - `continut.proba`: proba zi cu zi pe ceasul calendarului, pentru mai multe branduri (producție, decizia omului, publicare asistată), cu verificarea incidentelor critice și rata de aprobare din prima; raportul intră în audit. Rulată accelerat pe două branduri fictive: 14 zile, 0 incidente critice.
 
