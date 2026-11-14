@@ -77,6 +77,7 @@ CONTEXT_AGENTIE = {
     # Colectorul de metrici (F10.1): job fără utilizator; lista postărilor de citit e peste toți clienții, iar
     # citirea și scrierea fiecăreia rulează pe clientul ei.
     "app/analiza/colector.py",
+    "app/cercetare/tendinte.py",  # jobul de dimineață (F10.7): lista clienților cu profil și inboxul nou
 }
 
 

@@ -560,3 +560,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Verificat: 2 teste de integrare.
 
 - **CI roșu pe F10.4–F10.5, reparat.** Suita completă pe F10.6: `1 failed, 2971 passed`. Cauza: `test_analiza_sanatate` lăsa în baza comună un abonament restant, pe care jobul de restanțe din `test_facturare` îl găsea. Testul meu își șterge acum abonamentele de probă. Lecție: înainte de împins un pas care adaugă teste cu date la nivel de agenție, rulez și testele care citesc aceleași tabele.
+- **F10.7 — Cercetătorul de tendințe.**
+  - Construit: `cercetare.tendinte`, migrarea `0060`, ecranul `/analiza/tendinte`, `AMA_YOUTUBE_API_KEY` în configurare, spec F10.7. Hotărâri (D-007): totul pe reguli; unghiul e ciornă deterministă (partea cu model a lui C2 nu e construită); cheia YouTube în antet.
+  - Găsit de teste: potrivirea după început de cuvânt nu recunoștea „cafelei” pentru „cafea” (acum: rădăcină comună); „mort” prindea „mortar” (formele scurte se potrivesc doar exact).
+  - Verificat: 5 teste unitare, 2 de integrare.
+

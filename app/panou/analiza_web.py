@@ -22,6 +22,7 @@ from fastapi.responses import RedirectResponse, Response
 
 from app import productie
 from app.analiza import colector, etichete, retentie, sanatate, trafic
+from app.cercetare import tendinte
 from app.connectors.contract import CHEI_METRICI, ETICHETE_METRICI
 from app.conturi import (
     DbSession,
@@ -39,7 +40,11 @@ router = APIRouter(prefix="/analiza", tags=["analiza"])
 Agentie = Annotated[SesiuneCurenta, Depends(require_role(*ROLURI_AGENTIE))]
 PoateCiti = Annotated[SesiuneCurenta, Depends(require_permission(Permisiune.RAPOARTE_CITESTE))]
 PoateEdita = Annotated[SesiuneCurenta, Depends(require_permission(Permisiune.LIVRABIL_EDITEAZA))]
-MESAJE = {"salvat": "Cifrele au fost salvate."}
+MESAJE = {
+    "salvat": "Cifrele au fost salvate.",
+    "profil": "Profilul de nișă a fost salvat.",
+    "inbox": "Am primit. Devine fișă la următoarea rulare (dimineața).",
+}
 
 
 def _id(text: str) -> uuid.UUID:
@@ -213,3 +218,79 @@ async def introduce(
     except colector.MetriciRefuzate as exc:
         return _detaliu(request, u, db, lid, status=422, eroare=str(exc))
     return RedirectResponse(f"/analiza/livrabil/{lid}?mesaj=salvat", status_code=303)
+
+
+# --- tendințe (F10.7) -----------------------------------------------------------------------------------
+def _client(text: str) -> uuid.UUID:
+    try:
+        return uuid.UUID(text)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Client necunoscut.") from None
+
+
+def _tendinte(
+    request: Request,
+    u: SesiuneCurenta,
+    db: DbSession,
+    tenant_id: uuid.UUID | None,
+    *,
+    status: int = 200,
+    **extra: Any,
+) -> Response:
+    clienti = {c.id: c.nume for c in lista_clienti(db)}
+    if tenant_id is not None and tenant_id not in clienti:
+        raise HTTPException(status_code=404, detail="Client necunoscut.")
+    return pagina(
+        request,
+        u,
+        "panou/analiza_tendinte.html",
+        tab="meniu",
+        status=status,
+        clienti=clienti,
+        client=tenant_id,
+        profil=tendinte.profil(db, tenant_id) if tenant_id else None,
+        fise=tendinte.ale_clientului(db, tenant_id) if tenant_id else [],
+        poate_edita=poate(u.rol, Permisiune.LIVRABIL_EDITEAZA),
+        **extra,
+    )
+
+
+@router.get("/tendinte")
+def ecran_tendinte(
+    request: Request, u: Agentie, _p: PoateCiti, db: DbSession, client: str = "", mesaj: str = ""
+) -> Response:
+    return _tendinte(request, u, db, _client(client) if client else None, mesaj=MESAJE.get(mesaj, ""))
+
+
+@router.post("/tendinte/{client}/profil", dependencies=[Depends(csrf_protect)])
+async def salveaza_profil(
+    request: Request, client: str, u: Agentie, _p: PoateEdita, db: DbSession
+) -> Response:
+    tid = _client(client)
+    f = await request.form()
+    try:
+        tendinte.seteaza_profil(
+            db,
+            tid,
+            termeni=str(f.get("termeni") or "").replace("\n", ",").split(","),
+            fluxuri=str(f.get("fluxuri") or "").split(),
+            utilizator_id=u.utilizator_id,
+        )
+    except tendinte.ProfilInvalid as exc:
+        return _tendinte(request, u, db, tid, status=422, eroare=str(exc))
+    return RedirectResponse(f"/analiza/tendinte?client={tid}&mesaj=profil", status_code=303)
+
+
+@router.post("/tendinte/{client}/inbox", dependencies=[Depends(csrf_protect)])
+async def adauga_in_inbox(
+    request: Request, client: str, u: Agentie, _p: PoateEdita, db: DbSession
+) -> Response:
+    from app.media import tendinte as inbox
+
+    tid = _client(client)
+    f = await request.form()
+    try:
+        inbox.adauga(db, tid, str(f.get("text") or ""), utilizator_id=u.utilizator_id)
+    except inbox.TendintaInvalida as exc:
+        return _tendinte(request, u, db, tid, status=422, eroare=str(exc))
+    return RedirectResponse(f"/analiza/tendinte?client={tid}&mesaj=inbox", status_code=303)

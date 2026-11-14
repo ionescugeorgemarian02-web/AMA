@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F10.7 — Cercetătorul de tendințe
+- `cercetare.tendinte` (surse oficiale, profil de nișă, fișe cu dovezi, inbox → fișă și propunere de calendar), jobul zilnic `cercetare.tendinte`, ecranul `/analiza/tendinte`, setarea `AMA_YOUTUBE_API_KEY`. Migrarea `0060`.
+
 ### F10.6 — Analiza de trafic proprie
 - `analiza.trafic` (pâlnia vizite cu acord → cereri de audit → clienți), ecranul `/analiza/trafic`.
 
