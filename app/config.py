@@ -132,6 +132,9 @@ class Settings(BaseSettings):
     # Vocea locală (F8.1, ADR-10). NEVERIFICAT: Piper se instalează pe VPS (la migrare).
     piper_bin: str = ""
     piper_modele: str = "/var/lib/ama/voci"
+    # Transcrierea inversă (F8.3). NEVERIFICAT: whisper.cpp pe VPS; gol = transcriptorul simulat.
+    whisper_bin: str = ""
+    whisper_model: str = "/var/lib/ama/voci/ggml-small.bin"
     colector_user_agent: str = Field(
         default=(
             "AMA-Colector/1.0 (robot de citit pagini pentru clientii agentiei de marketing; "

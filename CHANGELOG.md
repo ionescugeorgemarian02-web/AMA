@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.3 — Transcrierea inversă și timpii pe cuvânt
+- `media.transcriere`: adaptorul transcriptorului (whisper.cpp, simulat), alinierea cu scriptul, WER pe frază, resinteza o dată și semnalarea.
+
 ### F8.2 — Normalizarea textului românesc
 - `media.normalizare` (numere, date, ore, sume, procente, unități, abrevieri, web, telefoane, diacritice) și `media.pronuntie` (dicționarul de pronunție pe client). Migrarea `0048`.
 

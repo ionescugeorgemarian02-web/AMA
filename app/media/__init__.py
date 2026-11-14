@@ -7,6 +7,6 @@ media.pronuntie.pentru_voce(db, tenant_id, "Guji costă 49 lei.")  # normalizare
 (F8.2)
 """
 
-from app.media import audio, biblioteca, normalizare, pronuntie, tendinte, voce
+from app.media import audio, biblioteca, normalizare, pronuntie, tendinte, transcriere, voce
 
-__all__ = ["audio", "biblioteca", "normalizare", "pronuntie", "tendinte", "voce"]
+__all__ = ["audio", "biblioteca", "normalizare", "pronuntie", "tendinte", "transcriere", "voce"]
