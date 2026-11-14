@@ -517,3 +517,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `ConectorLinkedin` (profil / pagină), LinkedIn simulat. Hotărâri (D-007): pagina e un canal separat (`linkedin_pagina`), cu cerința ei; limita = postările de azi citite din API față de plafonul documentat. Verificat: 25 de teste de contract, 1 de integrare.
 - **F9.6 — TikTok.**
   - Construit: `ConectorTiktok`, TikTok simulat, `publicare.consimtamant`, `publicare.fisiere`, `media.biblioteca.citeste_activ`, ecranul de previzualizare, migrarea `0055`. Hotărâri (D-007): modul (ciornă / direct) îl pune publicarea din aprobare; consimțământul e pe versiune; ciornele nu se caută în `verifica` (o ciornă dublă o vede omul). Verificat: 15 teste de contract, 1 de integrare.
+- **F9.7 — Planificarea (D4).**
+  - Construit: `publicare.programare`, migrarea `0056`, fluxul `publicare.tic` în worker. Hotărâri (D-007): pauza de criză = oprirea existentă (F2.9), nu un mecanism nou; postarea care cade într-o zi blocată după programare se mută pe primul slot liber. Verificat: 2 teste de integrare.

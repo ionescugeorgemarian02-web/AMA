@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F9.7 — Planificarea, alegerea canalelor și zilele blocate
+- `publicare.programare` (sloturi, frecvență, zile blocate, `publicare.tic` la minut, alegerea drumului API / asistat, trecerea pe asistat); `asistata.pregateste(din_programat=)`. Migrarea `0056`.
+
 ### F9.6 — TikTok
 - `connectors.publicare.tiktok` (ciornă / postare directă), `publicare.consimtamant`, ecranul de previzualizare și consimțământ `/publicare/api/tiktok/<livrabil>`. Migrarea `0055`.
 
