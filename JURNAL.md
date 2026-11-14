@@ -551,3 +551,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Verificat: 7 teste unitare, 3 de integrare.
 
   - Abatere: primul commit F10.4 (`git log`: „F10.4: tablouri de bord…”) a fost împins cu două teste picate (garda `check_gateway`: import din `app.gateway.reguli_buget`; `test_panou`: cereri de aprobare lăsate în așteptare de testul meu). Reparat în commitul următor; rulate apoi în ordinea suitei: `tests/integration/test_analiza_*`, `test_aprobari*`, `test_panou`, `tests/unit` → 1828 trecute.
+- **F10.5 — Raportul lunar complet.**
+  - Construit: `analiza.raport_cifre`, legarea în `raport_lunar.compune`, tabelul și frazele în `portal/rapoarte.html`, spec F10.5. Hotărâri (D-007): fraze deterministe, verificate cu extractorul G2; fără model.
+  - Test existent schimbat (F7.8, `test_raport_lunar.py`): mesajul „vine cu F10” a dispărut, iar setul de chei are patru chei noi; verificarea nu a fost slăbită.
+  - Verificat: 4 teste unitare, 2 de integrare.
+

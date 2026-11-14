@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F10.5 — Raportul lunar complet
+- `analiza.raport_cifre` (cifrele lunii, frazele deterministe, controlul „G2 pe cifre”); `raport_lunar` și șablonul din portal arată cifrele măsurate.
+
 ### F10.4 — Tablouri de bord și scor de sănătate
 - `analiza.sanatate` (semnalele de risc din 4.10, scorul, indicatorii din 4.13), ecranul `/analiza/clienti`.
 

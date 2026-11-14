@@ -8,7 +8,14 @@
   <h3>1. Ce am livrat</h3>
   <ul>{% for x in c.livrat %}<li>{{ x.eticheta }}: {{ x.livrate }} publicate{% if x.pachet %} din {{ x.pachet }} în pachet{% endif %}{% if x.in_lucru %}, {{ x.in_lucru }} în lucru{% endif %}</li>{% else %}<li>Nimic luna aceasta.</li>{% endfor %}</ul>
   <h3>2. Ce a ieșit</h3><p>{{ c.rezultate }}</p>
+  {% if c.cifre and c.cifre.totaluri_etichetate %}
+  <table>
+    <tbody>{% for eticheta, v in c.cifre.totaluri_etichetate %}<tr><th scope="row">{{ eticheta }}</th><td>{{ v }}</td></tr>{% endfor %}</tbody>
+  </table>
+  {% endif %}
   <h3>3–4. Ce a mers și ce schimbăm</h3>
+  {% if c.ce_a_mers %}<p>{{ c.ce_a_mers }}</p>{% endif %}
+  {% if c.ce_nu_a_mers %}<p>{{ c.ce_nu_a_mers }}</p>{% endif %}
   <p>{% if c.aprobari.decise %}Aprobate din prima: {{ c.aprobari.din_prima }} din {{ c.aprobari.decise }}.{% else %}Nicio decizie luna aceasta.{% endif %}
   {% for m, n in c.aprobari.motive_respingere.items() %} Respinse pentru „{{ m }}”: {{ n }}.{% endfor %}</p>
   <h3>5. Ce am învățat despre public</h3><p>{{ c.public }}</p>

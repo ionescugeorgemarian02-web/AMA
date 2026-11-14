@@ -1,13 +1,15 @@
-"""Raportul lunar, prima formă (F7.8, docs/19 §19.6): livrabile și stare, încă fără metrici (F10).
+"""Raportul lunar (F7.8, complet din F10.5; docs/19 §19.6): livrabile, stare și cifrele măsurate.
 
-O pagină, cu cele 7 secțiuni din 19.6; cele care cer metrici spun explicit că lipsesc (nu se inventează
-cifre):
+O pagină, cu cele 7 secțiuni din 19.6. Nu se inventează cifre: ce nu a fost măsurat se spune.
 1. ce am livrat: publicate pe tip, față de pachet (planul abonamentului, dacă există);
-2. ce a ieșit / 3. ce a mers / 4. ce nu a mers: fără metrici încă; din aprobări: rata de aprobare din prima și
-   motivele de respingere;
-5. ce am învățat despre public: fără metrici încă;
+2. ce a ieșit: postările măsurate și totalurile pe metrică (`raport_cifre.cifre_luna`);
+3. ce a mers / 4. ce nu a mers: cel mai bun și cel mai slab tipar de hook; din aprobări: rata de aprobare
+   din prima și motivele de respingere;
+5. ce am învățat despre public: slotul cu cea mai bună reacție;
 6. planul lunii următoare: sloturile din calendar;
-7. ce avem nevoie de la client: aprobări în așteptare, întrebări deschise, pași de onboarding rămași.
+7. ce avem nevoie de la client: aprobări în așteptare, întrebări deschise.
+Frazele cu cifre sunt construite determinist și trec controlul „G2 pe cifre” (`raport_cifre.verifica`):
+fiecare număr din text trebuie să existe în datele măsurate, altfel frazele se rețin și rămân tabelele.
 Se generează din date (idempotent pe client + lună: o regenerare înlocuiește conținutul), se vede în
 portal."""
 
@@ -22,13 +24,12 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
 from app import continut, finante, productie, validare
+from app.analiza import raport_cifre
 from app.ids import new_id
 from app.operare import audit
 from app.productie import Stare
 
-FARA_METRICI = (
-    "Metricile de performanță vin cu analiza (F10); luna aceasta raportăm doar livrabilele și starea."
-)
+FARA_FRAZE = "Frazele cu cifre au fost reținute de verificare; cifrele din tabel sunt cele măsurate."
 LIVRATE = {Stare.PUBLICAT.value, Stare.IN_MASURARE.value, Stare.INCHIS.value}
 
 
@@ -107,17 +108,26 @@ def compune(db: Session, tenant_id: uuid.UUID, luna: dt.date) -> dict[str, Any]:
     n_intrebari = sum(1 for q in validare.intrebari.deschise(db, limita=1000) if q.tenant_id == tenant_id)
     if n_intrebari:
         nevoi.append(f"{n_intrebari} întrebări despre fapte așteaptă un răspuns.")
+    cifre = raport_cifre.cifre_luna(db, tenant_id, de_la, pana_la)
+    texte = raport_cifre.propozitii(cifre)
+    probleme = raport_cifre.verifica(texte, cifre)
+    if probleme:  # o cifră care nu vine din date nu ajunge la client: rămân tabelele
+        texte = dict.fromkeys(texte, FARA_FRAZE)
     return {
         "luna": luna.strftime("%Y-%m"),
         "livrat": livrat,
-        "rezultate": FARA_METRICI,
+        "cifre": cifre,
+        "ce_a_mers": texte["ce_a_mers"],
+        "ce_nu_a_mers": texte["ce_nu_a_mers"],
+        "verificare": {"g2_cifre": "respins" if probleme else "trecut", "probleme": probleme},
+        "rezultate": texte["rezultate"],
         "aprobari": {
             "decise": len(prima),
             "din_prima": aprobate_din_prima,
             "rata_din_prima": round(aprobate_din_prima / len(prima), 2) if prima else None,
             "motive_respingere": dict(motive),
         },
-        "public": FARA_METRICI,
+        "public": texte["public"],
         "plan_luna_urmatoare": dict(sloturi),
         "nevoi": nevoi or ["Nimic acum."],
     }

@@ -25,8 +25,8 @@ apoi F10 (ramura B).
 | F10.2 Curba de retenție YouTube | **închis** (împins) |
 | F10.3 Legarea de etichete | **închis** (împins) |
 | F10.4 Tablouri de bord și scor de sănătate | **închis** (împins) |
-| F10.5 Raportul lunar complet | urmează |
-| F10.6 Analiza de trafic proprie | neînceput |
+| F10.5 Raportul lunar complet | **închis** (împins) |
+| F10.6 Analiza de trafic proprie | urmează |
 | F10.7 Cercetătorul de tendințe | neînceput |
 | F10.8 Analistul de reclame ale concurenței | neînceput |
 
@@ -41,6 +41,7 @@ paralel cu tine. Ramura mea: `claude/tender-franklin-9wrn5i`. Cererea mea de int
 - F10.2 curba de retenție YouTube + ecranul `/analiza` (migrarea `0058`);
 - F10.3 legarea de etichete, `/analiza/etichete` (migrarea `0059`);
 - F10.4 scorul de sănătate și indicatorii, `/analiza/clienti` (fără migrare);
+- F10.5 raportul lunar cu cifre măsurate și controlul „G2 pe cifre” (fără migrare; am atins `portal/rapoarte.html`);
 - verificare: suita completă `2938 passed, 1 skipped` pe F10.2; CI verde pe #9 la F10.3.
 
 **Ce ai tu de făcut, în ordine:**

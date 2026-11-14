@@ -12,7 +12,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import continut
-from app.analiza import colector, etichete
+from app.analiza import colector, etichete, raport_lunar
 from app.connectors import metrici as registru_metrici
 from app.connectors import registru
 from app.connectors.metrici.fals import CititorFals, MetriciFalse
@@ -179,6 +179,22 @@ def test_postarile_se_sorteaza_dupa_tiparul_de_hook(
         assert [g.valoare for g in etichete.grupeaza(db, "format", tenant_id=tenant)] == ["postare"]
         with pytest.raises(ValueError):
             etichete.grupeaza(db, "inventata")
+
+    # F10.5: raportul lunar al clientului conține aceste cifre, verificate („G2 pe cifre”)
+    with sesiune_tenant(tenant) as db:
+        c = raport_lunar.genereaza(db, tenant, t0.date()).continut
+    assert c["cifre"]["postari_masurate"] == 4 and c["cifre"]["totaluri"] == {
+        "afisari": 4000,
+        "aprecieri": 200,
+        "comentarii": 0,
+    }
+    assert c["rezultate"].startswith(
+        "Am măsurat 4 din 4 postări publicate. În total: 4000 afișări, 200 aprecieri"
+    )
+    assert "„întrebare”: în medie 7,0 interacțiuni la 100 de afișări, din 2 postări" in c["ce_a_mers"]
+    assert "nu avem încă termen de comparație" in c["ce_nu_a_mers"], "un singur tipar are două postări"
+    assert c["verificare"] == {"g2_cifre": "trecut", "probleme": []}
+    assert "din 4 postări" in c["public"]
 
     autentifica(client, fabrica_conturi(Rol.PROPRIETAR, cu_totp=True), ceas)
     r = client.get(f"/analiza/etichete?dupa=tipar_hook&client={tenant}")
