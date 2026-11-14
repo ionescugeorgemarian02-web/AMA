@@ -12,9 +12,10 @@ conector de publicare activ); în teste se înregistrează explicit, pe platform
 import importlib
 from typing import Any
 
-from app.connectors.contract import CititorMetrici
+from app.connectors.contract import CititorMetrici, CititorRetentie
 
 _registru: dict[str, CititorMetrici] = {}
+_retentie: dict[str, CititorRetentie] = {}
 
 FABRICI: dict[str, str] = {
     "facebook": "app.connectors.metrici.meta:CititorFacebook",
@@ -51,6 +52,32 @@ def cititor_pentru(canal: str) -> CititorMetrici | None:
     return _registru.get(canal) or _incarca(canal)
 
 
+# Curba de retenție (F10.2): doar YouTube o dă prin API (docs/03).
+FABRICI_RETENTIE: dict[str, str] = {
+    "youtube": "app.connectors.metrici.youtube:CititorRetentieYoutube",
+}
+
+
+def inregistreaza_retentie(canal: str, cititor: CititorRetentie) -> None:
+    _retentie[canal] = cititor
+
+
+def cititor_retentie(canal: str) -> CititorRetentie | None:
+    c = _retentie.get(canal)
+    if c is not None:
+        return c
+    from app.config import get_settings
+
+    activi = {x.strip() for x in get_settings().publicare_conectori.split(",") if x.strip()}
+    if canal not in activi or canal not in FABRICI_RETENTIE:
+        return None
+    modul, nume = FABRICI_RETENTIE[canal].split(":")
+    nou: CititorRetentie = getattr(importlib.import_module(modul), nume).din_setari()
+    inregistreaza_retentie(canal, nou)
+    return nou
+
+
 def uita_tot() -> None:
-    """Golește registrul (teste)."""
+    """Golește registrele (teste)."""
     _registru.clear()
+    _retentie.clear()

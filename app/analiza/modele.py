@@ -33,3 +33,17 @@ class MetriciPostare(BazaAnaliza):
     citit_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     intarziere_s: Mapped[int] = mapped_column(Integer, default=0)
     introdus_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+
+
+class CurbaRetentie(BazaAnaliza):
+    """Ultima curbă de retenție citită pentru un clip (F10.2, migrarea 0058)."""
+
+    __tablename__ = "curbe_retentie"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    canal: Mapped[str] = mapped_column(Text)
+    id_extern: Mapped[str] = mapped_column(Text)
+    interval: Mapped[str] = mapped_column(Text)
+    puncte: Mapped[list[list[float]]] = mapped_column(JSONB)
+    citit_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

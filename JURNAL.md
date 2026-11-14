@@ -536,4 +536,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit de teste: `EroareAutentificare` moștenește `EroareDefinitiva`; prinsă în ordinea greșită, un token expirat ar fi marcat intervalul „indisponibil” în loc să aștepte reautorizarea. Ordinea e corectată și comentată.
   - Verificat: 13 teste unitare, 10 de contract, 8 de integrare, 3 de izolare.
   - Rămâne deschis: formularul de introducere manuală a cifrelor (vine cu F10.4); toți cititorii reali sunt NEVERIFICAȚI pe conturi reale.
+- **F10.2 — Curba de retenție YouTube.**
+  - Construit: `analiza.retentie`, `CititorRetentieYoutube`, cititorul fals de retenție, `panou.analiza_web` cu două șabloane, rândul din meniu, clasa CSS `.grafic`, migrarea `0058`, spec F10.2. Hotărâri (D-007): curba se citește după metricile de la 72 de ore, 7 și 28 de zile și e un adaos (eșecul ei nu strică cifrele); grafic SVG pe server, fără bibliotecă. Formularul de introducere manuală rămas deschis la F10.1 e aici.
+  - Verificat: 5 teste unitare, 1 de contract, 4 de integrare, 1 de izolare.
+  - Rămâne deschis: permisiunea `yt-analytics.readonly` lipsește din `SCOPURI` (fișier F9): cerere către sesiunea A în `COORDONARE.md`.
 

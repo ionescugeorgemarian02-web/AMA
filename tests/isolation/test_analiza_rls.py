@@ -67,3 +67,24 @@ def test_baza_refuza_cifre_pe_un_rand_ratat(
             ),
             {"i": new_id(), "t": date.a, "l": metrici["liv_a"]},
         )
+
+
+def test_curbele_de_retentie_sunt_izolate(
+    date: Date, metrici: dict[str, uuid.UUID], admin_engine: Engine
+) -> None:
+    puncte = "[" + ",".join(f"[{i / 20}, 0.5]" for i in range(1, 21)) + "]"
+    sql = (
+        "INSERT INTO curbe_retentie (id, tenant_id, livrabil_id, canal, id_extern, interval, puncte) "
+        "VALUES (:i, :t, :l, 'youtube', 'vid', '72h', CAST(:p AS jsonb))"
+    )
+    ids = {"a": new_id(), "b": new_id()}
+    with admin_engine.begin() as c:
+        for k, tenant in (("a", date.a), ("b", date.b)):
+            c.execute(text(sql), {"i": ids[k], "t": tenant, "l": metrici[f"liv_{k}"], "p": puncte})
+    with sesiune(ContextDb(tenant_id=date.a, user_id=date.user_a)) as s:
+        vazute = {r[0] for r in s.execute(text("SELECT id FROM curbe_retentie"))}
+    assert vazute & set(ids.values()) == {ids["a"]}
+    with pytest.raises(DBAPIError), sesiune(ContextDb(tenant_id=date.a, user_id=date.user_a)) as s:
+        s.execute(text(sql), {"i": new_id(), "t": date.b, "l": metrici["liv_b"], "p": puncte})
+    with pytest.raises(DBAPIError), admin_engine.begin() as c:  # prea puține puncte: refuzat de bază
+        c.execute(text(sql), {"i": new_id(), "t": date.a, "l": metrici["liv_a"], "p": "[[0.5, 0.5]]"})

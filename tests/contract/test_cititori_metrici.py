@@ -264,3 +264,33 @@ def test_tiktok_ciorna_si_publicare_esuata_nu_au_cifre() -> None:
     )
     with pytest.raises(EroareAutentificare):
         CititorTiktok(depozit=depozit(t, "tiktok"), transport=expirat.transport).metrici(t, "pub-1")
+
+
+# --- YouTube Analytics: curba de retenție (F10.2) ----------------------------------------------------------
+def test_youtube_curba_de_retentie() -> None:
+    from app.connectors.contract import CititorRetentie
+    from app.connectors.metrici.youtube import CititorRetentieYoutube
+
+    t = new_id()
+    raport = {
+        "columnHeaders": [{"name": "elapsedVideoTimeRatio"}, {"name": "audienceWatchRatio"}],
+        "rows": [[i / 100, round(1.0 - i / 200, 3)] for i in range(1, 101)],
+    }
+    p = Platforma({"/v2/reports": (200, raport)})
+    c = CititorRetentieYoutube(depozit=depozit(t, "youtube"), transport=p.transport)
+    assert isinstance(c, CititorRetentie)
+    puncte = c.retentie(t, "vid1", dt.date(2026, 11, 1), dt.date(2026, 11, 8))
+    assert len(puncte) == 100 and puncte[0] == (0.01, 0.995) and puncte[-1] == (1.0, 0.5)
+    q = p.cereri[0].url.params
+    assert p.cereri[0].url.host == "youtubeanalytics.googleapis.com"
+    assert (q["ids"], q["filters"], q["dimensions"]) == (
+        "channel==MINE",
+        "video==vid1",
+        "elapsedVideoTimeRatio",
+    )
+    assert (q["startDate"], q["endDate"]) == ("2026-11-01", "2026-11-08")
+    fara_permisiune = Platforma({"/v2/reports": (403, {"error": {"message": "Forbidden"}})})
+    with pytest.raises(EroareDefinitiva):
+        CititorRetentieYoutube(depozit=depozit(t, "youtube"), transport=fara_permisiune.transport).retentie(
+            t, "vid1", dt.date(2026, 11, 1), dt.date(2026, 11, 8)
+        )

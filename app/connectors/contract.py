@@ -181,3 +181,16 @@ class CititorMetrici(Protocol):
     canal: str
 
     def metrici(self, tenant_id: uuid.UUID, id_extern: str) -> Metrici: ...
+
+
+@runtime_checkable
+class CititorRetentie(Protocol):
+    """Cititorul curbei de retenție a unui clip (F10.2). Întoarce punctele (poziția în clip, între 0 și 1;
+    partea din public care se uită în acel punct, 1.0 = toți cei care au pornit clipul; poate trece de 1.0
+    când un pasaj e revăzut), în ordinea poziției. Listă goală = platforma nu are încă date."""
+
+    canal: str
+
+    def retentie(
+        self, tenant_id: uuid.UUID, id_extern: str, de_la: dt.date, pana_la: dt.date
+    ) -> list[tuple[float, float]]: ...

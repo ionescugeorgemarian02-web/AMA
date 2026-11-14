@@ -1,6 +1,7 @@
 """# SIMULAT: cititorul de metrici al platformei false (F10.1). Cifrele se pun în test (`pune`), pe
 identificatorul postării; defectele se injectează pe rând, ca la conectorul fals de publicare."""
 
+import datetime as dt
 import uuid
 from dataclasses import dataclass, field
 
@@ -39,3 +40,29 @@ class CititorFals:
         if defect == "definitiv" or id_extern not in self.date.valori:
             raise EroareDefinitiva("404: postarea nu există")
         return self.date.valori[id_extern]
+
+
+@dataclass
+class RetentieFalsa:
+    """# SIMULAT: curbele de retenție pe care le „știe” platforma falsă, pe identificatorul clipului."""
+
+    curbe: dict[str, list[tuple[float, float]]] = field(default_factory=dict)
+    defecte: list[str] = field(default_factory=list)
+    citiri: list[str] = field(default_factory=list)
+
+
+class CititorRetentieFals:
+    def __init__(self, date: RetentieFalsa, depozit: DepozitTokenuri, canal: str = "youtube") -> None:
+        self.date, self.depozit, self.canal = date, depozit, canal
+
+    def retentie(
+        self, tenant_id: uuid.UUID, id_extern: str, de_la: dt.date, pana_la: dt.date
+    ) -> list[tuple[float, float]]:
+        token_sau_autentificare(self.depozit, tenant_id, self.canal)
+        defect = self.date.defecte.pop(0) if self.date.defecte else "ok"
+        if defect == "temporar":
+            raise EroareTemporara("503: platforma indisponibilă")
+        if defect == "definitiv":
+            raise EroareDefinitiva("403: fără permisiunea de analiză")
+        self.date.citiri.append(id_extern)
+        return list(self.date.curbe.get(id_extern, []))

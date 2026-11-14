@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F10.2 — Curba de retenție YouTube
+- `analiza.retentie` (validare, rezumat, linia SVG, o curbă pe clip, citită la 72 de ore, 7 și 28 de zile), cititorul `CititorRetentieYoutube` (YouTube Analytics), ecranul „Rapoarte și analiză” (`/analiza`, `/analiza/livrabil/<id>`: cifrele pe intervale, curba, introducerea manuală a cifrelor). Migrarea `0058`.
+
 ### F10.1 — Colectorul de metrici
 - `analiza.colector` (citiri la 1 oră, 24 de ore, 72 de ore, 7 și 28 de zile; intervale ratate și indisponibile; cifre introduse de om; verificarea de completitudine), jobul `analiza.colector` la 10 minute, cititorii `connectors.metrici` (Facebook, Instagram, YouTube, LinkedIn, TikTok, fals), ușa `efecte.metrici`, tipul `contract.Metrici`. Migrarea `0057`.
 

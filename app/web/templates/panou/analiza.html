@@ -1,0 +1,20 @@
+{% extends "panou/baza.html" %}
+{% block title %}Rapoarte și analiză · AMA{% endblock %}
+{% block pagina %}
+<h1>Rapoarte și analiză</h1>
+<p class="slab">Postările publicate, cu ultimele cifre citite. Cifrele se citesc la 1 oră, 24 de ore, 72 de ore, 7 zile și 28 de zile de la publicare.</p>
+<section class="card" aria-labelledby="masurate">
+  <h2 id="masurate">Postări măsurate</h2>
+  {% if randuri %}
+  <ul class="lista-meniu">
+  {% for r in randuri %}
+    <li><a href="/analiza/livrabil/{{ r.livrabil_id }}">{{ clienti.get(r.tenant_id, "Client") }} · {{ r.canal }} · la {{ etichete_interval[r.interval] }}:
+      {% for k, v in r.valori.items() %}{{ etichete_metrici.get(k, k)|lower }} {{ v }}{% if not loop.last %}, {% endif %}{% endfor %}
+      <span class="slab">({{ r.citit_la|moment }}{% if r.sursa == "manual" %}, introduse de om{% endif %})</span> <span aria-hidden="true">›</span></a></li>
+  {% endfor %}
+  </ul>
+  {% else %}
+  <p class="slab">Nicio postare măsurată încă. Cifrele apar la o oră după prima publicare.</p>
+  {% endif %}
+</section>
+{% endblock %}

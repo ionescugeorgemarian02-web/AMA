@@ -29,6 +29,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from app import productie
+from app.analiza import retentie
 from app.analiza.modele import MetriciPostare
 from app.connectors.contract import CHEI_METRICI
 from app.db import sesiune_agentie, sesiune_tenant
@@ -216,6 +217,8 @@ def citeste_postarea(
         )  # fmt: skip
         if nou:
             _in_masurare(db, livrabil_id)
+    if nou:  # curba de retenție (F10.2), unde platforma o dă; nu poate strica citirea de mai sus
+        retentie.actualizeaza(tenant_id, livrabil_id, canal, id_extern, publicat_la, plan.de_citit, acum)
     return f"citit:{plan.de_citit}"
 
 
@@ -361,6 +364,23 @@ def ultimele(db: Session, livrabil_id: uuid.UUID, canal: str) -> dict[str, int]:
     """Cele mai recente cifre citite ale postării (valori cumulate), sau `{}`."""
     citite = [r for r in ale_livrabilului(db, livrabil_id) if r.canal == canal and r.stare == "citit"]
     return dict(citite[-1].valori) if citite else {}
+
+
+def recente(db: Session, limita: int = 50) -> list[MetriciPostare]:
+    """Cea mai recentă citire reușită a fiecărei postări (livrabil + canal), cele mai noi primele."""
+    randuri = db.execute(
+        select(MetriciPostare)
+        .where(MetriciPostare.stare == "citit")
+        .order_by(MetriciPostare.citit_la.desc())
+        .limit(limita * len(INTERVALE))
+    ).scalars()
+    vazute: set[tuple[uuid.UUID, str]] = set()
+    out: list[MetriciPostare] = []
+    for r in randuri:
+        if (r.livrabil_id, r.canal) not in vazute:
+            vazute.add((r.livrabil_id, r.canal))
+            out.append(r)
+    return out[:limita]
 
 
 def completitudine(db: Session, tenant_id: uuid.UUID, *, de_la: dt.datetime | None = None) -> dict[str, int]:

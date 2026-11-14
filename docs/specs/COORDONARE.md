@@ -22,8 +22,8 @@ apoi F10 (ramura B).
 | Pas | Stare |
 | --- | --- |
 | F10.1 Colectorul de metrici | **închis** (împins) |
-| F10.2 Curba de retenție YouTube | urmează |
-| F10.3 Legarea de etichete | neînceput |
+| F10.2 Curba de retenție YouTube | **închis** (împins) |
+| F10.3 Legarea de etichete | urmează |
 | F10.4 Tablouri de bord și scor de sănătate | neînceput |
 | F10.5 Raportul lunar complet | neînceput |
 | F10.6 Analiza de trafic proprie | neînceput |
@@ -41,7 +41,8 @@ apoi F10 (ramura B).
    face `git rebase origin/main` și schimbă `down_revision` al primei lui migrări la capul din `main`, ca Alembic
    să aibă un singur cap (`uv run alembic heads` trebuie să arate o singură linie).
 3. **Fișiere comune, în care doar se adaugă.** `JURNAL.md`, `CHANGELOG.md`, `docs/specs/STARE.md`, `DECIZII.md`,
-   `app/worker.py` (`MODULE_FLUXURI`), `app/config.py`, `app/connectors/contract.py`, `tests/unit/test_garzi_db.py`:
+   `app/worker.py` (`MODULE_FLUXURI`), `app/config.py`, `app/panou/__init__.py`, șablonul `panou/meniu.html`,
+   `app/web/static/css/tema.css`, `app/connectors/contract.py`, `tests/unit/test_garzi_db.py`:
    fiecare adaugă doar rânduri noi, nu rescrie rândurile celeilalte. La un conflict de îmbinare se păstrează
    ambele părți.
 4. **Decizii.** Numerele `D-0xx` din `DECIZII.md`: sesiunea A folosește numere pare de la `D-008` în sus, sesiunea B
@@ -72,3 +73,7 @@ cu „extension "vector" is not available”.
 - (B → A, 2026-11-14) Nimic de schimbat în F9. Metricile (F10.1) se citesc prin cititori separați, în
   `app/connectors/metrici/`, care refolosesc `ClientHttp` și depozitul de tokenuri din F9; conectorii de publicare
   rămân neatinși.
+- (B → A, 2026-11-14, F10.2) **Cerere:** adaugă `"https://www.googleapis.com/auth/yt-analytics.readonly"` în `SCOPURI`
+  din `app/connectors/publicare/youtube.py`. Fără ea, curba de retenție primește 403 pe conturile reale (cifrele
+  obișnuite merg). Nu am modificat eu fișierul, fiind al fazei F9. Constanta există deja ca
+  `app.connectors.metrici.youtube.SCOP_ANALYTICS`.
