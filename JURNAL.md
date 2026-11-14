@@ -489,3 +489,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F8.7 — Subtitrări și sunet.**
   - Construit: `media.subtitrari`, `media.sunet`, `furnizori.aduce_muzica`. Găsit: în ASS `Fontsize` e înălțimea rândului (libass desenează ~0,86 din em-ul Pillow); lățimile se măsoară acum la mărimea libass. Verificat: 2 teste de integrare.
   - Găsit la F8.7: blocajul reciproc din `test_portal_date` (de două ori din patru rulări) venea din test: numărarea rândurilor ținea, într-o singură tranzacție, blocaje pe toate tabelele, iar ștergerea le ia pe rând în acces exclusiv; mai multe tabele (F8) au lărgit fereastra. Numărarea rulează acum în autocommit.
+- **F8.8 — Controlul media (G6) și auditorul vizual (G5).**
+  - Construit: `media.control`, `media.vizual`, controlul în montaj. Găsit: o fotografie fără mișcare în formatul B e un îngheț pentru G6 (acum fotografiile se mișcă mereu); intervalele de îngheț lipite se unesc; contrastul se măsoară pe miezul literelor, nu pe media cu marginile netezite. Verificat: 2 teste de integrare.

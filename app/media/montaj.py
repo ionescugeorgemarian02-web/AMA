@@ -17,7 +17,8 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.media import biblioteca, ffmpeg, licente, lista, randare, regizor, subtitrari, sunet
+from app import validare
+from app.media import biblioteca, control, ffmpeg, licente, lista, randare, regizor, subtitrari, sunet
 from app.media.modele import Activ, Randare
 
 
@@ -103,7 +104,30 @@ def executa(db: Session, r: Randare) -> Randare:
         "inceput_la": inceput.isoformat(),
         "sfarsit_la": dt.datetime.now(dt.UTC).isoformat(),
     }
-    return _inregistreaza(db, r, lm, corp)
+    r = _inregistreaza(db, r, lm, corp)
+    if r.calitate == "final":
+        _controleaza(db, r, lm)
+    return r
+
+
+def verdict_date(v: validare.Verdict) -> dict[str, Any]:
+    return {"validator": v.validator, "versiune": v.versiune, "rezultat": v.rezultat.value,
+            "dovezi": [{"regula": d.regula, "detalii": d.detalii} for d in v.dovezi]}  # fmt: skip
+
+
+def _controleaza(db: Session, r: Randare, lm: lista.ListaMontaj) -> None:
+    """G6 pe fișierul final: trece -> `gata`; nu -> `respins`, cu dovezile în `randari.control`."""
+    a = db.get(Activ, r.activ_id)
+    if a is None:
+        raise regizor.ListaInvalida(["videoul randat lipsește"])
+    ast = control.Asteptari(canal=lm.canal, latime=lm.latime, inaltime=lm.inaltime,
+                            cadre_pe_secunda=lm.cadre_pe_secunda,
+                            ecrane=tuple(subtitrari.grupeaza(lm)) if lm.texte else ())  # fmt: skip
+    v, masuri = control.verdict(regizor.cale(a), ast)
+    r.control = {**(r.control or {}), "G6": verdict_date(v)}
+    r.masuratori = {**(r.masuratori or {}), "lufs": masuri.get("lufs"), "varf": masuri.get("varf")}
+    r.stare = "gata" if v.rezultat == validare.Rezultat.TRECE else "respins"
+    db.flush()
 
 
 def _randeaza(db: Session, r: Randare, lm: lista.ListaMontaj, tmp: Path) -> bytes:

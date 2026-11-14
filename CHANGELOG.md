@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.8 — Controlul media (G6) și auditorul vizual (G5)
+- `media.control` (G6 dintr-o singură decodare + ffprobe) și `media.vizual` (G5 din pixeli); montajul respinge videoul care nu trece G6.
+
 ### F8.7 — Subtitrări și sunet
 - `media.subtitrari` (ecrane de 2–4 cuvinte, evidențiere, zone sigure pe canal, ASS + SRT) și `media.sunet` (muzica atenuată sub voce, −14 LUFS, limitator); muzica simulată cu licență.
 
