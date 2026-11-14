@@ -1,0 +1,15 @@
+{% extends "panou/baza.html" %}
+{% block title %}Leaduri din site · AMA{% endblock %}
+{% block pagina %}
+<h1>Leaduri din site</h1>
+<p class="slab">Cererile de audit gratuit: adresa se confirmă din email (opt-in dublu), apoi motorul de audit scrie raportul.</p>
+{% for l, a in leaduri %}
+<section class="card">
+  <h2>{{ l.firma }} <span class="insigna">{{ etichete.get(l.stare, l.stare) }}</span></h2>
+  <p class="slab">{{ l.site_url }} · cerut {{ l.creat_la|moment }}</p>
+  {% if a and a.raport %}<p>{{ a.raport.rezumat }}</p>{% endif %}
+</section>
+{% else %}
+<p>Nicio cerere încă.</p>
+{% endfor %}
+{% endblock %}

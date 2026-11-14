@@ -450,3 +450,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `app/site` (pagini, web, analiza, blog, modele), șabloanele `site/*`, `site.css`, `finante.planuri`, migrarea `0039`, spec F7.1.
   - Hotărâri (D-007): site sub `/site` în monolit, fără JS (bannerul e formular); analiza = contor pe (zi, pagină), fără identificatori; prețurile [I] din planuri, comune cu facturarea.
   - Verificat: 3 teste de integrare, 3 unitare.
+- **F7.2 — Formularul de audit.**
+  - Construit: `site.audit`, `site.motor_audit`, `efecte.sistem`, conectorul `email` (simulat), ecranul `/leaduri`, migrarea `0040`. Hotărâri (D-007): outbox separat pentru efectele fără livrabil; jetonul raportului e altul decât cel de confirmare; spamul primește același răspuns. Verificat: 2 teste.

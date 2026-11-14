@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 
-from app.connectors.contract import Conector
+from app.connectors.contract import Conector, ConectorSistem
 from app.operare.motor import DefinitieCoada
 
 
@@ -45,3 +45,22 @@ def inregistrari() -> dict[str, Inregistrare]:
 def uita_tot() -> None:
     """Golește registrul (teste)."""
     _registru.clear()
+
+
+# --- efectele de sistem (F7): email, plăți; pe tip, nu pe canal ---------------------------------------------
+_sistem: dict[str, ConectorSistem] = {}
+
+
+def inregistreaza_sistem(tip: str, conector: ConectorSistem) -> None:
+    _sistem[tip] = conector
+
+
+def conector_sistem(tip: str) -> ConectorSistem:
+    try:
+        return _sistem[tip]
+    except KeyError:
+        raise ConectorNecunoscut(tip) from None
+
+
+def uita_sistem() -> None:
+    _sistem.clear()

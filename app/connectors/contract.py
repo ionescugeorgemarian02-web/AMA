@@ -52,3 +52,21 @@ class Conector(Protocol):
     def verifica(self, efect: EfectDeTrimis) -> RezultatPlatforma | None:
         """Efectul există deja la platformă? Întoarce rezultatul lui, sau `None` dacă nu există."""
         ...
+
+
+@dataclass(frozen=True)
+class EfectSistem:
+    """Un efect extern care nu ține de un livrabil (F7): un email tranzacțional, un apel la procesatorul de
+    plăți.
+    `idem` e cheia de idempotență a efectului; `payload` nu poartă secrete (cheile se rezolvă în conector)."""
+
+    id: uuid.UUID
+    tip: str
+    idem: str
+    tenant_id: uuid.UUID | None
+    payload: dict[str, Any] = field(default_factory=dict)
+
+
+@runtime_checkable
+class ConectorSistem(Protocol):
+    def trimite(self, efect: EfectSistem) -> RezultatPlatforma: ...

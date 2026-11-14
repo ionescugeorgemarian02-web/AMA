@@ -9,12 +9,23 @@ from app.conturi.dependente import (
     csrf_prelogin,
     csrf_protect,
     current_user,
+    jeton_csrf_prelogin,
     require_permission,
     require_role,
+    seteaza_csrf_prelogin,
     tratare_neautentificat,
 )
 from app.conturi.roluri import Permisiune, Rol, este_agentie, poate
-from app.conturi.servicii import Actor, DateInvalide, PermisiuneRefuzata, cauta_clienti, lista_clienti
+from app.conturi.servicii import (
+    Actor,
+    DateInvalide,
+    PermisiuneRefuzata,
+    are_aprobator_client,
+    cauta_clienti,
+    creeaza_client,
+    creeaza_utilizator,
+    lista_clienti,
+)
 from app.conturi.sesiuni import SesiuneCurenta
 from app.conturi.web import router
 
@@ -34,15 +45,20 @@ __all__ = [
     "Rol",
     "SesiuneCurenta",
     "UtilizatorCurent",
+    "are_aprobator_client",
     "cauta_clienti",
+    "creeaza_client",
+    "creeaza_utilizator",
     "csrf_prelogin",
     "csrf_protect",
     "current_user",
     "este_agentie",
     "inregistreaza",
+    "jeton_csrf_prelogin",
     "lista_clienti",
     "poate",
     "require_permission",
     "require_role",
     "router",
+    "seteaza_csrf_prelogin",
 ]

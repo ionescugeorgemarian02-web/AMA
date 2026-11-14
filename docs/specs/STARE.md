@@ -143,6 +143,8 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F7.1 Site-ul complet | verificat local prin teste HTTP: toate paginile din 19.1 (16) publice, fără script executabil, sub 20 KB, viewport, canonic, JSON-LD, un singur apel la acțiune; banner de acord fără JS, analiză proprie anonimă doar cu acord, retragere; hartă, robots, blog. **Viteza pe telefon real, textele juridice, datele firmei și domeniul: la migrare** | `tests/integration/test_site.py`, `tests/unit/test_site_pagini.py` |
+| F7.2 Formularul de audit | verificat local (Postgres real, motor durabil, rute HTTP): cerere cu CSRF dublu-trimis, câmp-capcană și timp minim, opt-in dublu (fără confirmare nu rulează nimic), raport de la motorul de audit, lead `audit_gata` vizibil în panou; emailurile prin efectele de sistem (outbox nou, `efecte_sistem`). **Emailul real și motorul de audit din BigBrain: SIMULATE, la migrare** | `tests/integration/test_site_audit.py` |
 
 ### De verificat la migrare (F7)
 - F7.1: domeniul public al agenției și regula din proxy (rădăcina → `/site`), `AMA_SITE_URL`; Lighthouse pe telefon real; textele juridice finale (F0.6) și datele firmei (F0.1); prețurile [I] din `finante.planuri`.
+- F7.2: furnizorul de email real (domeniu, SPF, DKIM) în `app/connectors/email`; motorul de audit din BigBrain prin rețea (adresă, cheie, contract) în `site.motor_audit`; `AMA_SECRET_KEY` pentru jetonul formularului; limitarea pe IP a formularului.

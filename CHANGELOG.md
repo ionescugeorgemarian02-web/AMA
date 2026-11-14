@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F7.2 — Formularul de audit
+- Modulul `site.audit`: auditul gratuit cu opt-in dublu, anti-spam, raport de la motorul de audit (adaptor), lead; ecranul „Leaduri din site”. Efectele externe de sistem (`app/operare/efecte/sistem.py`, tabelul `efecte_sistem`): email și plăți prin aceeași disciplină de outbox. Migrarea `0040`.
+
 ### F7.1 — Site-ul complet
 - Modulul `app/site`: paginile publice din 19.1 ca date, randate pe server fără JavaScript, banner de acord pentru cookie-uri, analiză de trafic proprie anonimă (doar cu acord), blog, hartă a site-ului, robots, adrese canonice și date structurate. Planurile agenției în `app/finante/planuri.py`. Migrarea `0039` (`site_vizite`, `site_articole`).
 

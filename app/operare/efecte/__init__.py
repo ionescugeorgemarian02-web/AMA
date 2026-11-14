@@ -9,6 +9,7 @@
 Conectorii (`app.connectors`) se cheamă DOAR de aici (garda `scripts/check_efecte.py`).
 """
 
+from app.operare.efecte import sistem
 from app.operare.efecte.executor import (
     NUME_TIC,
     cere,
@@ -22,7 +23,7 @@ from app.operare.efecte.executor import (
     reia_livrabilul,
     tic,
 )
-from app.operare.efecte.modele import Efect, PauzaConector
+from app.operare.efecte.modele import Efect, EfectSistemRand, PauzaConector
 from app.operare.efecte.servicii import (
     Cerere,
     EfectInexistent,
@@ -58,6 +59,7 @@ __all__ = [
     "Efect",
     "EfectInexistent",
     "EfectRefuzat",
+    "EfectSistemRand",
     "EroareEfect",
     "PauzaConector",
     "Stare",
@@ -79,5 +81,6 @@ __all__ = [
     "redistribuie",
     "reia_conectorul",
     "reia_livrabilul",
+    "sistem",
     "tic",
 ]

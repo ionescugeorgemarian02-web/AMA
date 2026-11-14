@@ -16,6 +16,7 @@ from app.panou.campanii_web import router as router_campanii
 from app.panou.creier_ecran_web import router as router_creier_ecran
 from app.panou.creier_web import router as router_creier
 from app.panou.gateway_web import router as router_gateway
+from app.panou.leaduri_web import router as router_leaduri
 from app.panou.motor_web import router as router_motor
 from app.panou.onboarding_web import router as router_onboarding
 from app.panou.operare_web import router as router_operare
@@ -52,6 +53,7 @@ def inregistreaza(app: FastAPI) -> None:
     app.include_router(router_validatoare)
     app.include_router(router_calendar)
     app.include_router(router_publicare)
+    app.include_router(router_leaduri)
 
 
 __all__ = ["STATIC", "inregistreaza"]

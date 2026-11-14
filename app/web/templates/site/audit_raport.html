@@ -1,0 +1,14 @@
+{% extends "site/baza.html" %}
+{% block titlu %}Raportul de audit: {{ firma }}{% endblock %}
+{% block continut %}
+<h1>Raportul de audit: {{ firma }}</h1>
+<p class="mic">{{ site_url }}</p>
+<p class="descriere">{{ raport.rezumat }}</p>
+<h2>Ce am găsit</h2>
+<ul>{% for c in raport.constatari %}<li>{{ c }}</li>{% endfor %}</ul>
+<h2>Trei lucruri de făcut luna aceasta</h2>
+<ol>{% for r in raport.recomandari %}<li>{{ r }}</li>{% endfor %}</ol>
+<h2>Vrei să facem asta pentru tine?</h2>
+<p>Alegem împreună pachetul; apoi platforma învață firma ta și îți propune primele materiale, pe care le aprobi tu.</p>
+<a class="cta" href="/site/inscriere?raport={{ jeton }}">Alege pachetul</a>
+{% endblock %}

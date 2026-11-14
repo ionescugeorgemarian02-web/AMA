@@ -49,6 +49,26 @@ CONTEXT_AGENTIE = {
     "app/validare/banc/fluxuri.py",
     # Calibrarea (F5.8): eșantionul săptămânal și alertele privesc verdictele tuturor clienților
     "app/validare/fluxuri.py",
+    # Site-ul public (F7.1, F7.2): vizitatori fără cont; datele site-ului (vizite, articole, leaduri, audituri)
+    # sunt ale agenției, iar formularul e păzit (CSRF dublu-trimis, câmp-capcană, timp minim) înainte de scriere.
+    "app/site/analiza.py",
+    "app/site/web.py",
+    "app/site/audit.py",
+    "app/site/audit_web.py",
+    # Efectele de sistem (F7): jobul de trimitere rulează fără utilizator; emailul către un lead nu are client.
+    "app/operare/efecte/sistem.py",
+    # Activarea contului din invitație (F7.3): încă nu există sesiune; jetonul de 256 de biți e verificat întâi.
+    "app/portal/cont.py",
+    "app/portal/web.py",
+    # Facturarea (F7.6): webhook-ul procesatorului (semnat HMAC, verificat înainte) și jobul zilnic al restanțelor;
+    # înscrierea din site (fără cont încă: creează clientul și abonamentul).
+    "app/finante/abonamente.py",
+    "app/site/inscriere_web.py",
+    # Ștergerea la cerere (F7.7): jobul rulează fără utilizator, după cererea confirmată de titular.
+    "app/portal/date.py",
+    # Paginile de captare publicate (F7.9) și articolele (F7.10) se servesc public, din site.
+    "app/site/captare_web.py",
+    "app/seo/articole.py",
 }
 
 

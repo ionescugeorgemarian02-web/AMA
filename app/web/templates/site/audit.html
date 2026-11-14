@@ -1,0 +1,18 @@
+{% extends "site/pagina.html" %}
+{% block dupa %}
+<h2 id="formular">Cere auditul</h2>
+{% if eroare %}<p class="eroare" role="alert">{{ eroare }}</p>{% endif %}
+<form method="post" action="/site/audit">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <input type="hidden" name="t" value="{{ t }}">
+  <label for="firma">Numele firmei</label>
+  <input id="firma" name="firma" type="text" required maxlength="200" autocomplete="organization" value="{{ valori.firma if valori else '' }}">
+  <label for="site_url">Site-ul firmei</label>
+  <input id="site_url" name="site_url" type="url" required maxlength="300" inputmode="url" placeholder="https://" value="{{ valori.site_url if valori else '' }}">
+  <label for="email">Emailul tău</label>
+  <input id="email" name="email" type="email" required maxlength="254" autocomplete="email" value="{{ valori.email if valori else '' }}">
+  <div class="camp-ascuns" aria-hidden="true"><label for="site_web2">Nu completa</label><input id="site_web2" name="site_web2" type="text" tabindex="-1" autocomplete="off"></div>
+  <label><input type="checkbox" name="acord" value="da" required> Sunt de acord să primesc pe email confirmarea și raportul de audit (<a href="/site/legal/confidentialitate">confidențialitate</a>).</label>
+  <button class="cta" type="submit">Cere auditul gratuit</button>
+</form>
+{% endblock %}

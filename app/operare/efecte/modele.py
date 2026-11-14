@@ -51,3 +51,22 @@ class PauzaConector(BazaEfecte):
     canal: Mapped[str] = mapped_column(Text, primary_key=True)
     motiv: Mapped[str] = mapped_column(Text, default="")
     de_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class EfectSistemRand(BazaEfecte):
+    """Un efect extern de sistem (F7: email, plăți), fără livrabil. Același „outbox”: cheie unică, stări,
+    încercări."""
+
+    __tablename__ = "efecte_sistem"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    tip: Mapped[str] = mapped_column(Text)
+    cheia: Mapped[str] = mapped_column(Text, unique=True)
+    stare: Mapped[str] = mapped_column(Text, default="in_asteptare")
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    incercari: Mapped[int] = mapped_column(Integer, default=0)
+    id_extern: Mapped[str | None] = mapped_column(Text)
+    link: Mapped[str | None] = mapped_column(Text)
+    eroare: Mapped[str | None] = mapped_column(Text)
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    trimis_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
