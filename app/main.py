@@ -13,6 +13,7 @@ from app.logging import configure_logging, correlation_id, get_logger
 from app.operare import backup, health, livrare
 from app.operare.antete import adauga_antete
 from app.operare.jurnale import ip_cerere
+from app.publicare.web import router as router_publicare
 
 log = get_logger("app.http")
 
@@ -69,6 +70,7 @@ def create_app() -> FastAPI:
     app.include_router(finante.router)  # /facturare/webhook: semnat de procesatorul de plăți (F7.6)
     app.include_router(livrare.router)  # /intern/livrare/*: doar cu jeton, blocat în proxy
     app.include_router(router_telegram)  # /telegram/webhook: doar cu antetul-secret
+    app.include_router(router_publicare)  # /publicare/fisier/*: linkuri semnate, cu expirare (F9.3)
     return app
 
 

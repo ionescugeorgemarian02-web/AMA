@@ -7,6 +7,7 @@ contracte HTTP locale. Fără rețea reală și fără așteptări reale.
 O clasă de test concretă definește fixture-ul `mediu` (vezi `Mediu`)."""
 
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 from urllib.parse import parse_qs, urlsplit
@@ -35,6 +36,9 @@ class Mediu:
     stare_asteptata: StarePostare = StarePostare.PUBLICATA
     token: str = ""  # tokenul curent (nu trebuie să apară în adrese, rezultate)
     adrese: list[str] = field(default_factory=list)  # adresele cererilor văzute de platformă (dacă le expune)
+    completeaza: Callable[[dict[str, Any]], dict[str, Any]] | None = (
+        None  # pachetul final (de ex. adresa din text)
+    )
 
     def efect(self, **payload: Any) -> EfectDeTrimis:
         lid = new_id()
@@ -46,7 +50,7 @@ class Mediu:
             versiune=1,
             tip="publicare",
             idem=f"{self.tenant_id}:{lid}:{self.conector.canal}:v1:publicare",
-            payload={**self.pachet, **payload},
+            payload=(self.completeaza or dict)({**self.pachet, **payload}),
         )
 
 

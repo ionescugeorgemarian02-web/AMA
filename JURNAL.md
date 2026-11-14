@@ -509,3 +509,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F9.2 — Facebook, pagini.**
   - Construit: `ConectorFacebook`/`ConectorMeta`, Graph simulat (`tests/platforme/meta.py`), `publicare.aprobari`, `efecte.autorizare.inregistreaza_fluxul`. Hotărâri (D-007): `verifica` după textul exact (Graph nu are idempotență); înregistrarea fluxului = pașii HTTP fără tokenuri. Găsit: cheile payload-ului care conțin „hash” sunt refuzate de executor (gardă de secrete), deci tagurile pleacă drept `taguri`; o publicare cu răspuns pierdut nu apare în înregistrare, deci cererea cere o publicare curată. Verificat: 14 teste de contract, 2 de integrare.
   - Abatere: în timpul `make check` F9.1 am rulat o dată, din greșeală, testele de contract Facebook (fără bază, ~1 s). Rularea completă a trecut.
+- **F9.3 — Instagram.**
+  - Construit: `ConectorInstagram`, `publicare.linkuri`, `publicare.web`, extinderea Graph simulat. Hotărâri (D-007): jetonul = calea + expirarea, semnate HMAC cu cheie derivată; limita citită înaintea fiecărei publicări. Verificat: 15 teste de contract, 1 de integrare (descărcarea chiar prin aplicație).

@@ -30,6 +30,7 @@ def inregistreaza(canal: str, conector: Conector, *, coada: DefinitieCoada | Non
 # (implicit niciunul: în teste și în dezvoltare canalele se înregistrează explicit, pe platforme simulate).
 FABRICI: dict[str, str] = {
     "facebook": "app.connectors.publicare.facebook:ConectorFacebook",
+    "instagram": "app.connectors.publicare.instagram:ConectorInstagram",
 }
 
 

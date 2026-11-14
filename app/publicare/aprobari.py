@@ -35,6 +35,12 @@ CERERI: dict[tuple[str, str], dict[str, str]] = {
         "ale clienților ei, o singură dată, la ora aleasă.",
         "publicare": "POST /feed",
     },
+    ("meta", "instagram"): {
+        "titlu": "Meta App Review: instagram_content_publish",
+        "caz": "Agenția publică, după aprobarea omului, imaginile și clipurile aprobate pe conturile "
+        "profesionale de Instagram ale clienților; fișierele se servesc prin linkuri semnate care expiră.",
+        "publicare": "POST /media_publish",
+    },
 }
 DIRECTOR = "inregistrari"
 

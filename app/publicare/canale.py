@@ -55,6 +55,7 @@ ETICHETE_APROBARE = {
 # canalul nu cere aprobare de la o platformă (blogul). Lista crește cu fiecare conector (F9.2–F9.9).
 CERINTE: dict[str, tuple[str, str] | None] = {
     "facebook": ("meta", "pagini"),
+    "instagram": ("meta", "instagram"),
 }
 
 

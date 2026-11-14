@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F9.3 — Instagram
+- `connectors.publicare.instagram` (container, procesarea clipului, `media_publish`, limita din endpoint), `publicare.linkuri` (linkuri semnate care expiră) și ruta publică `/publicare/fisier/<jeton>`.
+
 ### F9.2 — Facebook, pagini
 - `connectors.publicare.facebook` (Graph API: OAuth, pagină, publicare, verificare, limite din antete), `publicare.aprobari` (cererile de aprobare cu înregistrarea fluxului), încărcarea la cerere a conectorilor reali (`AMA_PUBLICARE_CONECTORI`). Platformele simulate în `tests/platforme/`.
 
