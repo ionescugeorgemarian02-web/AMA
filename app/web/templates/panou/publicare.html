@@ -4,6 +4,7 @@
 <h1>Publicare asistată</h1>
 {% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
 {% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/publicare/canale">Canalele prin API și aprobările lor</a></p>
 <p class="slab">Pachetele aprobate, gata de publicat din telefon: atinge „Partajează”, alege aplicația, publică. Apoi lipește linkul postării aici.</p>
 
 {% for p, ora in pregatite %}

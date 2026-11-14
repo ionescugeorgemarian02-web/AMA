@@ -1,0 +1,53 @@
+{% extends "panou/baza.html" %}
+{% block title %}Publicare prin API · AMA{% endblock %}
+{% block pagina %}
+<h1>Publicare prin API</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/publicare">Publicarea asistată</a> · canalele fără aprobare rămân pe asistat.</p>
+
+<section class="card" aria-labelledby="aprobari">
+  <h2 id="aprobari">Aprobările API</h2>
+  <table>
+    <thead><tr><th>Platforma</th><th>Permisiunea</th><th>Starea</th><th>Trimisă</th></tr></thead>
+    <tbody>
+    {% for a, eticheta in aprobari %}
+      <tr><td>{{ a.platforma }}</td><td>{{ a.permisiune }}</td><td><span class="insigna">{{ eticheta }}</span>{% if a.observatii %} <span class="slab">{{ a.observatii }}</span>{% endif %}</td><td>{% if a.trimisa_la %}{{ a.trimisa_la|moment }}{% else %}—{% endif %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card" aria-labelledby="canale">
+  <h2 id="canale">Canalele clienților</h2>
+  {% for c, m, pauza in randuri %}
+  <article class="card" aria-label="{{ clienti.get(c.tenant_id, 'Client') }} · {{ c.canal }}">
+    <h3>{{ clienti.get(c.tenant_id, "Client") }} · {{ c.canal }}{% if c.nume %} ({{ c.nume }}){% endif %}
+      <span class="insigna {% if m.automat %}ok{% else %}atentie{% endif %}">{% if m.automat %}automat{% if m.restrans %}, în test{% endif %}{% else %}asistat{% endif %}</span></h3>
+    <p class="slab">{{ m.motiv }}.{% if c.expira_la %} Tokenul expiră: {{ c.expira_la|moment }}.{% endif %}{% if c.cere_reautorizare %} <strong>Cere reautorizare.</strong>{% endif %}{% if pauza %} <strong>Pe pauză.</strong>{% endif %}</p>
+    {% if c.setari.limite %}<p class="slab">Limite: {{ c.setari.limite.sursa }}{% if c.setari.limite.ramase is not none %}, rămase {{ c.setari.limite.ramase }}{% endif %}{% if c.setari.limite.procent is not none %}, folosit {{ c.setari.limite.procent }}%{% endif %}.</p>{% endif %}
+    <form method="post" action="/publicare/canale/{{ c.tenant_id }}/{{ c.canal }}/mod">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      {% if c.mod_ales == "asistat" %}
+      <input type="hidden" name="mod" value="automat"><button type="submit" class="secundar">Înapoi pe automat</button>
+      {% else %}
+      <input type="hidden" name="mod" value="asistat"><button type="submit" class="secundar">Trece pe asistat</button>
+      {% endif %}
+    </form>
+    <form method="post" action="/publicare/canale/{{ c.tenant_id }}/{{ c.canal }}/autorizeaza">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit" class="secundar">Reautorizează</button>
+    </form>
+  </article>
+  {% else %}
+  <p class="slab">Niciun cont conectat încă.</p>
+  {% endfor %}
+</section>
+
+{% if programate %}
+<section class="card" aria-labelledby="coada">
+  <h2 id="coada">Programate</h2>
+  <ul>{% for p in programate %}<li>{{ clienti.get(p.tenant_id, "Client") }} · {{ p.canal }} · {{ p.la|moment }}{% if p.motiv %} <span class="slab">({{ p.motiv }})</span>{% endif %}{% if p.canal == "tiktok" %} · <a href="/publicare/api/tiktok/{{ p.livrabil_id }}">previzualizare</a>{% endif %}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}

@@ -4,6 +4,39 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F9
+- Testul de poartă `tests/integration/test_poarta_f9.py`: o postare publică, o singură dată, pe fiecare canal aprobat; canalul neaprobat rămâne pe asistat.
+
+### F9.10 — Ecranul „Publicare”
+- `/publicare/canale` (aprobările API, conturile, modul, coada, trecerea pe asistat, reautorizarea) și întoarcerea OAuth `/publicare/autorizare`.
+
+### F9.9 — Site și blog
+- `publicare.blog` (articolul F7.10 ca livrabil cu aprobare), `connectors.publicare.blog` (blogul găzduit și WordPress); `seo.articole.scrie(publica=)`.
+
+### F9.8 — Gardianul sănătății conturilor
+- `publicare.sanatate` (expirarea tokenurilor, seria de erori → pauză, limitele citite), jobul orar `publicare.sanatate`, `efecte.autorizare.pune_pe_pauza`.
+
+### F9.7 — Planificarea, alegerea canalelor și zilele blocate
+- `publicare.programare` (sloturi, frecvență, zile blocate, `publicare.tic` la minut, alegerea drumului API / asistat, trecerea pe asistat); `asistata.pregateste(din_programat=)`. Migrarea `0056`.
+
+### F9.6 — TikTok
+- `connectors.publicare.tiktok` (ciornă / postare directă), `publicare.consimtamant`, ecranul de previzualizare și consimțământ `/publicare/api/tiktok/<livrabil>`. Migrarea `0055`.
+
+### F9.5 — LinkedIn
+- `connectors.publicare.linkedin` (Posts API, profil pe `linkedin`, pagină de companie pe `linkedin_pagina`, după aprobare).
+
+### F9.4 — YouTube
+- `connectors.publicare.youtube` (OAuth Google, încărcare reluabilă, câmpul de conținut sintetic, vizibilitatea după audit, costul în unități), `publicare.cote`. Migrarea `0054`.
+
+### F9.3 — Instagram
+- `connectors.publicare.instagram` (container, procesarea clipului, `media_publish`, limita din endpoint), `publicare.linkuri` (linkuri semnate care expiră) și ruta publică `/publicare/fisier/<jeton>`.
+
+### F9.2 — Facebook, pagini
+- `connectors.publicare.facebook` (Graph API: OAuth, pagină, publicare, verificare, limite din antete), `publicare.aprobari` (cererile de aprobare cu înregistrarea fluxului), încărcarea la cerere a conectorilor reali (`AMA_PUBLICARE_CONECTORI`). Platformele simulate în `tests/platforme/`.
+
+### F9.1 — Interfața comună de conector
+- `connectors.publicare` (contractul, clientul HTTP comun, clasificarea erorilor, conectorul fals), `publicare.canale` (conturi, token criptat, modul efectiv), `operare.efecte.autorizare`. Migrarea `0053`.
+
 ### Poarta F8
 - Testul de poartă `tests/integration/test_poarta_f8.py`: zece video consecutive, de la script la fișierul final, trec G6, G5 și G11 fără intervenție.
 

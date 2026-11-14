@@ -167,6 +167,23 @@ class Settings(BaseSettings):
     email_expeditor: str = "AMA <noreply@example.invalid>"
     # Motorul de audit din BigBrain (F7.2), prin rețea; `simulat` = raport determinist din proces.
     audit_motor: str = "simulat"
+    # Publicarea prin API (F9). Adresa publică (întoarcerea OAuth, linkurile semnate ale fișierelor), canalele
+    # cu conector real activ și aplicațiile agenției la platforme. NEVERIFICAT: valorile reale, la migrare.
+    public_url: str = "http://localhost:8000"
+    publicare_conectori: str = ""  # de ex. „facebook,instagram”; gol = niciun conector real
+    meta_app_id: str = ""
+    meta_app_secret: SecretStr = Field(default=SecretStr(""))
+    meta_graph_versiune: str = "v23.0"
+    google_client_id: str = ""
+    google_client_secret: SecretStr = Field(default=SecretStr(""))
+    # Costul în unități pe metodă (din consola Google Cloud); sursele spun 100 sau 1.600 pentru încărcare [I].
+    youtube_costuri: str = "videos.insert=1600,videos.list=1,channels.list=1,playlistItems.list=1"
+    youtube_cota_zi: int = Field(default=10_000, ge=1)
+    linkedin_client_id: str = ""
+    linkedin_client_secret: SecretStr = Field(default=SecretStr(""))
+    linkedin_versiune: str = "202510"
+    tiktok_client_key: str = ""
+    tiktok_client_secret: SecretStr = Field(default=SecretStr(""))
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

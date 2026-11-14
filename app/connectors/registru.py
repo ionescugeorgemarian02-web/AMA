@@ -1,7 +1,9 @@
 """Registrul conectorilor de efecte, pe canal (F2.5). Se importă DOAR din executor și din conectori
 (garda `scripts/check_efecte.py`): restul aplicației cere efecte prin `app.operare.efecte.cere`."""
 
+import importlib
 from dataclasses import dataclass
+from typing import Any
 
 from app.connectors.contract import Conector, ConectorSistem
 from app.operare.motor import DefinitieCoada
@@ -25,11 +27,42 @@ def inregistreaza(canal: str, conector: Conector, *, coada: DefinitieCoada | Non
     _registru[canal] = Inregistrare(conector, coada)
 
 
+# Conectorii reali de publicare (F9), încărcați la cerere doar pentru canalele din `AMA_PUBLICARE_CONECTORI`
+# (implicit niciunul: în teste și în dezvoltare canalele se înregistrează explicit, pe platforme simulate).
+FABRICI: dict[str, str] = {
+    "facebook": "app.connectors.publicare.facebook:ConectorFacebook",
+    "instagram": "app.connectors.publicare.instagram:ConectorInstagram",
+    "youtube": "app.connectors.publicare.youtube:ConectorYoutube",
+    "linkedin": "app.connectors.publicare.linkedin:ConectorLinkedin",
+    "linkedin_pagina": "app.connectors.publicare.linkedin:ConectorLinkedin.pagina_din_setari",
+    "tiktok": "app.connectors.publicare.tiktok:ConectorTiktok",
+    "blog": "app.connectors.publicare.blog:ConectorBlog",
+}
+
+
+def _incarca(canal: str) -> Conector | None:
+    from app.config import get_settings
+
+    activi = {c.strip() for c in get_settings().publicare_conectori.split(",") if c.strip()}
+    if canal not in activi or canal not in FABRICI:
+        return None
+    modul, cale = FABRICI[canal].split(":")
+    obiect: Any = importlib.import_module(modul)
+    for parte in cale.split("."):
+        obiect = getattr(obiect, parte)
+    c = obiect() if "." in cale else obiect.din_setari()
+    inregistreaza(canal, c)
+    return c  # type: ignore[no-any-return]
+
+
 def conector_pentru(canal: str) -> Conector:
-    try:
-        return _registru[canal].conector
-    except KeyError:
-        raise ConectorNecunoscut(canal) from None
+    i = _registru.get(canal)
+    if i is not None:
+        return i.conector
+    c = _incarca(canal)
+    if c is None:
+        raise ConectorNecunoscut(canal)
+    return c
 
 
 def coada_pentru(canal: str) -> str:

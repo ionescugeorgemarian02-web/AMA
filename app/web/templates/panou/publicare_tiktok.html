@@ -1,0 +1,42 @@
+{% extends "panou/baza.html" %}
+{% block title %}TikTok: previzualizare · AMA{% endblock %}
+{% block pagina %}
+<h1>TikTok: previzualizare și consimțământ</h1>
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab">Auditul aplicației TikTok: <span class="insigna">{{ audit }}</span>. Înainte de audit, clipurile pleacă doar ca ciornă în aplicația TikTok.</p>
+
+<section class="card" aria-labelledby="prev">
+  <h2 id="prev">Previzualizare</h2>
+  {% if eroare_creator %}<p class="mesaj eroare" role="alert">{{ eroare_creator }}</p>{% endif %}
+  {% if creator %}<p>Se publică pe contul <strong>{{ creator.creator_nickname }}</strong> (@{{ creator.creator_username }}).</p>{% endif %}
+  {% if clip %}<video src="{{ clip }}" controls playsinline preload="metadata" width="270"></video>{% endif %}
+  <label for="legenda">Legenda</label>
+  <textarea id="legenda" rows="5" readonly>{{ text }}</textarea>
+  {% if eticheta_ai %}<p><span class="insigna">AI</span> Clipul primește eticheta „conținut generat de AI”.</p>{% endif %}
+</section>
+
+{% if existent %}
+<section class="card">
+  <h2>Consimțământ dat</h2>
+  <p>Vizibilitate: {{ etichete_vizibilitate.get(existent.optiuni.vizibilitate, existent.optiuni.vizibilitate) }}. Postarea pleacă la ora programată.</p>
+</section>
+{% elif creator %}
+<form method="post" action="/publicare/api/tiktok/{{ lv.id }}" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <fieldset>
+    <legend>Cine vede clipul (alege; nu există o valoare implicită)</legend>
+    {% for o in creator.privacy_level_options %}
+    <label><input type="radio" name="vizibilitate" value="{{ o }}" required> {{ etichete_vizibilitate.get(o, o) }}</label>
+    {% endfor %}
+  </fieldset>
+  <fieldset>
+    <legend>Interacțiuni</legend>
+    <label><input type="checkbox" name="fara_comentarii" value="true" {% if creator.comment_disabled %}checked disabled{% endif %}> Fără comentarii</label>
+    <label><input type="checkbox" name="fara_duet" value="true" {% if creator.duet_disabled %}checked disabled{% endif %}> Fără duet</label>
+    <label><input type="checkbox" name="fara_stitch" value="true" {% if creator.stitch_disabled %}checked disabled{% endif %}> Fără stitch</label>
+  </fieldset>
+  <label><input type="checkbox" name="de_acord" value="true" required> Sunt de acord să public acest clip pe TikTok, așa cum îl văd aici, și cu declarația TikTok privind folosirea muzicii.</label>
+  <button type="submit">Dau consimțământul</button>
+</form>
+{% endif %}
+{% endblock %}

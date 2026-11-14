@@ -502,3 +502,29 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `portal.prompter_web`, șablonul `portal/prompter.html`, `media.formatul_e`, fluxul `media.format_e`. Verificat: 1 test de integrare.
 - **Poarta F8.**
   - Testul cap-coadă trecut pe simulare (zece din zece, ~64 s local). `make check` complet a rulat o dată pe fiecare pas, pe arborele lui (F8.5 și F8.7 au avut câte o rulare repetată: garda de context de agenție, respectiv blocajul din `test_portal_date`, ambele reparate). Rămâne deschis: testele media cele mai lungi (poarta ~64 s, capacitatea ~39 s) sunt aproape de plafonul de 120 s pe un executor CI lent.
+
+## 2026-11-14 — Sesiunea: faza F9 (Publicarea prin API)
+- **F9.1 — Interfața comună de conector.**
+  - Construit: contractul `ConectorPublicare` + suita de contract comună, `ClientHttp`, conectorul fals, `publicare.canale`, `efecte.autorizare`, migrarea `0053`. Hotărâri (D-007): tipurile în `connectors.contract`; partea de cont trece prin executor (garda rămâne); modul efectiv calculat din aprobare + cont. Verificat: 13 teste de contract, 4 de integrare.
+- **F9.2 — Facebook, pagini.**
+  - Construit: `ConectorFacebook`/`ConectorMeta`, Graph simulat (`tests/platforme/meta.py`), `publicare.aprobari`, `efecte.autorizare.inregistreaza_fluxul`. Hotărâri (D-007): `verifica` după textul exact (Graph nu are idempotență); înregistrarea fluxului = pașii HTTP fără tokenuri. Găsit: cheile payload-ului care conțin „hash” sunt refuzate de executor (gardă de secrete), deci tagurile pleacă drept `taguri`; o publicare cu răspuns pierdut nu apare în înregistrare, deci cererea cere o publicare curată. Verificat: 14 teste de contract, 2 de integrare.
+  - Abatere: în timpul `make check` F9.1 am rulat o dată, din greșeală, testele de contract Facebook (fără bază, ~1 s). Rularea completă a trecut.
+- **F9.3 — Instagram.**
+  - Construit: `ConectorInstagram`, `publicare.linkuri`, `publicare.web`, extinderea Graph simulat. Hotărâri (D-007): jetonul = calea + expirarea, semnate HMAC cu cheie derivată; limita citită înaintea fiecărei publicări. Verificat: 15 teste de contract, 1 de integrare (descărcarea chiar prin aplicație).
+- **F9.4 — YouTube.**
+  - Construit: `ConectorYoutube`, YouTube simulat (blochează pe privat proiectul neauditat), `publicare.cote`, migrarea `0054`. Hotărâri (D-007): costurile pe metodă sunt configurare (citite din consolă), consumul se numără atomic pe ziua Pacific; `verifica` prin lista de încărcări (1 unitate), nu prin căutare (100). Verificat: 13 teste de contract, 1 de integrare.
+- **F9.5 — LinkedIn.**
+  - Construit: `ConectorLinkedin` (profil / pagină), LinkedIn simulat. Hotărâri (D-007): pagina e un canal separat (`linkedin_pagina`), cu cerința ei; limita = postările de azi citite din API față de plafonul documentat. Verificat: 25 de teste de contract, 1 de integrare.
+- **F9.6 — TikTok.**
+  - Construit: `ConectorTiktok`, TikTok simulat, `publicare.consimtamant`, `publicare.fisiere`, `media.biblioteca.citeste_activ`, ecranul de previzualizare, migrarea `0055`. Hotărâri (D-007): modul (ciornă / direct) îl pune publicarea din aprobare; consimțământul e pe versiune; ciornele nu se caută în `verifica` (o ciornă dublă o vede omul). Verificat: 15 teste de contract, 1 de integrare.
+- **F9.7 — Planificarea (D4).**
+  - Construit: `publicare.programare`, migrarea `0056`, fluxul `publicare.tic` în worker. Hotărâri (D-007): pauza de criză = oprirea existentă (F2.9), nu un mecanism nou; postarea care cade într-o zi blocată după programare se mută pe primul slot liber. Verificat: 2 teste de integrare.
+- **F9.8 — Gardianul sănătății conturilor.**
+  - Construit: `publicare.sanatate`. Hotărâri (D-007): pauza din seria de erori e aceeași cu cea de la autentificare (o ridică un om sau reautorizarea). Verificat: 3 teste de integrare.
+- **F9.9 — Site și blog (H6).**
+  - Construit: `publicare.blog`, `ConectorBlog`, WordPress simulat. Hotărâri (D-007): comportamentul implicit F7.10 rămâne (publicare directă), drumul cu aprobare e opțional; blogul găzduit e un cont „găzduit” fără parolă. Verificat: 12 teste de contract, 1 de integrare.
+- **F9.10 — Ecranul „Publicare”.**
+  - Construit: `panou.publicare_canale_web`, șablonul `publicare_canale.html`; starea OAuth poartă clientul. Verificat: 1 test de integrare.
+- **Poarta F9.**
+  - Testul cap-coadă trecut pe simulare (șase canale aprobate, unul neaprobat, motorul real în proces, ~20 s). `make check` complet a rulat o dată pe fiecare pas, pe arborele lui (F9.3 și F9.4 au avut câte o rulare repetată: formatarea unui test, respectiv lista locurilor cu context de agenție, ambele reparate înainte de push). Rămâne deschis: tot ce ține de platformele reale (conturi, chei, aprobări) — la migrare.
+  - Găsit la poartă: blogul agenției e comun bazei de test, iar poarta publică aceeași adresă înaintea testului F9.9; testul F9.9 golește acum adresa înainte să verifice că nimic nu apare fără aprobare.

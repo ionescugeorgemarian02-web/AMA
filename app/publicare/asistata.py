@@ -45,6 +45,7 @@ DOMENII: dict[str, tuple[str, ...]] = {
     "facebook": ("facebook.com", "fb.com", "fb.watch"),
     "instagram": ("instagram.com",),
     "linkedin": ("linkedin.com", "lnkd.in"),
+    "linkedin_pagina": ("linkedin.com", "lnkd.in"),
     "tiktok": ("tiktok.com",),
     "youtube": ("youtube.com", "youtu.be"),
 }
@@ -143,14 +144,21 @@ def publicate(db: Session, *, limita: int = 20) -> list[PublicareAsistata]:
 
 
 def pregateste(
-    db: Session, livrabil_id: uuid.UUID, *, utilizator_id: uuid.UUID | None = None
+    db: Session,
+    livrabil_id: uuid.UUID,
+    *,
+    utilizator_id: uuid.UUID | None = None,
+    din_programat: bool = False,
 ) -> PublicareAsistata:
-    """Pachetul versiunii aprobate; livrabilul trece în `programat`. Idempotent pe versiune."""
+    """Pachetul versiunii aprobate; livrabilul trece în `programat`. Idempotent pe versiune.
+    `din_programat`: o postare programată prin API trece pe asistat (F9.7); livrabilul e deja `programat`."""
     lv = productie.blocheaza(db, livrabil_id)
     existent = al_versiunii(db, lv.id, lv.versiune)
     if existent is not None:
         return existent
-    if Stare(lv.stare) is not Stare.APROBAT:
+    if din_programat and Stare(lv.stare) is Stare.PROGRAMAT:
+        pass
+    elif Stare(lv.stare) is not Stare.APROBAT:
         raise EroarePublicare(
             f"se pregătește doar un livrabil aprobat, nu „{productie.ETICHETE[Stare(lv.stare)]}”"
         )
@@ -172,6 +180,8 @@ def pregateste(
     )
     db.add(p)
     db.flush()
+    if Stare(lv.stare) is Stare.PROGRAMAT:
+        return p
     productie.muta(
         db,
         lv.id,
@@ -252,12 +262,21 @@ def confirma(
 def dupa_decizie(
     db: Session, ap: productie.Aprobare, lv: productie.Livrabil, hotarare: productie.Hotarare
 ) -> None:
-    """La aprobarea unui livrabil din calendar, pachetul se pregătește singur."""
+    """La aprobarea unui livrabil din calendar, pachetul se pregătește singur, dacă modul efectiv al
+    canalului e asistat (pe un canal automat, postarea o programează `programare.dupa_decizie`, F9.7)."""
     if hotarare is not productie.Hotarare.APROBAT or lv.canal not in DOMENII:
         return
-    if continut.brief.al_livrabilului(db, lv.id) is None:
+    if not din_calendar(db, lv.id):
+        return
+    from app.publicare import canale  # evită ciclul la import
+
+    if canale.mod(db, lv.tenant_id, lv.canal).automat:
         return
     pregateste(db, lv.id, utilizator_id=ap.decis_de)
+
+
+def din_calendar(db: Session, livrabil_id: uuid.UUID) -> bool:
+    return continut.brief.al_livrabilului(db, livrabil_id) is not None
 
 
 productie.aprobari.inregistreaza_dupa_decizie(dupa_decizie)

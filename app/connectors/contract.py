@@ -16,8 +16,10 @@ Tokenurile NU intră în `EfectDeTrimis`: conectorul le rezolvă el însuși, la
 secrete).
 """
 
+import datetime as dt
 import uuid
 from dataclasses import dataclass, field
+from enum import StrEnum
 from typing import Any, Protocol, runtime_checkable
 
 
@@ -70,3 +72,59 @@ class EfectSistem:
 @runtime_checkable
 class ConectorSistem(Protocol):
     def trimite(self, efect: EfectSistem) -> RezultatPlatforma: ...
+
+
+# --- tipurile publicării prin API (F9.1): doar date, importabile de oriunde
+# -------------------------------------
+
+
+class StarePostare(StrEnum):
+    PUBLICATA = "publicata"  # vizibilă public
+    PRIVATA = "privata"  # există, dar doar contul o vede (YouTube înainte de audit, TikTok neauditat)
+    CIORNA = "ciorna"  # trimisă în aplicația platformei; omul o publică de acolo (TikTok)
+    IN_PROCESARE = "in_procesare"  # platforma încă o procesează
+    ESUATA = "esuata"  # platforma a respins-o după primire
+    INEXISTENTA = "inexistenta"  # ștearsă sau negăsită (15.8: devine incident)
+
+
+ETICHETE_STARE: dict[StarePostare, str] = {
+    StarePostare.PUBLICATA: "Publică",
+    StarePostare.PRIVATA: "Privată (până la audit)",
+    StarePostare.CIORNA: "Ciornă în aplicație",
+    StarePostare.IN_PROCESARE: "În procesare",
+    StarePostare.ESUATA: "Respinsă de platformă",
+    StarePostare.INEXISTENTA: "Ștearsă sau negăsită",
+}
+
+
+@dataclass(frozen=True)
+class Token:
+    """Accesul unui cont la o platformă. Valorile secrete nu apar în `repr` (jurnale, erori)."""
+
+    acces: str = field(repr=False)
+    expira_la: dt.datetime | None = None
+    reimprospatare: str = field(default="", repr=False)
+    cont_extern: str = ""  # id-ul paginii / contului / canalului la platformă
+    scopuri: tuple[str, ...] = ()
+
+    def expirat(self, acum: dt.datetime | None = None) -> bool:
+        acum = acum or dt.datetime.now(dt.UTC)
+        return self.expira_la is not None and self.expira_la <= acum
+
+
+@dataclass(frozen=True)
+class Limite:
+    """Limitele citite de la platformă (endpoint sau antete). `sursa` spune de unde; `None` = platforma nu
+    spune."""
+
+    sursa: str
+    ramase: int | None = None
+    total: int | None = None
+    procent_folosit: float | None = None
+    resetare_la: dt.datetime | None = None
+
+    @property
+    def aproape_epuizate(self) -> bool:
+        if self.procent_folosit is not None and self.procent_folosit >= 80.0:
+            return True
+        return self.ramase is not None and self.total is not None and self.ramase <= max(1, self.total // 10)

@@ -68,6 +68,11 @@ CONTEXT_AGENTIE = {
     "app/portal/date.py",
     # Paginile de captare publicate (F7.9) și articolele (F7.10) se servesc public, din site.
     "app/site/captare_web.py",
+    # Cota de unități a platformelor (F9.4): a proiectului agenției, nu a unui client.
+    "app/publicare/cote.py",
+    "app/publicare/programare.py",  # jobul la minut (F9.7): fără utilizator, peste toți clienții
+    "app/publicare/sanatate.py",  # gardianul conturilor (F9.8): fără utilizator, peste toți clienții
+    "app/connectors/publicare/blog.py",  # blogul găzduit al agenției (F9.9): site_articole e al agenției
     "app/seo/articole.py",
 }
 

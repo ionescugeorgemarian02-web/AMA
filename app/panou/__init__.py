@@ -21,6 +21,8 @@ from app.panou.motor_web import router as router_motor
 from app.panou.onboarding_web import router as router_onboarding
 from app.panou.operare_web import router as router_operare
 from app.panou.productie_web import router as router_productie
+from app.panou.publicare_api_web import router as router_publicare_api
+from app.panou.publicare_canale_web import router as router_publicare_canale
 from app.panou.publicare_web import router as router_publicare
 from app.panou.sabloane import STATIC
 from app.panou.validatoare_web import router as router_validatoare
@@ -53,6 +55,8 @@ def inregistreaza(app: FastAPI) -> None:
     app.include_router(router_validatoare)
     app.include_router(router_calendar)
     app.include_router(router_publicare)
+    app.include_router(router_publicare_api)
+    app.include_router(router_publicare_canale)
     app.include_router(router_leaduri)
 
 
