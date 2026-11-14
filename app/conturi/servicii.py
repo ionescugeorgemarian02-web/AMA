@@ -39,7 +39,9 @@ class Actor:
         return cls(None, None, "cli")
 
     def poate(self, permisiune: Permisiune) -> bool:
-        return self.actor_tip == "cli" or (self.rol is not None and poate(self.rol, permisiune))
+        # `cli` (instalare) și `sistem` (de ex. activarea unui cont din invitație, F7.3) sunt procese de
+        # încredere.
+        return self.actor_tip in ("cli", "sistem") or (self.rol is not None and poate(self.rol, permisiune))
 
 
 def _cere(actor: Actor, permisiune: Permisiune) -> None:
@@ -75,6 +77,21 @@ def creeaza_client(db: Session, nume: str, *, actor: Actor) -> Client:
 def lista_clienti(db: Session) -> list[Client]:
     """Clienții activi pe care contextul sesiunii îi poate vedea (RLS), după nume."""
     return list(db.execute(select(Client).where(Client.sters_la.is_(None)).order_by(Client.nume)).scalars())
+
+
+def are_aprobator_client(db: Session, tenant_id: uuid.UUID) -> bool:
+    """Clientul are un utilizator activ care poate aproba livrabile (titular sau aprobator)? (19.4, F7.4)"""
+    roluri = [r.value for r in ROLURI_CLIENT if poate(r, Permisiune.LIVRABIL_APROBA)]
+    return (
+        db.execute(
+            select(Apartenenta.id).where(
+                Apartenenta.tenant_id == tenant_id,
+                Apartenenta.rol.in_(roluri),
+                Apartenenta.sters_la.is_(None),
+            )
+        ).first()
+        is not None
+    )
 
 
 def cauta_clienti(db: Session, text: str) -> list[Client]:

@@ -1,0 +1,21 @@
+{% extends "site/baza.html" %}
+{% block continut %}
+<h1>{{ p.titlu }}</h1>
+<p class="descriere">{{ p.descriere }}</p>
+{% for s in p.sectiuni %}
+<h2>{{ s.titlu }}</h2>
+{% for par in s.paragrafe %}<p>{{ par }}</p>{% endfor %}
+{% if s.lista %}<ul>{% for x in s.lista %}<li>{{ x }}</li>{% endfor %}</ul>{% endif %}
+{% endfor %}
+{% if cale == "legal" %}<ul>{% for c, t in [("legal/termeni", "Termeni și condiții"), ("legal/confidentialitate", "Confidențialitate"), ("legal/cookie-uri", "Cookie-uri"), ("legal/acord-prelucrare", "Acord de prelucrare"), ("legal/stergere-date", "Ștergerea datelor")] %}<li><a href="/site/{{ c }}">{{ t }}</a></li>{% endfor %}</ul>{% endif %}
+{% if cale == "legal/cookie-uri" %}
+<form method="post" action="/site/consimtamant">
+  <p>Alegerea ta acum: <strong>{{ "analiză acceptată" if acord == "analiza" else ("doar esențiale" if acord == "esential" else "nicio alegere") }}</strong>.</p>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <input type="hidden" name="inapoi" value="/site/legal/cookie-uri">
+  <button class="cta" name="alege" value="esential">Retrag acordul (doar esențiale)</button>
+</form>
+{% endif %}
+{% block dupa %}{% endblock %}
+{% if cale != "audit" %}<a class="cta" href="/site/audit">Cere auditul gratuit</a>{% endif %}
+{% endblock %}

@@ -164,3 +164,15 @@ def parse_uuid(valoare: str) -> uuid.UUID | None:
         return uuid.UUID(valoare)
     except ValueError:
         return None
+
+
+def jeton_csrf_prelogin(request: Request) -> str:
+    """Jetonul dublu-trimis pentru un formular fără sesiune (login, formularele publice): cel din cookie
+    sau unul nou.
+    Se pune în cookie cu `seteaza_csrf_prelogin`, iar `csrf_prelogin` îl verifică la trimitere."""
+    existent = request.cookies.get(nume_cookie(COOKIE_CSRF), "")
+    return existent if 20 <= len(existent) <= 100 else criptare.jeton_nou()
+
+
+def seteaza_csrf_prelogin(response: Response, jeton: str) -> None:
+    seteaza_cookie(response, COOKIE_CSRF, jeton)

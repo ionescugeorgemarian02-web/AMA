@@ -1,0 +1,44 @@
+{% extends "portal/baza.html" %}
+{% block title %}Interviul · AMA{% endblock %}
+{% block pagina %}
+<h1>Interviul despre firma ta</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+{% if not s %}
+<div class="card">
+  <p>Câteva întrebări, una câte una. Poți întrerupe oricând și relua de unde ai rămas.</p>
+  <form method="post" action="/portal/onboarding/porneste">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Începe interviul</button>
+  </form>
+</div>
+{% else %}
+<div class="card">
+  <p><strong>Progres:</strong> {{ progres.raspunse }} din {{ progres.total }} întrebări <progress max="{{ progres.total }}" value="{{ progres.raspunse }}">{{ progres.procent }}%</progress></p>
+</div>
+{% if urmatoarea %}
+<section class="card" aria-labelledby="q">
+  <p class="slab">{{ sectiune }}{% if urmatoarea.tip == 'clarificare' %} · clarificare{% endif %}</p>
+  <h2 id="q">{{ urmatoarea.text_intrebare }}</h2>
+  <p class="slab">{{ ajutor }}</p>
+  <form method="post" action="/portal/onboarding/raspunde">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="intrebare_id" value="{{ urmatoarea.id }}">
+    <label for="raspuns">Răspunsul tău</label>
+    <textarea id="raspuns" name="raspuns" rows="6" maxlength="6000" required></textarea>
+    <button type="submit">Salvează și mergi mai departe</button>
+  </form>
+</section>
+{% elif s.stare == 'interviu' %}
+<section class="card">
+  <p>Ai răspuns la toate întrebările.</p>
+  <form method="post" action="/portal/onboarding/compune">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Trimite răspunsurile</button>
+  </form>
+</section>
+{% else %}
+<p>Răspunsurile au fost trimise. Pregătim profilul firmei tale.</p>
+{% endif %}
+{% endif %}
+{% endblock %}

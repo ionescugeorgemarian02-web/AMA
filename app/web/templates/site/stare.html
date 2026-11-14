@@ -1,0 +1,7 @@
+{% extends "site/baza.html" %}
+{% block continut %}
+<h1>{{ p.titlu }}</h1>
+{% if functioneaza %}<p class="ok">Platforma funcționează normal.</p>{% else %}<p class="eroare">Platforma are o problemă; lucrăm la ea.</p>{% endif %}
+<h2>Incidente</h2>
+<p>Niciun incident publicat.</p>
+{% endblock %}

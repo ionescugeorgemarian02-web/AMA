@@ -4,6 +4,39 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F7
+- Testul de poartă `tests/integration/test_poarta_f7.py`: un client de test de la audit la plată și la prima aprobare, prin site, procesator (simulat) și portal.
+
+### F7.10 — Cercetarea SEO și articolele
+- Modulul `app/seo`: grupuri de cuvinte-cheie pe intenție, brief SEO, articol în trei pași, lista on-page deterministă, validare și publicare pe blog cu surse.
+
+### F7.9 — Oferta, pâlnia și paginile de captare
+- Modulul `app/oferta`: arhitectul de ofertă (D2) și copywriterul de conversie (E3), validarea G2/G3/G9 + un singur apel la acțiune, pagina găzduită `/site/p/<slug>`; `validare.independent` pentru texte care nu sunt livrabile. Migrarea `0046`.
+
+### F7.8 — Raportul lunar, prima formă
+- `analiza.raport_lunar`: raportul lunar, prima formă (livrabile și stare, fără metrici), în portal. Migrarea `0045`.
+
+### F7.7 — Export și ștergere
+- Exportul complet (ZIP) și ștergerea la cerere a datelor clientului (`portal.date`, `db.stergere`, job durabil), din portal. Migrarea `0044`.
+
+### F7.6 — Facturare
+- Modulul `finante.abonamente`: abonamente prin procesator (adaptor, mediu de probă simulat), webhook-uri semnate, perioada de grație și suspendarea; înscrierea din site; abonamentul și facturile în portal. Migrarea `0043`.
+
+### F7.5 — Portalul: materiale și inboxul de tendințe
+- Modulul `app/media`: biblioteca de active (verificare după conținut, disc local, sursă) și inboxul de tendințe; ecranul Materiale din portal. Migrarea `0042`.
+
+### F7.4 — Portalul: Creier, calendar, aprobări
+- Portalul: Creierul (aprobarea propunerilor de titular), calendarul, aprobările cu previzualizare reală și „Aprobă tot lotul”. `productie.aprobari.cere` alege decidentul: clientul, dacă are un utilizator care aprobă.
+
+### F7.3 — Portalul: cont și onboarding
+- Modulul `app/portal`: activarea contului din invitație, Acasă cu bara de progres, interviul din portal; invitația din ecranul de onboarding al agenției; `client_titular` completează onboardingul; clientul care intră pe `/` ajunge în portal. Migrarea `0041`.
+
+### F7.2 — Formularul de audit
+- Modulul `site.audit`: auditul gratuit cu opt-in dublu, anti-spam, raport de la motorul de audit (adaptor), lead; ecranul „Leaduri din site”. Efectele externe de sistem (`app/operare/efecte/sistem.py`, tabelul `efecte_sistem`): email și plăți prin aceeași disciplină de outbox. Migrarea `0040`.
+
+### F7.1 — Site-ul complet
+- Modulul `app/site`: paginile publice din 19.1 ca date, randate pe server fără JavaScript, banner de acord pentru cookie-uri, analiză de trafic proprie anonimă (doar cu acord), blog, hartă a site-ului, robots, adrese canonice și date structurate. Planurile agenției în `app/finante/planuri.py`. Migrarea `0039` (`site_vizite`, `site_articole`).
+
 ### Poarta F6
 - Testul de poartă `tests/integration/test_poarta_f6.py`: lanțul complet al producției de text și al publicării asistate, cu acțiunile omului prin panou, și proba accelerată de 14 zile pe două branduri, fără incident critic. Detalii și condițiile rămase în `docs/specs/F6-poarta.md`.
 

@@ -403,7 +403,9 @@ def test_toate_rutele_care_schimba_starea_au_garda_csrf() -> None:
     # Singurele excepții, explicite și înguste: apeluri de la mașină la mașină, fără browser și fără cookie, deci
     # fără ce să falsifice. Se apără prin alt mecanism, verificat în testele lor (jeton comparat în timp
     # constant; antet-secret + listă de conversații): `tests/integration/test_livrare_panou.py` și `test_telegram.py`.
-    fara_csrf_justificat = {"/intern/livrare/rezultat", "/telegram/webhook"}
+    # Webhook-ul procesatorului de plăți (F7.6) se apără prin semnătura HMAC a corpului și vechimea evenimentului:
+    # `tests/integration/test_facturare.py`.
+    fara_csrf_justificat = {"/intern/livrare/rezultat", "/telegram/webhook", "/facturare/webhook"}
     nepazite = [
         r.path
         for r in verificate

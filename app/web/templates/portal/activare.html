@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Activează contul · AMA{% endblock %}
+{% block content %}
+<h1>Activează contul</h1>
+{% if eroare %}<p role="alert" id="eroare">{{ eroare }}</p>{% endif %}
+{% if invalid %}
+<p>Linkul de activare nu este valid sau a expirat. Cere unul nou de la agenție.</p>
+{% else %}
+<form method="post" action="/portal/activare/{{ jeton }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <p>Contul: <strong>{{ email }}</strong></p>
+  <p><label>Numele tău <input type="text" name="nume_afisat" maxlength="100" autocomplete="name"></label></p>
+  <p><label>Alege o parolă (cel puțin 12 caractere) <input type="password" name="parola" autocomplete="new-password" minlength="12" maxlength="200" required></label></p>
+  <p><button type="submit">Activează și intră</button></p>
+</form>
+{% endif %}
+{% endblock %}

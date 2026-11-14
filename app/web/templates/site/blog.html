@@ -1,0 +1,9 @@
+{% extends "site/baza.html" %}
+{% block continut %}
+<h1>{{ p.titlu }}</h1>
+<p class="descriere">{{ p.descriere }}</p>
+{% if articole %}<ul class="articole">{% for slug, titlu, descriere, data in articole %}
+<li><a href="/site/blog/{{ slug }}"><strong>{{ titlu }}</strong></a><br><span class="mic">{{ data.strftime("%d.%m.%Y") if data else "" }}</span> {{ descriere }}</li>
+{% endfor %}</ul>{% else %}<p>Primele articole apar în curând.</p>{% endif %}
+<a class="cta" href="/site/audit">Cere auditul gratuit</a>
+{% endblock %}

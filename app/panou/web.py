@@ -14,8 +14,10 @@ from app.conturi import (
     DbSession,
     Permisiune,
     SesiuneCurenta,
+    UtilizatorCurent,
     cauta_clienti,
     csrf_protect,
+    este_agentie,
     lista_clienti,
     poate,
     require_permission,
@@ -93,7 +95,9 @@ def _stare_sistem(db: DbSession, u: SesiuneCurenta) -> dict[str, Any]:
 
 
 @router.get("/")
-def acasa(request: Request, u: Agentie, db: DbSession, mesaj: str = "") -> Response:
+def acasa(request: Request, u: UtilizatorCurent, db: DbSession, mesaj: str = "") -> Response:
+    if not este_agentie(u.rol):
+        return RedirectResponse("/portal", status_code=303)  # clientul lucrează în portal (F7.3)
     return pagina(
         request, u, "panou/acasa.html", tab="acasa", mesaj=MESAJE.get(mesaj, ""), **_stare_sistem(db, u)
     )

@@ -6,6 +6,16 @@
 {% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
 {% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
 
+{% if poate_completa %}
+<details class="card"><summary>Invită clientul în portal</summary>
+  <form method="post" action="/onboarding/{{ client.id }}/invita">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="email-inv">Emailul clientului</label>
+    <input id="email-inv" name="email" type="email" maxlength="254" required>
+    <button type="submit">Trimite linkul de activare</button>
+  </form>
+</details>
+{% endif %}
 {% if not s %}
 <div class="card">
   {% if ultima_trimisa %}<p>Brieful a fost trimis spre aprobare. Îl găsești în <a href="/creier/client/{{ client.id }}">Creierul de brand</a>.</p>{% endif %}

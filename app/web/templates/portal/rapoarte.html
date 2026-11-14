@@ -1,0 +1,21 @@
+{% extends "portal/baza.html" %}
+{% block title %}Rapoarte · AMA{% endblock %}
+{% block pagina %}
+<h1>Rapoartele lunare</h1>
+{% for r in rapoarte %}{% set c = r.continut %}
+<section class="card" aria-labelledby="r-{{ r.id }}">
+  <h2 id="r-{{ r.id }}">Luna {{ c.luna }}</h2>
+  <h3>1. Ce am livrat</h3>
+  <ul>{% for x in c.livrat %}<li>{{ x.eticheta }}: {{ x.livrate }} publicate{% if x.pachet %} din {{ x.pachet }} în pachet{% endif %}{% if x.in_lucru %}, {{ x.in_lucru }} în lucru{% endif %}</li>{% else %}<li>Nimic luna aceasta.</li>{% endfor %}</ul>
+  <h3>2. Ce a ieșit</h3><p>{{ c.rezultate }}</p>
+  <h3>3–4. Ce a mers și ce schimbăm</h3>
+  <p>{% if c.aprobari.decise %}Aprobate din prima: {{ c.aprobari.din_prima }} din {{ c.aprobari.decise }}.{% else %}Nicio decizie luna aceasta.{% endif %}
+  {% for m, n in c.aprobari.motive_respingere.items() %} Respinse pentru „{{ m }}”: {{ n }}.{% endfor %}</p>
+  <h3>5. Ce am învățat despre public</h3><p>{{ c.public }}</p>
+  <h3>6. Planul lunii următoare</h3>
+  <ul>{% for t, n in c.plan_luna_urmatoare.items() %}<li>{{ t }}: {{ n }}</li>{% else %}<li>Calendarul lunii următoare nu e încă aprobat.</li>{% endfor %}</ul>
+  <h3>7. Ce avem nevoie de la tine</h3>
+  <ul>{% for n in c.nevoi %}<li>{{ n }}</li>{% endfor %}</ul>
+</section>
+{% else %}<p>Primul raport apare la sfârșitul primei luni.</p>{% endfor %}
+{% endblock %}

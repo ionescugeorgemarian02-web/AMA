@@ -442,3 +442,32 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit: în poartă briefurile tuturor sloturilor se scriu înaintea respingerii, deci exemplul negativ ajunge la sarcina următoare prin promptul autorului, nu prin pachetul brieful (ambele drumuri sunt testate: F6.7 și poarta).
   - Rămâne deschis (la migrare): proba reală, postarea reală, primul val F0, backupul pe VPS.
   - Propuneri: verificarea duratei scriptului ca pas G1 cu set de aur propriu; aprobarea în grup pe loturile calendarului; partea cu model a editorului E8 după F11.
+
+## 2026-11-13 — Sesiunea 11: faza F7, site, portal, facturare
+
+### 25. Un agent de cod (Opus), pe ramura `claude/amazing-volta-ou9t2u`
+- **F7.1 — Site-ul complet.**
+  - Construit: `app/site` (pagini, web, analiza, blog, modele), șabloanele `site/*`, `site.css`, `finante.planuri`, migrarea `0039`, spec F7.1.
+  - Hotărâri (D-007): site sub `/site` în monolit, fără JS (bannerul e formular); analiza = contor pe (zi, pagină), fără identificatori; prețurile [I] din planuri, comune cu facturarea.
+  - Verificat: 3 teste de integrare, 3 unitare.
+- **F7.2 — Formularul de audit.**
+  - Construit: `site.audit`, `site.motor_audit`, `efecte.sistem`, conectorul `email` (simulat), ecranul `/leaduri`, migrarea `0040`. Hotărâri (D-007): outbox separat pentru efectele fără livrabil; jetonul raportului e altul decât cel de confirmare; spamul primește același răspuns. Verificat: 2 teste.
+- **F7.3 — Portalul: cont și onboarding.**
+  - Construit: `portal.cont`, `portal.progres`, `portal.web`, șabloanele `portal/*`, migrarea `0041`. Hotărâri: actorul `sistem` pentru activare; pașii de progres extensibili. Găsit: testul panoului aștepta 403 pe `/` pentru client; acum redirecționare spre portal (test adaptat). Verificat: 2 teste.
+- **F7.4 — Portalul: Creier, calendar, aprobări.**
+  - Construit: `portal.lucru_web`, `conturi.are_aprobator_client`, decidentul implicit în aprobări. Hotărâri: lotul se aprobă într-o tranzacție (orice refuz anulează tot). Verificat: 2 teste; testele F5/F6 ale aprobărilor neschimbate.
+- **F7.5 — Portalul: materiale și inboxul de tendințe.**
+  - Construit: `media.biblioteca`, `media.tendinte`, `portal.materiale_web`, migrarea `0042`. Verificat: 3 teste.
+- **F7.6 — Facturare.**
+  - Construit: `connectors.plati` (simulat), `finante.abonamente`, `finante.web`, `site.inscriere`, `portal.cont_web`, migrarea `0043`. Hotărâri: plățile ca efecte de sistem; invitația după prima activare prin extensie; suspendarea = oprirea pe client. Verificat: 2 teste.
+- **F7.7 — Export și ștergere.**
+  - Construit: `db.stergere`, `portal.date`, migrarea `0044`. Găsit: politicile forțate se aplică și proprietarului; ștergerea setează contextul de agenție și ocolește politicile doar pe tabelul în lucru. Verificat: 2 teste.
+- **F7.8 — Raportul lunar, prima formă.**
+  - Construit: `analiza.raport_lunar`, `portal.rapoarte_web`, migrarea `0045`. Hotărâri: luna după slotul livrabilelor. Verificat: 1 test.
+- **F7.9 — Oferta, pâlnia și paginile de captare.**
+  - Construit: `oferta.pagini`, `validare.independent`, două prompturi, `site.captare_web`, migrarea `0046`. Găsit: „gratuit” e o afirmație G2 (cere faptul aprobat). Verificat: 2 teste.
+- **F7.10 — Cercetarea SEO și articolele.**
+  - Construit: `seo.cuvinte`, `seo.articole`, trei prompturi. Găsit: citările [n] erau luate de G2 drept cifre; nu intră în textul validat. Verificat: 2 teste.
+- **Poarta F7.**
+  - Testul cap-coadă trecut pe simulare. Notă de proces: `make check` complet a rulat pe arborele cumulat F7.1–F7.10 (două rulări întrerupte de modificări făcute în paralel au fost aruncate); fiecare pas are testele lui trecute separat. Rezultat final: `make check` 2624 trecute. Commiturile intermediare F7.x nu sunt construibile izolat (fișierele comune sunt în primul pas care le atinge); vârful ramurii e cel verificat.
+  - Propuneri: eliminarea EXIF (F8); CRM pentru leaduri (F12); calibrarea listei de îndemnuri G-CTA în banc.

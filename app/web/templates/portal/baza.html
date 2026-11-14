@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block body_attr %} class="cu-bara"{% endblock %}
+{% block shell %}
+<header class="antet-aplicatie"><a href="/portal">AMA · Portal</a></header>
+<main id="continut">
+  {% block pagina %}{% endblock %}
+</main>
+<nav class="bara-jos" aria-label="Navigare principală">
+  {% for cale, eticheta, pictograma, cheie in [("/portal", "Acasă", "⌂", "acasa"), ("/portal/aprobari", "Aprobări", "✓", "aprobari"), ("/portal/calendar", "Calendar", "▦", "calendar"), ("/portal/materiale", "Materiale", "▲", "materiale"), ("/portal/cont", "Cont", "☰", "cont")] %}
+  <a href="{{ cale }}"{% if tab == cheie %} aria-current="page"{% endif %}>
+    <span class="pictograma" aria-hidden="true">{{ pictograma }}</span>
+    <span>{{ eticheta }}</span>
+  </a>
+  {% endfor %}
+</nav>
+{% endblock %}
