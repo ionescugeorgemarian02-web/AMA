@@ -199,3 +199,12 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F8.11: standardul de marcare tehnică (C2PA sau altul) și încadrarea juridică (avocat, F0.7); comutatoarele reale de etichetă AI ale platformelor (F9).
 - F8.12: o filmare reală de pe telefon (Android, iOS), cu zgomot și vorbire reală; pragul de pauză [I]; prompterul pe telefon real.
 - Poarta F8: repetată pe VPS cu Piper, whisper.cpp, stock/generare/muzică reale și modelul real al Regizorului; primele zece video văzute și ascultate de un om.
+
+## Faza F9 — Publicarea prin API
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F9.1 Interfața comună de conector | verificat local: conectorul fals (# SIMULAT, în memorie) trece suita comună de contract (publicare o dată, `verifica` după răspuns pierdut, clasificarea erorilor 7.5, token expirat, stare, limite citite, OAuth, tokenul doar în antet); OAuth prin executor cu token criptat în `publicare_conturi`, modul efectiv după aprobare (test pe contul agenției / asistat pe client), pauză și reautorizare. **Aplicațiile și conturile reale: la migrare** | `tests/contract/test_conector_publicare_fals.py`, `tests/integration/test_publicare_api_interfata.py` |
+
+### De verificat la migrare (F9)
+- F9.1: aplicațiile agenției la platforme (F0.6, primul val), `AMA_MASTER_KEY` pe VPS pentru tokenuri, adresa publică de întoarcere OAuth; stările din `aprobari_api` puse după realitate.

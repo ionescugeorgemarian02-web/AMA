@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F9.1 — Interfața comună de conector
+- `connectors.publicare` (contractul, clientul HTTP comun, clasificarea erorilor, conectorul fals), `publicare.canale` (conturi, token criptat, modul efectiv), `operare.efecte.autorizare`. Migrarea `0053`.
+
 ### Poarta F8
 - Testul de poartă `tests/integration/test_poarta_f8.py`: zece video consecutive, de la script la fișierul final, trec G6, G5 și G11 fără intervenție.
 

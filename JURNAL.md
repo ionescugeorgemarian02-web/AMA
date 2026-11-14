@@ -502,3 +502,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `portal.prompter_web`, șablonul `portal/prompter.html`, `media.formatul_e`, fluxul `media.format_e`. Verificat: 1 test de integrare.
 - **Poarta F8.**
   - Testul cap-coadă trecut pe simulare (zece din zece, ~64 s local). `make check` complet a rulat o dată pe fiecare pas, pe arborele lui (F8.5 și F8.7 au avut câte o rulare repetată: garda de context de agenție, respectiv blocajul din `test_portal_date`, ambele reparate). Rămâne deschis: testele media cele mai lungi (poarta ~64 s, capacitatea ~39 s) sunt aproape de plafonul de 120 s pe un executor CI lent.
+
+## 2026-11-14 — Sesiunea: faza F9 (Publicarea prin API)
+- **F9.1 — Interfața comună de conector.**
+  - Construit: contractul `ConectorPublicare` + suita de contract comună, `ClientHttp`, conectorul fals, `publicare.canale`, `efecte.autorizare`, migrarea `0053`. Hotărâri (D-007): tipurile în `connectors.contract`; partea de cont trece prin executor (garda rămâne); modul efectiv calculat din aprobare + cont. Verificat: 13 teste de contract, 4 de integrare.
