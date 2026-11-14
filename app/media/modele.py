@@ -68,3 +68,20 @@ class FolosireActiv(BazaMedia):
     scop: Mapped[str] = mapped_column(Text)
     obiect_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Randare(BazaMedia):
+    """O randare video (F8.6): lista de montaj, starea, videoul rezultat, măsurătorile și controlul."""
+
+    __tablename__ = "randari"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    lista: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    calitate: Mapped[str] = mapped_column(Text, default="final")
+    stare: Mapped[str] = mapped_column(Text, default="in_lucru")
+    activ_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    masuratori: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    control: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    terminat_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))

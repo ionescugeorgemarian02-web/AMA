@@ -484,3 +484,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F8.5 — Lista de decizii de montaj și Regizorul.**
   - Construit: `media.lista`, `media.regizor`, promptul `media.regizor.v1.md`, `tests/media_utile.py`. Hotărâri (D-007): modelul alege doar cadrul și mișcarea; momentele le pune programul. Verificat: 2 teste de integrare.
   - Notă: o rulare `make check` a picat o dată în `test_portal_date` (blocaj reciproc între jobul de export și cel de ștergere, F7.7, independent de F8); testul trece singur și la rularea completă următoare. Propunere: serializarea joburilor de export și ștergere ale aceluiași client.
+- **F8.6 — Montajul pentru formatele A și B.**
+  - Construit: `media.randare`, `media.montaj`, migrarea `0050` (`randari`), configurarea `AMA_MEDIA_PRESET/FIRE/FONTURI` (testele: `ultrafast`). Verificat: 2 teste de integrare (A, B).

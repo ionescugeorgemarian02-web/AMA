@@ -8,6 +8,7 @@ v = media.transcriere.naratiune_verificata(db, tenant_id, fraze)  # timpi pe cuv
 a = media.furnizori.aduce_stock(db, tenant_id, media.furnizori.cauta_stock("cafea")[0])  # cu licența (F8.4)
 media.licente.foloseste(db, a.id, scop="montaj")  # singura cale de folosire: fără licență, refuz (F8.4)
 lm = media.regizor.regizeaza(db, tenant_id, fraze=fr, naratiune=v, materiale=active)  # lista (F8.5)
+r = media.montaj.produ(db, tenant_id, lm)  # video vertical final, fără intervenție (F8.6)
 """
 
 from app.media import (
@@ -17,8 +18,10 @@ from app.media import (
     furnizori,
     licente,
     lista,
+    montaj,
     normalizare,
     pronuntie,
+    randare,
     regizor,
     tendinte,
     transcriere,
@@ -32,8 +35,10 @@ __all__ = [
     "furnizori",
     "licente",
     "lista",
+    "montaj",
     "normalizare",
     "pronuntie",
+    "randare",
     "regizor",
     "tendinte",
     "transcriere",

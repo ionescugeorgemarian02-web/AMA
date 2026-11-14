@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.6 — Montajul pentru formatele A și B
+- `media.randare` (lista -> graful FFmpeg) și `media.montaj` (pregătire, randare, înregistrare cu licența componentelor). Migrarea `0050`.
+
 ### F8.5 — Lista de decizii de montaj și Regizorul
 - `media.lista` (schema și validarea listei de montaj) și `media.regizor` (alegerile modelului pe bătăi, momentele din vocea reală); promptul `media.regizor@1`.
 
