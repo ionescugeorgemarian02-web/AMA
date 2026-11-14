@@ -540,4 +540,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `analiza.retentie`, `CititorRetentieYoutube`, cititorul fals de retenție, `panou.analiza_web` cu două șabloane, rândul din meniu, clasa CSS `.grafic`, migrarea `0058`, spec F10.2. Hotărâri (D-007): curba se citește după metricile de la 72 de ore, 7 și 28 de zile și e un adaos (eșecul ei nu strică cifrele); grafic SVG pe server, fără bibliotecă. Formularul de introducere manuală rămas deschis la F10.1 e aici.
   - Verificat: 5 teste unitare, 1 de contract, 4 de integrare, 1 de izolare.
   - Rămâne deschis: permisiunea `yt-analytics.readonly` lipsește din `SCOPURI` (fișier F9): cerere către sesiunea A în `COORDONARE.md`.
+- **F10.3 — Legarea de etichete.**
+  - Construit: `analiza.etichete`, șablonul `analiza_etichete.html`, ruta `/analiza/etichete`, migrarea `0059`, spec F10.3. Hotărâri (D-007): etichetele vin doar din date existente; recompensa din citirea de la 72 de ore (sau prima de după), cu tipul ei; tipurile nu se amestecă în medii; numărul de postări stă lângă fiecare medie.
+  - Verificat: 8 teste unitare, 3 de integrare, 1 de izolare.
+  - Notă de proces: prima rulare a suitei complete pe F10.1 a fost invalidată de mine (am rulat alte sesiuni de test pe același server Postgres; conftest-ul schimbă parolele rolurilor de test la fiecare sesiune). De acum suita completă rulează pe un server separat (`AMA_PGTEST_DIR`/`AMA_PGTEST_PORT`), pe o copie înghețată a commitului.
 

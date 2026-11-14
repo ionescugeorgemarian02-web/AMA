@@ -6,7 +6,15 @@ analiza.colector.colecteaza()                       # jobul `analiza.colector`, 
 analiza.colector.ale_livrabilului(db, livrabil_id)  # citirile pe intervale ale unei postări
 """
 
-from app.analiza import colector, raport_lunar, retentie
-from app.analiza.modele import CurbaRetentie, MetriciPostare
+from app.analiza import colector, etichete, raport_lunar, retentie
+from app.analiza.modele import CurbaRetentie, EtichetePostare, MetriciPostare
 
-__all__ = ["CurbaRetentie", "MetriciPostare", "colector", "raport_lunar", "retentie"]
+__all__ = [
+    "CurbaRetentie",
+    "EtichetePostare",
+    "MetriciPostare",
+    "colector",
+    "etichete",
+    "raport_lunar",
+    "retentie",
+]

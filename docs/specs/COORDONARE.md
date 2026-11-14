@@ -23,8 +23,8 @@ apoi F10 (ramura B).
 | --- | --- |
 | F10.1 Colectorul de metrici | **închis** (împins) |
 | F10.2 Curba de retenție YouTube | **închis** (împins) |
-| F10.3 Legarea de etichete | urmează |
-| F10.4 Tablouri de bord și scor de sănătate | neînceput |
+| F10.3 Legarea de etichete | **închis** (împins) |
+| F10.4 Tablouri de bord și scor de sănătate | urmează |
 | F10.5 Raportul lunar complet | neînceput |
 | F10.6 Analiza de trafic proprie | neînceput |
 | F10.7 Cercetătorul de tendințe | neînceput |
@@ -64,6 +64,12 @@ apt-get update && apt-get install -y postgresql-16-pgvector   # testele cer exte
 uv sync --locked
 make check
 ```
+
+Suita completă durează aproximativ o oră în container (testele media). `tests/conftest.py` regenerează parolele
+rolurilor de test la fiecare sesiune pytest, deci **două sesiuni pytest pe același server Postgres se strică una
+pe alta**. Pentru o rulare lungă în fundal folosește un al doilea server:
+`AMA_PGTEST_DIR=$PWD/.pgtest2 AMA_PGTEST_PORT=54330 scripts/pg_test.sh start`. CI (GitHub) rulează suita la
+fiecare cerere de integrare, în ~12 minute: acela e rezultatul de referință.
 
 `ffmpeg`, Postgres 16 și `uv` există deja în imagine. Fără `pgvector`, toate testele cu bază pică la pregătire
 cu „extension "vector" is not available”.

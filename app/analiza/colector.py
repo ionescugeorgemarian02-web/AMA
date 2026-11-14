@@ -29,7 +29,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from app import productie
-from app.analiza import retentie
+from app.analiza import etichete, retentie
 from app.analiza.modele import MetriciPostare
 from app.connectors.contract import CHEI_METRICI
 from app.db import sesiune_agentie, sesiune_tenant
@@ -219,6 +219,8 @@ def citeste_postarea(
             _in_masurare(db, livrabil_id)
     if nou:  # curba de retenție (F10.2), unde platforma o dă; nu poate strica citirea de mai sus
         retentie.actualizeaza(tenant_id, livrabil_id, canal, id_extern, publicat_la, plan.de_citit, acum)
+        with sesiune_tenant(tenant_id) as db:  # etichetele și recompensa postării (F10.3)
+            etichete.leaga(db, livrabil_id, canal, publicat_la)
     return f"citit:{plan.de_citit}"
 
 
@@ -331,6 +333,7 @@ def inregistreaza_manual(
         detalii={"canal": canal, "interval": interval, "chei": sorted(cifre)},
     )
     _in_masurare(db, livrabil_id)
+    etichete.leaga(db, livrabil_id, canal, moment)
     return rand
 
 

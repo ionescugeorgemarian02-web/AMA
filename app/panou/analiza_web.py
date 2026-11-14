@@ -4,6 +4,8 @@ cifrele pe intervale ale fiecăreia și curba de retenție a clipurilor (unde pl
 - `/analiza`: postările cu cifre, cele mai recente primele.
 - `/analiza/livrabil/<id>`: cifrele pe intervale (1 oră … 28 de zile), cu starea fiecărui interval (citit,
   ratat, indisponibil) și sursa (platformă sau om), curba de retenție desenată pe server și rezumatul ei.
+- `/analiza/etichete?dupa=tipar_hook`: postările sortate și grupate după tiparul de hook, format, slot,
+  pilon, unghi sau canal, cu recompensa fiecăreia și media pe grup (F10.3); opțional pe un singur client.
 - `POST /analiza/livrabil/<id>/metrici`: cifre introduse de om din exportul platformei, pentru canalele
   fără citire prin API (CSRF; permisiunea `livrabil.editeaza`).
 Citirea cere `rapoarte.citeste`.
@@ -16,7 +18,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
 from app import productie
-from app.analiza import colector, retentie
+from app.analiza import colector, etichete, retentie
 from app.connectors.contract import CHEI_METRICI, ETICHETE_METRICI
 from app.conturi import (
     DbSession,
@@ -60,6 +62,37 @@ def lista(request: Request, u: Agentie, _p: PoateCiti, db: DbSession) -> Respons
         clienti=clienti,
         etichete_metrici=ETICHETE_METRICI,
         etichete_interval=colector.ETICHETE_INTERVAL,
+    )
+
+
+@router.get("/etichete")
+def pe_etichete(
+    request: Request, u: Agentie, _p: PoateCiti, db: DbSession, dupa: str = "tipar_hook", client: str = ""
+) -> Response:
+    if dupa not in etichete.GRUPARI:
+        raise HTTPException(status_code=422, detail="Grupare necunoscută.")
+    clienti = {c.id: c.nume for c in lista_clienti(db)}
+    tenant_id: uuid.UUID | None = None
+    if client:
+        try:
+            tenant_id = uuid.UUID(client)
+        except ValueError:
+            raise HTTPException(status_code=422, detail="Client necunoscut.") from None
+    grupuri = etichete.grupeaza(db, dupa, tenant_id=tenant_id)
+    return pagina(
+        request,
+        u,
+        "panou/analiza_etichete.html",
+        tab="meniu",
+        grupuri=[(g, g.medii()) for g in grupuri],
+        dupa=dupa,
+        grupari=etichete.GRUPARI,
+        client=client,
+        clienti=clienti,
+        etichete_recompensa=etichete.ETICHETE_RECOMPENSA,
+        valoare=etichete.valoare,
+        eticheta_slot=etichete.eticheta_slot,
+        etichete_hook=etichete.ETICHETE_HOOK,
     )
 
 

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime, Integer, Text, func
+from sqlalchemy import DateTime, Float, Integer, SmallInteger, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -47,3 +47,24 @@ class CurbaRetentie(BazaAnaliza):
     interval: Mapped[str] = mapped_column(Text)
     puncte: Mapped[list[list[float]]] = mapped_column(JSONB)
     citit_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class EtichetePostare(BazaAnaliza):
+    """Etichetele și recompensa unei postări publicate (F10.3, migrarea 0059)."""
+
+    __tablename__ = "etichete_postari"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    canal: Mapped[str] = mapped_column(Text)
+    publicat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    tipar_hook: Mapped[str] = mapped_column(Text, default="")
+    format: Mapped[str] = mapped_column(Text)
+    pilon: Mapped[str] = mapped_column(Text, default="")
+    unghi: Mapped[str] = mapped_column(Text, default="")
+    zi_saptamana: Mapped[int] = mapped_column(SmallInteger)
+    ora: Mapped[int] = mapped_column(SmallInteger)
+    recompensa: Mapped[float | None] = mapped_column(Float)
+    recompensa_tip: Mapped[str | None] = mapped_column(Text)
+    recompensa_interval: Mapped[str | None] = mapped_column(Text)
+    actualizat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

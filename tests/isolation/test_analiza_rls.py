@@ -88,3 +88,21 @@ def test_curbele_de_retentie_sunt_izolate(
         s.execute(text(sql), {"i": new_id(), "t": date.b, "l": metrici["liv_b"], "p": puncte})
     with pytest.raises(DBAPIError), admin_engine.begin() as c:  # prea puține puncte: refuzat de bază
         c.execute(text(sql), {"i": new_id(), "t": date.a, "l": metrici["liv_a"], "p": "[[0.5, 0.5]]"})
+
+
+def test_etichetele_postarilor_sunt_izolate(
+    date: Date, metrici: dict[str, uuid.UUID], admin_engine: Engine
+) -> None:
+    sql = (
+        "INSERT INTO etichete_postari (id, tenant_id, livrabil_id, canal, publicat_la, format, zi_saptamana, ora) "
+        "VALUES (:i, :t, :l, 'facebook', now(), 'postare', 1, 9)"
+    )
+    ids = {"a": new_id(), "b": new_id()}
+    with admin_engine.begin() as c:
+        for k, tenant in (("a", date.a), ("b", date.b)):
+            c.execute(text(sql), {"i": ids[k], "t": tenant, "l": metrici[f"liv_{k}"]})
+    with sesiune(ContextDb(tenant_id=date.b, user_id=date.user_b)) as s:
+        vazute = {r[0] for r in s.execute(text("SELECT id FROM etichete_postari"))}
+    assert vazute & set(ids.values()) == {ids["b"]}
+    with pytest.raises(DBAPIError), admin_engine.begin() as c:  # recompensă fără tip și interval: refuzată
+        c.execute(text("UPDATE etichete_postari SET recompensa = 0.5 WHERE id = :i"), {"i": ids["a"]})

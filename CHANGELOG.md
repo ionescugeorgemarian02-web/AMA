@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F10.3 — Legarea de etichete
+- `analiza.etichete` (tipar de hook, format, pilon, unghi, slot local, recompensa de la 72 de ore; grupare și sortare), ecranul `/analiza/etichete`. Migrarea `0059`.
+
 ### F10.2 — Curba de retenție YouTube
 - `analiza.retentie` (validare, rezumat, linia SVG, o curbă pe clip, citită la 72 de ore, 7 și 28 de zile), cititorul `CititorRetentieYoutube` (YouTube Analytics), ecranul „Rapoarte și analiză” (`/analiza`, `/analiza/livrabil/<id>`: cifrele pe intervale, curba, introducerea manuală a cifrelor). Migrarea `0058`.
 

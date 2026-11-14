@@ -11,7 +11,7 @@ from dataclasses import dataclass
 import pytest
 from fastapi.testclient import TestClient
 
-from app.analiza import colector, retentie
+from app.analiza import colector, etichete, retentie
 from app.connectors import metrici as registru_metrici
 from app.connectors import registru
 from app.connectors.metrici.fals import CititorFals, CititorRetentieFals, MetriciFalse, RetentieFalsa
@@ -90,6 +90,10 @@ def test_curba_unui_clip_se_vede_in_panou(
     lume.cifre.pune(ext, vizualizari=900, aprecieri=61, comentarii=7)
     colector.colecteaza(t0 + 72 * H)
     assert curba_tinuta(tenant, lid) == ("72h", 100)
+    with sesiune_tenant(tenant) as db:  # F10.3: recompensa unui clip cu curbă este retenția medie
+        et = etichete.a_postarii(db, lid, "youtube")
+        assert et is not None and et.format == "video"
+        assert (et.recompensa, et.recompensa_tip) == (retentie.rezumat(CURBA).medie, "retentie_medie")
 
     autentifica(client, fabrica_conturi(Rol.PROPRIETAR, cu_totp=True), ceas)
     r = client.get(f"/analiza/livrabil/{lid}")
