@@ -4,7 +4,7 @@ client, iar un client de test cu aprobări întârziate apare semnalat."""
 # ruff: noqa: F811
 import datetime as dt
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -27,6 +27,16 @@ from tests.integration.utile_productie import (  # noqa: F401
 
 pytestmark = pytest.mark.db
 Z = dt.timedelta(days=1)
+
+
+@pytest.fixture(autouse=True)
+def _fara_cereri_ramase(admin_engine: Engine) -> Iterator[None]:
+    """Cererile lăsate în așteptare de aceste teste ar apărea în ecranele altor teste (baza e comună pe
+    sesiune): la final se anulează, ca superutilizator, cu declanșatoarele oprite doar în tranzacție."""
+    yield
+    with admin_engine.begin() as c:
+        c.execute(text("SET LOCAL session_replication_role = replica"))
+        c.execute(text("UPDATE aprobari SET stare = 'anulat', decis_la = now() WHERE stare = 'in_asteptare'"))
 
 
 def numeste(admin: Engine, tenant: uuid.UUID, nume: str, *, vechime_zile: int = 90) -> None:

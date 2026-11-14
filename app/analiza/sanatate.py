@@ -26,7 +26,6 @@ from sqlalchemy.orm import Session
 from app import finante, gateway, productie
 from app.analiza.modele import MetriciPostare
 from app.finante.modele import Abonament
-from app.gateway.reguli_buget import Fereastra
 from app.operare.modele import JurnalAudit
 from app.productie import Aprobare, Livrabil, Tranzitie
 from app.publicare.modele import PublicareAsistata
@@ -169,7 +168,8 @@ def _prima_decizie(aprobari: list[Aprobare]) -> dict[uuid.UUID, Aprobare]:
 
 def _cota(db: Session, tenant_id: uuid.UUID, acum: dt.datetime) -> float | None:
     buget = gateway.bugete.efectiv(db, tenant_id).luna
-    consum = gateway.bugete.consum_curent(db, tenant_id, acum)[Fereastra.LUNA]
+    # Fereastra lunii se alege după nume: enumerarea e internă gateway-ului (garda `check_gateway`).
+    consum = next(c for f, c in gateway.bugete.consum_curent(db, tenant_id, acum).items() if f.name == "LUNA")
     parti = [
         float(Decimal(folosit) / Decimal(limita))
         for folosit, limita in (
