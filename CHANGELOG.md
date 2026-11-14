@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F7
+- Testul de poartă `tests/integration/test_poarta_f7.py`: un client de test de la audit la plată și la prima aprobare, prin site, procesator (simulat) și portal.
+
 ### F7.10 — Cercetarea SEO și articolele
 - Modulul `app/seo`: grupuri de cuvinte-cheie pe intenție, brief SEO, articol în trei pași, lista on-page deterministă, validare și publicare pe blog cu surse.
 

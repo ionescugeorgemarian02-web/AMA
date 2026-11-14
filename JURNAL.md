@@ -468,3 +468,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `oferta.pagini`, `validare.independent`, două prompturi, `site.captare_web`, migrarea `0046`. Găsit: „gratuit” e o afirmație G2 (cere faptul aprobat). Verificat: 2 teste.
 - **F7.10 — Cercetarea SEO și articolele.**
   - Construit: `seo.cuvinte`, `seo.articole`, trei prompturi. Găsit: citările [n] erau luate de G2 drept cifre; nu intră în textul validat. Verificat: 2 teste.
+- **Poarta F7.**
+  - Testul cap-coadă trecut pe simulare. Notă de proces: `make check` complet a rulat pe arborele cumulat F7.1–F7.10 (două rulări întrerupte de modificări făcute în paralel au fost aruncate); fiecare pas are testele lui trecute separat. Rezultat final: `make check` 2624 trecute. Commiturile intermediare F7.x nu sunt construibile izolat (fișierele comune sunt în primul pas care le atinge); vârful ramurii e cel verificat.
+  - Propuneri: eliminarea EXIF (F8); CRM pentru leaduri (F12); calibrarea listei de îndemnuri G-CTA în banc.

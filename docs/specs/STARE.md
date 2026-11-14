@@ -152,6 +152,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F7.8 Raportul lunar, prima formă | verificat local (Postgres real, model FALS): pentru un brand propriu, raportul cu cele 7 secțiuni din 19.6 (livrat pe tip față de pachet, aprobări din prima, motive, plan, nevoi), fără metrici (spus explicit), vizibil în portal, regenerare fără dublură. **Metricile: F10** | `tests/integration/test_raport_lunar.py` |
 | F7.9 Oferta, pâlnia și paginile de captare | verificat local (cascada reală, model FALS): pagina de audit a agenției generată de D2 + E3 trece G2, G3, G9 și are un singur apel la acțiune, publicată de un om la `/site/p/audit-gratuit`; o pagină cu al doilea îndemn e respinsă. **Modelele reale și judecătorii: la migrare** | `tests/integration/test_oferta_captare.py` |
 | F7.10 Cercetarea SEO și articolele | verificat local (cascada reală, model FALS, surse inventate): grupuri pe intenție, brief SEO, articol în trei pași, lista on-page deterministă; două articole trec validarea și lista și apar pe blog cu sursele citate. **Modelele reale, sursele reale, volumele de căutare: la migrare** | `tests/integration/test_seo_articole.py` |
+| **Poarta F7** „un client de test parcurge tot drumul, de la audit la plată și la prima aprobare” | **trecută local pe SIMULARE** (D-007): audit cu opt-in dublu → raport → înscriere → plată în mediul de probă (webhook-uri semnate) → invitație → cont → interviu în portal → brief aprobat de client → primul lot aprobat de client din portal. **Procesatorul real, e-Factura, emailul real, BigBrain, domeniul și telefonul: la migrare** | `tests/integration/test_poarta_f7.py`, `docs/specs/F7-poarta.md` |
 
 ### De verificat la migrare (F7)
 - F7.1: domeniul public al agenției și regula din proxy (rădăcina → `/site`), `AMA_SITE_URL`; Lighthouse pe telefon real; textele juridice finale (F0.6) și datele firmei (F0.1); prețurile [I] din `finante.planuri`.
@@ -164,3 +165,4 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F7.8: raportul pentru CariereAI și BigBrain pe date reale; trimiterea lunară; metricile (F10).
 - F7.9: pagina de captare generată de modelele reale; lista de îndemnuri [I] calibrată; judecătorii G3/G9.
 - F7.10: articolele pe modelele reale, cu surse din cercetare (F10); volumele de căutare (sursă externă); pragurile on-page [I].
+- Poarta F7: drumul repetat pe VPS cu procesatorul real (mediul lui de probă), emailul real și domeniul agenției.
