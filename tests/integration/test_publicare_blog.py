@@ -10,6 +10,7 @@ from collections.abc import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import Engine, text
 
 from app import productie, seo
 from app.connectors import registru
@@ -36,7 +37,12 @@ def conector_blog() -> Iterator[None]:
 
 
 def test_articolul_aprobat_apare_pe_blogul_agentiei_cu_on_page_trecut(
-    client: TestClient, tenant: uuid.UUID, om: uuid.UUID, modele: ModelFals, conector_blog: None
+    client: TestClient,
+    tenant: uuid.UUID,
+    om: uuid.UUID,
+    modele: ModelFals,
+    conector_blog: None,
+    admin_engine: Engine,
 ) -> None:
     scriptat(modele)
     g = seo.cuvinte.grupeaza(CUVINTE)[0]
@@ -45,6 +51,10 @@ def test_articolul_aprobat_apare_pe_blogul_agentiei_cu_on_page_trecut(
         r = seo.articole.scrie(db, tenant, g, SURSE, publica=False)
         assert r["on_page"] == [] and r["validare"] and not r["publicat"]
         lid = blog.pregateste(db, tenant, r, utilizator_id=om)
+    with (
+        admin_engine.begin() as c
+    ):  # blogul agenției e comun bazei de test: alt test poate să fi publicat adresa
+        c.execute(text("DELETE FROM site_articole WHERE slug = :s"), {"s": r["slug"]})
     assert client.get(f"/site/blog/{r['slug']}").status_code == 404, "nimic pe blog înainte de aprobare"
     assert livrabil_stare(tenant, lid) == "asteapta_aprobare"
     with sesiune_tenant(tenant) as db:

@@ -525,3 +525,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `publicare.blog`, `ConectorBlog`, WordPress simulat. Hotărâri (D-007): comportamentul implicit F7.10 rămâne (publicare directă), drumul cu aprobare e opțional; blogul găzduit e un cont „găzduit” fără parolă. Verificat: 12 teste de contract, 1 de integrare.
 - **F9.10 — Ecranul „Publicare”.**
   - Construit: `panou.publicare_canale_web`, șablonul `publicare_canale.html`; starea OAuth poartă clientul. Verificat: 1 test de integrare.
+- **Poarta F9.**
+  - Testul cap-coadă trecut pe simulare (șase canale aprobate, unul neaprobat, motorul real în proces, ~20 s). `make check` complet a rulat o dată pe fiecare pas, pe arborele lui (F9.3 și F9.4 au avut câte o rulare repetată: formatarea unui test, respectiv lista locurilor cu context de agenție, ambele reparate înainte de push). Rămâne deschis: tot ce ține de platformele reale (conturi, chei, aprobări) — la migrare.
+  - Găsit la poartă: blogul agenției e comun bazei de test, iar poarta publică aceeași adresă înaintea testului F9.9; testul F9.9 golește acum adresa înainte să verifice că nimic nu apare fără aprobare.

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F9
+- Testul de poartă `tests/integration/test_poarta_f9.py`: o postare publică, o singură dată, pe fiecare canal aprobat; canalul neaprobat rămâne pe asistat.
+
 ### F9.10 — Ecranul „Publicare”
 - `/publicare/canale` (aprobările API, conturile, modul, coada, trecerea pe asistat, reautorizarea) și întoarcerea OAuth `/publicare/autorizare`.
 
