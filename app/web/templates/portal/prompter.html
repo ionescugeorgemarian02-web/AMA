@@ -1,0 +1,23 @@
+{% extends "portal/baza.html" %}
+{% block title %}Prompter · AMA{% endblock %}
+{% block pagina %}
+<h1>Prompter</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+<p class="slab">Ține telefonul vertical, privește camera și citește calm. Pauzele le tăiem noi.</p>
+<p>Viteza:
+  {% for v in ("lent", "normal", "rapid") %}<a href="/portal/prompter/{{ lid }}?viteza={{ v }}"{% if v == viteza %} aria-current="true"{% endif %}>{{ v }}</a>{% if not loop.last %} · {% endif %}{% endfor %}
+</p>
+<section class="prompter" aria-label="Scriptul">
+  <div class="prompter-text {{ clasa }}">
+    {% for f in fraze %}<p>{{ f }}</p>{% endfor %}
+  </div>
+</section>
+<section class="card" aria-labelledby="film">
+  <h2 id="film">Trimite filmarea</h2>
+  <form method="post" action="/portal/prompter/{{ lid }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="file" name="fisier" accept="video/mp4,video/quicktime" capture="user" required>
+    <button type="submit">Trimite</button>
+  </form>
+</section>
+{% endblock %}

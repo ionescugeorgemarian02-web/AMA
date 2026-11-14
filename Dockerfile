@@ -26,6 +26,10 @@ ENV AMA_VERSION=${AMA_VERSION} \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     UVICORN_WORKERS=2
+# Media (F8): ffmpeg (randare, control G6) și fontul cu toate diacriticele românești (subtitrări, șabloane).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
 RUN groupadd --system --gid 10001 ama \
     && useradd --system --uid 10001 --gid ama --no-create-home --shell /usr/sbin/nologin ama
 WORKDIR /app

@@ -471,3 +471,34 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **Poarta F7.**
   - Testul cap-coadă trecut pe simulare. Notă de proces: `make check` complet a rulat pe arborele cumulat F7.1–F7.10 (două rulări întrerupte de modificări făcute în paralel au fost aruncate); fiecare pas are testele lui trecute separat. Rezultat final: `make check` 2624 trecute. Commiturile intermediare F7.x nu sunt construibile izolat (fișierele comune sunt în primul pas care le atinge); vârful ramurii e cel verificat.
   - Propuneri: eliminarea EXIF (F8); CRM pentru leaduri (F12); calibrarea listei de îndemnuri G-CTA în banc.
+
+## 2026-11-14 — Sesiunea: faza F8 (Media)
+- **F8.1 — Vocea și licența ei.**
+  - Construit: `media.audio`, `media.voce`, `biblioteca.incarca(licenta=, generare=)`, migrarea `0047`, spec F8.1. Hotărâri (D-007): motorul simulat ca implicit; doar vocea `verificata` se publică; vocea proprie ca țintă. Găsit: `JSONB` fără `none_as_null` scria `null` JSON (refuzat de CHECK). Verificat: 2 teste de integrare, 3 unitare.
+- **F8.2 — Normalizarea textului românesc.**
+  - Construit: `media.normalizare`, `media.pronuntie`, migrarea `0048`, setul de 100 de fraze. Hotărâri (D-007): acord după substantivul următor, cu excepții; compusele în 1 rămân „unu”. Găsit: „V60” se citea lipit („Vșaizeci”); acum literă și cifră se despart. Verificat: 110 teste unitare, 1 de integrare.
+- **F8.3 — Transcrierea inversă și timpii pe cuvânt.**
+  - Construit: `media.transcriere`, configurarea whisper.cpp, spec F8.3. Hotărâri (D-007): transcriptorul simulat măsoară momentele din semnal (energie), cuvintele din bucata `amaw`; aliniere forțată când lipsesc. Verificat: 1 test de integrare, 3 unitare.
+- **F8.4 — Furnizorul de imagini și biblioteca de active.**
+  - Construit: `media.licente`, `media.furnizori`, `media.ffmpeg`, migrarea `0049` (`folosiri_active` + declanșatorul care cere licența), EXIF eliminat în `biblioteca`, ffmpeg + DejaVu în CI și Dockerfile. Hotărâri (D-007): licența pe tip cu câmpuri obligatorii; regulile promptului din 14.3. Verificat: 2 teste de integrare (+ testele F7.5 neschimbate).
+- **F8.5 — Lista de decizii de montaj și Regizorul.**
+  - Construit: `media.lista`, `media.regizor`, promptul `media.regizor.v1.md`, `tests/media_utile.py`. Hotărâri (D-007): modelul alege doar cadrul și mișcarea; momentele le pune programul. Verificat: 2 teste de integrare.
+  - Notă: o rulare `make check` a picat o dată în `test_portal_date` (blocaj reciproc între jobul de export și cel de ștergere, F7.7, independent de F8); testul trece singur și la rularea completă următoare. Propunere: serializarea joburilor de export și ștergere ale aceluiași client.
+- **F8.6 — Montajul pentru formatele A și B.**
+  - Construit: `media.randare`, `media.montaj`, migrarea `0050` (`randari`), configurarea `AMA_MEDIA_PRESET/FIRE/FONTURI` (testele: `ultrafast`). Verificat: 2 teste de integrare (A, B).
+- **F8.7 — Subtitrări și sunet.**
+  - Construit: `media.subtitrari`, `media.sunet`, `furnizori.aduce_muzica`. Găsit: în ASS `Fontsize` e înălțimea rândului (libass desenează ~0,86 din em-ul Pillow); lățimile se măsoară acum la mărimea libass. Verificat: 2 teste de integrare.
+  - Găsit la F8.7: blocajul reciproc din `test_portal_date` (de două ori din patru rulări) venea din test: numărarea rândurilor ținea, într-o singură tranzacție, blocaje pe toate tabelele, iar ștergerea le ia pe rând în acces exclusiv; mai multe tabele (F8) au lărgit fereastra. Numărarea rulează acum în autocommit.
+- **F8.8 — Controlul media (G6) și auditorul vizual (G5).**
+  - Construit: `media.control`, `media.vizual`, controlul în montaj. Găsit: o fotografie fără mișcare în formatul B e un îngheț pentru G6 (acum fotografiile se mișcă mereu); intervalele de îngheț lipite se unesc; contrastul se măsoară pe miezul literelor, nu pe media cu marginile netezite. Verificat: 2 teste de integrare.
+- **F8.9 — Testul de capacitate.**
+  - Construit: `media.fluxuri`, `media.capacitate`, măsurarea rulărilor ffmpeg (`ffmpeg.masurare`). Verificat: 1 test de integrare; cifrele locale în ieșirea testului.
+  - Găsit: bucla de texte fără pauză ținea GIL-ul și sufoca firele executorului (testul trecea de plafonul de 120 s); tonurile vocii simulate se memorează, stock-ul deja adus nu se mai descarcă.
+- **F8.10 — Șabloane grafice și Compozitorul.**
+  - Construit: `media.sabloane`, `media.compozitor`, migrarea `0051`. Găsit: în Pillow 12 masca de glifă nu mai are `tobytes`; verificarea glifei desenează caracterul. Verificat: 2 teste de integrare.
+- **F8.11 — Proveniență și dezvăluire AI (G11).**
+  - Construit: `media.provenienta`, pașaportul în montaj și în Compozitor, metadatele în randare, migrarea `0052`. Hotărâri (D-007): vocea sintetică cere etichetă (21.9, „sunetul generat care poate părea real”). Verificat: 2 teste.
+- **F8.12 — Formatul E, om real.**
+  - Construit: `portal.prompter_web`, șablonul `portal/prompter.html`, `media.formatul_e`, fluxul `media.format_e`. Verificat: 1 test de integrare.
+- **Poarta F8.**
+  - Testul cap-coadă trecut pe simulare (zece din zece, ~64 s local). `make check` complet a rulat o dată pe fiecare pas, pe arborele lui (F8.5 și F8.7 au avut câte o rulare repetată: garda de context de agenție, respectiv blocajul din `test_portal_date`, ambele reparate). Rămâne deschis: testele media cele mai lungi (poarta ~64 s, capacitatea ~39 s) sunt aproape de plafonul de 120 s pe un executor CI lent.

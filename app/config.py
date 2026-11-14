@@ -129,6 +129,18 @@ class Settings(BaseSettings):
     # Media pe disc (ADR-15) și colectorul de surse (F4.2, 12.3). User-Agent-ul identifică onest platforma;
     # adresa de contact reală se pune în configurarea serverului (NEVERIFICAT: domeniul agenției, F0.1).
     media_dir: str = "/var/lib/ama/media"
+    # Vocea locală (F8.1, ADR-10). NEVERIFICAT: Piper se instalează pe VPS (la migrare).
+    piper_bin: str = ""
+    piper_modele: str = "/var/lib/ama/voci"
+    # Transcrierea inversă (F8.3). NEVERIFICAT: whisper.cpp pe VPS; gol = transcriptorul simulat.
+    whisper_bin: str = ""
+    whisper_model: str = "/var/lib/ama/voci/ggml-small.bin"
+    # Randarea (F8.6, 14.11): presetul x264 al finalului, firele ffmpeg pe job, fonturile.
+    media_preset: str = Field(
+        default="veryfast", pattern=r"^(ultrafast|superfast|veryfast|faster|fast|medium)$"
+    )
+    media_fire: int = Field(default=4, ge=1, le=32)
+    media_fonturi: str = "/usr/share/fonts/truetype/dejavu"
     colector_user_agent: str = Field(
         default=(
             "AMA-Colector/1.0 (robot de citit pagini pentru clientii agentiei de marketing; "

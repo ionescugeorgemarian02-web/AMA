@@ -4,6 +4,45 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F8
+- Testul de poartă `tests/integration/test_poarta_f8.py`: zece video consecutive, de la script la fișierul final, trec G6, G5 și G11 fără intervenție.
+
+### F8.12 — Formatul E, om real
+- Prompterul din portal (`/portal/prompter/<livrabil>`), `media.formatul_e` (tăierea pauzelor, subtitrări, nivel) ca job durabil.
+
+### F8.11 — Proveniență și dezvăluire AI (G11)
+- `media.provenienta`: pașaportul fiecărui fișier final, eticheta pe canal, marcajul în fișier, G11. Migrarea `0052`.
+
+### F8.10 — Șabloane grafice și Compozitorul
+- `media.sabloane` (identitatea din Creier sau propusă, șase șabloane ca date) și `media.compozitor` (randare cu diacritice corecte, încadrarea textului). Migrarea `0051`.
+
+### F8.9 — Testul de capacitate
+- `media.fluxuri` (randarea ca job durabil pe coada `greu`) și `media.capacitate` (raportul față de bugete).
+
+### F8.8 — Controlul media (G6) și auditorul vizual (G5)
+- `media.control` (G6 dintr-o singură decodare + ffprobe) și `media.vizual` (G5 din pixeli); montajul respinge videoul care nu trece G6.
+
+### F8.7 — Subtitrări și sunet
+- `media.subtitrari` (ecrane de 2–4 cuvinte, evidențiere, zone sigure pe canal, ASS + SRT) și `media.sunet` (muzica atenuată sub voce, −14 LUFS, limitator); muzica simulată cu licență.
+
+### F8.6 — Montajul pentru formatele A și B
+- `media.randare` (lista -> graful FFmpeg) și `media.montaj` (pregătire, randare, înregistrare cu licența componentelor). Migrarea `0050`.
+
+### F8.5 — Lista de decizii de montaj și Regizorul
+- `media.lista` (schema și validarea listei de montaj) și `media.regizor` (alegerile modelului pe bătăi, momentele din vocea reală); promptul `media.regizor@1`.
+
+### F8.4 — Furnizorul de imagini și biblioteca de active
+- `media.licente` (licențe complete pe tip, folosirea doar cu licență, consemnată și impusă de bază), `media.furnizori` (stock și generare în spatele adaptoarelor, simulați), `media.ffmpeg`; EXIF eliminat la încărcare. Dependență nouă: `pillow==12.0.0`. ffmpeg în CI și în imagine. Migrarea `0049`.
+
+### F8.3 — Transcrierea inversă și timpii pe cuvânt
+- `media.transcriere`: adaptorul transcriptorului (whisper.cpp, simulat), alinierea cu scriptul, WER pe frază, resinteza o dată și semnalarea.
+
+### F8.2 — Normalizarea textului românesc
+- `media.normalizare` (numere, date, ore, sume, procente, unități, abrevieri, web, telefoane, diacritice) și `media.pronuntie` (dicționarul de pronunție pe client). Migrarea `0048`.
+
+### F8.1 — Vocea și licența ei
+- `media.voce`: adaptorul motorului de voce (Piper, simulat), profilurile cu licență, narațiunea frază cu frază salvată ca activ `audio` cu statutul licenței; `media.audio` (WAV). Migrarea `0047`.
+
 ### Poarta F7
 - Testul de poartă `tests/integration/test_poarta_f7.py`: un client de test de la audit la plată și la prima aprobare, prin site, procesator (simulat) și portal.
 

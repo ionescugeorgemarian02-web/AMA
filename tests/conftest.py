@@ -22,7 +22,10 @@ from sqlalchemy.engine import make_url
 from app.operare.motor.migrare import migreaza_sistem
 
 os.environ.setdefault("AMA_ENV", "test")
-os.environ.setdefault("AMA_EFECTE_PAUZA_SEC", "0.05")  # reîncercările efectelor, fără pauze lungi în teste
+os.environ.setdefault("AMA_EFECTE_PAUZA_SEC", "0.05")
+os.environ.setdefault(
+    "AMA_MEDIA_PRESET", "ultrafast"
+)  # randările din teste (F8): viteză, nu compresie  # reîncercările efectelor, fără pauze lungi în teste
 
 # Mediile din teste merg într-un director temporar, nu în `/var/lib/ama/media` (implicitul din producție:
 # în CI rulăm fără drepturi de root și scrierea acolo pică cu PermissionError). Testele care vor alt loc
