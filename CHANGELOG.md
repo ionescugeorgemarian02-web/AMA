@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F9.10 — Ecranul „Publicare”
+- `/publicare/canale` (aprobările API, conturile, modul, coada, trecerea pe asistat, reautorizarea) și întoarcerea OAuth `/publicare/autorizare`.
+
 ### F9.9 — Site și blog
 - `publicare.blog` (articolul F7.10 ca livrabil cu aprobare), `connectors.publicare.blog` (blogul găzduit și WordPress); `seo.articole.scrie(publica=)`.
 

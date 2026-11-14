@@ -523,3 +523,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `publicare.sanatate`. Hotărâri (D-007): pauza din seria de erori e aceeași cu cea de la autentificare (o ridică un om sau reautorizarea). Verificat: 3 teste de integrare.
 - **F9.9 — Site și blog (H6).**
   - Construit: `publicare.blog`, `ConectorBlog`, WordPress simulat. Hotărâri (D-007): comportamentul implicit F7.10 rămâne (publicare directă), drumul cu aprobare e opțional; blogul găzduit e un cont „găzduit” fără parolă. Verificat: 12 teste de contract, 1 de integrare.
+- **F9.10 — Ecranul „Publicare”.**
+  - Construit: `panou.publicare_canale_web`, șablonul `publicare_canale.html`; starea OAuth poartă clientul. Verificat: 1 test de integrare.

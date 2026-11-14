@@ -215,7 +215,7 @@ def salveaza_token(
 def incepe_oauth(db: Session, tenant_id: uuid.UUID, canal: str) -> str:
     """Starea OAuth (anti-CSRF): valoarea pleacă la platformă, în bază rămâne doar HMAC-ul ei."""
     c = cont(db, tenant_id, canal) or configureaza(db, tenant_id, canal)
-    stare = f"{canal}.{secrets.token_urlsafe(24)}"
+    stare = f"{canal}.{tenant_id}.{secrets.token_urlsafe(24)}"
     c.stare_oauth = criptare.hmac_valoare("oauth", stare)
     db.flush()
     return stare
@@ -223,7 +223,7 @@ def incepe_oauth(db: Session, tenant_id: uuid.UUID, canal: str) -> str:
 
 def consuma_oauth(db: Session, tenant_id: uuid.UUID, canal: str, stare: str) -> bool:
     c = cont(db, tenant_id, canal)
-    if c is None or c.stare_oauth is None or not stare.startswith(f"{canal}."):
+    if c is None or c.stare_oauth is None or not stare.startswith(f"{canal}.{tenant_id}."):
         return False
     bun = hmac.compare_digest(bytes(c.stare_oauth), criptare.hmac_valoare("oauth", stare))
     if bun:
