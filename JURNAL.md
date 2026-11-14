@@ -521,3 +521,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `publicare.programare`, migrarea `0056`, fluxul `publicare.tic` în worker. Hotărâri (D-007): pauza de criză = oprirea existentă (F2.9), nu un mecanism nou; postarea care cade într-o zi blocată după programare se mută pe primul slot liber. Verificat: 2 teste de integrare.
 - **F9.8 — Gardianul sănătății conturilor.**
   - Construit: `publicare.sanatate`. Hotărâri (D-007): pauza din seria de erori e aceeași cu cea de la autentificare (o ridică un om sau reautorizarea). Verificat: 3 teste de integrare.
+- **F9.9 — Site și blog (H6).**
+  - Construit: `publicare.blog`, `ConectorBlog`, WordPress simulat. Hotărâri (D-007): comportamentul implicit F7.10 rămâne (publicare directă), drumul cu aprobare e opțional; blogul găzduit e un cont „găzduit” fără parolă. Verificat: 12 teste de contract, 1 de integrare.

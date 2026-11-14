@@ -31,7 +31,7 @@ from app.ids import new_id
 from app.logging import get_logger
 from app.operare import audit, efecte, motor, opriri
 from app.productie import Stare
-from app.publicare import asistata, canale, consimtamant, fisiere
+from app.publicare import asistata, blog, canale, consimtamant, fisiere
 from app.publicare.modele import BazaPublicare
 
 log = get_logger("app.publicare.programare")
@@ -256,6 +256,11 @@ def pachet_api(db: Session, lv: productie.Livrabil, m: canale.ModEfectiv) -> dic
     vizibilitatea (privată / ciornă cât aplicația e în test). Fără tokenuri și fără conținutul fișierului
     (doar calea)."""
     c = validare.continut.citeste(db, lv.id, lv.versiune)
+    if lv.canal == blog.CANAL:
+        try:
+            return blog.pachet(c)
+        except blog.ArticolRefuzat as exc:
+            raise EroareProgramare(str(exc)) from None
     p: dict[str, Any] = {
         "text": c.text,
         "titlu": str(c.campuri.get("titlu", ""))[:200],
@@ -489,7 +494,8 @@ def dupa_decizie(
     (pe canalele asistate, pachetul îl pregătește `asistata.dupa_decizie`)."""
     if hotarare is not productie.Hotarare.APROBAT or not canale.are_api(lv.canal):
         return
-    if not asistata.din_calendar(db, lv.id) or not canale.mod(db, lv.tenant_id, lv.canal).automat:
+    din_calendar = asistata.din_calendar(db, lv.id) or lv.canal == blog.CANAL  # articolele F7.10 (F9.9)
+    if not din_calendar or not canale.mod(db, lv.tenant_id, lv.canal).automat:
         return
     alege_drumul(db, lv.id, utilizator_id=ap.decis_de)
 

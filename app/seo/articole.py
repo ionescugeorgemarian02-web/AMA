@@ -120,8 +120,11 @@ def _apel(
     return r.iesire, r.model
 
 
-def scrie(db: Session, tenant_id: uuid.UUID, g: Grup, surse: list[dict[str, str]]) -> dict[str, Any]:
-    """Brieful, cei trei pași, lista on-page și validarea. Publică doar dacă trece tot."""
+def scrie(
+    db: Session, tenant_id: uuid.UUID, g: Grup, surse: list[dict[str, str]], *, publica: bool = True
+) -> dict[str, Any]:
+    """Brieful, cei trei pași, lista on-page și validarea. Publică doar dacă trece tot. `publica=False`:
+    articolul merge la aprobare și pe blog prin publicarea prin API (F9.9, `publicare.blog`)."""
     continut.prompturi.asigura()
     b = brief(g, surse)
     var = {
@@ -168,8 +171,11 @@ def scrie(db: Session, tenant_id: uuid.UUID, g: Grup, surse: list[dict[str, str]
         "omise": list(rez.omise),
         "surse_citate": surse_citate,
         "publicat": False,
+        "descriere": plan.descriere,
+        "articol": a,
+        "model": model,
     }
-    if not on_page and rez.trece:
+    if publica and not on_page and rez.trece:
         with sesiune_agentie() as adb:  # blogul e al agenției (site_articole: contextul de agenție)
             site.blog.publica(
                 adb,

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F9.9 — Site și blog
+- `publicare.blog` (articolul F7.10 ca livrabil cu aprobare), `connectors.publicare.blog` (blogul găzduit și WordPress); `seo.articole.scrie(publica=)`.
+
 ### F9.8 — Gardianul sănătății conturilor
 - `publicare.sanatate` (expirarea tokenurilor, seria de erori → pauză, limitele citite), jobul orar `publicare.sanatate`, `efecte.autorizare.pune_pe_pauza`.
 

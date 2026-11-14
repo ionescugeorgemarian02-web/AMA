@@ -60,6 +60,7 @@ CERINTE: dict[str, tuple[str, str] | None] = {
     "linkedin": ("linkedin", "profil"),
     "linkedin_pagina": ("linkedin", "pagina"),
     "tiktok": ("tiktok", "publicare"),
+    "blog": None,
 }
 
 

@@ -72,6 +72,7 @@ CONTEXT_AGENTIE = {
     "app/publicare/cote.py",
     "app/publicare/programare.py",  # jobul la minut (F9.7): fără utilizator, peste toți clienții
     "app/publicare/sanatate.py",  # gardianul conturilor (F9.8): fără utilizator, peste toți clienții
+    "app/connectors/publicare/blog.py",  # blogul găzduit al agenției (F9.9): site_articole e al agenției
     "app/seo/articole.py",
 }
 
