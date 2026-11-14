@@ -491,3 +491,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit la F8.7: blocajul reciproc din `test_portal_date` (de două ori din patru rulări) venea din test: numărarea rândurilor ținea, într-o singură tranzacție, blocaje pe toate tabelele, iar ștergerea le ia pe rând în acces exclusiv; mai multe tabele (F8) au lărgit fereastra. Numărarea rulează acum în autocommit.
 - **F8.8 — Controlul media (G6) și auditorul vizual (G5).**
   - Construit: `media.control`, `media.vizual`, controlul în montaj. Găsit: o fotografie fără mișcare în formatul B e un îngheț pentru G6 (acum fotografiile se mișcă mereu); intervalele de îngheț lipite se unesc; contrastul se măsoară pe miezul literelor, nu pe media cu marginile netezite. Verificat: 2 teste de integrare.
+- **F8.9 — Testul de capacitate.**
+  - Construit: `media.fluxuri`, `media.capacitate`, măsurarea rulărilor ffmpeg (`ffmpeg.masurare`). Verificat: 1 test de integrare; cifrele locale în ieșirea testului.
+  - Găsit: bucla de texte fără pauză ținea GIL-ul și sufoca firele executorului (testul trecea de plafonul de 120 s); tonurile vocii simulate se memorează, stock-ul deja adus nu se mai descarcă.

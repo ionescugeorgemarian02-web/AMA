@@ -24,6 +24,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from PIL import Image, ImageDraw, ImageFilter
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.media import biblioteca, ffmpeg
@@ -150,7 +151,18 @@ def cauta_stock(interogare: str, *, tip: str = "foto", n: int = 3) -> list[Rezul
 
 
 def aduce_stock(db: Session, tenant_id: uuid.UUID, r: RezultatStock) -> Activ:
-    """Descarcă și înregistrează, cu identificatorul, autorul și copia licenței de la data descărcării."""
+    """Descarcă și înregistrează, cu identificatorul, autorul și copia licenței de la data descărcării.
+    Un fișier deja adus (același furnizor și identificator) nu se mai descarcă."""
+    existent = db.execute(
+        select(Activ).where(
+            Activ.tenant_id == tenant_id,
+            Activ.sursa == "stock",
+            Activ.licenta["furnizor"].astext == r.furnizor,
+            Activ.licenta["identificator"].astext == r.identificator,
+        )
+    ).scalar_one_or_none()
+    if existent is not None:
+        return existent
     corp = _stock.descarca(r)
     return biblioteca.incarca(
         db,

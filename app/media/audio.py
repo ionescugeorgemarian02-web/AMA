@@ -9,6 +9,7 @@ import math
 import struct
 import sys
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Any
 
 BUCATA_CUVINTE = b"amaw"
@@ -73,6 +74,13 @@ def liniste(rata: int, secunde: float) -> array.array:  # type: ignore[type-arg]
 
 def ton(rata: int, secunde: float, frecventa: float, amplitudine: float = 0.3) -> array.array:  # type: ignore[type-arg]
     """Un ton cu armonici și anvelopă moale (seamănă, ca energie, cu o silabă rostită)."""
+    a = array.array("h")
+    a.frombytes(_ton(rata, secunde, frecventa, amplitudine))
+    return a
+
+
+@lru_cache(maxsize=1024)
+def _ton(rata: int, secunde: float, frecventa: float, amplitudine: float) -> bytes:
     n = round(rata * secunde)
     rampa = max(1, min(n // 4, round(rata * 0.015)))
     a = array.array("h", bytes(2 * n))
@@ -81,7 +89,7 @@ def ton(rata: int, secunde: float, frecventa: float, amplitudine: float = 0.3) -
         env = min(1.0, i / rampa, (n - 1 - i) / rampa)
         v = math.sin(w * i) + 0.5 * math.sin(2 * w * i) + 0.25 * math.sin(3 * w * i)
         a[i] = int(32767 * amplitudine * env * v / 1.75)
-    return a
+    return a.tobytes()
 
 
 def energii(w: Wav, cadru_sec: float = 0.01) -> list[float]:

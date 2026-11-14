@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.9 — Testul de capacitate
+- `media.fluxuri` (randarea ca job durabil pe coada `greu`) și `media.capacitate` (raportul față de bugete).
+
 ### F8.8 — Controlul media (G6) și auditorul vizual (G5)
 - `media.control` (G6 dintr-o singură decodare + ffprobe) și `media.vizual` (G5 din pixeli); montajul respinge videoul care nu trece G6.
 

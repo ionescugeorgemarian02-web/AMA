@@ -14,8 +14,10 @@ r = media.montaj.produ(db, tenant_id, lm)  # video vertical final, fără interv
 from app.media import (
     audio,
     biblioteca,
+    capacitate,
     control,
     ffmpeg,
+    fluxuri,
     furnizori,
     licente,
     lista,
@@ -35,8 +37,10 @@ from app.media import (
 __all__ = [
     "audio",
     "biblioteca",
+    "capacitate",
     "control",
     "ffmpeg",
+    "fluxuri",
     "furnizori",
     "licente",
     "lista",
