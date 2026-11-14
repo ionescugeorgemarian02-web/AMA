@@ -21,8 +21,8 @@ apoi F10 (ramura B).
 
 | Pas | Stare |
 | --- | --- |
-| F10.1 Colectorul de metrici | în lucru |
-| F10.2 Curba de retenție YouTube | neînceput |
+| F10.1 Colectorul de metrici | **închis** (împins) |
+| F10.2 Curba de retenție YouTube | urmează |
 | F10.3 Legarea de etichete | neînceput |
 | F10.4 Tablouri de bord și scor de sănătate | neînceput |
 | F10.5 Raportul lunar complet | neînceput |

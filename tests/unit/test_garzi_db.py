@@ -74,6 +74,9 @@ CONTEXT_AGENTIE = {
     "app/publicare/sanatate.py",  # gardianul conturilor (F9.8): fără utilizator, peste toți clienții
     "app/connectors/publicare/blog.py",  # blogul găzduit al agenției (F9.9): site_articole e al agenției
     "app/seo/articole.py",
+    # Colectorul de metrici (F10.1): job fără utilizator; lista postărilor de citit e peste toți clienții, iar
+    # citirea și scrierea fiecăreia rulează pe clientul ei.
+    "app/analiza/colector.py",
 }
 
 

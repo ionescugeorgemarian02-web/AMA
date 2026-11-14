@@ -68,3 +68,16 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
   exemplelor în setul de aur, aprobări) sunt funcții ale produsului: se construiesc complet, dar nu sunt condiții pentru a închide pașii.
 - **Consecințe:** D-004, D-005 și D-006 sunt adoptate (nu mai sunt propuneri). În `docs/specs/STARE.md` starea fiecărui pas spune ce este
   verificat local și ce depinde de resurse externe, nu ce „așteaptă proprietarul”.
+
+### D-009 (2026-11-14) — Colectorul de metrici: cititori separați, 10 minute, intervalul ratat rămâne ratat
+
+- **Context:** `docs/07` §7.2 cere metrici la 1 oră, 24 de ore, 72 de ore, 7 și 28 de zile, dar nu spune ce se întâmplă când o citire
+  întârzie sau lipsește, nici unde stă citirea față de conectorii de publicare. Două sesiuni lucrează în paralel (F9 și F10).
+- **Hotărâre (D-007):** (1) citirea metricilor stă în cititori separați (`app/connectors/metrici/`), chemați prin ușa executorului;
+  conectorii de publicare nu se modifică. (2) Jobul rulează la 10 minute, ca citirea de la 1 oră să întârzie cel mult 10 minute.
+  (3) Un interval se citește doar cât e „deschis” (până la intervalul următor; ultimul, încă 7 zile [I]); după aceea rândul e `ratat`,
+  fără cifre. (4) Cifra pe care platforma nu o dă nu se scrie (nu devine zero). (5) Canalele fără citire prin API primesc cifre
+  introduse de om, marcate `manual`, care nu pot înlocui o citire prin API.
+- **Consecințe:** rapoartele (F10.5) și învățarea (F11) pot avea încredere că o cifră de la „24 de ore” a fost citită în fereastra ei.
+  Verificarea de completitudine (`colector.completitudine`) arată câte intervale lipsesc. Grația de 7 zile se revizuiește pe date reale.
+

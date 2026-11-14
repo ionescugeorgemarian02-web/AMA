@@ -4,6 +4,12 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F10.1 — Colectorul de metrici
+- `analiza.colector` (citiri la 1 oră, 24 de ore, 72 de ore, 7 și 28 de zile; intervale ratate și indisponibile; cifre introduse de om; verificarea de completitudine), jobul `analiza.colector` la 10 minute, cititorii `connectors.metrici` (Facebook, Instagram, YouTube, LinkedIn, TikTok, fals), ușa `efecte.metrici`, tipul `contract.Metrici`. Migrarea `0057`.
+
+### Coordonare — două sesiuni de cod în paralel
+- `docs/specs/COORDONARE.md`: repartizarea fazelor, migrările rezervate, regulile pentru fișierele comune, reluarea după limita de utilizare.
+
 ### F9.10 — Ecranul „Publicare”
 - `/publicare/canale` (aprobările API, conturile, modul, coada, trecerea pe asistat, reautorizarea) și întoarcerea OAuth `/publicare/autorizare`.
 

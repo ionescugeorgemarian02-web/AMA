@@ -525,3 +525,15 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `publicare.blog`, `ConectorBlog`, WordPress simulat. Hotărâri (D-007): comportamentul implicit F7.10 rămâne (publicare directă), drumul cu aprobare e opțional; blogul găzduit e un cont „găzduit” fără parolă. Verificat: 12 teste de contract, 1 de integrare.
 - **F9.10 — Ecranul „Publicare”.**
   - Construit: `panou.publicare_canale_web`, șablonul `publicare_canale.html`; starea OAuth poartă clientul. Verificat: 1 test de integrare.
+
+## 2026-11-14 — Sesiunea B: coordonare și faza F10 (Analiză și cercetare)
+- **Coordonare.**
+  - A doua sesiune de cod, pornită de proprietar ca să lucreze în paralel cu prima. Ramura `claude/tender-franklin-9wrn5i`, pornită din vârful F9.10 (`3d09d15`) al ramurii `claude/amazing-volta-ou9t2u`. Repartizarea (F9 + F12 la sesiunea A, F10 + F11 la sesiunea B), migrările rezervate și regulile pentru fișierele comune sunt în `docs/specs/COORDONARE.md`; sesiunea A a fost anunțată prin mesaj.
+  - Sarcină programată la oră care trimite sesiunii „continuă de unde ai rămas” (reluarea după limita de utilizare).
+  - Mediu: containerul nou nu are `pgvector`; fără el toate testele cu bază pică la pregătire. Comanda e în `COORDONARE.md`.
+- **F10.1 — Colectorul de metrici.**
+  - Construit: `analiza.colector`, `analiza.modele`, `connectors.metrici` (șase cititori), `efecte.metrici`, `contract.Metrici`, migrarea `0057`, spec F10.1. Hotărâri (D-009): cititori separați de conectorii de publicare (F9 neatins); rulare la 10 minute; intervalul ratat rămâne fără cifre; cifra lipsă nu devine zero; cifre introduse de om pentru canalele asistate.
+  - Găsit de teste: `EroareAutentificare` moștenește `EroareDefinitiva`; prinsă în ordinea greșită, un token expirat ar fi marcat intervalul „indisponibil” în loc să aștepte reautorizarea. Ordinea e corectată și comentată.
+  - Verificat: 13 teste unitare, 10 de contract, 8 de integrare, 3 de izolare.
+  - Rămâne deschis: formularul de introducere manuală a cifrelor (vine cu F10.4); toți cititorii reali sunt NEVERIFICAȚI pe conturi reale.
+

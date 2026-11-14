@@ -1,5 +1,12 @@
-"""Modulul analiza: raportul lunar (F7.8, prima formă, fără metrici); analiza de performanță vine în F10."""
+"""Modulul analiza (F10): colectorul de metrici (K1) și raportul lunar.
 
-from app.analiza import raport_lunar
+from app import analiza
 
-__all__ = ["raport_lunar"]
+analiza.colector.colecteaza()                       # jobul `analiza.colector`, la 10 minute
+analiza.colector.ale_livrabilului(db, livrabil_id)  # citirile pe intervale ale unei postări
+"""
+
+from app.analiza import colector, raport_lunar
+from app.analiza.modele import MetriciPostare
+
+__all__ = ["MetriciPostare", "colector", "raport_lunar"]
