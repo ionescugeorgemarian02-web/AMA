@@ -53,6 +53,12 @@ CERERI: dict[tuple[str, str], dict[str, str]] = {
         "clienților, ca administrator al paginii.",
         "publicare": "POST /rest/posts",
     },
+    ("tiktok", "publicare"): {
+        "titlu": "Auditul TikTok Content Posting API",
+        "caz": "Agenția trimite clipurile aprobate ca ciornă în aplicația creatorului sau, după audit, le "
+        "publică direct, doar după previzualizare și consimțământul explicit al omului.",
+        "publicare": "POST /video/init/",
+    },
 }
 DIRECTOR = "inregistrari"
 

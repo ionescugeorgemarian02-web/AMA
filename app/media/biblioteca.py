@@ -189,6 +189,11 @@ def ale_clientului(db: Session, tenant_id: uuid.UUID, *, limita: int = 200) -> l
     )
 
 
+def citeste_activ(db: Session, activ_id: uuid.UUID) -> Activ | None:
+    """Un activ al clientului din sesiune (RLS), după id (publicarea, F9)."""
+    return db.get(Activ, activ_id)
+
+
 def citeste_fisier(a: Activ) -> bytes:
     baza = Path(get_settings().media_dir).resolve()
     cale = (baza / a.cale).resolve()

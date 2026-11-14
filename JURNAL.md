@@ -515,3 +515,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `ConectorYoutube`, YouTube simulat (blochează pe privat proiectul neauditat), `publicare.cote`, migrarea `0054`. Hotărâri (D-007): costurile pe metodă sunt configurare (citite din consolă), consumul se numără atomic pe ziua Pacific; `verifica` prin lista de încărcări (1 unitate), nu prin căutare (100). Verificat: 13 teste de contract, 1 de integrare.
 - **F9.5 — LinkedIn.**
   - Construit: `ConectorLinkedin` (profil / pagină), LinkedIn simulat. Hotărâri (D-007): pagina e un canal separat (`linkedin_pagina`), cu cerința ei; limita = postările de azi citite din API față de plafonul documentat. Verificat: 25 de teste de contract, 1 de integrare.
+- **F9.6 — TikTok.**
+  - Construit: `ConectorTiktok`, TikTok simulat, `publicare.consimtamant`, `publicare.fisiere`, `media.biblioteca.citeste_activ`, ecranul de previzualizare, migrarea `0055`. Hotărâri (D-007): modul (ciornă / direct) îl pune publicarea din aprobare; consimțământul e pe versiune; ciornele nu se caută în `verifica` (o ciornă dublă o vede omul). Verificat: 15 teste de contract, 1 de integrare.

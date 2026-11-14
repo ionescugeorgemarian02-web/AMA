@@ -87,6 +87,16 @@ def stare_postare(tenant_id: uuid.UUID, canal: str, id_extern: str) -> StarePost
     return conector(canal).stare(tenant_id, id_extern)
 
 
+def previzualizare(tenant_id: uuid.UUID, canal: str) -> dict[str, Any]:
+    """Opțiunile contului citite chiar acum de la platformă, pentru previzualizarea dinaintea consimțământului
+    (TikTok: `creator_info`)."""
+    c = conector(canal)
+    creator = getattr(c, "creator", None)
+    if creator is None:
+        raise AutorizareRefuzata(f"canalul „{canal}” nu are previzualizare")
+    return dict(creator(tenant_id))
+
+
 def limite(tenant_id: uuid.UUID, canal: str) -> Limite:
     return conector(canal).limite(tenant_id)
 

@@ -182,6 +182,8 @@ class Settings(BaseSettings):
     linkedin_client_id: str = ""
     linkedin_client_secret: SecretStr = Field(default=SecretStr(""))
     linkedin_versiune: str = "202510"
+    tiktok_client_key: str = ""
+    tiktok_client_secret: SecretStr = Field(default=SecretStr(""))
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

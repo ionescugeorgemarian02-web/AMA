@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F9.6 — TikTok
+- `connectors.publicare.tiktok` (ciornă / postare directă), `publicare.consimtamant`, ecranul de previzualizare și consimțământ `/publicare/api/tiktok/<livrabil>`. Migrarea `0055`.
+
 ### F9.5 — LinkedIn
 - `connectors.publicare.linkedin` (Posts API, profil pe `linkedin`, pagină de companie pe `linkedin_pagina`, după aprobare).
 
