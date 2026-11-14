@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F7.7 — Export și ștergere
+- Exportul complet (ZIP) și ștergerea la cerere a datelor clientului (`portal.date`, `db.stergere`, job durabil), din portal. Migrarea `0044`.
+
 ### F7.6 — Facturare
 - Modulul `finante.abonamente`: abonamente prin procesator (adaptor, mediu de probă simulat), webhook-uri semnate, perioada de grație și suspendarea; înscrierea din site; abonamentul și facturile în portal. Migrarea `0043`.
 
