@@ -16,6 +16,7 @@ from app.portal import cont, date, progres
 from app.portal.cont_web import router as router_cont
 from app.portal.lucru_web import router as router_lucru
 from app.portal.materiale_web import router as router_materiale
+from app.portal.prompter_web import router as router_prompter
 from app.portal.rapoarte_web import router as router_rapoarte
 from app.portal.web import router
 
@@ -24,6 +25,7 @@ def inregistreaza(app: FastAPI) -> None:
     app.include_router(router)
     app.include_router(router_lucru)
     app.include_router(router_materiale)
+    app.include_router(router_prompter)
     app.include_router(router_cont)
     app.include_router(router_rapoarte)
 

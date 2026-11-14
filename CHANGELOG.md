@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.12 — Formatul E, om real
+- Prompterul din portal (`/portal/prompter/<livrabil>`), `media.formatul_e` (tăierea pauzelor, subtitrări, nivel) ca job durabil.
+
 ### F8.11 — Proveniență și dezvăluire AI (G11)
 - `media.provenienta`: pașaportul fiecărui fișier final, eticheta pe canal, marcajul în fișier, G11. Migrarea `0052`.
 

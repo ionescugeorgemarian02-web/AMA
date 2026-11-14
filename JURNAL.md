@@ -498,3 +498,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `media.sabloane`, `media.compozitor`, migrarea `0051`. Găsit: în Pillow 12 masca de glifă nu mai are `tobytes`; verificarea glifei desenează caracterul. Verificat: 2 teste de integrare.
 - **F8.11 — Proveniență și dezvăluire AI (G11).**
   - Construit: `media.provenienta`, pașaportul în montaj și în Compozitor, metadatele în randare, migrarea `0052`. Hotărâri (D-007): vocea sintetică cere etichetă (21.9, „sunetul generat care poate părea real”). Verificat: 2 teste.
+- **F8.12 — Formatul E, om real.**
+  - Construit: `portal.prompter_web`, șablonul `portal/prompter.html`, `media.formatul_e`, fluxul `media.format_e`. Verificat: 1 test de integrare.

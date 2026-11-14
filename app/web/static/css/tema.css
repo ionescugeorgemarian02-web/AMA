@@ -137,3 +137,13 @@ code { background: var(--suprafata-2); padding: 1px 5px; border-radius: 4px; wor
 button.mare { width: 100%; min-height: 3rem; font-size: 1.1rem; }
 ins { background: var(--ok-fundal); text-decoration: none; }
 del { background: var(--pericol-fundal); }
+
+/* Prompterul formatului E (F8.12): text mare, defilare lentă, fără JavaScript. */
+.prompter { height: 60vh; overflow: hidden; background: #111; color: #fff; border-radius: 12px; padding: 0 1rem; }
+.prompter-text { font-size: 2rem; line-height: 1.5; padding-top: 60vh; animation: defilare linear forwards; }
+.prompter-text p { margin: 0 0 1.5rem; }
+.prompter-lent { animation-duration: 120s; }
+.prompter-normal { animation-duration: 80s; }
+.prompter-rapid { animation-duration: 50s; }
+@keyframes defilare { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+@media (prefers-reduced-motion: reduce) { .prompter { height: auto; } .prompter-text { animation: none; padding-top: 0; } }
