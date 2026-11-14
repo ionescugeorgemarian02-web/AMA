@@ -83,6 +83,14 @@ def reimprospateaza(db: Session, tenant_id: uuid.UUID, canal: str) -> bool:
     return True
 
 
+def pune_pe_pauza(db: Session, tenant_id: uuid.UUID, canal: str, motiv: str) -> bool:
+    """Pauza conectorului (aceeași ca la eroarea de autentificare): nimic nu pleacă până o ridică un om sau o
+    reautorizare. Întoarce True dacă e nouă (gardianul sănătății, F9.8)."""
+    from app.operare.efecte import servicii
+
+    return servicii.pune_pauza(db, tenant_id, canal, motiv)
+
+
 def stare_postare(tenant_id: uuid.UUID, canal: str, id_extern: str) -> StarePostare:
     return conector(canal).stare(tenant_id, id_extern)
 

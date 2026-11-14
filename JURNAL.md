@@ -519,3 +519,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `ConectorTiktok`, TikTok simulat, `publicare.consimtamant`, `publicare.fisiere`, `media.biblioteca.citeste_activ`, ecranul de previzualizare, migrarea `0055`. Hotărâri (D-007): modul (ciornă / direct) îl pune publicarea din aprobare; consimțământul e pe versiune; ciornele nu se caută în `verifica` (o ciornă dublă o vede omul). Verificat: 15 teste de contract, 1 de integrare.
 - **F9.7 — Planificarea (D4).**
   - Construit: `publicare.programare`, migrarea `0056`, fluxul `publicare.tic` în worker. Hotărâri (D-007): pauza de criză = oprirea existentă (F2.9), nu un mecanism nou; postarea care cade într-o zi blocată după programare se mută pe primul slot liber. Verificat: 2 teste de integrare.
+- **F9.8 — Gardianul sănătății conturilor.**
+  - Construit: `publicare.sanatate`. Hotărâri (D-007): pauza din seria de erori e aceeași cu cea de la autentificare (o ridică un om sau reautorizarea). Verificat: 3 teste de integrare.

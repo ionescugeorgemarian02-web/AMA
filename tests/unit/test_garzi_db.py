@@ -71,6 +71,7 @@ CONTEXT_AGENTIE = {
     # Cota de unități a platformelor (F9.4): a proiectului agenției, nu a unui client.
     "app/publicare/cote.py",
     "app/publicare/programare.py",  # jobul la minut (F9.7): fără utilizator, peste toți clienții
+    "app/publicare/sanatate.py",  # gardianul conturilor (F9.8): fără utilizator, peste toți clienții
     "app/seo/articole.py",
 }
 

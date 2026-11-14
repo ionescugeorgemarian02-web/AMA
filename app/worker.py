@@ -41,6 +41,7 @@ MODULE_FLUXURI: tuple[str, ...] = (
     "app.portal.date",
     "app.media.fluxuri",
     "app.publicare.programare",
+    "app.publicare.sanatate",
 )
 
 
