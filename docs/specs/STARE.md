@@ -151,6 +151,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F7.7 Export și ștergere | verificat local (Postgres real, job durabil): exportul ZIP conține fiecare tabel cu rânduri ale clientului și fișierele, nimic de la alt client; ștergerea la cerere confirmată elimină tot în afară de audit și cerere, anonimizează utilizatorii, șterge fișierele, lasă RLS forțat și celălalt client neatins. **Owner URL pe worker și copiile de siguranță: la migrare** | `tests/integration/test_portal_date.py` |
 | F7.8 Raportul lunar, prima formă | verificat local (Postgres real, model FALS): pentru un brand propriu, raportul cu cele 7 secțiuni din 19.6 (livrat pe tip față de pachet, aprobări din prima, motive, plan, nevoi), fără metrici (spus explicit), vizibil în portal, regenerare fără dublură. **Metricile: F10** | `tests/integration/test_raport_lunar.py` |
 | F7.9 Oferta, pâlnia și paginile de captare | verificat local (cascada reală, model FALS): pagina de audit a agenției generată de D2 + E3 trece G2, G3, G9 și are un singur apel la acțiune, publicată de un om la `/site/p/audit-gratuit`; o pagină cu al doilea îndemn e respinsă. **Modelele reale și judecătorii: la migrare** | `tests/integration/test_oferta_captare.py` |
+| F7.10 Cercetarea SEO și articolele | verificat local (cascada reală, model FALS, surse inventate): grupuri pe intenție, brief SEO, articol în trei pași, lista on-page deterministă; două articole trec validarea și lista și apar pe blog cu sursele citate. **Modelele reale, sursele reale, volumele de căutare: la migrare** | `tests/integration/test_seo_articole.py` |
 
 ### De verificat la migrare (F7)
 - F7.1: domeniul public al agenției și regula din proxy (rădăcina → `/site`), `AMA_SITE_URL`; Lighthouse pe telefon real; textele juridice finale (F0.6) și datele firmei (F0.1); prețurile [I] din `finante.planuri`.
@@ -162,3 +163,4 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F7.7: `AMA_DATABASE_OWNER_URL` disponibil workerului (sau comandă de întreținere) pentru ștergere; rotația copiilor de siguranță față de ștergere; ștergerea datelor primite de la platformele sociale.
 - F7.8: raportul pentru CariereAI și BigBrain pe date reale; trimiterea lunară; metricile (F10).
 - F7.9: pagina de captare generată de modelele reale; lista de îndemnuri [I] calibrată; judecătorii G3/G9.
+- F7.10: articolele pe modelele reale, cu surse din cercetare (F10); volumele de căutare (sursă externă); pragurile on-page [I].

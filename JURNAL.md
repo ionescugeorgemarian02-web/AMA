@@ -466,3 +466,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `analiza.raport_lunar`, `portal.rapoarte_web`, migrarea `0045`. Hotărâri: luna după slotul livrabilelor. Verificat: 1 test.
 - **F7.9 — Oferta, pâlnia și paginile de captare.**
   - Construit: `oferta.pagini`, `validare.independent`, două prompturi, `site.captare_web`, migrarea `0046`. Găsit: „gratuit” e o afirmație G2 (cere faptul aprobat). Verificat: 2 teste.
+- **F7.10 — Cercetarea SEO și articolele.**
+  - Construit: `seo.cuvinte`, `seo.articole`, trei prompturi. Găsit: citările [n] erau luate de G2 drept cifre; nu intră în textul validat. Verificat: 2 teste.

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F7.10 — Cercetarea SEO și articolele
+- Modulul `app/seo`: grupuri de cuvinte-cheie pe intenție, brief SEO, articol în trei pași, lista on-page deterministă, validare și publicare pe blog cu surse.
+
 ### F7.9 — Oferta, pâlnia și paginile de captare
 - Modulul `app/oferta`: arhitectul de ofertă (D2) și copywriterul de conversie (E3), validarea G2/G3/G9 + un singur apel la acțiune, pagina găzduită `/site/p/<slug>`; `validare.independent` pentru texte care nu sunt livrabile. Migrarea `0046`.
 
