@@ -166,3 +166,14 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F7.9: pagina de captare generată de modelele reale; lista de îndemnuri [I] calibrată; judecătorii G3/G9.
 - F7.10: articolele pe modelele reale, cu surse din cercetare (F10); volumele de căutare (sursă externă); pragurile on-page [I].
 - Poarta F7: drumul repetat pe VPS cu procesatorul real (mediul lui de probă), emailul real și domeniul agenției.
+
+## Faza F8 — Media
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F8.1 Vocea și licența ei | verificat local (Postgres real): o frază în română sintetizată frază cu frază (motor SIMULAT, pauze 200 ms), salvată ca activ `audio` cu licența vocii (profil, motor, statut) în `active.licenta` și în audit; vocea de pornire Piper rămâne `de_verificat` și nu se publică. **Piper real și licența vocii: la migrare** | `tests/integration/test_media_voce.py`, `tests/unit/test_media_voce.py` |
+<!-- F8-RANDURI -->
+
+### De verificat la migrare (F8)
+- F8.1: Piper instalat pe VPS (`AMA_PIPER_BIN`, `AMA_PIPER_MODELE`), vocea românească de pornire și verificarea dreptului comercial pe lanțul ei de antrenare; vocea proprie (acord scris, ~2 ore, antrenare pe GPU închiriat); ritmul real față de motorul simulat.
+<!-- F8-MIGRARE -->

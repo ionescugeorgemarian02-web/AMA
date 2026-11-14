@@ -1,10 +1,11 @@
-"""Tabelele media (migrarea 0042): biblioteca de active a clientului."""
+"""Tabelele media (migrările 0042, 0047+): biblioteca de active a clientului, cu licența și generarea."""
 
 import datetime as dt
 import uuid
+from typing import Any
 
 from sqlalchemy import BigInteger, DateTime, Text, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.ids import new_id
@@ -27,6 +28,8 @@ class Activ(BazaMedia):
     sursa: Mapped[str] = mapped_column(Text)
     descriere: Mapped[str] = mapped_column(Text, default="")
     incarcat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    licenta: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
+    generare: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -41,3 +44,4 @@ class Tendinta(BazaMedia):
     stare: Mapped[str] = mapped_column(Text, default="noua")
     creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+

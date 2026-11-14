@@ -471,3 +471,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **Poarta F7.**
   - Testul cap-coadă trecut pe simulare. Notă de proces: `make check` complet a rulat pe arborele cumulat F7.1–F7.10 (două rulări întrerupte de modificări făcute în paralel au fost aruncate); fiecare pas are testele lui trecute separat. Rezultat final: `make check` 2624 trecute. Commiturile intermediare F7.x nu sunt construibile izolat (fișierele comune sunt în primul pas care le atinge); vârful ramurii e cel verificat.
   - Propuneri: eliminarea EXIF (F8); CRM pentru leaduri (F12); calibrarea listei de îndemnuri G-CTA în banc.
+
+## 2026-11-14 — Sesiunea: faza F8 (Media)
+- **F8.1 — Vocea și licența ei.**
+  - Construit: `media.audio`, `media.voce`, `biblioteca.incarca(licenta=, generare=)`, migrarea `0047`, spec F8.1. Hotărâri (D-007): motorul simulat ca implicit; doar vocea `verificata` se publică; vocea proprie ca țintă. Găsit: `JSONB` fără `none_as_null` scria `null` JSON (refuzat de CHECK). Verificat: 2 teste de integrare, 3 unitare.

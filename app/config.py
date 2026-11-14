@@ -129,6 +129,9 @@ class Settings(BaseSettings):
     # Media pe disc (ADR-15) și colectorul de surse (F4.2, 12.3). User-Agent-ul identifică onest platforma;
     # adresa de contact reală se pune în configurarea serverului (NEVERIFICAT: domeniul agenției, F0.1).
     media_dir: str = "/var/lib/ama/media"
+    # Vocea locală (F8.1, ADR-10). NEVERIFICAT: Piper se instalează pe VPS (la migrare).
+    piper_bin: str = ""
+    piper_modele: str = "/var/lib/ama/voci"
     colector_user_agent: str = Field(
         default=(
             "AMA-Colector/1.0 (robot de citit pagini pentru clientii agentiei de marketing; "

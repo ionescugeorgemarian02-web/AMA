@@ -44,6 +44,7 @@ ignore = ["RUF001", "RUF002", "RUF003"]  # diacritice românești în texte
 "tests/**" = ["S101", "S105", "S106", "S603", "S607", "S608", "E501"]  # S608: nume de tabele constante; E501: SQL
 "migrations/**" = ["S608", "E501"]  # SQL pe o linie
 "scripts/**" = ["S603", "S607"]
+"app/media/**" = ["S603"]  # ffmpeg / ffprobe / piper: liste de argumente construite în cod, fără shell
 
 [tool.mypy]
 python_version = "3.12"

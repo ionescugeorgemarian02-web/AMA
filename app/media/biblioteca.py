@@ -3,7 +3,7 @@
 Un fișier încărcat din portal se verifică după CONȚINUT (semnătura de la început), nu după nume sau după tipul
 declarat de browser; se păstrează pe disc ca `AMA_MEDIA_DIR/<client>/active/<sha256>.<ext>` și intră în
 `active` cu sursa lui (cine, de unde, numele original). Același fișier încărcat de două ori e un singur activ.
-Limite [I]: imagini 25 MB, documente 25 MB, video 300 MB."""
+Limite [I]: imagini 25 MB, documente 25 MB, video 300 MB, audio WAV 200 MB (F8)."""
 
 import hashlib
 import os
@@ -11,6 +11,7 @@ import re
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -37,6 +38,7 @@ TIPURI = {
     "mp4": TipFisier("video/mp4", "mp4", "video", 300 * MB),
     "mov": TipFisier("video/quicktime", "mov", "video", 300 * MB),
     "pdf": TipFisier("application/pdf", "pdf", "document", 25 * MB),
+    "wav": TipFisier("audio/wav", "wav", "audio", 200 * MB),
 }
 NUME_SIGUR = re.compile(r"^[0-9a-f]{64}\.[a-z0-9]{2,5}$")
 
@@ -53,6 +55,8 @@ def detecteaza(corp: bytes) -> TipFisier | None:
         return TIPURI["png"]
     if corp[:4] == b"RIFF" and corp[8:12] == b"WEBP":
         return TIPURI["webp"]
+    if corp[:4] == b"RIFF" and corp[8:12] == b"WAVE":
+        return TIPURI["wav"]
     if corp.startswith(b"%PDF-"):
         return TIPURI["pdf"]
     if corp[4:8] == b"ftyp":
@@ -98,8 +102,11 @@ def incarca(
     sursa: str,
     utilizator_id: uuid.UUID | None,
     descriere: str = "",
+    licenta: dict[str, Any] | None = None,
+    generare: dict[str, Any] | None = None,
 ) -> Activ:
-    """Verifică, salvează și înregistrează un activ. Idempotent pe conținut (același hash, același activ)."""
+    """Verifică, salvează și înregistrează un activ. Idempotent pe conținut (același hash, același activ).
+    `licenta`: statutul drepturilor (F8.1, F8.4), `generare`: promptul / modelul / sămânța (F8.4, 14.3)."""
     tip = verifica(corp)
     h = hashlib.sha256(corp).hexdigest()
     existent = db.execute(
@@ -119,6 +126,8 @@ def incarca(
         sursa=sursa,
         descriere=descriere.strip()[:500],
         incarcat_de=utilizator_id,
+        licenta=licenta,
+        generare=generare,
     )
     db.add(a)
     db.flush()
@@ -129,7 +138,12 @@ def incarca(
         obiect_id=a.id,
         tenant_id=tenant_id,
         utilizator_id=utilizator_id,
-        detalii={"categorie": a.categorie, "sursa": sursa, "marime": a.marime},
+        detalii={
+            "categorie": a.categorie,
+            "sursa": sursa,
+            "marime": a.marime,
+            "licenta": (licenta or {}).get("statut") or (licenta or {}).get("tip"),
+        },
     )
     evenimente.emite(
         db,

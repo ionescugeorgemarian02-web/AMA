@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.1 — Vocea și licența ei
+- `media.voce`: adaptorul motorului de voce (Piper, simulat), profilurile cu licență, narațiunea frază cu frază salvată ca activ `audio` cu statutul licenței; `media.audio` (WAV). Migrarea `0047`.
+
 ### Poarta F7
 - Testul de poartă `tests/integration/test_poarta_f7.py`: un client de test de la audit la plată și la prima aprobare, prin site, procesator (simulat) și portal.
 
