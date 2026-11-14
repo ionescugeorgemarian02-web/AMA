@@ -17,7 +17,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.media import biblioteca, ffmpeg, licente, lista, randare, regizor
+from app.media import biblioteca, ffmpeg, licente, lista, randare, regizor, subtitrari, sunet
 from app.media.modele import Activ, Randare
 
 
@@ -107,7 +107,20 @@ def executa(db: Session, r: Randare) -> Randare:
 
 
 def _randeaza(db: Session, r: Randare, lm: lista.ListaMontaj, tmp: Path) -> bytes:
-    corp, _ = randare.randeaza(lm, intrari(db, lm), calitate=r.calitate)
+    """Sunetul (voce + muzică atenuată, adus la țintă), subtitrările (ASS arse, SRT păstrat), apoi
+    imaginea."""
+    intr = intrari(db, lm)
+    m = lm.muzica
+    mix, nivel = sunet.mixeaza(intr.voce, lm.durata, muzica=intr.muzica, nivel_db=m.nivel_db if m else -16.0,
+                               atenuare=m.atenuare_sub_voce if m else True, director=tmp)  # fmt: skip
+    ecrane = subtitrari.grupeaza(lm) if lm.texte else []
+    ass = None
+    if ecrane:
+        ass = tmp / "subtitrari.ass"
+        ass.write_text(subtitrari.ass(lm, ecrane), encoding="utf-8")
+    corp, _ = randare.randeaza(lm, intr, ass=ass, sunet=mix, calitate=r.calitate)
+    r.masuratori = {**(r.masuratori or {}), "lufs": nivel.lufs, "varf": nivel.varf_dbtp,
+                    "subtitrari_srt": subtitrari.srt(ecrane)}  # fmt: skip
     return corp
 
 

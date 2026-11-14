@@ -486,3 +486,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Notă: o rulare `make check` a picat o dată în `test_portal_date` (blocaj reciproc între jobul de export și cel de ștergere, F7.7, independent de F8); testul trece singur și la rularea completă următoare. Propunere: serializarea joburilor de export și ștergere ale aceluiași client.
 - **F8.6 — Montajul pentru formatele A și B.**
   - Construit: `media.randare`, `media.montaj`, migrarea `0050` (`randari`), configurarea `AMA_MEDIA_PRESET/FIRE/FONTURI` (testele: `ultrafast`). Verificat: 2 teste de integrare (A, B).
+- **F8.7 — Subtitrări și sunet.**
+  - Construit: `media.subtitrari`, `media.sunet`, `furnizori.aduce_muzica`. Găsit: în ASS `Fontsize` e înălțimea rândului (libass desenează ~0,86 din em-ul Pillow); lățimile se măsoară acum la mărimea libass. Verificat: 2 teste de integrare.
+  - Găsit la F8.7: blocajul reciproc din `test_portal_date` (de două ori din patru rulări) venea din test: numărarea rândurilor ținea, într-o singură tranzacție, blocaje pe toate tabelele, iar ștergerea le ia pe rând în acces exclusiv; mai multe tabele (F8) au lărgit fereastra. Numărarea rulează acum în autocommit.

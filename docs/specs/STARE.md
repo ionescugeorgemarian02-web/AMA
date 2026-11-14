@@ -177,6 +177,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F8.4 Furnizorul de imagini și biblioteca de active | verificat local (Postgres real, ffmpeg real): materialul din portal (licența declarată la încărcare, EXIF eliminat), stock foto și video (identificator, autor, copia licenței, data), imaginea generată (prompt, model, sămânță, eticheta AI) se folosesc; activul fără licență, cu licență incompletă sau refuzată nu; baza refuză inserarea directă (declanșator); alt client nu poate. Furnizori SIMULAȚI. **Furnizorii reali: la migrare** | `tests/integration/test_media_active.py` |
 | F8.5 Lista de decizii de montaj și Regizorul | verificat local (Postgres real, gateway cu model FALS): scriptul de probă produce o listă validă; durata = vocea reală + coada, tăieturile cad pe începutul fiecărei bătăi (din timpii pe cuvânt), un text pe cuvânt; alegerile invalide se repară prin rotație; lista cu gol, durată nepotrivită, format greșit sau activ fără licență e respinsă. **Modelul real: la migrare** | `tests/integration/test_media_regizor.py` |
 | F8.6 Montajul pentru formatele A și B | verificat local (Postgres real, FFmpeg real): din listă iese, fără intervenție, un video 1080×1920, H.264, 30 fps, AAC, cu durata listei, pentru formatul A (clipuri) și B (fotografii cu mișcare); licența `productie_proprie` cu componentele, folosirile consemnate, timpul și memoria măsurate. Stock și voce SIMULATE | `tests/integration/test_media_montaj.py` |
+| F8.7 Subtitrări și sunet | verificat local (FFmpeg, libass reale): 2–4 cuvinte pe ecran, un eveniment ASS pe cuvânt la momentul lui, textul alb găsit în cutia calculată pe cadrul extras, diacriticele în fișier; −14 ± 1 LUFS, vârf sub −1 dBTP, muzica mult sub voce; varianta fără muzică trece. Muzică SIMULATĂ. **Zonele sigure pe telefon real: la migrare** | `tests/integration/test_media_subtitrari_sunet.py` |
 <!-- F8-RANDURI -->
 
 ### De verificat la migrare (F8)
@@ -186,4 +187,5 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F8.4: furnizorii reali de stock (chei, cote, condițiile de licență descărcate) și de generare de imagini (cota gratuită, dreptul de uz comercial verificat), în `media.furnizori`; ffmpeg și DejaVu în imaginea de rulare (Dockerfile) verificate pe VPS.
 - F8.5: regia pe modelul real (profilul `creatie`, promptul `media.regizor@1`); coada de 0,6 s și pragurile listei [I] pe montaje reale.
 - F8.6: presetul final (`AMA_MEDIA_PRESET`, implicit `veryfast`) și firele pe job (`AMA_MEDIA_FIRE`) pe VPS; calitatea vizuală a mișcării văzută de un om.
+- F8.7: zonele sigure [I] față de aplicațiile reale (capturi pe telefon); biblioteca de muzică reală, cu licența fiecărei piese; OCR pe cadre.
 <!-- F8-MIGRARE -->

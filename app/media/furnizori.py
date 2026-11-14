@@ -18,6 +18,7 @@ import hashlib
 import io
 import random
 import re
+import tempfile
 import uuid
 from dataclasses import dataclass
 from typing import Protocol
@@ -206,3 +207,49 @@ def genereaza_imagine(
             "samanta": samanta,
         },
     )
+
+
+# --- muzica (F8.7, 14.8): bibliotecă cu licență clară, fiecare piesă cu fișierul ei de licență
+
+
+class BibliotecaMuzica(Protocol):
+    nume: str
+
+    def piesa(self, stare: str, durata: float) -> tuple[bytes, dict[str, str]]: ...
+
+
+class MuzicaSimulata:
+    """# SIMULAT: o piesă instrumentală sintetizată local (acorduri lente), deterministă după „stare”."""
+
+    nume = "muzica-simulata"
+
+    def piesa(self, stare: str, durata: float) -> tuple[bytes, dict[str, str]]:
+        r = _rng(stare)
+        baza = r.choice([196.0, 220.0, 247.0, 262.0])
+        expr = "+".join(
+            f"0.12*sin(2*PI*{baza * m:.2f}*t)*(0.6+0.4*sin(2*PI*{0.25 * (k + 1):.2f}*t))"
+            for k, m in enumerate((1.0, 1.25, 1.5, 2.0))
+        )
+        with tempfile.TemporaryDirectory() as d:
+            iesire = f"{d}/m.wav"
+            ffmpeg.ruleaza(["-f", "lavfi", "-i", f"aevalsrc={expr}:s=48000:d={durata:.2f}", "-ac", "1",
+                            "-c:a", "pcm_s16le", iesire])  # fmt: skip
+            with open(iesire, "rb") as f:
+                corp = f.read()
+        return corp, {
+            "identificator": f"piesa-{stare}",
+            "autor": "Compozitor Simulat",
+            "copie": "Licență de probă: sincronizare în video comercial permisă pe orice platformă.",
+        }
+
+
+_muzica: BibliotecaMuzica = MuzicaSimulata()
+
+
+def aduce_muzica(db: Session, tenant_id: uuid.UUID, stare: str = "calm", durata: float = 20.0) -> Activ:
+    corp, lic = _muzica.piesa(stare, durata)
+    return biblioteca.incarca(
+        db, tenant_id, corp, nume_original=f"{lic['identificator']}.wav", sursa="muzica", utilizator_id=None,
+        descriere=f"muzică {stare}",
+        licenta={"tip": "muzica", "statut": "verificata", "furnizor": _muzica.nume, **lic},
+    )  # fmt: skip

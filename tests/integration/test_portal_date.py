@@ -29,7 +29,9 @@ WHERE c.relnamespace = 'public'::regnamespace AND c.relkind = 'r'"""
 
 
 def randuri(admin: Engine, tenant: uuid.UUID) -> dict[str, int]:
-    with admin.connect() as c:
+    # Fiecare numărare în tranzacția ei (autocommit): o citire care ține blocaje pe mai multe tabele deodată intră
+    # în blocaj reciproc cu ștergerea, care ia tabelele pe rând în acces exclusiv (apărut odată cu tabelele F8).
+    with admin.connect().execution_options(isolation_level="AUTOCOMMIT") as c:
         tabele = [r[0] for r in c.execute(text(CU_TENANT))]
         rez = {t: c.execute(text(f'SELECT count(*) FROM "{t}" WHERE tenant_id = :t'), {"t": tenant}).scalar_one()
                for t in tabele}  # fmt: skip

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.7 — Subtitrări și sunet
+- `media.subtitrari` (ecrane de 2–4 cuvinte, evidențiere, zone sigure pe canal, ASS + SRT) și `media.sunet` (muzica atenuată sub voce, −14 LUFS, limitator); muzica simulată cu licență.
+
 ### F8.6 — Montajul pentru formatele A și B
 - `media.randare` (lista -> graful FFmpeg) și `media.montaj` (pregătire, randare, înregistrare cu licența componentelor). Migrarea `0050`.
 
