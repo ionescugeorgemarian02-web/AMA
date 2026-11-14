@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F7.9 — Oferta, pâlnia și paginile de captare
+- Modulul `app/oferta`: arhitectul de ofertă (D2) și copywriterul de conversie (E3), validarea G2/G3/G9 + un singur apel la acțiune, pagina găzduită `/site/p/<slug>`; `validare.independent` pentru texte care nu sunt livrabile. Migrarea `0046`.
+
 ### F7.8 — Raportul lunar, prima formă
 - `analiza.raport_lunar`: raportul lunar, prima formă (livrabile și stare, fără metrici), în portal. Migrarea `0045`.
 

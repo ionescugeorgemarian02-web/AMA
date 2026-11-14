@@ -464,3 +464,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `db.stergere`, `portal.date`, migrarea `0044`. Găsit: politicile forțate se aplică și proprietarului; ștergerea setează contextul de agenție și ocolește politicile doar pe tabelul în lucru. Verificat: 2 teste.
 - **F7.8 — Raportul lunar, prima formă.**
   - Construit: `analiza.raport_lunar`, `portal.rapoarte_web`, migrarea `0045`. Hotărâri: luna după slotul livrabilelor. Verificat: 1 test.
+- **F7.9 — Oferta, pâlnia și paginile de captare.**
+  - Construit: `oferta.pagini`, `validare.independent`, două prompturi, `site.captare_web`, migrarea `0046`. Găsit: „gratuit” e o afirmație G2 (cere faptul aprobat). Verificat: 2 teste.
