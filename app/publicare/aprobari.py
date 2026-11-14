@@ -47,6 +47,12 @@ CERERI: dict[tuple[str, str], dict[str, str]] = {
         "clienților, cu declarația de conținut sintetic și cu vizibilitatea aleasă.",
         "publicare": "PUT /upload/youtube/v3/videos",
     },
+    ("linkedin", "pagina"): {
+        "titlu": "LinkedIn Community Management API",
+        "caz": "Agenția publică, după aprobarea omului, postările aprobate pe paginile de companie ale "
+        "clienților, ca administrator al paginii.",
+        "publicare": "POST /rest/posts",
+    },
 }
 DIRECTOR = "inregistrari"
 

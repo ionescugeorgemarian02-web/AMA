@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F9.5 — LinkedIn
+- `connectors.publicare.linkedin` (Posts API, profil pe `linkedin`, pagină de companie pe `linkedin_pagina`, după aprobare).
+
 ### F9.4 — YouTube
 - `connectors.publicare.youtube` (OAuth Google, încărcare reluabilă, câmpul de conținut sintetic, vizibilitatea după audit, costul în unități), `publicare.cote`. Migrarea `0054`.
 

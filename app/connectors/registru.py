@@ -3,6 +3,7 @@
 
 import importlib
 from dataclasses import dataclass
+from typing import Any
 
 from app.connectors.contract import Conector, ConectorSistem
 from app.operare.motor import DefinitieCoada
@@ -32,6 +33,8 @@ FABRICI: dict[str, str] = {
     "facebook": "app.connectors.publicare.facebook:ConectorFacebook",
     "instagram": "app.connectors.publicare.instagram:ConectorInstagram",
     "youtube": "app.connectors.publicare.youtube:ConectorYoutube",
+    "linkedin": "app.connectors.publicare.linkedin:ConectorLinkedin",
+    "linkedin_pagina": "app.connectors.publicare.linkedin:ConectorLinkedin.pagina_din_setari",
 }
 
 
@@ -41,8 +44,11 @@ def _incarca(canal: str) -> Conector | None:
     activi = {c.strip() for c in get_settings().publicare_conectori.split(",") if c.strip()}
     if canal not in activi or canal not in FABRICI:
         return None
-    modul, clasa = FABRICI[canal].split(":")
-    c = getattr(importlib.import_module(modul), clasa).din_setari()
+    modul, cale = FABRICI[canal].split(":")
+    obiect: Any = importlib.import_module(modul)
+    for parte in cale.split("."):
+        obiect = getattr(obiect, parte)
+    c = obiect() if "." in cale else obiect.din_setari()
     inregistreaza(canal, c)
     return c  # type: ignore[no-any-return]
 

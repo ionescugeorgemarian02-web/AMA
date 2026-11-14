@@ -57,13 +57,13 @@ CERINTE: dict[str, tuple[str, str] | None] = {
     "facebook": ("meta", "pagini"),
     "instagram": ("meta", "instagram"),
     "youtube": ("google", "youtube"),
+    "linkedin": ("linkedin", "profil"),
+    "linkedin_pagina": ("linkedin", "pagina"),
 }
 
 
 def cerinta(canal: str, setari: dict[str, Any] | None = None) -> tuple[str, str] | None:
-    """Permisiunea de care depinde canalul; LinkedIn: profilul (self-serve) sau pagina (cu review)."""
-    if canal == "linkedin" and (setari or {}).get("tip_cont") == "pagina":
-        return ("linkedin", "pagina")
+    """Permisiunea de care depinde canalul (LinkedIn: profilul `linkedin`, pagina `linkedin_pagina`)."""
     return CERINTE[canal]
 
 

@@ -513,3 +513,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `ConectorInstagram`, `publicare.linkuri`, `publicare.web`, extinderea Graph simulat. Hotărâri (D-007): jetonul = calea + expirarea, semnate HMAC cu cheie derivată; limita citită înaintea fiecărei publicări. Verificat: 15 teste de contract, 1 de integrare (descărcarea chiar prin aplicație).
 - **F9.4 — YouTube.**
   - Construit: `ConectorYoutube`, YouTube simulat (blochează pe privat proiectul neauditat), `publicare.cote`, migrarea `0054`. Hotărâri (D-007): costurile pe metodă sunt configurare (citite din consolă), consumul se numără atomic pe ziua Pacific; `verifica` prin lista de încărcări (1 unitate), nu prin căutare (100). Verificat: 13 teste de contract, 1 de integrare.
+- **F9.5 — LinkedIn.**
+  - Construit: `ConectorLinkedin` (profil / pagină), LinkedIn simulat. Hotărâri (D-007): pagina e un canal separat (`linkedin_pagina`), cu cerința ei; limita = postările de azi citite din API față de plafonul documentat. Verificat: 25 de teste de contract, 1 de integrare.

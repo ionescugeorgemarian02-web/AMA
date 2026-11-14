@@ -179,6 +179,9 @@ class Settings(BaseSettings):
     # Costul în unități pe metodă (din consola Google Cloud); sursele spun 100 sau 1.600 pentru încărcare [I].
     youtube_costuri: str = "videos.insert=1600,videos.list=1,channels.list=1,playlistItems.list=1"
     youtube_cota_zi: int = Field(default=10_000, ge=1)
+    linkedin_client_id: str = ""
+    linkedin_client_secret: SecretStr = Field(default=SecretStr(""))
+    linkedin_versiune: str = "202510"
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 
