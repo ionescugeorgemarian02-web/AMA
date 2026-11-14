@@ -40,8 +40,9 @@ def autorizeaza(tenant: uuid.UUID, om: uuid.UUID, p: PlatformaFalsa, *, agentie:
         url = autorizare.url_autorizare(db, tenant, "fals_api", redirect=REDIRECT)
     stare_oauth = url.split("state=")[1].split("&")[0].replace("%2E", ".")
     with sesiune_tenant(tenant) as db:
-        autorizare.finalizeaza(db, tenant, "fals_api", cod=p.cod_valid(), stare=stare_oauth, redirect=REDIRECT,
-                               utilizator_id=om)  # fmt: skip
+        autorizare.finalizeaza(
+            db, tenant, "fals_api", cod=p.cod_valid(), stare=stare_oauth, redirect=REDIRECT, utilizator_id=om
+        )
 
 
 def test_autorizarea_tine_tokenul_criptat_si_modul_urmeaza_aprobarea(
@@ -81,8 +82,15 @@ def test_starea_oauth_gresita_e_refuzata(tenant: uuid.UUID, om: uuid.UUID, platf
     with sesiune_tenant(tenant) as db:
         autorizare.url_autorizare(db, tenant, "fals_api", redirect=REDIRECT)
     with pytest.raises(autorizare.AutorizareRefuzata), sesiune_tenant(tenant) as db:
-        autorizare.finalizeaza(db, tenant, "fals_api", cod=platforma.cod_valid(), stare="fals_api.altceva",
-                               redirect=REDIRECT, utilizator_id=om)  # fmt: skip
+        autorizare.finalizeaza(
+            db,
+            tenant,
+            "fals_api",
+            cod=platforma.cod_valid(),
+            stare="fals_api.altceva",
+            redirect=REDIRECT,
+            utilizator_id=om,
+        )
     assert canale.token_pentru(tenant, "fals_api") is None
 
 

@@ -1,6 +1,7 @@
 """Registrul conectorilor de efecte, pe canal (F2.5). Se importă DOAR din executor și din conectori
 (garda `scripts/check_efecte.py`): restul aplicației cere efecte prin `app.operare.efecte.cere`."""
 
+import importlib
 from dataclasses import dataclass
 
 from app.connectors.contract import Conector, ConectorSistem
@@ -25,11 +26,33 @@ def inregistreaza(canal: str, conector: Conector, *, coada: DefinitieCoada | Non
     _registru[canal] = Inregistrare(conector, coada)
 
 
+# Conectorii reali de publicare (F9), încărcați la cerere doar pentru canalele din `AMA_PUBLICARE_CONECTORI`
+# (implicit niciunul: în teste și în dezvoltare canalele se înregistrează explicit, pe platforme simulate).
+FABRICI: dict[str, str] = {
+    "facebook": "app.connectors.publicare.facebook:ConectorFacebook",
+}
+
+
+def _incarca(canal: str) -> Conector | None:
+    from app.config import get_settings
+
+    activi = {c.strip() for c in get_settings().publicare_conectori.split(",") if c.strip()}
+    if canal not in activi or canal not in FABRICI:
+        return None
+    modul, clasa = FABRICI[canal].split(":")
+    c = getattr(importlib.import_module(modul), clasa).din_setari()
+    inregistreaza(canal, c)
+    return c  # type: ignore[no-any-return]
+
+
 def conector_pentru(canal: str) -> Conector:
-    try:
-        return _registru[canal].conector
-    except KeyError:
-        raise ConectorNecunoscut(canal) from None
+    i = _registru.get(canal)
+    if i is not None:
+        return i.conector
+    c = _incarca(canal)
+    if c is None:
+        raise ConectorNecunoscut(canal)
+    return c
 
 
 def coada_pentru(canal: str) -> str:

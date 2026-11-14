@@ -506,3 +506,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 ## 2026-11-14 — Sesiunea: faza F9 (Publicarea prin API)
 - **F9.1 — Interfața comună de conector.**
   - Construit: contractul `ConectorPublicare` + suita de contract comună, `ClientHttp`, conectorul fals, `publicare.canale`, `efecte.autorizare`, migrarea `0053`. Hotărâri (D-007): tipurile în `connectors.contract`; partea de cont trece prin executor (garda rămâne); modul efectiv calculat din aprobare + cont. Verificat: 13 teste de contract, 4 de integrare.
+- **F9.2 — Facebook, pagini.**
+  - Construit: `ConectorFacebook`/`ConectorMeta`, Graph simulat (`tests/platforme/meta.py`), `publicare.aprobari`, `efecte.autorizare.inregistreaza_fluxul`. Hotărâri (D-007): `verifica` după textul exact (Graph nu are idempotență); înregistrarea fluxului = pașii HTTP fără tokenuri. Găsit: cheile payload-ului care conțin „hash” sunt refuzate de executor (gardă de secrete), deci tagurile pleacă drept `taguri`; o publicare cu răspuns pierdut nu apare în înregistrare, deci cererea cere o publicare curată. Verificat: 14 teste de contract, 2 de integrare.
+  - Abatere: în timpul `make check` F9.1 am rulat o dată, din greșeală, testele de contract Facebook (fără bază, ~1 s). Rularea completă a trecut.

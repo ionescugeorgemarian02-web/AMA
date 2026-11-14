@@ -205,6 +205,8 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F9.1 Interfața comună de conector | verificat local: conectorul fals (# SIMULAT, în memorie) trece suita comună de contract (publicare o dată, `verifica` după răspuns pierdut, clasificarea erorilor 7.5, token expirat, stare, limite citite, OAuth, tokenul doar în antet); OAuth prin executor cu token criptat în `publicare_conturi`, modul efectiv după aprobare (test pe contul agenției / asistat pe client), pauză și reautorizare. **Aplicațiile și conturile reale: la migrare** | `tests/contract/test_conector_publicare_fals.py`, `tests/integration/test_publicare_api_interfata.py` |
+| F9.2 Facebook, pagini | verificat local (Graph API SIMULAT, contract HTTP local): conectorul trece suita comună; pe pagina agenției (aplicația în test) postarea de test apare o singură dată, și după un răspuns pierdut; cererea de App Review pleacă doar cu înregistrarea fluxului (pașii OAuth + publicare, fără tokenuri) și o publicare reușită în ea. **Aplicația Meta, pagina reală, depunerea și filmarea: la migrare** | `tests/contract/test_conector_facebook.py`, `tests/integration/test_publicare_facebook.py` |
 
 ### De verificat la migrare (F9)
 - F9.1: aplicațiile agenției la platforme (F0.6, primul val), `AMA_MASTER_KEY` pe VPS pentru tokenuri, adresa publică de întoarcere OAuth; stările din `aprobari_api` puse după realitate.
+- F9.2: aplicația Meta reală (`AMA_META_APP_ID`, `AMA_META_APP_SECRET`, versiunea Graph), pagina agenției, `AMA_PUBLICARE_CONECTORI=facebook`; o postare reală pe pagină; depunerea App Review în App Dashboard cu filmarea ecranului și dosarul din `inregistrari/`; codurile de eroare Graph reale față de clasificare.

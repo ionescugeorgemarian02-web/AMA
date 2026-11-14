@@ -167,6 +167,13 @@ class Settings(BaseSettings):
     email_expeditor: str = "AMA <noreply@example.invalid>"
     # Motorul de audit din BigBrain (F7.2), prin rețea; `simulat` = raport determinist din proces.
     audit_motor: str = "simulat"
+    # Publicarea prin API (F9). Adresa publică (întoarcerea OAuth, linkurile semnate ale fișierelor), canalele
+    # cu conector real activ și aplicațiile agenției la platforme. NEVERIFICAT: valorile reale, la migrare.
+    public_url: str = "http://localhost:8000"
+    publicare_conectori: str = ""  # de ex. „facebook,instagram”; gol = niciun conector real
+    meta_app_id: str = ""
+    meta_app_secret: SecretStr = Field(default=SecretStr(""))
+    meta_graph_versiune: str = "v23.0"
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

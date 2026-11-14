@@ -39,10 +39,15 @@ class Mediu:
     def efect(self, **payload: Any) -> EfectDeTrimis:
         lid = new_id()
         return EfectDeTrimis(
-            id=new_id(), tenant_id=self.tenant_id, livrabil_id=lid, canal=self.conector.canal, versiune=1,
-            tip="publicare", idem=f"{self.tenant_id}:{lid}:{self.conector.canal}:v1:publicare",
+            id=new_id(),
+            tenant_id=self.tenant_id,
+            livrabil_id=lid,
+            canal=self.conector.canal,
+            versiune=1,
+            tip="publicare",
+            idem=f"{self.tenant_id}:{lid}:{self.conector.canal}:v1:publicare",
             payload={**self.pachet, **payload},
-        )  # fmt: skip
+        )
 
 
 class ContractPublicare:
@@ -62,7 +67,8 @@ class ContractPublicare:
         assert len(mediu.platforma.postari_publicate()) == 1
         g = mediu.conector.verifica(e)
         assert g is not None and g.id_extern == r.id_extern
-        assert mediu.conector.verifica(mediu.efect()) is None, "alt efect nu se confundă cu primul"
+        alt = mediu.efect(text="Alt text, altă postare.")
+        assert mediu.conector.verifica(alt) is None, "alt efect nu se confundă cu primul"
 
     def test_raspuns_pierdut_verifica_gaseste_postarea(self, mediu: Mediu) -> None:
         e = mediu.efect()
@@ -77,9 +83,13 @@ class ContractPublicare:
 
     @pytest.mark.parametrize(
         ("defect", "eroare"),
-        [("temporar", EroareTemporara), ("timeout", EroareTemporara), ("autentificare", EroareAutentificare),
-         ("definitiv", EroareDefinitiva)],
-    )  # fmt: skip
+        [
+            ("temporar", EroareTemporara),
+            ("timeout", EroareTemporara),
+            ("autentificare", EroareAutentificare),
+            ("definitiv", EroareDefinitiva),
+        ],
+    )
     def test_erorile_sunt_clasificate(self, mediu: Mediu, defect: str, eroare: type[Exception]) -> None:
         mediu.platforma.injecteaza(defect)
         with pytest.raises(eroare):

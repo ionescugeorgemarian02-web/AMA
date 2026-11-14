@@ -126,6 +126,8 @@ class ClientHttp:
     timeout: float = 30.0
     clasificator: Callable[[httpx.Response], None] = clasifica
     antete: dict[str, str] = field(default_factory=dict)
+    # Înregistrarea fluxului (App Review, audit): pașii HTTP, fără parametri, corpuri sau tokenuri.
+    inregistrare: list[dict[str, Any]] | None = None
 
     def cere(
         self, metoda: str, cale: str, *, token: Token | None = None, clasifica_erori: bool = True, **kw: Any
@@ -142,6 +144,15 @@ class ClientHttp:
         except httpx.TransportError as exc:
             raise EroareTemporara(f"rețea: {type(exc).__name__}") from None
         self.antete = {k.lower(): v for k, v in r.headers.items()}
+        if self.inregistrare is not None:
+            self.inregistrare.append(
+                {
+                    "metoda": metoda,
+                    "cale": httpx.URL(url).path,
+                    "status": r.status_code,
+                    "la": dt.datetime.now(dt.UTC).isoformat(),
+                }
+            )
         if clasifica_erori:
             self.clasificator(r)
         return r
@@ -160,7 +171,7 @@ def token_sau_autentificare(depozit: DepozitTokenuri, tenant_id: uuid.UUID, cana
 def text_postare(payload: dict[str, Any]) -> str:
     """Textul final: textul aprobat + hashtag-urile (o singură regulă pentru toate canalele)."""
     text = str(payload.get("text", "")).strip()
-    tags = [str(h).lstrip("#") for h in payload.get("hashtaguri", []) if str(h).strip("# ")]
+    tags = [str(h).lstrip("#") for h in payload.get("taguri", []) if str(h).strip("# ")]
     return text + ("\n\n" + " ".join(f"#{h}" for h in tags) if tags else "")
 
 

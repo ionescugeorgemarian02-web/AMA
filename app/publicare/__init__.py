@@ -8,7 +8,7 @@ de efecte.
     publicare.asistata.confirma(db, p.id, link=url, utilizator_id=om)   # programat → publicat, cu linkul
 """
 
-from app.publicare import asistata
+from app.publicare import aprobari, asistata, canale
 from app.publicare.modele import PublicareAsistata
 
-__all__ = ["PublicareAsistata", "asistata"]
+__all__ = ["PublicareAsistata", "aprobari", "asistata", "canale"]

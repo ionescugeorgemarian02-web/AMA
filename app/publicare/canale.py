@@ -53,7 +53,9 @@ ETICHETE_APROBARE = {
 
 # Canalul → permisiunea aplicației de care depinde publicarea automată (platforma, permisiunea). `None`:
 # canalul nu cere aprobare de la o platformă (blogul). Lista crește cu fiecare conector (F9.2–F9.9).
-CERINTE: dict[str, tuple[str, str] | None] = {}
+CERINTE: dict[str, tuple[str, str] | None] = {
+    "facebook": ("meta", "pagini"),
+}
 
 
 def cerinta(canal: str, setari: dict[str, Any] | None = None) -> tuple[str, str] | None:
@@ -195,10 +197,14 @@ def salveaza_token(
     c.cere_reautorizare, c.stare_oauth = False, None
     db.flush()
     audit.record(
-        db, "publicare.cont_autorizat", obiect_tip="canal", obiect_id=f"{tenant_id}:{canal}",
-        utilizator_id=utilizator_id, tenant_id=tenant_id,
+        db,
+        "publicare.cont_autorizat",
+        obiect_tip="canal",
+        obiect_id=f"{tenant_id}:{canal}",
+        utilizator_id=utilizator_id,
+        tenant_id=tenant_id,
         detalii={"canal": canal, "expira_la": token.expira_la.isoformat() if token.expira_la else None},
-    )  # fmt: skip
+    )
     return c
 
 
@@ -231,10 +237,14 @@ def alege_mod(
     c.actualizat_la = dt.datetime.now(dt.UTC)
     db.flush()
     audit.record(
-        db, "publicare.mod_ales", obiect_tip="canal", obiect_id=f"{tenant_id}:{canal}",
-        utilizator_id=utilizator_id, tenant_id=tenant_id,
+        db,
+        "publicare.mod_ales",
+        obiect_tip="canal",
+        obiect_id=f"{tenant_id}:{canal}",
+        utilizator_id=utilizator_id,
+        tenant_id=tenant_id,
         detalii={"canal": canal, "din": vechi, "in": mod_nou.value, "motiv": motiv[:200]},
-    )  # fmt: skip
+    )
     return c
 
 
@@ -247,7 +257,12 @@ def cere_reautorizare(db: Session, tenant_id: uuid.UUID, canal: str, motiv: str)
     c.actualizat_la = dt.datetime.now(dt.UTC)
     db.flush()
     audit.record(
-        db, "publicare.reautorizare_ceruta", obiect_tip="canal", obiect_id=f"{tenant_id}:{canal}",
-        tenant_id=tenant_id, actor_tip="sistem", detalii={"canal": canal, "motiv": motiv[:200]},
-    )  # fmt: skip
+        db,
+        "publicare.reautorizare_ceruta",
+        obiect_tip="canal",
+        obiect_id=f"{tenant_id}:{canal}",
+        tenant_id=tenant_id,
+        actor_tip="sistem",
+        detalii={"canal": canal, "motiv": motiv[:200]},
+    )
     return True

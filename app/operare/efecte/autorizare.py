@@ -8,6 +8,9 @@ reîmprospătarea tokenului, starea unei postări și limitele. Conectorii se ch
 """
 
 import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
+from typing import Any
 
 from sqlalchemy.orm import Session
 
@@ -39,16 +42,28 @@ def url_autorizare(db: Session, tenant_id: uuid.UUID, canal: str, *, redirect: s
 
 
 def finalizeaza(
-    db: Session, tenant_id: uuid.UUID, canal: str, *, cod: str, stare: str, redirect: str,
+    db: Session,
+    tenant_id: uuid.UUID,
+    canal: str,
+    *,
+    cod: str,
+    stare: str,
+    redirect: str,
     utilizator_id: uuid.UUID | None,
-) -> None:  # fmt: skip
+) -> None:
     """Platforma a întors codul: se verifică starea, se schimbă codul pe token (criptat în bază) și, dacă
     canalul era pe pauză după o eroare de autentificare, pauza se ridică și efectele ținute pe loc pleacă."""
     if not canale.consuma_oauth(db, tenant_id, canal, stare):
         audit.record(
-            db, "publicare.oauth_refuzat", obiect_tip="canal", obiect_id=f"{tenant_id}:{canal}",
-            tenant_id=tenant_id, utilizator_id=utilizator_id, rezultat="esec", detalii={"canal": canal},
-        )  # fmt: skip
+            db,
+            "publicare.oauth_refuzat",
+            obiect_tip="canal",
+            obiect_id=f"{tenant_id}:{canal}",
+            tenant_id=tenant_id,
+            utilizator_id=utilizator_id,
+            rezultat="esec",
+            detalii={"canal": canal},
+        )
         raise AutorizareRefuzata("starea autorizării nu se potrivește; reia autorizarea")
     token = conector(canal).schimba_cod(cod, redirect)
     canale.salveaza_token(db, tenant_id, canal, token, utilizator_id=utilizator_id)
@@ -74,3 +89,20 @@ def stare_postare(tenant_id: uuid.UUID, canal: str, id_extern: str) -> StarePost
 
 def limite(tenant_id: uuid.UUID, canal: str) -> Limite:
     return conector(canal).limite(tenant_id)
+
+
+@contextmanager
+def inregistreaza_fluxul(canal: str) -> Iterator[list[dict[str, Any]]]:
+    """Înregistrează pașii HTTP ai conectorului (fără parametri, corpuri sau tokenuri) cât rulează fluxul
+    real,
+    în modul de test, pe contul agenției: dovada care însoțește cererea de App Review / audit (15.3)."""
+    http = getattr(conector(canal), "http", None)
+    pasi: list[dict[str, Any]] = []
+    if http is None:
+        yield pasi
+        return
+    http.inregistrare = pasi
+    try:
+        yield pasi
+    finally:
+        http.inregistrare = None

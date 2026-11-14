@@ -15,5 +15,10 @@ class TestConectorFals(ContractPublicare):
         p, d, tenant = PlatformaFalsa(), DepozitInMemorie(), new_id()
         t = p.emite_token()
         d.pune(tenant, "fals_api", t)
-        return Mediu(ConectorFalsPublicare(p, d), p, tenant, {"text": "Cafeneaua Zorilor: cafea de specialitate."},
-                     token=t.acces)  # fmt: skip
+        return Mediu(
+            ConectorFalsPublicare(p, d),
+            p,
+            tenant,
+            {"text": "Cafeneaua Zorilor: cafea de specialitate."},
+            token=t.acces,
+        )
