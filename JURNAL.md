@@ -500,3 +500,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `media.provenienta`, pașaportul în montaj și în Compozitor, metadatele în randare, migrarea `0052`. Hotărâri (D-007): vocea sintetică cere etichetă (21.9, „sunetul generat care poate părea real”). Verificat: 2 teste.
 - **F8.12 — Formatul E, om real.**
   - Construit: `portal.prompter_web`, șablonul `portal/prompter.html`, `media.formatul_e`, fluxul `media.format_e`. Verificat: 1 test de integrare.
+- **Poarta F8.**
+  - Testul cap-coadă trecut pe simulare (zece din zece, ~64 s local). `make check` complet a rulat o dată pe fiecare pas, pe arborele lui (F8.5 și F8.7 au avut câte o rulare repetată: garda de context de agenție, respectiv blocajul din `test_portal_date`, ambele reparate). Rămâne deschis: testele media cele mai lungi (poarta ~64 s, capacitatea ~39 s) sunt aproape de plafonul de 120 s pe un executor CI lent.

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F8
+- Testul de poartă `tests/integration/test_poarta_f8.py`: zece video consecutive, de la script la fișierul final, trec G6, G5 și G11 fără intervenție.
+
 ### F8.12 — Formatul E, om real
 - Prompterul din portal (`/portal/prompter/<livrabil>`), `media.formatul_e` (tăierea pauzelor, subtitrări, nivel) ca job durabil.
 

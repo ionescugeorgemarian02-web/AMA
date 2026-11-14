@@ -183,7 +183,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F8.10 Șabloane grafice și Compozitorul | verificat local (Postgres real, Pillow): fiecare brand propriu (agenția, CariereAI, BigBrain) are șase șabloane; identitatea lipsă e propusă în Creier (așteaptă aprobarea); glifele diacriticelor există, sedila iese identic cu virgula; fiecare compoziție trece G5; textul prea lung e refuzat. **Randatorul HTML și identitatea aprobată de clienți: la migrare** | `tests/integration/test_media_sabloane.py` |
 | F8.11 Proveniență și dezvăluire AI (G11) | verificat local: video din stock cu voce sintetică, video din imagini generate și coperta din șablon au pașaport (bază, fișier lateral, marcaj în metadate) și etichetă stabilită pe fiecare canal; G11 trece pe ele și respinge un fișier fără pașaport. **Standardul de marcare (C2PA) și încadrarea juridică: F0.7** | `tests/integration/test_media_provenienta.py` |
 | F8.12 Formatul E, om real | verificat local (HTTP, motorul durabil, FFmpeg): prompterul din portal afișează scriptul (trei viteze, fără JS), filmarea brută de un minut încărcată pornește jobul pe culoarul greu; pauzele tăiate, un text pe cuvânt, G6 trece, pașaport fără etichetă AI. Filmarea și vocea SIMULATE. **Telefon real, whisper.cpp: la migrare** | `tests/integration/test_media_format_e.py` |
-<!-- F8-RANDURI -->
+| **Poarta F8** „zece video consecutive trec controlul media fără intervenție” | **trecută local pe SIMULARE** (D-007): script -> normalizare -> voce verificată -> Regizor (gateway, model FALS) -> listă validată -> montaj ca job durabil pe două culoare (subtitrări, muzică atenuată, nivel) -> G6 pe fișier -> copertă din șablon (G5) -> pașaport și etichetă (G11); zece din zece, formate A/B, trei canale, fără niciun om (~64 s local). **Piper, whisper.cpp, furnizorii reali, modelul real, VPS: la migrare** | `tests/integration/test_poarta_f8.py`, `docs/specs/F8-poarta.md` |
 
 ### De verificat la migrare (F8)
 - F8.1: Piper instalat pe VPS (`AMA_PIPER_BIN`, `AMA_PIPER_MODELE`), vocea românească de pornire și verificarea dreptului comercial pe lanțul ei de antrenare; vocea proprie (acord scris, ~2 ore, antrenare pe GPU închiriat); ritmul real față de motorul simulat.
@@ -198,4 +198,4 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F8.10: identitatea vizuală reală a CariereAI și BigBrain, aprobată în Creier; randatorul HTML (Chromium / HyperFrames) pentru formatul C.
 - F8.11: standardul de marcare tehnică (C2PA sau altul) și încadrarea juridică (avocat, F0.7); comutatoarele reale de etichetă AI ale platformelor (F9).
 - F8.12: o filmare reală de pe telefon (Android, iOS), cu zgomot și vorbire reală; pragul de pauză [I]; prompterul pe telefon real.
-<!-- F8-MIGRARE -->
+- Poarta F8: repetată pe VPS cu Piper, whisper.cpp, stock/generare/muzică reale și modelul real al Regizorului; primele zece video văzute și ascultate de un om.
