@@ -174,6 +174,11 @@ class Settings(BaseSettings):
     meta_app_id: str = ""
     meta_app_secret: SecretStr = Field(default=SecretStr(""))
     meta_graph_versiune: str = "v23.0"
+    google_client_id: str = ""
+    google_client_secret: SecretStr = Field(default=SecretStr(""))
+    # Costul în unități pe metodă (din consola Google Cloud); sursele spun 100 sau 1.600 pentru încărcare [I].
+    youtube_costuri: str = "videos.insert=1600,videos.list=1,channels.list=1,playlistItems.list=1"
+    youtube_cota_zi: int = Field(default=10_000, ge=1)
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

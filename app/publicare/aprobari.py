@@ -41,6 +41,12 @@ CERERI: dict[tuple[str, str], dict[str, str]] = {
         "profesionale de Instagram ale clienților; fișierele se servesc prin linkuri semnate care expiră.",
         "publicare": "POST /media_publish",
     },
+    ("google", "youtube"): {
+        "titlu": "Verificarea OAuth și auditul de conformitate YouTube API",
+        "caz": "Agenția încarcă, după aprobarea omului, clipurile aprobate pe canalele YouTube ale "
+        "clienților, cu declarația de conținut sintetic și cu vizibilitatea aleasă.",
+        "publicare": "PUT /upload/youtube/v3/videos",
+    },
 }
 DIRECTOR = "inregistrari"
 

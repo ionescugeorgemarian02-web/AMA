@@ -56,6 +56,7 @@ ETICHETE_APROBARE = {
 CERINTE: dict[str, tuple[str, str] | None] = {
     "facebook": ("meta", "pagini"),
     "instagram": ("meta", "instagram"),
+    "youtube": ("google", "youtube"),
 }
 
 

@@ -511,3 +511,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Abatere: în timpul `make check` F9.1 am rulat o dată, din greșeală, testele de contract Facebook (fără bază, ~1 s). Rularea completă a trecut.
 - **F9.3 — Instagram.**
   - Construit: `ConectorInstagram`, `publicare.linkuri`, `publicare.web`, extinderea Graph simulat. Hotărâri (D-007): jetonul = calea + expirarea, semnate HMAC cu cheie derivată; limita citită înaintea fiecărei publicări. Verificat: 15 teste de contract, 1 de integrare (descărcarea chiar prin aplicație).
+- **F9.4 — YouTube.**
+  - Construit: `ConectorYoutube`, YouTube simulat (blochează pe privat proiectul neauditat), `publicare.cote`, migrarea `0054`. Hotărâri (D-007): costurile pe metodă sunt configurare (citite din consolă), consumul se numără atomic pe ziua Pacific; `verifica` prin lista de încărcări (1 unitate), nu prin căutare (100). Verificat: 13 teste de contract, 1 de integrare.

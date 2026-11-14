@@ -31,6 +31,7 @@ def inregistreaza(canal: str, conector: Conector, *, coada: DefinitieCoada | Non
 FABRICI: dict[str, str] = {
     "facebook": "app.connectors.publicare.facebook:ConectorFacebook",
     "instagram": "app.connectors.publicare.instagram:ConectorInstagram",
+    "youtube": "app.connectors.publicare.youtube:ConectorYoutube",
 }
 
 

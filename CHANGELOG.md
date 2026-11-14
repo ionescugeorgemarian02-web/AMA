@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F9.4 — YouTube
+- `connectors.publicare.youtube` (OAuth Google, încărcare reluabilă, câmpul de conținut sintetic, vizibilitatea după audit, costul în unități), `publicare.cote`. Migrarea `0054`.
+
 ### F9.3 — Instagram
 - `connectors.publicare.instagram` (container, procesarea clipului, `media_publish`, limita din endpoint), `publicare.linkuri` (linkuri semnate care expiră) și ruta publică `/publicare/fisier/<jeton>`.
 
