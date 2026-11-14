@@ -458,3 +458,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `portal.lucru_web`, `conturi.are_aprobator_client`, decidentul implicit în aprobări. Hotărâri: lotul se aprobă într-o tranzacție (orice refuz anulează tot). Verificat: 2 teste; testele F5/F6 ale aprobărilor neschimbate.
 - **F7.5 — Portalul: materiale și inboxul de tendințe.**
   - Construit: `media.biblioteca`, `media.tendinte`, `portal.materiale_web`, migrarea `0042`. Verificat: 3 teste.
+- **F7.6 — Facturare.**
+  - Construit: `connectors.plati` (simulat), `finante.abonamente`, `finante.web`, `site.inscriere`, `portal.cont_web`, migrarea `0043`. Hotărâri: plățile ca efecte de sistem; invitația după prima activare prin extensie; suspendarea = oprirea pe client. Verificat: 2 teste.

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F7.6 — Facturare
+- Modulul `finante.abonamente`: abonamente prin procesator (adaptor, mediu de probă simulat), webhook-uri semnate, perioada de grație și suspendarea; înscrierea din site; abonamentul și facturile în portal. Migrarea `0043`.
+
 ### F7.5 — Portalul: materiale și inboxul de tendințe
 - Modulul `app/media`: biblioteca de active (verificare după conținut, disc local, sursă) și inboxul de tendințe; ecranul Materiale din portal. Migrarea `0042`.
 

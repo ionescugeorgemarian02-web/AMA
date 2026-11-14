@@ -1,0 +1,13 @@
+{% extends "site/baza.html" %}
+{% block titlu %}Plata{% endblock %}
+{% block continut %}
+<h1>Plata pachetului {{ plan }}</h1>
+{% if stare == "activ" %}
+<p class="ok">Plata a fost primită. Ți-am trimis pe email linkul de activare a contului.</p>
+{% elif link %}
+<p>{{ suma }} lei / lună. Plătești în siguranță pe pagina procesatorului de plăți.</p>
+<a class="cta" href="{{ link }}" rel="noopener">Plătește</a>
+{% else %}
+<p>Pregătim pagina de plată; reîncarcă pagina în câteva secunde.</p>
+{% endif %}
+{% endblock %}

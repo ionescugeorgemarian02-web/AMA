@@ -1,0 +1,21 @@
+{% extends "site/baza.html" %}
+{% block titlu %}Înscriere{% endblock %}
+{% block continut %}
+<h1>Alege pachetul</h1>
+{% if eroare %}<p class="eroare" role="alert">{{ eroare }}</p>{% endif %}
+<form method="post" action="/site/inscriere">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <input type="hidden" name="t" value="{{ t }}">
+  <input type="hidden" name="raport" value="{{ jeton_raport }}">
+  <label for="plan">Pachetul</label>
+  <select id="plan" name="plan">{% for p in planuri.values() %}<option value="{{ p.cod }}"{% if p.cod == plan_ales %} selected{% endif %}>{{ p.nume }} — {{ p.pret_lunar }} lei / lună</option>{% endfor %}</select>
+  <label for="firma">Numele firmei</label>
+  <input id="firma" name="firma" type="text" required maxlength="200" value="{{ firma }}">
+  <label for="email">Emailul pentru cont și facturi</label>
+  <input id="email" name="email" type="email" required maxlength="254" value="{{ email }}">
+  <div class="camp-ascuns" aria-hidden="true"><label for="site_web2">Nu completa</label><input id="site_web2" name="site_web2" type="text" tabindex="-1" autocomplete="off"></div>
+  <label><input type="checkbox" name="acord" value="da" required> Accept <a href="/site/legal/termeni">termenii</a> și <a href="/site/legal/acord-prelucrare">acordul de prelucrare</a>.</label>
+  <button class="cta" type="submit">Continuă spre plată</button>
+</form>
+<p class="mic">Plata se face pe pagina procesatorului de plăți; noi nu vedem datele cardului.</p>
+{% endblock %}

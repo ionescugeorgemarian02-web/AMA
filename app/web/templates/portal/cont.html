@@ -1,0 +1,37 @@
+{% extends "portal/baza.html" %}
+{% block title %}Cont · AMA{% endblock %}
+{% block pagina %}
+<h1>Contul firmei</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if vede_facturi %}
+<section class="card" aria-labelledby="ab">
+  <h2 id="ab">Abonamentul</h2>
+  {% if abonament %}
+  <p>{{ plan.nume if plan else abonament.plan }} · {{ abonament.suma }} lei / lună · <strong>{{ etichete.get(abonament.stare, abonament.stare) }}</strong></p>
+  {% if abonament.perioada_pana_la %}<p class="slab">Plătit până la {{ abonament.perioada_pana_la|moment }}</p>{% endif %}
+  {% else %}<p>Niciun abonament.</p>{% endif %}
+</section>
+<section class="card" aria-labelledby="fc">
+  <h2 id="fc">Facturi</h2>
+  {% for f in facturi %}<p>{{ f.perioada_de_la|moment }} – {{ f.perioada_pana_la|moment }} · {{ f.suma }} {{ f.moneda }} · {{ "plătită" if f.stare == "platita" else "eșuată" }}</p>{% else %}<p>Nicio factură.</p>{% endfor %}
+</section>
+{% endif %}
+{% if titular %}
+<section class="card" aria-labelledby="dt">
+  <h2 id="dt">Datele tale</h2>
+  <p><a href="/portal/date/export">Descarcă toate datele (ZIP)</a></p>
+  {% if stergere %}<p class="insigna atentie">Ștergerea a fost cerută la {{ stergere.creat_la|moment if stergere.creat_la else "" }}.</p>
+  {% else %}
+  <details><summary>Cere ștergerea datelor</summary>
+  <form method="post" action="/portal/date/sterge">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <p>Se șterg definitiv conținutul, Creierul de brand, materialele și conturile firmei. Jurnalul de audit se păstrează conform legii.</p>
+    <label for="confirmare">Scrie {{ confirmare }} ca să confirmi</label>
+    <input id="confirmare" name="confirmare" type="text" maxlength="20" required autocomplete="off">
+    <button type="submit">Șterge datele</button>
+  </form>
+  </details>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}
