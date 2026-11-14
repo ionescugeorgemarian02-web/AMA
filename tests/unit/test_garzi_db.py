@@ -78,6 +78,7 @@ CONTEXT_AGENTIE = {
     # citirea și scrierea fiecăreia rulează pe clientul ei.
     "app/analiza/colector.py",
     "app/cercetare/tendinte.py",  # jobul de dimineață (F10.7): lista clienților cu profil și inboxul nou
+    "app/cercetare/reclame_concurenta.py",  # jobul săptămânal (F10.8): lista concurenților tuturor clienților
 }
 
 

@@ -564,4 +564,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `cercetare.tendinte`, migrarea `0060`, ecranul `/analiza/tendinte`, `AMA_YOUTUBE_API_KEY` în configurare, spec F10.7. Hotărâri (D-007): totul pe reguli; unghiul e ciornă deterministă (partea cu model a lui C2 nu e construită); cheia YouTube în antet.
   - Găsit de teste: potrivirea după început de cuvânt nu recunoștea „cafelei” pentru „cafea” (acum: rădăcină comună); „mort” prindea „mortar” (formele scurte se potrivesc doar exact).
   - Verificat: 5 teste unitare, 2 de integrare.
+- **F10.8 — Analistul de reclame ale concurenței.**
+  - Construit: `cercetare.reclame_concurenta`, statutul `meta_ad_library` în `cercetare/statut.py`, migrarea `0061`, ecranul `/analiza/concurenta`, `AMA_META_AD_LIBRARY_TOKEN`, spec F10.8. Hotărâri (D-007): reclamele observate devin documente colectate cu statut nereutilizabil, deci G7 le apără fără nicio schimbare în validare; unghiul pe reguli; fără token jobul nu citește.
+  - Verificat: 4 teste unitare, 2 de integrare (cu validatorul G7 real).
+- **Poarta F10:** parțială, vezi `docs/specs/F10-poarta.md`. Toți pașii F10.1–F10.8 sunt închiși pe simulări; „date reale” rămâne la migrare.
 

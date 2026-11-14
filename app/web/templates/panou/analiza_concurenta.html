@@ -1,0 +1,63 @@
+{% extends "panou/baza.html" %}
+{% block title %}Reclamele concurenței · AMA{% endblock %}
+{% block pagina %}
+<h1>Reclamele concurenței</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/analiza">Rapoarte și analiză</a> · Din biblioteca oficială de reclame Meta, citită săptămânal. Se analizează, nu se copiază: un text prea apropiat de o reclamă observată este blocat la validare.</p>
+<form method="get" action="/analiza/concurenta" class="card">
+  <label for="client">Client</label>
+  <select id="client" name="client">
+    <option value="">Alege clientul</option>
+    {% for id, nume in clienti.items() %}<option value="{{ id }}"{% if id == client %} selected{% endif %}>{{ nume }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="secundar">Arată</button>
+</form>
+
+{% if client %}
+<section class="card" aria-labelledby="harta">
+  <h2 id="harta">Harta unghiurilor</h2>
+  {% if harta and harta.reclame %}
+  <div class="defilare">
+  <table>
+    <thead><tr><th scope="col">Concurent</th>{% for cod, nume in etichete_unghi.items() %}<th scope="col">{{ nume }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for concurent, pe in harta.pe_concurent.items() %}
+      <tr><th scope="row">{{ concurent }}</th>{% for cod in etichete_unghi %}<td>{{ pe.get(cod, "–") }}</td>{% endfor %}</tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p>{% if harta.spatii_libere %}<strong>Spații libere</strong> (unghiuri pe care nu le folosește niciun concurent urmărit): {% for u in harta.spatii_libere %}{{ etichete_unghi[u] }}{% if not loop.last %}, {% endif %}{% endfor %}.{% else %}Toate unghiurile urmărite sunt folosite de cel puțin un concurent.{% endif %}</p>
+  {% else %}
+  <p class="slab">Nicio reclamă observată încă.</p>
+  {% endif %}
+</section>
+
+{% if harta and harta.de_durata %}
+<section class="card" aria-labelledby="durata">
+  <h2 id="durata">Reclamele care rulează de cel mai mult timp</h2>
+  <ul>
+  {% for concurent, r, zile in harta.de_durata %}
+    <li><strong>{{ concurent }}</strong>, {{ zile }} {% if zile == 1 %}zi{% else %}zile{% endif %}{% if r.ultima_livrare is none %}, încă rulează{% endif %} · {{ etichete_unghi.get(r.unghi, r.unghi) }}: <q>{{ r.text|truncate(220) }}</q></li>
+  {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="card" aria-labelledby="urmariti">
+  <h2 id="urmariti">Concurenți urmăriți</h2>
+  <ul>{% for c in concurenti %}<li>{{ c.nume }} <span class="slab">(pagina {{ c.pagina_meta }})</span></li>{% else %}<li class="slab">Niciunul încă.</li>{% endfor %}</ul>
+  {% if poate_edita %}
+  <form method="post" action="/analiza/concurenta/{{ client }}/concurent">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="nume">Numele concurentului</label>
+    <input id="nume" name="nume" type="text" required maxlength="120">
+    <label for="pagina_meta">Identificatorul paginii Meta (număr, din biblioteca de reclame)</label>
+    <input id="pagina_meta" name="pagina_meta" type="text" inputmode="numeric" required pattern="[0-9]{5,25}">
+    <button type="submit" class="secundar">Adaugă</button>
+  </form>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

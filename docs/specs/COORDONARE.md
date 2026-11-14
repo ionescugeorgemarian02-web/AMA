@@ -28,7 +28,7 @@ apoi F10 (ramura B).
 | F10.5 Raportul lunar complet | **închis** (împins) |
 | F10.6 Analiza de trafic proprie | **închis** (împins) |
 | F10.7 Cercetătorul de tendințe | **închis** (împins) |
-| F10.8 Analistul de reclame ale concurenței | urmează |
+| F10.8 Analistul de reclame ale concurenței | **închis** (împins) |
 
 ## Raport pentru sesiunea A (citește asta întâi)
 

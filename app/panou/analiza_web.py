@@ -22,7 +22,7 @@ from fastapi.responses import RedirectResponse, Response
 
 from app import productie
 from app.analiza import colector, etichete, retentie, sanatate, trafic
-from app.cercetare import tendinte
+from app.cercetare import reclame_concurenta, tendinte
 from app.connectors.contract import CHEI_METRICI, ETICHETE_METRICI
 from app.conturi import (
     DbSession,
@@ -44,6 +44,7 @@ MESAJE = {
     "salvat": "Cifrele au fost salvate.",
     "profil": "Profilul de nișă a fost salvat.",
     "inbox": "Am primit. Devine fișă la următoarea rulare (dimineața).",
+    "concurent": "Concurentul a fost adăugat. Reclamele lui se citesc la următoarea rulare (luni).",
 }
 
 
@@ -294,3 +295,58 @@ async def adauga_in_inbox(
     except inbox.TendintaInvalida as exc:
         return _tendinte(request, u, db, tid, status=422, eroare=str(exc))
     return RedirectResponse(f"/analiza/tendinte?client={tid}&mesaj=inbox", status_code=303)
+
+
+# --- reclamele concurenței (F10.8) ----------------------------------------------------------------------
+def _concurenta(
+    request: Request,
+    u: SesiuneCurenta,
+    db: DbSession,
+    tenant_id: uuid.UUID | None,
+    *,
+    status: int = 200,
+    **extra: Any,
+) -> Response:
+    clienti = {c.id: c.nume for c in lista_clienti(db)}
+    if tenant_id is not None and tenant_id not in clienti:
+        raise HTTPException(status_code=404, detail="Client necunoscut.")
+    return pagina(
+        request,
+        u,
+        "panou/analiza_concurenta.html",
+        tab="meniu",
+        status=status,
+        clienti=clienti,
+        client=tenant_id,
+        concurenti=reclame_concurenta.concurenti(db, tenant_id) if tenant_id else [],
+        harta=reclame_concurenta.harta(db, tenant_id) if tenant_id else None,
+        etichete_unghi=reclame_concurenta.ETICHETE_UNGHI,
+        poate_edita=poate(u.rol, Permisiune.LIVRABIL_EDITEAZA),
+        **extra,
+    )
+
+
+@router.get("/concurenta")
+def ecran_concurenta(
+    request: Request, u: Agentie, _p: PoateCiti, db: DbSession, client: str = "", mesaj: str = ""
+) -> Response:
+    return _concurenta(request, u, db, _client(client) if client else None, mesaj=MESAJE.get(mesaj, ""))
+
+
+@router.post("/concurenta/{client}/concurent", dependencies=[Depends(csrf_protect)])
+async def adauga_concurent(
+    request: Request, client: str, u: Agentie, _p: PoateEdita, db: DbSession
+) -> Response:
+    tid = _client(client)
+    f = await request.form()
+    try:
+        reclame_concurenta.adauga_concurent(
+            db,
+            tid,
+            nume=str(f.get("nume") or ""),
+            pagina_meta=str(f.get("pagina_meta") or ""),
+            utilizator_id=u.utilizator_id,
+        )
+    except reclame_concurenta.ConcurentInvalid as exc:
+        return _concurenta(request, u, db, tid, status=422, eroare=str(exc))
+    return RedirectResponse(f"/analiza/concurenta?client={tid}&mesaj=concurent", status_code=303)

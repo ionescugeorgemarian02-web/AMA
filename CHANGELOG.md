@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F10.8 — Analistul de reclame ale concurenței
+- `cercetare.reclame_concurenta` (Meta Ad Library, unghiuri pe reguli, harta unghiurilor, reclamele de durată, spații libere), statutul de sursă `meta_ad_library` (G7 blochează textele apropiate), jobul săptămânal `cercetare.reclame`, ecranul `/analiza/concurenta`, setarea `AMA_META_AD_LIBRARY_TOKEN`. Migrarea `0061`.
+
 ### F10.7 — Cercetătorul de tendințe
 - `cercetare.tendinte` (surse oficiale, profil de nișă, fișe cu dovezi, inbox → fișă și propunere de calendar), jobul zilnic `cercetare.tendinte`, ecranul `/analiza/tendinte`, setarea `AMA_YOUTUBE_API_KEY`. Migrarea `0060`.
 
