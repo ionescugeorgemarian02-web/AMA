@@ -559,3 +559,4 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `analiza.trafic`, șablonul `analiza_trafic.html`, ruta `/analiza/trafic`, spec F10.6. Fără migrare și fără colectare nouă: vizitele cu acord (F7.1) și leadurile (F7.2) existau. Hotărâri (D-007): rata e limită de sus și e afișată ca atare.
   - Verificat: 2 teste de integrare.
 
+- **CI roșu pe F10.4–F10.5, reparat.** Suita completă pe F10.6: `1 failed, 2971 passed`. Cauza: `test_analiza_sanatate` lăsa în baza comună un abonament restant, pe care jobul de restanțe din `test_facturare` îl găsea. Testul meu își șterge acum abonamentele de probă. Lecție: înainte de împins un pas care adaugă teste cu date la nivel de agenție, rulez și testele care citesc aceleași tabele.

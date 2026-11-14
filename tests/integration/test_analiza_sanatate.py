@@ -31,12 +31,14 @@ Z = dt.timedelta(days=1)
 
 @pytest.fixture(autouse=True)
 def _fara_cereri_ramase(admin_engine: Engine) -> Iterator[None]:
-    """Cererile lăsate în așteptare de aceste teste ar apărea în ecranele altor teste (baza e comună pe
+    """Cererile și abonamentele lăsate de aceste teste ar apărea în alte teste (baza e comună pe
     sesiune): la final se anulează, ca superutilizator, cu declanșatoarele oprite doar în tranzacție."""
     yield
     with admin_engine.begin() as c:
         c.execute(text("SET LOCAL session_replication_role = replica"))
         c.execute(text("UPDATE aprobari SET stare = 'anulat', decis_la = now() WHERE stare = 'in_asteptare'"))
+        # abonamentele de probă (restante, suspendate) le-ar găsi jobul de restanțe din testele de facturare
+        c.execute(text("DELETE FROM abonamente WHERE email_facturare = 'facturi@exemplu.test'"))
 
 
 def numeste(admin: Engine, tenant: uuid.UUID, nume: str, *, vechime_zile: int = 90) -> None:
