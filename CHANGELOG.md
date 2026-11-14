@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F10.6 — Analiza de trafic proprie
+- `analiza.trafic` (pâlnia vizite cu acord → cereri de audit → clienți), ecranul `/analiza/trafic`.
+
 ### F10.5 — Raportul lunar complet
 - `analiza.raport_cifre` (cifrele lunii, frazele deterministe, controlul „G2 pe cifre”); `raport_lunar` și șablonul din portal arată cifrele măsurate.
 

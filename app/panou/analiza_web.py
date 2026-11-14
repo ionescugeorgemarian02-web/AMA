@@ -13,6 +13,7 @@ cifrele pe intervale ale fiecăreia și curba de retenție a clipurilor (unde pl
 Citirea cere `rapoarte.citeste`.
 """
 
+import datetime as dt
 import uuid
 from typing import Annotated, Any
 
@@ -20,7 +21,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
 from app import productie
-from app.analiza import colector, etichete, retentie, sanatate
+from app.analiza import colector, etichete, retentie, sanatate, trafic
 from app.connectors.contract import CHEI_METRICI, ETICHETE_METRICI
 from app.conturi import (
     DbSession,
@@ -77,6 +78,21 @@ def tablou_clienti(request: Request, u: Agentie, _p: PoateCiti, db: DbSession) -
         agentie=sanatate.situatie(db),
         niveluri=sanatate.NIVELURI,
         tinte=sanatate.TINTE,
+    )
+
+
+@router.get("/trafic")
+def trafic_propriu(request: Request, u: Agentie, _p: PoateCiti, db: DbSession, zile: int = 30) -> Response:
+    """Pâlnia site-ului (F10.6): vizite cu acord → cereri de audit → confirmate → audituri → clienți."""
+    zile = max(1, min(zile, 365))
+    azi = dt.datetime.now(dt.UTC).date()
+    return pagina(
+        request,
+        u,
+        "panou/analiza_trafic.html",
+        tab="meniu",
+        p=trafic.palnie(db, azi - dt.timedelta(days=zile - 1), azi),
+        zile=zile,
     )
 
 

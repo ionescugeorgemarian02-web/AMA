@@ -555,4 +555,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `analiza.raport_cifre`, legarea în `raport_lunar.compune`, tabelul și frazele în `portal/rapoarte.html`, spec F10.5. Hotărâri (D-007): fraze deterministe, verificate cu extractorul G2; fără model.
   - Test existent schimbat (F7.8, `test_raport_lunar.py`): mesajul „vine cu F10” a dispărut, iar setul de chei are patru chei noi; verificarea nu a fost slăbită.
   - Verificat: 4 teste unitare, 2 de integrare.
+- **F10.6 — Analiza de trafic proprie.**
+  - Construit: `analiza.trafic`, șablonul `analiza_trafic.html`, ruta `/analiza/trafic`, spec F10.6. Fără migrare și fără colectare nouă: vizitele cu acord (F7.1) și leadurile (F7.2) existau. Hotărâri (D-007): rata e limită de sus și e afișată ca atare.
+  - Verificat: 2 teste de integrare.
 
