@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F7.3 — Portalul: cont și onboarding
+- Modulul `app/portal`: activarea contului din invitație, Acasă cu bara de progres, interviul din portal; invitația din ecranul de onboarding al agenției; `client_titular` completează onboardingul; clientul care intră pe `/` ajunge în portal. Migrarea `0041`.
+
 ### F7.2 — Formularul de audit
 - Modulul `site.audit`: auditul gratuit cu opt-in dublu, anti-spam, raport de la motorul de audit (adaptor), lead; ecranul „Leaduri din site”. Efectele externe de sistem (`app/operare/efecte/sistem.py`, tabelul `efecte_sistem`): email și plăți prin aceeași disciplină de outbox. Migrarea `0040`.
 

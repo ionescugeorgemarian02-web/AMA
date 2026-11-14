@@ -79,7 +79,11 @@ def test_rolurile_de_client_primesc_403(client: TestClient, fabrica_conturi: Fab
 
     cont = fabrica_conturi(Rol.CLIENT_TITULAR)
     assert login(client, cont.email, cont.parola).status_code == 303
-    assert client.get(cale, follow_redirects=False).status_code == 403
+    r = client.get(cale, follow_redirects=False)
+    if cale == "/":  # din F7.3 clientul ajunge în portal, nu în panou (fără nicio dată a panoului)
+        assert r.status_code == 303 and r.headers["location"] == "/portal"
+    else:
+        assert r.status_code == 403
 
 
 def test_bara_de_jos_are_cele_cinci_file_in_ordine_si_marcheaza_pagina_curenta(

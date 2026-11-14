@@ -13,7 +13,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
-from app import creier, onboarding
+from app import creier, onboarding, portal
 from app.conturi import (
     DbSession,
     Permisiune,
@@ -40,6 +40,7 @@ MESAJE = {
     "trimis": "Brieful a fost trimis spre aprobare în Creierul de brand.",
     "ton_pornit": "Variantele de ton se pregătesc. Reîncarcă pagina peste câteva secunde.",
     "ghid_propus": "Ghidul de brand a fost propus. Îl aprobi în Creierul de brand.",
+    "invitat": "Invitația a fost trimisă: clientul își activează contul din email și continuă în portal.",
 }
 
 
@@ -103,6 +104,24 @@ def index(request: Request, u: Agentie, db: DbSession) -> Response:
 @router.get("/{client_id}")
 def vezi(request: Request, u: Agentie, db: DbSession, client_id: str, mesaj: str = "") -> Response:
     return _pagina(request, u, db, client_id, mesaj=MESAJE.get(mesaj, ""))
+
+
+@router.post("/{client_id}/invita", dependencies=[Depends(csrf_protect)])
+def invita(
+    request: Request,
+    u: PoateCompleta,
+    db: DbSession,
+    client_id: str,
+    email: Annotated[str, Form(max_length=254)],
+) -> Response:
+    """Linkul de activare a portalului pentru client (F7.3), pe email."""
+    c = _client(db, client_id)
+    try:
+        portal.cont.invita(db, c.id, email, creat_de=u.utilizator_id, motiv=f"manual:{uuid.uuid4().hex[:8]}")
+    except (portal.cont.InvitatieInvalida, ValueError) as exc:
+        db.rollback()
+        return _pagina(request, u, db, client_id, status=422, eroare=str(exc))
+    return RedirectResponse(f"/onboarding/{c.id}?mesaj=invitat", status_code=303)
 
 
 @router.post("/{client_id}/porneste", dependencies=[Depends(csrf_protect)])

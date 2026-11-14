@@ -63,6 +63,7 @@ MATRICE: dict[Rol, frozenset[Permisiune]] = {
             P.PLAFOANE_SETEAZA,
             P.FACTURI_VEDE,
             P.RAPOARTE_CITESTE,
+            P.ONBOARDING_COMPLETEAZA,  # interviul din portal (F7.3)
         }
     ),
     Rol.CLIENT_APROBATOR: frozenset({P.LIVRABIL_CITESTE, P.LIVRABIL_APROBA, P.COMENTARII_SCRIE}),

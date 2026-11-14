@@ -1,0 +1,15 @@
+{% extends "portal/baza.html" %}
+{% block title %}Portal · AMA{% endblock %}
+{% block pagina %}
+<h1>Bun venit, {{ utilizator.nume_afisat }}</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+<section class="card" aria-labelledby="progres">
+  <h2 id="progres">Pornirea, pas cu pas</h2>
+  <p><progress max="100" value="{{ procent }}">{{ procent }}%</progress> {{ procent }}%</p>
+  <ol>
+  {% for p in pasi %}
+    <li>{% if p.gata %}✓ {% endif %}{% if p.url and not p.gata %}<a href="{{ p.url }}">{{ p.nume }}</a>{% else %}{{ p.nume }}{% endif %}{% if p.viitor %} <span class="slab">(în curând)</span>{% endif %}</li>
+  {% endfor %}
+  </ol>
+</section>
+{% endblock %}
