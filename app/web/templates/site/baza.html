@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titlu %}{{ p.titlu if p else nume }}{% endblock %} — AMA</title>
+  <meta name="description" content="{% block descriere %}{{ p.descriere if p else '' }}{% endblock %}">
+  <link rel="canonical" href="{{ canonic }}">
+  {% if robots %}<meta name="robots" content="{{ robots }}">{% endif %}
+  <meta property="og:title" content="{{ self.titlu() }}">
+  <meta property="og:description" content="{{ self.descriere() }}">
+  <meta property="og:url" content="{{ canonic }}">
+  <meta property="og:locale" content="ro_RO">
+  <link rel="icon" type="image/png" href="/static/icons/icon-192.png">
+  <link rel="stylesheet" href="/static/css/site.css">
+  <script type="application/ld+json">{% block ld %}{{ {"@context": "https://schema.org", "@type": "Organization", "name": nume, "url": site_url} | tojson }}{% endblock %}</script>
+</head>
+<body>
+<header class="cap">
+  <a class="marca" href="/site">AMA</a>
+  <nav aria-label="Meniu">{% for m in meniu %}<a href="/site/{{ m.cale }}"{% if m.cale == cale %} aria-current="page"{% endif %}>{{ m.eticheta_meniu }}</a>{% endfor %}</nav>
+</header>
+<main>
+{% block continut %}{% endblock %}
+</main>
+<footer class="subsol">
+  {% for m in subsol %}<a href="/site/{{ m.cale }}">{{ m.eticheta_meniu }}</a>{% endfor %}
+  <a href="/site/legal/cookie-uri">Setări cookie-uri</a>
+  <a href="/portal">Portalul clientului</a>
+</footer>
+{% if arata_banner %}
+<div class="banner" role="region" aria-label="Cookie-uri">
+  <form method="post" action="/site/consimtamant">
+    <p>Folosim doar cookie-uri esențiale. Cu acordul tău, numărăm vizitele pe pagini, anonim, pe serverul nostru.</p>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="inapoi" value="/site/{{ cale }}">
+    <button class="da" name="alege" value="analiza">Accept analiza</button>
+    <button name="alege" value="esential">Doar esențiale</button>
+    <a href="/site/legal/cookie-uri">Detalii</a>
+  </form>
+</div>
+{% endif %}
+</body>
+</html>

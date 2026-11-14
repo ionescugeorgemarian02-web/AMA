@@ -114,10 +114,16 @@ def test_exista_sabloane_de_scanat() -> None:
 @pytest.mark.parametrize("cale", SABLOANE_FISIERE, ids=lambda p: str(p.relative_to(SABLOANE)))
 def test_niciun_sablon_nu_are_cod_inline(cale: Path) -> None:
     html = cale.read_text(encoding="utf-8")
+    # Singura excepție: blocul de date structurate al site-ului public (F7.1), `application/ld+json`, care nu se
+    # execută (CSP nu se aplică blocurilor de date) și se produce doar prin filtrul `tojson` (escapat).
     scripturi_inline = [
-        m for m in re.finditer(r"<script\b([^>]*)>", html, re.IGNORECASE) if "src=" not in m.group(1)
+        m
+        for m in re.finditer(r"<script\b([^>]*)>", html, re.IGNORECASE)
+        if "src=" not in m.group(1) and m.group(1).strip() != 'type="application/ld+json"'
     ]
     assert not scripturi_inline, "script inline interzis de CSP"
+    for bloc in re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S):
+        assert "| tojson }}" in bloc and "{%" in bloc and bloc.count("{{") == 1, "JSON-LD doar prin tojson"
     assert not re.search(r"<style\b", html, re.IGNORECASE), "bloc <style> interzis de CSP"
     assert not re.search(r"\sstyle\s*=", html, re.IGNORECASE), "atribut style= interzis de CSP"
     assert not re.search(r"\son[a-z]+\s*=", html, re.IGNORECASE), "atribut on*= interzis de CSP"

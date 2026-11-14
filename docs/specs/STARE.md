@@ -137,3 +137,12 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F6.7: efectul exemplelor asupra modelelor reale (rata de respingere pe același motiv, înainte și după); numărul de exemple pe prompt (3 + 3) față de bugetul de tokeni real.
 - F6.8: **proba reală de 14 zile** pe CariereAI și BigBrain, la L1, cu modelele reale, publicare asistată pe telefon, 15–30 de minute pe zi; rata reală de aprobare din prima; definiția incidentului critic [I] confirmată.
 - Poarta F6: poarta de lansare 1 „pe bune” — proba reală de 14 zile (CariereAI, BigBrain), postarea reală din telefon, rata reală de aprobare din prima, primul val de cereri F0, backupul și restaurarea pe VPS (`docs/specs/F6-poarta.md`).
+
+## Faza F7 — Site, portal, facturare
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F7.1 Site-ul complet | verificat local prin teste HTTP: toate paginile din 19.1 (16) publice, fără script executabil, sub 20 KB, viewport, canonic, JSON-LD, un singur apel la acțiune; banner de acord fără JS, analiză proprie anonimă doar cu acord, retragere; hartă, robots, blog. **Viteza pe telefon real, textele juridice, datele firmei și domeniul: la migrare** | `tests/integration/test_site.py`, `tests/unit/test_site_pagini.py` |
+
+### De verificat la migrare (F7)
+- F7.1: domeniul public al agenției și regula din proxy (rădăcina → `/site`), `AMA_SITE_URL`; Lighthouse pe telefon real; textele juridice finale (F0.6) și datele firmei (F0.1); prețurile [I] din `finante.planuri`.

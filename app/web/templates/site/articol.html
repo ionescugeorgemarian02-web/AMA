@@ -1,0 +1,17 @@
+{% extends "site/baza.html" %}
+{% block titlu %}{{ a.titlu }}{% endblock %}
+{% block descriere %}{{ a.descriere }}{% endblock %}
+{% block ld %}{{ {"@context": "https://schema.org", "@type": "BlogPosting", "headline": a.titlu, "description": a.descriere, "datePublished": a.publicat_la.isoformat() if a.publicat_la else "", "publisher": {"@type": "Organization", "name": nume}} | tojson }}{% endblock %}
+{% block continut %}
+<article>
+<h1>{{ a.titlu }}</h1>
+<p class="descriere">{{ a.descriere }}</p>
+{% for s in a.corp %}
+{% if s.titlu %}<h2>{{ s.titlu }}</h2>{% endif %}
+{% for par in s.paragrafe %}<p>{{ par }}</p>{% endfor %}
+{% endfor %}
+{% if a.surse %}<h2>Surse</h2><ol>{% for s in a.surse %}<li><a href="{{ s.url }}" rel="nofollow noopener">{{ s.titlu }}</a></li>{% endfor %}</ol>{% endif %}
+{% if a.dezvaluire_ai %}<p class="mic">Conținut creat cu ajutorul AI și verificat de un om.</p>{% endif %}
+</article>
+<a class="cta" href="/site/audit">Cere auditul gratuit</a>
+{% endblock %}

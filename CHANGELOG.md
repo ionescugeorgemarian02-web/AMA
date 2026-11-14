@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F7.1 — Site-ul complet
+- Modulul `app/site`: paginile publice din 19.1 ca date, randate pe server fără JavaScript, banner de acord pentru cookie-uri, analiză de trafic proprie anonimă (doar cu acord), blog, hartă a site-ului, robots, adrese canonice și date structurate. Planurile agenției în `app/finante/planuri.py`. Migrarea `0039` (`site_vizite`, `site_articole`).
+
 ### Poarta F6
 - Testul de poartă `tests/integration/test_poarta_f6.py`: lanțul complet al producției de text și al publicării asistate, cu acțiunile omului prin panou, și proba accelerată de 14 zile pe două branduri, fără incident critic. Detalii și condițiile rămase în `docs/specs/F6-poarta.md`.
 

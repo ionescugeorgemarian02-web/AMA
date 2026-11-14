@@ -442,3 +442,11 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit: în poartă briefurile tuturor sloturilor se scriu înaintea respingerii, deci exemplul negativ ajunge la sarcina următoare prin promptul autorului, nu prin pachetul brieful (ambele drumuri sunt testate: F6.7 și poarta).
   - Rămâne deschis (la migrare): proba reală, postarea reală, primul val F0, backupul pe VPS.
   - Propuneri: verificarea duratei scriptului ca pas G1 cu set de aur propriu; aprobarea în grup pe loturile calendarului; partea cu model a editorului E8 după F11.
+
+## 2026-11-13 — Sesiunea 11: faza F7, site, portal, facturare
+
+### 25. Un agent de cod (Opus), pe ramura `claude/amazing-volta-ou9t2u`
+- **F7.1 — Site-ul complet.**
+  - Construit: `app/site` (pagini, web, analiza, blog, modele), șabloanele `site/*`, `site.css`, `finante.planuri`, migrarea `0039`, spec F7.1.
+  - Hotărâri (D-007): site sub `/site` în monolit, fără JS (bannerul e formular); analiza = contor pe (zi, pagină), fără identificatori; prețurile [I] din planuri, comune cu facturarea.
+  - Verificat: 3 teste de integrare, 3 unitare.

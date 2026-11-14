@@ -1,0 +1,29 @@
+/* Site-ul public AMA: o singură foaie mică, fără scripturi, întâi pentru telefon. */
+:root{color-scheme:light dark;--f:#fff;--t:#16232a;--s:#4c5d66;--l:#d3dce1;--b:#0b5d6b;--bt:#fff;--z:#eef2f4}
+@media (prefers-color-scheme:dark){:root{--f:#0f1a1f;--t:#e8eef1;--s:#9fb1ba;--l:#2b3d46;--b:#5fb3c1;--bt:#0f1a1f;--z:#172329}}
+*{box-sizing:border-box}
+body{margin:0;font:1rem/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--f);color:var(--t)}
+a{color:var(--b)}
+.cap,.subsol,main{max-width:46rem;margin:0 auto;padding:1rem}
+.cap{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;border-bottom:1px solid var(--l)}
+.cap .marca{font-weight:700;text-decoration:none;color:var(--t);margin-right:auto}
+.cap nav{display:flex;flex-wrap:wrap;gap:.25rem .9rem;font-size:.95rem}
+h1{font-size:1.7rem;line-height:1.25;margin:.5rem 0 1rem}
+h2{font-size:1.2rem;margin:1.6rem 0 .4rem}
+.descriere{color:var(--s);font-size:1.05rem}
+.cta{display:inline-block;margin:1rem 0;padding:.8rem 1.2rem;border-radius:10px;background:var(--b);color:var(--bt);
+  font-weight:600;text-decoration:none;border:0;font-size:1rem;cursor:pointer}
+.banner{position:sticky;bottom:0;background:var(--z);border-top:1px solid var(--l);padding:.8rem 1rem}
+.banner form{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;max-width:46rem;margin:0 auto}
+.banner p{margin:0 0 .4rem;flex-basis:100%;font-size:.95rem}
+.banner button{padding:.6rem 1rem;border-radius:8px;border:1px solid var(--l);background:var(--f);color:var(--t);font-size:1rem}
+.banner button.da{background:var(--b);color:var(--bt);border-color:var(--b)}
+.subsol{border-top:1px solid var(--l);color:var(--s);font-size:.9rem;display:flex;flex-wrap:wrap;gap:.4rem 1rem}
+label{display:block;margin:.8rem 0 .2rem;font-weight:600}
+input[type=text],input[type=email],input[type=url],input[type=password],textarea,select{width:100%;padding:.7rem;font-size:1rem;
+  border:1px solid var(--l);border-radius:8px;background:var(--f);color:var(--t)}
+.camp-ascuns{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.eroare{background:#fdecec;color:#7f1d1d;padding:.6rem .8rem;border-radius:8px}
+.ok{background:#e8f5ec;color:#14532d;padding:.6rem .8rem;border-radius:8px}
+.mic{color:var(--s);font-size:.9rem}
+ul.articole{list-style:none;padding:0}ul.articole li{margin:0 0 1rem}

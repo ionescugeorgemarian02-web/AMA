@@ -6,7 +6,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 
-from app import __version__, conturi, db, panou
+from app import __version__, conturi, db, finante, panou, portal, site
 from app.config import get_settings
 from app.connectors.telegram.web import router as router_telegram
 from app.logging import configure_logging, correlation_id, get_logger
@@ -64,6 +64,9 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     conturi.inregistreaza(app)
     panou.inregistreaza(app)
+    site.inregistreaza(app)  # /site: site-ul public (F7)
+    portal.inregistreaza(app)  # /portal: portalul clientului (F7)
+    app.include_router(finante.router)  # /facturare/webhook: semnat de procesatorul de plăți (F7.6)
     app.include_router(livrare.router)  # /intern/livrare/*: doar cu jeton, blocat în proxy
     app.include_router(router_telegram)  # /telegram/webhook: doar cu antetul-secret
     return app

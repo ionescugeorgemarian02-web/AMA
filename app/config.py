@@ -142,6 +142,19 @@ class Settings(BaseSettings):
     # migrare.
     vectori_prefix_pasaj: str = ""
     vectori_prefix_intrebare: str = ""
+    # Site-ul public și portalul (F7). Adresa publică a site-ului (adrese canonice, harta site-ului,
+    # linkurile din emailuri). NEVERIFICAT: domeniul real al agenției (F0.1), la migrare.
+    site_url: str = "http://localhost:8000/site"
+    portal_url: str = "http://localhost:8000/portal"
+    # Procesatorul de plăți (F7.6): `simulat` (mediul de probă din proces) sau adaptorul real (la migrare).
+    plati_procesator: str = "simulat"
+    plati_webhook_secret: SecretStr = Field(default=SecretStr(""))  # semnătura webhook-urilor procesatorului
+    plati_gratie_zile: int = Field(default=7, ge=1, le=30)  # 19.5: perioada de grație la plată eșuată
+    # Emailul tranzacțional (F7.2): `simulat` (cutie poștală în proces) sau adaptorul real (la migrare).
+    email_furnizor: str = "simulat"
+    email_expeditor: str = "AMA <noreply@example.invalid>"
+    # Motorul de audit din BigBrain (F7.2), prin rețea; `simulat` = raport determinist din proces.
+    audit_motor: str = "simulat"
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 
