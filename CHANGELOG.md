@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.5 — Lista de decizii de montaj și Regizorul
+- `media.lista` (schema și validarea listei de montaj) și `media.regizor` (alegerile modelului pe bătăi, momentele din vocea reală); promptul `media.regizor@1`.
+
 ### F8.4 — Furnizorul de imagini și biblioteca de active
 - `media.licente` (licențe complete pe tip, folosirea doar cu licență, consemnată și impusă de bază), `media.furnizori` (stock și generare în spatele adaptoarelor, simulați), `media.ffmpeg`; EXIF eliminat la încărcare. Dependență nouă: `pillow==12.0.0`. ffmpeg în CI și în imagine. Migrarea `0049`.
 

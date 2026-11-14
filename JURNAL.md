@@ -481,3 +481,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `media.transcriere`, configurarea whisper.cpp, spec F8.3. Hotărâri (D-007): transcriptorul simulat măsoară momentele din semnal (energie), cuvintele din bucata `amaw`; aliniere forțată când lipsesc. Verificat: 1 test de integrare, 3 unitare.
 - **F8.4 — Furnizorul de imagini și biblioteca de active.**
   - Construit: `media.licente`, `media.furnizori`, `media.ffmpeg`, migrarea `0049` (`folosiri_active` + declanșatorul care cere licența), EXIF eliminat în `biblioteca`, ffmpeg + DejaVu în CI și Dockerfile. Hotărâri (D-007): licența pe tip cu câmpuri obligatorii; regulile promptului din 14.3. Verificat: 2 teste de integrare (+ testele F7.5 neschimbate).
+- **F8.5 — Lista de decizii de montaj și Regizorul.**
+  - Construit: `media.lista`, `media.regizor`, promptul `media.regizor.v1.md`, `tests/media_utile.py`. Hotărâri (D-007): modelul alege doar cadrul și mișcarea; momentele le pune programul. Verificat: 2 teste de integrare.
+  - Notă: o rulare `make check` a picat o dată în `test_portal_date` (blocaj reciproc între jobul de export și cel de ștergere, F7.7, independent de F8); testul trece singur și la rularea completă următoare. Propunere: serializarea joburilor de export și ștergere ale aceluiași client.

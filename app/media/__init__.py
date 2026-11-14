@@ -7,6 +7,7 @@ media.pronuntie.pentru_voce(db, tenant_id, "Guji costă 49 lei.")  # normalizare
 v = media.transcriere.naratiune_verificata(db, tenant_id, fraze)  # timpi pe cuvânt, fraze greșite (F8.3)
 a = media.furnizori.aduce_stock(db, tenant_id, media.furnizori.cauta_stock("cafea")[0])  # cu licența (F8.4)
 media.licente.foloseste(db, a.id, scop="montaj")  # singura cale de folosire: fără licență, refuz (F8.4)
+lm = media.regizor.regizeaza(db, tenant_id, fraze=fr, naratiune=v, materiale=active)  # lista (F8.5)
 """
 
 from app.media import (
@@ -15,8 +16,10 @@ from app.media import (
     ffmpeg,
     furnizori,
     licente,
+    lista,
     normalizare,
     pronuntie,
+    regizor,
     tendinte,
     transcriere,
     voce,
@@ -28,8 +31,10 @@ __all__ = [
     "ffmpeg",
     "furnizori",
     "licente",
+    "lista",
     "normalizare",
     "pronuntie",
+    "regizor",
     "tendinte",
     "transcriere",
     "voce",
