@@ -462,3 +462,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `connectors.plati` (simulat), `finante.abonamente`, `finante.web`, `site.inscriere`, `portal.cont_web`, migrarea `0043`. Hotărâri: plățile ca efecte de sistem; invitația după prima activare prin extensie; suspendarea = oprirea pe client. Verificat: 2 teste.
 - **F7.7 — Export și ștergere.**
   - Construit: `db.stergere`, `portal.date`, migrarea `0044`. Găsit: politicile forțate se aplică și proprietarului; ștergerea setează contextul de agenție și ocolește politicile doar pe tabelul în lucru. Verificat: 2 teste.
+- **F7.8 — Raportul lunar, prima formă.**
+  - Construit: `analiza.raport_lunar`, `portal.rapoarte_web`, migrarea `0045`. Hotărâri: luna după slotul livrabilelor. Verificat: 1 test.

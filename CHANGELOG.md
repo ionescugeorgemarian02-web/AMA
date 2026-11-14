@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F7.8 — Raportul lunar, prima formă
+- `analiza.raport_lunar`: raportul lunar, prima formă (livrabile și stare, fără metrici), în portal. Migrarea `0045`.
+
 ### F7.7 — Export și ștergere
 - Exportul complet (ZIP) și ștergerea la cerere a datelor clientului (`portal.date`, `db.stergere`, job durabil), din portal. Migrarea `0044`.
 
