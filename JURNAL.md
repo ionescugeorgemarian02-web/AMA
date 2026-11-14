@@ -544,4 +544,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `analiza.etichete`, șablonul `analiza_etichete.html`, ruta `/analiza/etichete`, migrarea `0059`, spec F10.3. Hotărâri (D-007): etichetele vin doar din date existente; recompensa din citirea de la 72 de ore (sau prima de după), cu tipul ei; tipurile nu se amestecă în medii; numărul de postări stă lângă fiecare medie.
   - Verificat: 8 teste unitare, 3 de integrare, 1 de izolare.
   - Notă de proces: prima rulare a suitei complete pe F10.1 a fost invalidată de mine (am rulat alte sesiuni de test pe același server Postgres; conftest-ul schimbă parolele rolurilor de test la fiecare sesiune). De acum suita completă rulează pe un server separat (`AMA_PGTEST_DIR`/`AMA_PGTEST_PORT`), pe o copie înghețată a commitului.
+- **Verificare completă.** Suita întreagă pe commitul F10.2 (`4186a47`), pe server Postgres separat: `2938 passed, 1 skipped` (13 min). CI GitHub pe cererea de integrare #9: verde pe F10.3.
+- **F10.4 — Tablouri de bord și scor de sănătate.**
+  - Construit: `analiza.sanatate`, șablonul `analiza_clienti.html`, ruta `/analiza/clienti`, spec F10.4. Fără migrare. Hotărâri (D-007): reguli pure, calcul la afișare; minutele de om sunt estimare declarată; procent fără cazuri = „–”.
+  - Găsit: garda din bază nu lasă schimbată o cerere de aprobare; testul îmbătrânește cererea ca superutilizator, cu declanșatoarele oprite doar în acea tranzacție.
+  - Verificat: 7 teste unitare, 3 de integrare.
 

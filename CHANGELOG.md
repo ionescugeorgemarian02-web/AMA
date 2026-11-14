@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F10.4 — Tablouri de bord și scor de sănătate
+- `analiza.sanatate` (semnalele de risc din 4.10, scorul, indicatorii din 4.13), ecranul `/analiza/clienti`.
+
 ### F10.3 — Legarea de etichete
 - `analiza.etichete` (tipar de hook, format, pilon, unghi, slot local, recompensa de la 72 de ore; grupare și sortare), ecranul `/analiza/etichete`. Migrarea `0059`.
 

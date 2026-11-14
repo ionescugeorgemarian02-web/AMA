@@ -1,0 +1,41 @@
+{% extends "panou/baza.html" %}
+{% block title %}Clienți: indicatori și sănătate · AMA{% endblock %}
+{% macro procent(v) %}{% if v is none %}–{% else %}{{ "%.0f"|format(v * 100) }}%{% endif %}{% endmacro %}
+{% block pagina %}
+<h1>Clienți: indicatori și sănătate</h1>
+<p class="slab"><a href="/analiza">Rapoarte și analiză</a> · Ultimele 30 de zile. Scorul pornește de la 100 și scade cu fiecare semnal de risc. „–” înseamnă că nu sunt încă date.</p>
+
+<section class="card" aria-labelledby="agentie">
+  <h2 id="agentie">Agenția</h2>
+  <ul>
+    <li>Venit lunar recurent: <strong>{{ agentie.venit_lunar }} lei</strong> de la {{ agentie.clienti_platitori }} {% if agentie.clienti_platitori == 1 %}client plătitor{% else %}clienți plătitori{% endif %}</li>
+    <li>Churn lunar: <strong>{{ procent(agentie.churn_lunar) }}</strong> <span class="slab">(țintă: sub {{ "%.0f"|format(tinte.churn * 100) }}% după luna a treia)</span></li>
+    <li>Audit → apel și apel → client: <span class="slab">indisponibil până la CRM (faza F12)</span></li>
+  </ul>
+</section>
+
+{% for f in agentie.fise %}
+<section class="card fisa-client" aria-label="{{ f.nume }}">
+  <h2>{{ f.nume }} <span class="insigna {% if f.nivel == 'bun' %}ok{% else %}atentie{% endif %}">{{ niveluri[f.nivel] }} · {{ f.scor }}/100</span></h2>
+  {% if f.semnale %}
+  <ul class="semnale">
+    {% for s in f.semnale %}<li>{{ s.text }} <span class="slab">(−{{ s.puncte }})</span></li>{% endfor %}
+  </ul>
+  {% else %}
+  <p class="slab">Niciun semnal de risc.</p>
+  {% endif %}
+  <table>
+    <tbody>
+      <tr><th scope="row">Venit lunar recurent</th><td>{% if f.indicatori.venit_lunar %}{{ f.indicatori.venit_lunar }} lei{% else %}fără abonament activ{% endif %}</td></tr>
+      <tr><th scope="row">Minute de om (estimare)</th><td>{{ f.indicatori.minute_om }} <span class="slab">țintă: sub {{ tinte.minute_om }}</span></td></tr>
+      <tr><th scope="row">Aprobare din prima</th><td>{{ procent(f.indicatori.aprobare_din_prima) }} <span class="slab">din {{ f.indicatori.decizii }} · țintă: peste {{ "%.0f"|format(tinte.aprobare_din_prima * 100) }}%</span></td></tr>
+      <tr><th scope="row">Livrare la timp</th><td>{{ procent(f.indicatori.livrare_la_timp) }} <span class="slab">din {{ f.indicatori.livrabile_cu_termen }} · țintă: peste {{ "%.0f"|format(tinte.livrare_la_timp * 100) }}%</span></td></tr>
+      <tr><th scope="row">Cotă de modele folosită (luna aceasta)</th><td>{{ procent(f.indicatori.cota_modele) }} <span class="slab">țintă: sub {{ "%.0f"|format(tinte.cota_modele * 100) }}%</span></td></tr>
+    </tbody>
+  </table>
+</section>
+{% else %}
+<p class="slab">Niciun client încă.</p>
+{% endfor %}
+<p class="slab">Minutele de om sunt o estimare din acțiunile numărate (aprobări decise de agenție, publicări asistate, cifre introduse de mână), nu o cronometrare.</p>
+{% endblock %}

@@ -24,11 +24,35 @@ apoi F10 (ramura B).
 | F10.1 Colectorul de metrici | **închis** (împins) |
 | F10.2 Curba de retenție YouTube | **închis** (împins) |
 | F10.3 Legarea de etichete | **închis** (împins) |
-| F10.4 Tablouri de bord și scor de sănătate | urmează |
-| F10.5 Raportul lunar complet | neînceput |
+| F10.4 Tablouri de bord și scor de sănătate | **închis** (împins) |
+| F10.5 Raportul lunar complet | urmează |
 | F10.6 Analiza de trafic proprie | neînceput |
 | F10.7 Cercetătorul de tendințe | neînceput |
 | F10.8 Analistul de reclame ale concurenței | neînceput |
+
+## Raport pentru sesiunea A (citește asta întâi)
+
+**Cine scrie:** sesiunea B = a doua sesiune Claude Code, pornită de proprietar pe 2026-11-14 ca să construiască în
+paralel cu tine. Ramura mea: `claude/tender-franklin-9wrn5i`. Cererea mea de integrare: **#9** (ciornă, spre `main`).
+
+**Ce am făcut până acum** (totul împins; detalii în `JURNAL.md`, secțiunea „Sesiunea B”):
+- am pornit din vârful tău `3d09d15` (F9.10); nu am atins `app/publicare/` și `app/connectors/publicare/`;
+- F10.1 colectorul de metrici (`app/analiza/colector.py`, `app/connectors/metrici/`, migrarea `0057`);
+- F10.2 curba de retenție YouTube + ecranul `/analiza` (migrarea `0058`);
+- F10.3 legarea de etichete, `/analiza/etichete` (migrarea `0059`);
+- F10.4 scorul de sănătate și indicatorii, `/analiza/clienti` (fără migrare);
+- verificare: suita completă `2938 passed, 1 skipped` pe F10.2; CI verde pe #9 la F10.3.
+
+**Ce ai tu de făcut, în ordine:**
+1. Poarta F9 (`docs/specs/F9-poarta.md` + testul cap-coadă), actualizează `STARE.md`, `JURNAL.md`.
+2. Deschide cererea de integrare F9 spre `main` (nu există încă una) și adu CI pe verde.
+3. Cererea mea de mai jos: `yt-analytics.readonly` în `SCOPURI` (un rând, în F9).
+4. Apoi F12.1–F12.6 (CRM, email, secvență, scor, programări, oferte), migrări `0070`–`0089`, în `app/crm/`.
+   F12.7–F12.8 (inbox) după ce F9 e în `main`.
+5. Nu începe F10 sau F11: sunt ale mele. Dacă ai deja lucru local în ele, scrie la „Cereri” și împinge.
+
+**Integrarea în `main`:** o face proprietarul (sau sesiunea căreia i-o cere explicit), întâi F9, apoi #9. Nicio
+sesiune nu împinge direct în `main`.
 
 ## Reguli ca să nu apară conflicte
 

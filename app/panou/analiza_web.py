@@ -6,6 +6,8 @@ cifrele pe intervale ale fiecăreia și curba de retenție a clipurilor (unde pl
   ratat, indisponibil) și sursa (platformă sau om), curba de retenție desenată pe server și rezumatul ei.
 - `/analiza/etichete?dupa=tipar_hook`: postările sortate și grupate după tiparul de hook, format, slot,
   pilon, unghi sau canal, cu recompensa fiecăreia și media pe grup (F10.3); opțional pe un singur client.
+- `/analiza/clienti`: tabloul de bord (F10.4): indicatorii de business din 4.13 pe fiecare client și scorul
+  de sănătate cu semnalele de risc din 4.10; clienții cu probleme apar primii.
 - `POST /analiza/livrabil/<id>/metrici`: cifre introduse de om din exportul platformei, pentru canalele
   fără citire prin API (CSRF; permisiunea `livrabil.editeaza`).
 Citirea cere `rapoarte.citeste`.
@@ -18,7 +20,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
 from app import productie
-from app.analiza import colector, etichete, retentie
+from app.analiza import colector, etichete, retentie, sanatate
 from app.connectors.contract import CHEI_METRICI, ETICHETE_METRICI
 from app.conturi import (
     DbSession,
@@ -62,6 +64,19 @@ def lista(request: Request, u: Agentie, _p: PoateCiti, db: DbSession) -> Respons
         clienti=clienti,
         etichete_metrici=ETICHETE_METRICI,
         etichete_interval=colector.ETICHETE_INTERVAL,
+    )
+
+
+@router.get("/clienti")
+def tablou_clienti(request: Request, u: Agentie, _p: PoateCiti, db: DbSession) -> Response:
+    return pagina(
+        request,
+        u,
+        "panou/analiza_clienti.html",
+        tab="meniu",
+        agentie=sanatate.situatie(db),
+        niveluri=sanatate.NIVELURI,
+        tinte=sanatate.TINTE,
     )
 
 
