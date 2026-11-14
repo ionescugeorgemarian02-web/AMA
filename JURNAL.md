@@ -494,3 +494,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F8.9 — Testul de capacitate.**
   - Construit: `media.fluxuri`, `media.capacitate`, măsurarea rulărilor ffmpeg (`ffmpeg.masurare`). Verificat: 1 test de integrare; cifrele locale în ieșirea testului.
   - Găsit: bucla de texte fără pauză ținea GIL-ul și sufoca firele executorului (testul trecea de plafonul de 120 s); tonurile vocii simulate se memorează, stock-ul deja adus nu se mai descarcă.
+- **F8.10 — Șabloane grafice și Compozitorul.**
+  - Construit: `media.sabloane`, `media.compozitor`, migrarea `0051`. Găsit: în Pillow 12 masca de glifă nu mai are `tobytes`; verificarea glifei desenează caracterul. Verificat: 2 teste de integrare.

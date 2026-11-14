@@ -85,3 +85,15 @@ class Randare(BazaMedia):
     control: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     terminat_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class SablonGrafic(BazaMedia):
+    """Un șablon grafic al brandului (F8.10), ca date."""
+
+    __tablename__ = "sabloane_grafice"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    tip: Mapped[str] = mapped_column(Text)
+    versiune: Mapped[int] = mapped_column(default=1)
+    definitie: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

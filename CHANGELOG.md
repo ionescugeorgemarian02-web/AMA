@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.10 — Șabloane grafice și Compozitorul
+- `media.sabloane` (identitatea din Creier sau propusă, șase șabloane ca date) și `media.compozitor` (randare cu diacritice corecte, încadrarea textului). Migrarea `0051`.
+
 ### F8.9 — Testul de capacitate
 - `media.fluxuri` (randarea ca job durabil pe coada `greu`) și `media.capacitate` (raportul față de bugete).
 
