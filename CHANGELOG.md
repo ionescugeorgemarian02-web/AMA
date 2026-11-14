@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F7.5 — Portalul: materiale și inboxul de tendințe
+- Modulul `app/media`: biblioteca de active (verificare după conținut, disc local, sursă) și inboxul de tendințe; ecranul Materiale din portal. Migrarea `0042`.
+
 ### F7.4 — Portalul: Creier, calendar, aprobări
 - Portalul: Creierul (aprobarea propunerilor de titular), calendarul, aprobările cu previzualizare reală și „Aprobă tot lotul”. `productie.aprobari.cere` alege decidentul: clientul, dacă are un utilizator care aprobă.
 

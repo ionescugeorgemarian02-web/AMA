@@ -1,0 +1,34 @@
+{% extends "portal/baza.html" %}
+{% block title %}Materiale · AMA{% endblock %}
+{% block pagina %}
+<h1>Materialele tale</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<section class="card" aria-labelledby="inc">
+  <h2 id="inc">Încarcă</h2>
+  <p class="slab">Fotografii (JPG, PNG, WebP), filmări (MP4, MOV) sau PDF-uri: logo, liste de prețuri, materiale vechi.</p>
+  <form method="post" action="/portal/materiale" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="file" name="fisier" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,application/pdf" required>
+    <label for="descriere">Ce este (opțional)</label>
+    <input id="descriere" name="descriere" type="text" maxlength="500">
+    <button type="submit">Încarcă</button>
+  </form>
+</section>
+<section class="card" aria-labelledby="bib">
+  <h2 id="bib">Biblioteca</h2>
+  {% for a in active %}
+  <p>{{ a.nume_original }} <span class="insigna">{{ a.categorie }}</span><br><span class="slab">sursa: {{ a.sursa }} · {{ a.creat_la|moment }}{% if a.descriere %} · {{ a.descriere }}{% endif %}</span></p>
+  {% else %}<p>Nimic încă.</p>{% endfor %}
+</section>
+<section class="card" aria-labelledby="tend">
+  <h2 id="tend">Inboxul de tendințe</h2>
+  <form method="post" action="/portal/tendinte">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="text">Lipește un link sau scrie o idee</label>
+    <textarea id="text" name="text" rows="3" maxlength="2000" required></textarea>
+    <button type="submit">Trimite</button>
+  </form>
+  {% for t in tendinte %}<p>{% if t.url %}<a href="{{ t.url }}" rel="nofollow noopener">{{ t.text }}</a>{% else %}{{ t.text }}{% endif %}</p>{% endfor %}
+</section>
+{% endblock %}
