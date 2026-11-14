@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.conturi.roluri import Rol
+from app.conturi.servicii import are_aprobator_client
 from app.logging import get_logger
 from app.operare import audit, evenimente
 from app.operare.notificari import Nivel
@@ -175,7 +176,7 @@ def cere(
     db: Session,
     livrabil_id: uuid.UUID,
     *,
-    decident: Decident = Decident.OPERATOR,
+    decident: Decident | None = None,
     utilizator_id: uuid.UUID | None = None,
     componenta: str = COMPONENTA,
     acum: dt.datetime | None = None,
@@ -187,6 +188,10 @@ def cere(
     acum = _acum(acum)
     s = get_settings()
     livrabil = blocheaza(db, livrabil_id)
+    if decident is None:
+        # 19.4 (F7.4): clientul cu un utilizator care poate aproba își aprobă singur conținutul, din portal;
+        # altfel (brandurile proprii, clienții fără cont) aprobă operatorul agenției.
+        decident = Decident.CLIENT if are_aprobator_client(db, livrabil.tenant_id) else Decident.OPERATOR
     stare = Stare(livrabil.stare)
     if stare not in (Stare.VALIDAT, Stare.ASTEAPTA_APROBARE):
         raise NuSeCereAprobare(f"aprobarea se cere pentru un livrabil validat, nu „{stare.value}”")

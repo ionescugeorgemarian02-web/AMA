@@ -1,0 +1,26 @@
+{% extends "portal/baza.html" %}
+{% block title %}Creierul de brand · AMA{% endblock %}
+{% block pagina %}
+<h1>Ce știm despre firma ta</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+<p class="slab">Tot ce scriem pentru tine pornește de aici. Ce propunem intră în lucru doar după aprobarea ta.</p>
+{% for i, v, propus in intrari %}
+<section class="card">
+  <h2>{{ etichete.get(i.compartiment, i.compartiment) }}{% if i.cheie not in ("brief", "strategie-90") %} · {{ i.cheie }}{% endif %}</h2>
+  {% if v %}<p class="slab">Aprobat: versiunea {{ v.nr }}.</p>{% endif %}
+  {% if propus %}
+  <p><span class="insigna atentie">de aprobat</span> versiunea {{ propus.nr }}</p>
+  <details><summary>Vezi propunerea</summary><pre class="text-lung">{{ propus.continut | tojson(indent=2) }}</pre></details>
+  {% if poate_aproba %}
+  <form method="post" action="/portal/creier/{{ i.id }}/aproba">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ propus.nr }}">
+    <button type="submit">Aprobă versiunea {{ propus.nr }}</button>
+  </form>
+  {% endif %}
+  {% endif %}
+</section>
+{% else %}
+<p>Încă nu avem nimic; completează interviul.</p>
+{% endfor %}
+{% endblock %}

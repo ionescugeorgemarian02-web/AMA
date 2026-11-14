@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F7.4 — Portalul: Creier, calendar, aprobări
+- Portalul: Creierul (aprobarea propunerilor de titular), calendarul, aprobările cu previzualizare reală și „Aprobă tot lotul”. `productie.aprobari.cere` alege decidentul: clientul, dacă are un utilizator care aprobă.
+
 ### F7.3 — Portalul: cont și onboarding
 - Modulul `app/portal`: activarea contului din invitație, Acasă cu bara de progres, interviul din portal; invitația din ecranul de onboarding al agenției; `client_titular` completează onboardingul; clientul care intră pe `/` ajunge în portal. Migrarea `0041`.
 

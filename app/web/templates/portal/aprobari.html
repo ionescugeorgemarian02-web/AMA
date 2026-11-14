@@ -1,0 +1,44 @@
+{% extends "portal/baza.html" %}
+{% block title %}Aprobări · AMA{% endblock %}
+{% block pagina %}
+<h1>De aprobat</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+{% if cereri %}
+<p class="slab">Nimic nu se publică fără aprobarea ta. Fără răspuns în 48 de ore, postarea nu se publică.</p>
+{% if poate_aproba %}
+<form method="post" action="/portal/aprobari/lot" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  {% for ap, lv, c in cereri %}<input type="hidden" name="cerere" value="{{ ap.id }}:{{ ap.versiune }}">{% endfor %}
+  <button type="submit">Aprobă tot lotul ({{ cereri|length }})</button>
+</form>
+{% endif %}
+{% for ap, lv, c in cereri %}
+<section class="card" aria-labelledby="a-{{ ap.id }}">
+  <h2 id="a-{{ ap.id }}">{{ lv.canal }} · {{ lv.tip }} <span class="insigna atentie">până la {{ ap.termen_la|moment }}</span></h2>
+  <div class="previzualizare"><p class="text-lung">{{ c.text }}</p>
+  {% if c.campuri.hashtaguri %}<p class="slab">{% for h in c.campuri.hashtaguri %}#{{ h }} {% endfor %}</p>{% endif %}</div>
+  {% if poate_aproba %}
+  <form method="post" action="/portal/aprobari/{{ ap.id }}/aproba">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ ap.versiune }}">
+    <button type="submit">Aprobă</button>
+  </form>
+  <details><summary>Respinge sau cere schimbări</summary>
+  <form method="post" action="/portal/aprobari/{{ ap.id }}/respinge">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="versiune" value="{{ ap.versiune }}">
+    <label for="m-{{ ap.id }}">Motiv</label>
+    <select id="m-{{ ap.id }}" name="motiv_standard">{% for k, e in motive.items() %}<option value="{{ k }}">{{ e }}</option>{% endfor %}</select>
+    <label for="f-{{ ap.id }}">Ce ai schimba (opțional)</label>
+    <textarea id="f-{{ ap.id }}" name="motiv" rows="3" maxlength="500"></textarea>
+    <button type="submit">Respinge</button>
+  </form>
+  </details>
+  {% endif %}
+</section>
+{% endfor %}
+{% else %}
+<p>Nimic de aprobat acum.</p>
+{% endif %}
+{% endblock %}

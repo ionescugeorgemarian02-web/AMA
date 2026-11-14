@@ -454,3 +454,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `site.audit`, `site.motor_audit`, `efecte.sistem`, conectorul `email` (simulat), ecranul `/leaduri`, migrarea `0040`. Hotărâri (D-007): outbox separat pentru efectele fără livrabil; jetonul raportului e altul decât cel de confirmare; spamul primește același răspuns. Verificat: 2 teste.
 - **F7.3 — Portalul: cont și onboarding.**
   - Construit: `portal.cont`, `portal.progres`, `portal.web`, șabloanele `portal/*`, migrarea `0041`. Hotărâri: actorul `sistem` pentru activare; pașii de progres extensibili. Găsit: testul panoului aștepta 403 pe `/` pentru client; acum redirecționare spre portal (test adaptat). Verificat: 2 teste.
+- **F7.4 — Portalul: Creier, calendar, aprobări.**
+  - Construit: `portal.lucru_web`, `conturi.are_aprobator_client`, decidentul implicit în aprobări. Hotărâri: lotul se aprobă într-o tranzacție (orice refuz anulează tot). Verificat: 2 teste; testele F5/F6 ale aprobărilor neschimbate.

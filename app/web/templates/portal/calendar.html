@@ -1,0 +1,14 @@
+{% extends "portal/baza.html" %}
+{% block title %}Calendar · AMA{% endblock %}
+{% block pagina %}
+<h1>Ce urmează</h1>
+{% for i, stare in sloturi %}
+<section class="card">
+  <h2>{{ i.slot_la|moment }} · {{ i.canal }}</h2>
+  <p>{{ i.subiect }}</p>
+  <p class="slab">{{ i.tip }} · {{ stare }}</p>
+</section>
+{% else %}
+<p>Calendarul apare după ce aprobi planul pe 90 de zile.</p>
+{% endfor %}
+{% endblock %}
