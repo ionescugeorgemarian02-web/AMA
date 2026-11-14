@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.11 — Proveniență și dezvăluire AI (G11)
+- `media.provenienta`: pașaportul fiecărui fișier final, eticheta pe canal, marcajul în fișier, G11. Migrarea `0052`.
+
 ### F8.10 — Șabloane grafice și Compozitorul
 - `media.sabloane` (identitatea din Creier sau propusă, șase șabloane ca date) și `media.compozitor` (randare cu diacritice corecte, încadrarea textului). Migrarea `0051`.
 

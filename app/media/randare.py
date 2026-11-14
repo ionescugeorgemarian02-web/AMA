@@ -56,6 +56,7 @@ def comanda(
     ass: Path | None = None,
     sunet: Path | None = None,
     calitate: str = "final",
+    metadate: dict[str, str] | None = None,
 ) -> list[str]:
     """Argumentele FFmpeg pentru listă. `sunet`: pista finală deja mixată (F8.7); altfel vocea, completată cu
     liniște până la durata listei."""
@@ -97,8 +98,11 @@ def comanda(
         "-c:v", "libx264", "-preset", preset, "-crf", "23" if calitate == "final" else "30",
         "-pix_fmt", "yuv420p", "-r", str(fps),
         "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2",
-        "-t", f"{lm.durata:.3f}", "-movflags", "+faststart", str(iesire),
+        "-t", f"{lm.durata:.3f}", "-movflags", "+faststart",
     ]  # fmt: skip
+    for k, v in (metadate or {}).items():
+        args += ["-metadata", f"{k}={v}"]
+    args.append(str(iesire))
     return args
 
 
@@ -109,11 +113,12 @@ def randeaza(
     ass: Path | None = None,
     sunet: Path | None = None,
     calitate: str = "final",
+    metadate: dict[str, str] | None = None,
 ) -> tuple[bytes, ffmpeg.Rulare]:
     with tempfile.TemporaryDirectory() as d:
         iesire = Path(d) / "video.mp4"
         r = ffmpeg.ruleaza(
-            comanda(lm, intrari, iesire, ass=ass, sunet=sunet, calitate=calitate),
+            comanda(lm, intrari, iesire, ass=ass, sunet=sunet, calitate=calitate, metadate=metadate),
             fir=get_settings().media_fire,
         )
         return iesire.read_bytes(), r

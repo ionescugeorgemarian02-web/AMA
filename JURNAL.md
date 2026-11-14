@@ -496,3 +496,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit: bucla de texte fără pauză ținea GIL-ul și sufoca firele executorului (testul trecea de plafonul de 120 s); tonurile vocii simulate se memorează, stock-ul deja adus nu se mai descarcă.
 - **F8.10 — Șabloane grafice și Compozitorul.**
   - Construit: `media.sabloane`, `media.compozitor`, migrarea `0051`. Găsit: în Pillow 12 masca de glifă nu mai are `tobytes`; verificarea glifei desenează caracterul. Verificat: 2 teste de integrare.
+- **F8.11 — Proveniență și dezvăluire AI (G11).**
+  - Construit: `media.provenienta`, pașaportul în montaj și în Compozitor, metadatele în randare, migrarea `0052`. Hotărâri (D-007): vocea sintetică cere etichetă (21.9, „sunetul generat care poate părea real”). Verificat: 2 teste.

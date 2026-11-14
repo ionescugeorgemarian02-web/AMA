@@ -181,6 +181,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F8.8 Controlul media (G6) și auditorul vizual (G5) | verificat local: colecția de clipuri defecte (rezoluție, fps, codec, fără sunet, negru, îngheț, tăcere, prea tare, desincronizare, subtitrări sub butoane și tăiate) respinsă integral, fiecare cu regula ei; clipul bun trece; coperțile defecte (logo lipsă / deformat, culoare străină, contrast slab, text în afara zonei) respinse de G5. **OCR: la migrare** | `tests/integration/test_media_control.py` |
 | F8.9 Testul de capacitate | verificat local (motorul durabil, două culoare grele, Postgres real): zece video A/B măsurate (timp, memorie de vârf ffmpeg prin `wait4`, paralelism ≤ 2), bugetele [I] confirmate (local, 4 nuclee: max 5,4 s / video de ~16 s, 0,32 s de randare pe secundă de video față de 13,3, memorie max 372 MB față de 1536), validarea textelor continuă în paralel. **Cifrele pe VPS: la migrare** | `tests/integration/test_media_capacitate.py` |
 | F8.10 Șabloane grafice și Compozitorul | verificat local (Postgres real, Pillow): fiecare brand propriu (agenția, CariereAI, BigBrain) are șase șabloane; identitatea lipsă e propusă în Creier (așteaptă aprobarea); glifele diacriticelor există, sedila iese identic cu virgula; fiecare compoziție trece G5; textul prea lung e refuzat. **Randatorul HTML și identitatea aprobată de clienți: la migrare** | `tests/integration/test_media_sabloane.py` |
+| F8.11 Proveniență și dezvăluire AI (G11) | verificat local: video din stock cu voce sintetică, video din imagini generate și coperta din șablon au pașaport (bază, fișier lateral, marcaj în metadate) și etichetă stabilită pe fiecare canal; G11 trece pe ele și respinge un fișier fără pașaport. **Standardul de marcare (C2PA) și încadrarea juridică: F0.7** | `tests/integration/test_media_provenienta.py` |
 <!-- F8-RANDURI -->
 
 ### De verificat la migrare (F8)
@@ -194,4 +195,5 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F8.8: OCR pe cadre-eșantion pentru subtitrări; limitele de mărime pe canal confirmate la F9.
 - F8.9: testul de capacitate repetat pe VPS (8 nuclee), cu producția de text reală (modele) în paralel; bugetele [I] (13,3 s / s de video, 1,5 GB) confirmate sau ajustate.
 - F8.10: identitatea vizuală reală a CariereAI și BigBrain, aprobată în Creier; randatorul HTML (Chromium / HyperFrames) pentru formatul C.
+- F8.11: standardul de marcare tehnică (C2PA sau altul) și încadrarea juridică (avocat, F0.7); comutatoarele reale de etichetă AI ale platformelor (F9).
 <!-- F8-MIGRARE -->

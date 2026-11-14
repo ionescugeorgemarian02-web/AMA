@@ -17,7 +17,7 @@ from typing import Any
 from PIL import Image, ImageDraw, ImageFont
 from sqlalchemy.orm import Session
 
-from app.media import biblioteca, licente, normalizare, vizual
+from app.media import biblioteca, licente, normalizare, provenienta, vizual
 from app.media.modele import Activ, SablonGrafic
 from app.media.subtitrari import cale_font
 
@@ -175,4 +175,7 @@ def creeaza(
         licenta={"tip": "productie_proprie", "statut": licente.STATUT_OK, "componente": componente},
         generare={"sablon": sablon.tip, "versiune": sablon.versiune, "texte": texte},
     )  # fmt: skip
+    v = vizual.verdict(c.png, c.asteptari)
+    provenienta.emite(db, a, validari={"G5": {"rezultat": v.rezultat.value,
+                                              "dovezi": [d.detalii for d in v.dovezi]}})  # fmt: skip
     return a, c

@@ -18,7 +18,18 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import validare
-from app.media import biblioteca, control, ffmpeg, licente, lista, randare, regizor, subtitrari, sunet
+from app.media import (
+    biblioteca,
+    control,
+    ffmpeg,
+    licente,
+    lista,
+    provenienta,
+    randare,
+    regizor,
+    subtitrari,
+    sunet,
+)
 from app.media.modele import Activ, Randare
 
 
@@ -107,6 +118,9 @@ def executa(db: Session, r: Randare) -> Randare:
     r = _inregistreaza(db, r, lm, corp)
     if r.calitate == "final":
         _controleaza(db, r, lm)
+        a = db.get(Activ, r.activ_id)
+        if a is not None:
+            provenienta.emite(db, a, validari=r.control, om_real=lm.format == "E")
     return r
 
 
@@ -142,7 +156,9 @@ def _randeaza(db: Session, r: Randare, lm: lista.ListaMontaj, tmp: Path) -> byte
     if ecrane:
         ass = tmp / "subtitrari.ass"
         ass.write_text(subtitrari.ass(lm, ecrane), encoding="utf-8")
-    corp, _ = randare.randeaza(lm, intr, ass=ass, sunet=mix, calitate=r.calitate)
+    ai = provenienta.ai_din(componente(db, lm), om_real=lm.format == "E")
+    corp, _ = randare.randeaza(lm, intr, ass=ass, sunet=mix, calitate=r.calitate,
+                               metadate={"comment": provenienta.marcaj(ai, str(r.id))})  # fmt: skip
     r.masuratori = {**(r.masuratori or {}), "lufs": nivel.lufs, "varf": nivel.varf_dbtp,
                     "subtitrari_srt": subtitrari.srt(ecrane)}  # fmt: skip
     return corp

@@ -97,3 +97,14 @@ class SablonGrafic(BazaMedia):
     versiune: Mapped[int] = mapped_column(default=1)
     definitie: Mapped[dict[str, Any]] = mapped_column(JSONB)
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Pasaport(BazaMedia):
+    """Pașaportul unui fișier final (F8.11): proveniența și eticheta pe canal."""
+
+    __tablename__ = "pasapoarte"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    activ_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    continut: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
