@@ -172,8 +172,10 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F8.1 Vocea și licența ei | verificat local (Postgres real): o frază în română sintetizată frază cu frază (motor SIMULAT, pauze 200 ms), salvată ca activ `audio` cu licența vocii (profil, motor, statut) în `active.licenta` și în audit; vocea de pornire Piper rămâne `de_verificat` și nu se publică. **Piper real și licența vocii: la migrare** | `tests/integration/test_media_voce.py`, `tests/unit/test_media_voce.py` |
+| F8.2 Normalizarea textului românesc | verificat local: setul de 100 de fraze de probă (numere și acord, sume, procente, date, ore, unități, abrevieri, web, telefoane, sedile) citit exact; dicționarul de pronunție pe client, izolat prin RLS. **Ascultarea cu vocea reală: la migrare** | `tests/unit/test_media_normalizare.py`, `tests/integration/test_media_pronuntie.py` |
 <!-- F8-RANDURI -->
 
 ### De verificat la migrare (F8)
 - F8.1: Piper instalat pe VPS (`AMA_PIPER_BIN`, `AMA_PIPER_MODELE`), vocea românească de pornire și verificarea dreptului comercial pe lanțul ei de antrenare; vocea proprie (acord scris, ~2 ore, antrenare pe GPU închiriat); ritmul real față de motorul simulat.
+- F8.2: cele 100 de fraze citite de vocea reală și ascultate de un om; heuristica de gen a numeralelor pe vocabularul clienților reali; dicționarele de pronunție ale CariereAI și BigBrain.
 <!-- F8-MIGRARE -->

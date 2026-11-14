@@ -475,3 +475,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 ## 2026-11-14 — Sesiunea: faza F8 (Media)
 - **F8.1 — Vocea și licența ei.**
   - Construit: `media.audio`, `media.voce`, `biblioteca.incarca(licenta=, generare=)`, migrarea `0047`, spec F8.1. Hotărâri (D-007): motorul simulat ca implicit; doar vocea `verificata` se publică; vocea proprie ca țintă. Găsit: `JSONB` fără `none_as_null` scria `null` JSON (refuzat de CHECK). Verificat: 2 teste de integrare, 3 unitare.
+- **F8.2 — Normalizarea textului românesc.**
+  - Construit: `media.normalizare`, `media.pronuntie`, migrarea `0048`, setul de 100 de fraze. Hotărâri (D-007): acord după substantivul următor, cu excepții; compusele în 1 rămân „unu”. Găsit: „V60” se citea lipit („Vșaizeci”); acum literă și cifră se despart. Verificat: 110 teste unitare, 1 de integrare.

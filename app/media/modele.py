@@ -45,3 +45,14 @@ class Tendinta(BazaMedia):
     creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
+
+class Pronuntie(BazaMedia):
+    """Dicționarul de pronunție al clientului (F8.2): termen -> cum se citește."""
+
+    __tablename__ = "pronuntii"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    termen: Mapped[str] = mapped_column(Text)
+    pronuntie: Mapped[str] = mapped_column(Text)
+    creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

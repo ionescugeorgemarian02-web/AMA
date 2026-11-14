@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.2 — Normalizarea textului românesc
+- `media.normalizare` (numere, date, ore, sume, procente, unități, abrevieri, web, telefoane, diacritice) și `media.pronuntie` (dicționarul de pronunție pe client). Migrarea `0048`.
+
 ### F8.1 — Vocea și licența ei
 - `media.voce`: adaptorul motorului de voce (Piper, simulat), profilurile cu licență, narațiunea frază cu frază salvată ca activ `audio` cu statutul licenței; `media.audio` (WAV). Migrarea `0047`.
 
