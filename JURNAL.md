@@ -569,3 +569,4 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Verificat: 4 teste unitare, 2 de integrare (cu validatorul G7 real).
 - **Poarta F10:** parțială, vezi `docs/specs/F10-poarta.md`. Toți pașii F10.1–F10.8 sunt închiși pe simulări; „date reale” rămâne la migrare.
 
+- **Verificare completă F10.** Suita întreagă pe commitul F10.8 (`037f8b9`): `2987 passed, 1 skipped` (12 min, server Postgres separat). Cererea de integrare #9 are descrierea actualizată.

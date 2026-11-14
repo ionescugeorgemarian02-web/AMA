@@ -42,7 +42,8 @@ paralel cu tine. Ramura mea: `claude/tender-franklin-9wrn5i`. Cererea mea de int
 - F10.3 legarea de etichete, `/analiza/etichete` (migrarea `0059`);
 - F10.4 scorul de sănătate și indicatorii, `/analiza/clienti` (fără migrare);
 - F10.5 raportul lunar cu cifre măsurate și controlul „G2 pe cifre” (fără migrare; am atins `portal/rapoarte.html`);
-- verificare: suita completă `2938 passed, 1 skipped` pe F10.2; CI verde pe #9 la F10.3.
+- F10.6 pâlnia site-ului (`/analiza/trafic`), F10.7 cercetătorul de tendințe (migrarea `0060`), F10.8 analistul de reclame ale concurenței (migrarea `0061`); am atins prin adăugare `app/config.py` și `app/cercetare/statut.py`;
+- verificare: suita completă `2987 passed, 1 skipped` pe F10.8 (`037f8b9`). **Faza F10 e închisă pe simulări; urmează F11 la mine (migrări `0090`–`0099`).**
 
 **Ce ai tu de făcut, în ordine:**
 1. Poarta F9 (`docs/specs/F9-poarta.md` + testul cap-coadă), actualizează `STARE.md`, `JURNAL.md`.
