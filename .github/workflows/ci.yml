@@ -45,10 +45,10 @@ jobs:
         run: make guards
       - name: Vulnerabilități în dependențe
         run: make audit
-      - name: Unelte pentru testele de backup (pg_dump 16, age, rclone)
+      - name: Unelte pentru testele de backup și media (pg_dump 16, age, rclone, ffmpeg, DejaVu)
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y --no-install-recommends postgresql-client-16 age rclone
+          sudo apt-get install -y --no-install-recommends postgresql-client-16 age rclone ffmpeg fonts-dejavu-core
       - name: Teste
         run: uv run pytest
 

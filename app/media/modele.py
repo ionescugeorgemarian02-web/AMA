@@ -56,3 +56,15 @@ class Pronuntie(BazaMedia):
     pronuntie: Mapped[str] = mapped_column(Text)
     creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class FolosireActiv(BazaMedia):
+    """Unde a fost folosit un activ (F8.4); baza refuză rândul dacă activul nu are licență."""
+
+    __tablename__ = "folosiri_active"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    activ_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    scop: Mapped[str] = mapped_column(Text)
+    obiect_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

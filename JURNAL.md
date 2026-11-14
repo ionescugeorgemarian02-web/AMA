@@ -479,3 +479,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `media.normalizare`, `media.pronuntie`, migrarea `0048`, setul de 100 de fraze. Hotărâri (D-007): acord după substantivul următor, cu excepții; compusele în 1 rămân „unu”. Găsit: „V60” se citea lipit („Vșaizeci”); acum literă și cifră se despart. Verificat: 110 teste unitare, 1 de integrare.
 - **F8.3 — Transcrierea inversă și timpii pe cuvânt.**
   - Construit: `media.transcriere`, configurarea whisper.cpp, spec F8.3. Hotărâri (D-007): transcriptorul simulat măsoară momentele din semnal (energie), cuvintele din bucata `amaw`; aliniere forțată când lipsesc. Verificat: 1 test de integrare, 3 unitare.
+- **F8.4 — Furnizorul de imagini și biblioteca de active.**
+  - Construit: `media.licente`, `media.furnizori`, `media.ffmpeg`, migrarea `0049` (`folosiri_active` + declanșatorul care cere licența), EXIF eliminat în `biblioteca`, ffmpeg + DejaVu în CI și Dockerfile. Hotărâri (D-007): licența pe tip cu câmpuri obligatorii; regulile promptului din 14.3. Verificat: 2 teste de integrare (+ testele F7.5 neschimbate).

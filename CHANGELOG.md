@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F8.4 — Furnizorul de imagini și biblioteca de active
+- `media.licente` (licențe complete pe tip, folosirea doar cu licență, consemnată și impusă de bază), `media.furnizori` (stock și generare în spatele adaptoarelor, simulați), `media.ffmpeg`; EXIF eliminat la încărcare. Dependență nouă: `pillow==12.0.0`. ffmpeg în CI și în imagine. Migrarea `0049`.
+
 ### F8.3 — Transcrierea inversă și timpii pe cuvânt
 - `media.transcriere`: adaptorul transcriptorului (whisper.cpp, simulat), alinierea cu scriptul, WER pe frază, resinteza o dată și semnalarea.
 

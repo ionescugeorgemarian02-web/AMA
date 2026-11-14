@@ -6,6 +6,7 @@ declarat de browser; se păstrează pe disc ca `AMA_MEDIA_DIR/<client>/active/<s
 Limite [I]: imagini 25 MB, documente 25 MB, video 300 MB, audio WAV 200 MB (F8)."""
 
 import hashlib
+import io
 import os
 import re
 import uuid
@@ -13,10 +14,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from PIL import Image, ImageOps
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
+from app.media import licente
 from app.media.modele import Activ
 from app.operare import audit, evenimente
 
@@ -77,6 +80,23 @@ def verifica(corp: bytes) -> TipFisier:
     return tip
 
 
+def fara_metadate(corp: bytes, tip: TipFisier) -> bytes:
+    """Elimină EXIF (locație, telefon) din fotografii, dacă există; altfel lasă fișierul neatins (F8.4)."""
+    if tip.categorie != "foto":
+        return corp
+    try:
+        sursa = Image.open(io.BytesIO(corp))
+        if not sursa.getexif():
+            return corp
+        img = ImageOps.exif_transpose(sursa)
+        out = io.BytesIO()
+        fmt = {"image/jpeg": "JPEG", "image/png": "PNG", "image/webp": "WEBP"}[tip.mime]
+        img.save(out, fmt, **({"quality": 95} if fmt != "PNG" else {}))
+        return out.getvalue()
+    except (OSError, ValueError, KeyError, Image.DecompressionBombError):
+        return corp
+
+
 def _scrie(tenant_id: uuid.UUID, nume: str, corp: bytes) -> str:
     if not NUME_SIGUR.match(nume):
         raise ValueError("nume de fișier nesigur")
@@ -108,6 +128,9 @@ def incarca(
     """Verifică, salvează și înregistrează un activ. Idempotent pe conținut (același hash, același activ).
     `licenta`: statutul drepturilor (F8.1, F8.4), `generare`: promptul / modelul / sămânța (F8.4, 14.3)."""
     tip = verifica(corp)
+    corp = fara_metadate(corp, tip)
+    if licenta is None and sursa == "portal":
+        licenta = licente.licenta_material_client(utilizator_id)
     h = hashlib.sha256(corp).hexdigest()
     existent = db.execute(
         select(Activ).where(Activ.tenant_id == tenant_id, Activ.sha256 == h)
