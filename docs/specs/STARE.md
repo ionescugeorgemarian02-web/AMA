@@ -214,6 +214,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F9.8 Gardianul sănătății conturilor | verificat local (ceas controlat, platformă FALSĂ): tokenul aproape expirat se reîmprospătează singur unde se poate, altfel generează o cerere de reautorizare (o dată, cu alertă; canalul trece pe asistat până la reautorizare); o serie de trei erori pune canalul pe pauză și nimic nu mai pleacă; limitele citite se păstrează pentru panou. **Reach și avertismentele de politică: F10** | `tests/integration/test_publicare_sanatate.py` |
 | F9.9 Site și blog (H6) | verificat local: un articol din F7.10 (model FALS), trecut prin lista on-page și validare, merge la aprobare, apoi se programează și pleacă prin executor pe blogul agenției (găzduit, real), cu sursele citate; nimic pe blog înainte de aprobare; lista on-page reverificată înainte de plecare. WordPress SIMULAT trece suita de contract. **WordPress-ul real al unui client: la migrare** | `tests/integration/test_publicare_blog.py`, `tests/contract/test_conector_blog.py` |
 | F9.10 Ecranul „Publicare” | verificat local (HTTP, platformă FALSĂ): starea fiecărei aprobări API, conturile cu modul efectiv și motivul, trecerea unui canal pe asistat și înapoi, reautorizarea din panou (starea OAuth cu clientul, folosită o singură dată), refuz fără CSRF. **Telefonul real: la migrare** | `tests/integration/test_publicare_ecran.py` |
+| **Poarta F9** „pe fiecare canal aprobat, o postare publică pleacă prin API, o singură dată; canalele neaprobate rămân pe asistat” | **trecută local pe SIMULARE** (D-007): clientul fictiv, șase canale aprobate (Facebook, Instagram, YouTube, profil LinkedIn, TikTok, blog) — câte o postare publică, o singură dată (și după un răspuns pierdut, reîncercat de motor), starea citită înapoi „publicată”; pagina LinkedIn neaprobată rămâne pe asistat, fără niciun efect prin API (~20 s local, motorul real în proces). **Conturile și aprobările reale: la migrare** | `tests/integration/test_poarta_f9.py`, `docs/specs/F9-poarta.md` |
 
 ### De verificat la migrare (F9)
 - F9.1: aplicațiile agenției la platforme (F0.6, primul val), `AMA_MASTER_KEY` pe VPS pentru tokenuri, adresa publică de întoarcere OAuth; stările din `aprobari_api` puse după realitate.
@@ -226,6 +227,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F9.8: pragurile [I] (7 zile, 3 erori, 80%) pe conturi reale; scăderile bruște de reach și avertismentele de politică (cer metricile reale, F10); jobul `publicare.sanatate` pe VPS.
 - F9.9: un WordPress real al unui client (parolă de aplicație, versiune, module de securitate); alte CMS-uri cerute de clienți.
 - F9.10: adresa de întoarcere OAuth (`AMA_PUBLIC_URL/publicare/autorizare`) înregistrată la fiecare platformă; ecranul pe telefon real.
+- Poarta F9: repetată pe VPS cu aplicațiile și conturile reale, după aprobările reale (App Review, audituri, Community Management API); prima postare reală pe fiecare canal văzută de un om.
 
 ## Faza F10 — Analiză și cercetare continuă (sesiunea B, vezi `COORDONARE.md`)
 

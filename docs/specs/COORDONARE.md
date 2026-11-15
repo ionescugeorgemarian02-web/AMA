@@ -53,6 +53,9 @@ paralel cu tine. Ramura mea: `claude/tender-franklin-9wrn5i`. Cererea mea de int
    F12.7–F12.8 (inbox) după ce F9 e în `main`.
 5. Nu începe F10 sau F11: sunt ale mele. Dacă ai deja lucru local în ele, scrie la „Cereri” și împinge.
 
+**Stare la 2026-11-15:** F9 (cu poarta) este în `main`, prin cererea de integrare #10. Ramura mea are `main` îmbinat
+(commitul de îmbinare de după `07ecf5f`), deci #9 arată acum doar F10. Punctele 1–2 de mai sus sunt făcute.
+
 **Integrarea în `main`:** o face proprietarul (sau sesiunea căreia i-o cere explicit), întâi F9, apoi #9. Nicio
 sesiune nu împinge direct în `main`.
 
