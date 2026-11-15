@@ -271,6 +271,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F12.1 CRM-ul minimal | verificat local: lead-ul confirmat din formular apare cu sursă și temei și nu se dublează; etape, istoricul consimțământului, unirea duplicatelor, sarcini de urmărire, export. **Doar CRM-ul agenției (nu cel vândut clienților); fără oportunități separate; fără ștergerea la 24 de luni** | `tests/integration/test_crm.py`, `tests/isolation/test_crm_rls.py`, `tests/unit/test_crm_registru.py` |
+| F12.2 Email către abonați | verificat pe cutia poștală SIMULATĂ: o adresă dezabonată nu mai primește nimic din nicio campanie (nici mesajul deja pus la coadă, nici după un nou acord); matricea pe țări, consimțământul, pragurile, limita zilnică. **Fără furnizor real, fără SPF/DKIM/DMARC, fără webhook de respingeri; regula pentru România neverificată de avocat** | `tests/integration/test_crm_email.py`, `tests/unit/test_crm_email.py` |
 
 ### De verificat la migrare (F11)
 - F11.1: pragurile Reflectorului (20 de postări pe lot, 3 pe grup, 25% diferență) pe date reale; efectul valorilor extreme asupra mediei lotului.

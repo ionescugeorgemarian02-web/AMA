@@ -69,6 +69,7 @@ CONTEXT_AGENTIE = {
     "app/portal/date.py",
     # Paginile de captare publicate (F7.9) și articolele (F7.10) se servesc public, din site.
     "app/site/captare_web.py",
+    "app/site/dezabonare_web.py",  # dezabonarea dintr-un clic (F12.2): vizitator anonim, jeton semnat
     # Cota de unități a platformelor (F9.4): a proiectului agenției, nu a unui client.
     "app/publicare/cote.py",
     "app/publicare/programare.py",  # jobul la minut (F9.7): fără utilizator, peste toți clienții

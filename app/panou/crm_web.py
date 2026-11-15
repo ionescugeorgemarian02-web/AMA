@@ -16,6 +16,7 @@ from fastapi.responses import RedirectResponse, Response
 
 from app.conturi import DbSession, Rol, SesiuneCurenta, csrf_protect, require_role
 from app.crm import CrmRefuzat, registru
+from app.crm import email as crm_email
 from app.panou.sabloane import pagina
 
 router = APIRouter(prefix="/crm", tags=["crm"])
@@ -28,6 +29,8 @@ MESAJE = {
     "sarcina": "Sarcina a fost adăugată.",
     "facuta": "Sarcina a fost închisă.",
     "retras": "Consimțământul a fost retras.",
+    "suprimat": "Adresa a fost pusă în lista de suprimare.",
+    "regula": "Regula a fost salvată.",
 }
 
 
@@ -106,6 +109,56 @@ def export(u: Proprietar, db: DbSession) -> Response:
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="crm.csv"', "Cache-Control": "no-store"},
     )
+
+
+def _email(request: Request, u: SesiuneCurenta, db: Any, *, status: int = 200, eroare: str = "") -> Response:
+    return pagina(
+        request,
+        u,
+        "panou/crm_email.html",
+        tab="meniu",
+        status=status,
+        stare=crm_email.stare(db),
+        matrice=crm_email.matrice(db),
+        prag_respingeri=crm_email.PRAG_RESPINGERI * 100,
+        prag_plangeri=crm_email.PRAG_PLANGERI * 100,
+        mesaj=MESAJE.get(request.query_params.get("mesaj", ""), ""),
+        eroare=eroare,
+    )
+
+
+@router.get("/email")
+def email(request: Request, u: Proprietar, db: DbSession) -> Response:
+    return _email(request, u, db)
+
+
+@router.post("/email/suprimare", dependencies=[Depends(csrf_protect)])
+async def suprima(request: Request, u: Proprietar, db: DbSession) -> Response:
+    f = await request.form()
+    motiv = str(f.get("motiv") or "manual")
+    try:
+        crm_email.suprima(db, str(f.get("email") or ""), motiv, sursa="adăugată din panou")
+    except CrmRefuzat as exc:
+        return _email(request, u, db, status=422, eroare=_eroare(exc))
+    return RedirectResponse("/crm/email?mesaj=suprimat", status_code=303)
+
+
+@router.post("/email/regula", dependencies=[Depends(csrf_protect)])
+async def regula(request: Request, u: Proprietar, db: DbSession) -> Response:
+    f = await request.form()
+    try:
+        crm_email.seteaza_regula(
+            db,
+            tara=str(f.get("tara") or ""),
+            tip_destinatar=str(f.get("tip_destinatar") or ""),
+            regula=str(f.get("regula") or ""),
+            mentiuni=str(f.get("mentiuni") or ""),
+            verificat_de=str(f.get("verificat_de") or ""),
+            utilizator_id=u.utilizator_id,
+        )
+    except CrmRefuzat as exc:
+        return _email(request, u, db, status=422, eroare=_eroare(exc))
+    return RedirectResponse("/crm/email?mesaj=regula", status_code=303)
 
 
 @router.post("/lead", dependencies=[Depends(csrf_protect)])

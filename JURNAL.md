@@ -606,4 +606,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `app/crm/{modele,registru}.py`, migrarea `0094`, `app/panou/crm_web.py` cu două șabloane, apelul din `site.audit.confirma`, `app.crm` în `MODULE_FLUXURI`, spec F12.1. Hotărâri (D-007): o singură ușă de intrare; recomandarea nu aduce consimțământ de email; unirea nu șterge.
   - Găsit de teste: „SRL-D” nu era recunoscut ca formă juridică. Cheia străină spre `leaduri` e `ON DELETE SET NULL`, altfel curățarea lead-urilor din site (și testele care o fac) ar fi fost blocată.
   - Verificat: 17 teste unitare, 8 de integrare, 5 de izolare; împreună cu testele site-ului, unitare și de izolare: 1962 passed.
+- **F12.2 — Email către abonați.**
+  - Construit: `app/crm/email.py`, migrarea `0095`, `app/site/dezabonare_web.py`, poarta de suprimare din `efecte/sistem.incearca`, `antete` pe mesajul cutiei simulate, ecranul `/crm/email`, spec F12.2. Hotărâri (D-007): suprimarea se verifică și în clipa trimiterii; deschiderea linkului nu dezabonează, butonul da; tranzacționalele nu sunt oprite.
+  - Atins în afara `app/crm`, prin adăugare: `app/operare/efecte/sistem.py` (poarta), `app/connectors/email/__init__.py` (antete), `app/site/__init__.py` (ruta).
+  - Verificat: 4 teste unitare, 5 de integrare; cu unitarele, izolarea, site-ul, efectele și facturarea: 2006 passed. **Fără furnizor real de email: totul pe cutia simulată.**
 

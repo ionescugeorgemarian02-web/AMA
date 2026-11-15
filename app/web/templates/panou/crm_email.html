@@ -1,0 +1,69 @@
+{% extends "panou/baza.html" %}
+{% block title %}Email către abonați · AMA{% endblock %}
+{% block pagina %}
+<h1>Email către abonați</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/crm">CRM</a> · Emailul comercial pleacă doar cu consimțământ, niciodată către o adresă din lista de suprimare și doar în țările cu regulă verificată.</p>
+
+<section class="card" aria-labelledby="stare">
+  <h2 id="stare">Starea trimiterii</h2>
+  {% if stare.oprit %}<p class="mesaj eroare" role="alert"><strong>Trimiterea e oprită:</strong> respingerile sau plângerile au depășit pragul.</p>{% endif %}
+  <dl>
+    <dt>Trimise azi</dt><dd>{{ stare.azi }} din cel mult {{ stare.limita }} (limita crește treptat, pe săptămâni)</dd>
+    <dt>Trimise în ultimele 30 de zile</dt><dd>{{ stare.trimise }}</dd>
+    <dt>Adrese respinse</dt><dd>{{ stare.respinse }} (prag de oprire: {{ "%g"|format(prag_respingeri) }}%)</dd>
+    <dt>Plângeri de spam</dt><dd>{{ stare.plangeri }} (prag de oprire: {{ "%g"|format(prag_plangeri) }}%)</dd>
+    <dt>Adrese în lista de suprimare</dt><dd>{{ stare.suprimate }}</dd>
+  </dl>
+</section>
+
+<section class="card" aria-labelledby="suprimare">
+  <h2 id="suprimare">Adaugă o adresă în lista de suprimare</h2>
+  <p class="slab">Pentru cineva care a cerut pe altă cale să nu mai primească emailuri. O adresă pusă aici nu mai poate fi scoasă din panou.</p>
+  <form method="post" action="/crm/email/suprimare">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required maxlength="254">
+    <label for="motiv">Motiv</label>
+    <select id="motiv" name="motiv">
+      <option value="manual">a cerut pe altă cale</option>
+      <option value="respins">adresă respinsă</option>
+      <option value="plangere">plângere de spam</option>
+    </select>
+    <button type="submit" class="secundar">Adaugă</button>
+  </form>
+</section>
+
+<section class="card" aria-labelledby="tari">
+  <h2 id="tari">Matricea pe țări</h2>
+  <p class="slab">O țară care nu apare aici este blocată până când un avocat completează rândul.</p>
+  <div class="defilare">
+  <table>
+    <thead><tr><th scope="col">Țara</th><th scope="col">Destinatar</th><th scope="col">Regula</th><th scope="col">Mențiuni obligatorii</th><th scope="col">Verificat de</th></tr></thead>
+    <tbody>
+    {% for r in matrice %}
+      <tr><th scope="row">{{ r.tara }}</th><td>{% if r.tip_destinatar == "firma" %}firmă{% else %}persoană{% endif %}</td><td>{% if r.regula == "blocat" %}blocat{% else %}doar cu consimțământ{% endif %}</td><td>{{ r.mentiuni or "–" }}</td><td>{{ r.verificat_de }}, {{ r.verificat_la.strftime("%d.%m.%Y") }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <details>
+    <summary>Adaugă sau schimbă o regulă</summary>
+    <form method="post" action="/crm/email/regula">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="tara">Țara (cod de două litere)</label>
+      <input id="tara" name="tara" type="text" required minlength="2" maxlength="2">
+      <label for="tip_destinatar">Destinatar</label>
+      <select id="tip_destinatar" name="tip_destinatar"><option value="firma">firmă</option><option value="persoana">persoană</option></select>
+      <label for="regula">Regula</label>
+      <select id="regula" name="regula"><option value="doar_cu_consimtamant">doar cu consimțământ</option><option value="blocat">blocat</option></select>
+      <label for="mentiuni">Mențiuni obligatorii în email (opțional)</label>
+      <input id="mentiuni" name="mentiuni" type="text" maxlength="500">
+      <label for="verificat_de">Cine a verificat (avocatul și data avizului)</label>
+      <input id="verificat_de" name="verificat_de" type="text" required minlength="3" maxlength="200">
+      <button type="submit" class="secundar">Salvează regula</button>
+    </form>
+  </details>
+</section>
+{% endblock %}

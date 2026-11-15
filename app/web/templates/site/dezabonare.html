@@ -1,0 +1,13 @@
+{% extends "site/baza.html" %}
+{% block continut %}
+{% if gata %}
+<h1>Te-am dezabonat</h1>
+<p class="ok">Nu mai primești emailuri comerciale de la noi pe această adresă. Dezabonarea s-a aplicat imediat.</p>
+{% else %}
+<h1>Dezabonare</h1>
+<p>Apasă butonul ca să nu mai primești emailuri comerciale de la noi pe această adresă.</p>
+<form method="post" action="/site/dezabonare/{{ jeton }}">
+  <button type="submit">Dezabonează-mă</button>
+</form>
+{% endif %}
+{% endblock %}

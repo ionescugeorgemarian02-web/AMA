@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.2 — Email către abonați
+- `app/crm/email.py` (ușa de trimitere: suprimare, matrice pe țări, consimțământ, praguri, limită zilnică, domeniu), dezabonarea dintr-un clic (`/site/dezabonare/<jeton>`), verificarea suprimării în executorul de efecte, ecranul `/crm/email`. Migrarea `0095`.
+
 ### F12.1 — CRM-ul minimal
 - `app/crm` (firme, contacte, lead-uri pe etape, istoricul consimțământului, unirea duplicatelor, sarcini de urmărire, export), ecranul `/crm`, jobul `crm.igiena`; lead-ul confirmat din formularul de audit intră în CRM. Migrarea `0094`.
 

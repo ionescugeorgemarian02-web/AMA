@@ -37,6 +37,7 @@ class Contact(BazaCrm):
     telefon: Mapped[str] = mapped_column(Text, default="")
     sursa: Mapped[str] = mapped_column(Text)
     temei: Mapped[str] = mapped_column(Text)
+    tara: Mapped[str] = mapped_column(Text, default="RO")
     unit_in: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -89,3 +90,33 @@ class Sarcina(BazaCrm):
     stare: Mapped[str] = mapped_column(Text, default="deschisa")
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     inchisa_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Suprimare(BazaCrm):
+    """O adresă din lista globală de suprimare (migrarea 0095). Nu se șterge prin aplicație."""
+
+    __tablename__ = "crm_suprimari"
+    email: Mapped[str] = mapped_column(Text, primary_key=True)
+    motiv: Mapped[str] = mapped_column(Text)
+    sursa: Mapped[str] = mapped_column(Text, default="")
+    la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class RegulaTara(BazaCrm):
+    __tablename__ = "crm_matrice_tari"
+    tara: Mapped[str] = mapped_column(Text, primary_key=True)
+    tip_destinatar: Mapped[str] = mapped_column(Text, primary_key=True)
+    regula: Mapped[str] = mapped_column(Text)
+    mentiuni: Mapped[str] = mapped_column(Text, default="")
+    verificat_de: Mapped[str] = mapped_column(Text)
+    verificat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Trimitere(BazaCrm):
+    __tablename__ = "crm_trimiteri"
+    id: Mapped[uuid.UUID] = _id()
+    contact_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    email: Mapped[str] = mapped_column(Text)
+    campanie: Mapped[str] = mapped_column(Text)
+    cheie: Mapped[str] = mapped_column(Text)
+    la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
