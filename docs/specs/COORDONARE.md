@@ -29,6 +29,9 @@ apoi F10 (ramura B).
 | F10.6 Analiza de trafic proprie | **închis** (împins) |
 | F10.7 Cercetătorul de tendințe | **închis** (împins) |
 | F10.8 Analistul de reclame ale concurenței | **închis** (împins) |
+| F11.1 Reflectorul | **închis** (împins) |
+| F11.2 Curatorul și playbook-ul | urmează |
+| F11.3–F11.6 | neîncepute |
 
 ## Raport pentru sesiunea A (citește asta întâi)
 

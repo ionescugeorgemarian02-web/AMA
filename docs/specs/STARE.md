@@ -253,3 +253,13 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F10.7: `AMA_YOUTUBE_API_KEY` (cheia YouTube Data API) și numărarea unităților ei în cota zilnică; fluxul RSS Google real (adresă, formă); jobul `cercetare.tendinte` pe VPS; calibrarea listei de subiecte sensibile.
 - F10.8: `AMA_META_AD_LIBRARY_TOKEN` (identitate confirmată la Meta, F0.6), forma reală a răspunsului `ads_archive` pentru reclame comerciale în UE, limitele de rată; identificatorii paginilor concurenților; jobul `cercetare.reclame` pe VPS (luni).
 - Poarta F10: un raport lunar al unui brand propriu, din cifre citite de pe conturile reale ale agenției.
+
+## Faza F11 — Învățare, prima treaptă (sesiunea B)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F11.1 Reflectorul | verificat local: după un lot închis de 20 de postări măsurate apar propuneri de lecții cu dovezi (din rezultate, din verdicte, din respingeri); sub prag nimic; fără dubluri; izolare pe client. **Editările omului nu sunt încă citite; formulare pe șablon** | `tests/integration/test_invatare_reflector.py`, `tests/unit/test_invatare_reflector.py` |
+
+### De verificat la migrare (F11)
+- F11.1: pragurile Reflectorului (20 de postări pe lot, 3 pe grup, 25% diferență) pe date reale; efectul valorilor extreme asupra mediei lotului.
+

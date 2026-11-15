@@ -574,3 +574,11 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 
 - **Verificare completă F10.** Suita întreagă pe commitul F10.8 (`037f8b9`): `2987 passed, 1 skipped` (12 min, server Postgres separat). Cererea de integrare #9 are descrierea actualizată.
 - **CI pe `b9afd65`: 1 eșec din 2992, în afara fazei F10.** `tests/integration/test_calibrare.py::test_esantionul_saptamanal_este_job_programat` (F5.8): testul cere ca eșantionul de 10 verdicte, ales dintre TOȚI clienții din baza comună a sesiunii, să conțină unul al clientului testului. Testele anterioare din același fișier lasă câte 22 de candidați pentru alți clienți, deci rezultatul depinde de tragere. Diferența F10 nu atinge validarea și nu creează verdicte G10. Local, pe același cod: `2987 passed`. Am repornit o singură dată jobul picat. **Propunere (pentru cine deține F5/validare):** testul să șteargă candidații vechi sau să verifice doar numărul și apartenența la fereastră.
+
+## 2026-11-15 — Sesiunea B: îmbinarea cu main și faza F11 (Învățare 1)
+- **Îmbinare.** F9 a intrat în `main` prin cererea de integrare #10 (sesiunea A). Am îmbinat `main` în ramura mea (trei conflicte în `CHANGELOG.md`, `JURNAL.md`, `STARE.md`, rezolvate păstrând ambele părți). Sesiunea a stat oprită ~4 ore (limita de utilizare) și a reluat din sarcina programată.
+- **F11.1 — Reflectorul.**
+  - Construit: `invatare.reflector`, `invatare.modele`, migrarea `0090` (`down_revision` = `0061`), spec F11.1. Hotărâri (D-007): reguli deterministe; doar propune; lecțiile sunt pe client.
+  - Verificat: 4 teste unitare, 1 de integrare.
+  - Rămâne deschis: editările omului ca semnal; jobul de reflecție și ecranul (F11.2, F11.6).
+
