@@ -32,6 +32,7 @@ from sqlalchemy.orm import Session
 from app import productie, validare
 from app.analiza import EtichetePostare, etichete
 from app.ids import new_id
+from app.invatare import constitutie
 from app.invatare.modele import Lectie, LotReflectie
 from app.operare import audit
 
@@ -184,7 +185,11 @@ def _postari(db: Session, tenant_id: uuid.UUID, de_la: dt.datetime | None) -> li
 def reflecteaza(db: Session, tenant_id: uuid.UUID, *, acum: dt.datetime | None = None) -> LotReflectie | None:
     """Închide lotul curent al clientului și scrie propunerile. `None` dacă lotul nu are încă `MINIM_LOT`
     postări măsurate. O propunere cu aceeași cheie ca o lecție existentă nu se dublează."""
-    acum = acum or dt.datetime.now(dt.UTC)
+    with constitutie.flux_invatare(db):  # Reflectorul scrie doar în tabelele învățării (11.6)
+        return _reflecteaza(db, tenant_id, acum or dt.datetime.now(dt.UTC))
+
+
+def _reflecteaza(db: Session, tenant_id: uuid.UUID, acum: dt.datetime) -> LotReflectie | None:
     ultimul = db.execute(
         select(func.max(LotReflectie.pana_la)).where(LotReflectie.tenant_id == tenant_id)
     ).scalar_one_or_none()

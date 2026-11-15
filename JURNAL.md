@@ -593,4 +593,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F11.4 — Registrul de experimente.**
   - Construit: `invatare.experimente`, migrarea `0092` (cu declanșatorul care îngheață cele declarate), spec F11.4. Hotărâri (D-007): experimentul observă, nu repartizează; câștigător doar cu prag + semnificație.
   - Verificat: 3 teste unitare, 2 de integrare.
+- **F11.5 — Constituția.**
+  - Construit: `invatare.constitutie`, migrarea `0093`, `scripts/check_invatare.py` (+ `Makefile`), Reflectorul și contoarele Curatorului rulează sub marcaj, spec F11.5. Hotărâri (D-007): gardul e în bază; regula săptămânală se aplică lecțiilor pe domeniu.
+  - Găsit de teste: refacerea marcajului într-un `finally` ascundea eroarea adevărată când tranzacția era deja anulată (acum se reface doar la succes). Testul F11.2 al limitei de 40 a fost adaptat la regula săptămânală (aprobări la 8 zile distanță), fără a slăbi verificarea.
+  - Verificat: 3 teste unitare, 3 de integrare.
 

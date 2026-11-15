@@ -33,8 +33,8 @@ apoi F10 (ramura B).
 | F11.2 Curatorul și playbook-ul | **închis** (împins) |
 | F11.3 Alegerea adaptivă | **închis** (împins) |
 | F11.4 Registrul de experimente | **închis** (împins) |
-| F11.5 Constituția | urmează |
-| F11.6 Ecranul „Învățare” | neînceput |
+| F11.5 Constituția | **închis** (împins) |
+| F11.6 Ecranul „Învățare” | urmează |
 
 ## Raport pentru sesiunea A (citește asta întâi)
 

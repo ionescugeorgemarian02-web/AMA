@@ -26,6 +26,7 @@ from sqlalchemy.orm import Session
 from app import productie
 from app.continut import scriere
 from app.conturi import Rol
+from app.invatare import constitutie
 from app.invatare.modele import Lectie, LectieFolosita
 from app.operare import audit
 
@@ -54,9 +55,16 @@ def active(
 
 
 def _muta(
-    db: Session, r: Lectie, stare: str, *, utilizator_id: uuid.UUID | None, motiv: str, actiune: str
+    db: Session,
+    r: Lectie,
+    stare: str,
+    *,
+    utilizator_id: uuid.UUID | None,
+    motiv: str,
+    actiune: str,
+    acum: dt.datetime | None = None,
 ) -> None:
-    r.stare, r.motiv, r.actualizat_la = stare, motiv[:300], dt.datetime.now(dt.UTC)
+    r.stare, r.motiv, r.actualizat_la = stare, motiv[:300], acum or dt.datetime.now(dt.UTC)
     if utilizator_id is not None:
         r.decis_de, r.decis_la = utilizator_id, r.actualizat_la
     db.flush()
@@ -72,10 +80,15 @@ def _muta(
     )
 
 
-def aproba(db: Session, lectie_id: uuid.UUID, *, utilizator_id: uuid.UUID, rol: Rol) -> Lectie:
+def aproba(
+    db: Session, lectie_id: uuid.UUID, *, utilizator_id: uuid.UUID, rol: Rol, acum: dt.datetime | None = None
+) -> Lectie:
+    """Propusă → activă. Constituția (F11.5) poate refuza: învățarea înghețată sau o promovare deja făcută
+    pe același domeniu în ultimele 7 zile (`ConstitutieIncalcata`)."""
     r = _lectie(db, lectie_id)
     if r.stare != "propusa":
         raise CuratorRefuzat("doar o lecție propusă se poate aproba")
+    constitutie.poate_promova(db, r.tenant_id, r.domeniu_tip, r.domeniu, acum=acum)
     if r.sensibila and rol is not Rol.PROPRIETAR:
         raise CuratorRefuzat("lecția atinge conformitatea, prețurile sau promisiunile: o aprobă proprietarul")
     n = db.execute(
@@ -90,7 +103,9 @@ def aproba(db: Session, lectie_id: uuid.UUID, *, utilizator_id: uuid.UUID, rol: 
     ).scalar_one()
     if n >= MAX_ACTIVE:
         raise CuratorRefuzat(f"domeniul are deja {MAX_ACTIVE} de lecții active: retrage una întâi")
-    _muta(db, r, "activa", utilizator_id=utilizator_id, motiv="", actiune="invatare.lectie_aprobata")
+    _muta(
+        db, r, "activa", utilizator_id=utilizator_id, motiv="", actiune="invatare.lectie_aprobata", acum=acum
+    )
     return r
 
 
@@ -176,21 +191,22 @@ def _dupa_decizie(
     """Decizia omului actualizează contoarele lecțiilor folosite la acest livrabil, o singură dată."""
     if hotarare not in (productie.Hotarare.APROBAT, productie.Hotarare.RESPINS):
         return
-    folosite = list(
-        db.execute(
-            select(LectieFolosita.lectie_id).where(
-                LectieFolosita.livrabil_id == lv.id, LectieFolosita.socotit.is_(False)
-            )
-        ).scalars()
-    )
-    for lectie_id in folosite:
-        noteaza(db, lectie_id, a_ajutat=hotarare is productie.Hotarare.APROBAT)
-    if folosite:
-        db.execute(
-            update(LectieFolosita)
-            .where(LectieFolosita.livrabil_id == lv.id, LectieFolosita.lectie_id.in_(folosite))
-            .values(socotit=True)
+    with constitutie.flux_invatare(db):  # contoarele sunt scriere a învățării: sub gardul Constituției
+        folosite = list(
+            db.execute(
+                select(LectieFolosita.lectie_id).where(
+                    LectieFolosita.livrabil_id == lv.id, LectieFolosita.socotit.is_(False)
+                )
+            ).scalars()
         )
+        for lectie_id in folosite:
+            noteaza(db, lectie_id, a_ajutat=hotarare is productie.Hotarare.APROBAT)
+        if folosite:
+            db.execute(
+                update(LectieFolosita)
+                .where(LectieFolosita.livrabil_id == lv.id, LectieFolosita.lectie_id.in_(folosite))
+                .values(socotit=True)
+            )
 
 
 def folosite_la(db: Session, livrabil_id: uuid.UUID) -> list[uuid.UUID]:

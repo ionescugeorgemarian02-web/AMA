@@ -3,6 +3,7 @@ contorul ei se actualizează. Contextul este cel real al autorului (`continut.sc
 contoarele se mișcă la decizia reală a omului din biroul de aprobări."""
 
 # ruff: noqa: F811
+import datetime as dt
 import uuid
 from collections.abc import Callable
 
@@ -133,8 +134,10 @@ def test_lectiile_sensibile_limita_si_respingerea(tenant: uuid.UUID, om: uuid.UU
         for i in range(curator.MAX_ACTIVE + 1)
     ]
     with sesiune_tenant(tenant) as db:
-        for i in ids[:-1]:
-            curator.aproba(db, i, utilizator_id=om, rol=Rol.PROPRIETAR)
+        # Constituția (F11.5) permite o promovare pe săptămână pe domeniu: aprobările sunt la 8 zile distanță
+        baza = dt.datetime.now(dt.UTC) - dt.timedelta(days=8 * (len(ids) + 1))
+        for n, i in enumerate(ids[:-1]):
+            curator.aproba(db, i, utilizator_id=om, rol=Rol.PROPRIETAR, acum=baza + dt.timedelta(days=8 * n))
         with pytest.raises(CuratorRefuzat, match="retrage una"):
             curator.aproba(db, ids[-1], utilizator_id=om, rol=Rol.PROPRIETAR)
         assert len(curator.active(db, tenant, "client")) == curator.MAX_ACTIVE

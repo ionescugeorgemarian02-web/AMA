@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F11.5 — Constituția
+- `invatare.constitutie` (fluxul de învățare marcat, o promovare pe săptămână, înghețarea, indicatorii de gardă), declanșatorul `ama_fara_invatare`, garda `scripts/check_invatare.py` în `make guards`. Migrarea `0093`.
+
 ### F11.4 — Registrul de experimente
 - `invatare.experimente` (declarare, regula de oprire, evaluare zilnică, oprire de către om), jobul `invatare.experimente`. Migrarea `0092`.
 

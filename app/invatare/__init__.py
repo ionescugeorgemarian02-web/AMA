@@ -6,7 +6,7 @@ lot = invatare.reflector.reflecteaza(db, tenant_id)     # None dacă lotul nu e 
 invatare.reflector.propuneri(db, tenant_id)             # lecțiile propuse, cu dovezi
 """
 
-from app.invatare import alegere, curator, experimente, reflector
+from app.invatare import alegere, constitutie, curator, experimente, reflector
 from app.invatare.modele import Experiment, Lectie, LectieFolosita, LotReflectie
 
 __all__ = [
@@ -15,6 +15,7 @@ __all__ = [
     "LectieFolosita",
     "LotReflectie",
     "alegere",
+    "constitutie",
     "curator",
     "experimente",
     "reflector",
