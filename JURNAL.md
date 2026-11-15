@@ -585,4 +585,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `invatare.curator`, punctul de extensie `continut.scriere.inregistreaza_adaos_context` (singura atingere în F6), migrarea `0091`, `app.invatare` în `worker.MODULE_FLUXURI`, spec F11.2.
   - Găsit: jurnalul de audit refuză cheia de detaliu numită `cheie` (arată a secret); redenumită `lectie`.
   - Verificat: 2 teste de integrare (cu promptul real al autorului și decizia reală).
+- **F11.3 — Alegerea adaptivă.**
+  - Construit: `invatare.alegere`, punctul de extensie `inregistreaza_preferinta_tipar` și parametrul `tipar_preferat` în `continut.scriere.alege` (comportamentul vechi rămâne când nu există preferință), spec F11.3. Fără migrare.
+  - Verificat: 5 teste unitare pe date simulate, 1 de integrare.
 
+  - Găsit la revizuire: fără nicio postare măsurată, preferința de tipar ar fi fost o tragere la întâmplare între variante egale și putea schimba hook-ul ales (și testele F6, nedeterminist). Acum, fără date, nu există preferință (testat).

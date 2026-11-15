@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F11.3 — Alegerea adaptivă
+- `invatare.alegere` (bandit Thompson: explorare 15%, uitare în 90 de zile, pornire de la media nișei), preferința de tipar la alegerea hook-ului (`continut.scriere.inregistreaza_preferinta_tipar`).
+
 ### F11.2 — Curatorul și playbook-ul
 - `invatare.curator` (aprobare, respingere, retragere, contoare, limita de 40, retragere automată), lecțiile active în promptul autorului (`continut.scriere.inregistreaza_adaos_context`), `lectii_folosite`. Migrarea `0091`.
 
