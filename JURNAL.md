@@ -597,4 +597,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `invatare.constitutie`, migrarea `0093`, `scripts/check_invatare.py` (+ `Makefile`), Reflectorul și contoarele Curatorului rulează sub marcaj, spec F11.5. Hotărâri (D-007): gardul e în bază; regula săptămânală se aplică lecțiilor pe domeniu.
   - Găsit de teste: refacerea marcajului într-un `finally` ascundea eroarea adevărată când tranzacția era deja anulată (acum se reface doar la succes). Testul F11.2 al limitei de 40 a fost adaptat la regula săptămânală (aprobări la 8 zile distanță), fără a slăbi verificarea.
   - Verificat: 3 teste unitare, 3 de integrare.
+- **F11.6 — Ecranul „Învățare” și poarta F11.**
+  - Construit: `app/panou/invatare_web.py`, șablonul `panou/invatare.html`, rândul din meniu (doar pentru cine are `invatare.citeste`), `curator.istoric`, spec F11.6, `F11-poarta.md`. Hotărâri (D-007): deciziile le ia doar proprietarul; ecranul nu are reguli proprii, arată refuzul din `app.invatare`.
+  - Găsit de teste: nimic în cod; un test al meu folosea o cheie de lecție prea scurtă pentru constrângerea din bază.
+  - Verificat: 4 teste de ecran, 1 test cap-coadă al porții. Neconstruit: rulările optimizatorului și seturile de aur în timp (F14).
+  - **Faza F11 e închisă pe simulări.** Sesiunea A e oprită de limita de utilizare până marți 2026-11-17, 20:00 (ora României); proprietarul a cerut ca sesiunea B să continue.
 

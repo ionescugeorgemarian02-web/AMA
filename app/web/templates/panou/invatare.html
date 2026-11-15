@@ -1,0 +1,177 @@
+{% extends "panou/baza.html" %}
+{% block title %}Învățare · AMA{% endblock %}
+{% macro dovezi(lista) %}
+<details>
+  <summary>Dovezi ({{ lista|length }})</summary>
+  <ul>
+  {% for d in lista %}
+    <li>{% for cheie, valoare in d.items() %}{% if cheie == "livrabil_id" %}<a href="/analiza/livrabil/{{ valoare }}">postarea</a>{% else %}{{ cheie|replace("_", " ") }}: {{ valoare }}{% endif %}{% if not loop.last %} · {% endif %}{% endfor %}</li>
+  {% endfor %}
+  </ul>
+</details>
+{% endmacro %}
+{% block pagina %}
+<h1>Învățare</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab">Sistemul propune lecții din rezultate, verdicte și decizii. Nicio lecție nu intră în lucru fără aprobarea ta, cel mult una pe săptămână pe domeniu. Învățarea nu poate schimba regulile validatorilor.</p>
+
+<section class="card" aria-labelledby="stare">
+  <h2 id="stare">Starea învățării</h2>
+  <p>{% if inghetat %}<strong>Înghețată.</strong> Nicio promovare nu se face până la dezghețare. Retragerea unei lecții rămâne posibilă.{% else %}Activă: lecțiile aprobate intră în contextul autorului.{% endif %}</p>
+  {% if este_proprietar %}
+  <form method="post" action="/invatare/ingheata">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="activ" value="{% if inghetat %}0{% else %}1{% endif %}">
+    {% if not inghetat %}
+    <label for="motiv_inghetare">De ce îngheți (opțional)</label>
+    <input id="motiv_inghetare" name="motiv" type="text" maxlength="300">
+    {% endif %}
+    <button type="submit" class="secundar">{% if inghetat %}Dezgheață învățarea{% else %}Îngheață învățarea{% endif %}</button>
+  </form>
+  {% endif %}
+</section>
+
+<form method="get" action="/invatare" class="card">
+  <label for="client">Client</label>
+  <select id="client" name="client">
+    <option value="">Toți clienții (doar lecțiile de curatoriat)</option>
+    {% for id, nume in clienti.items() %}<option value="{{ id }}"{% if id == client %} selected{% endif %}>{{ nume }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="secundar">Arată</button>
+</form>
+
+<section class="card" aria-labelledby="propuse">
+  <h2 id="propuse">Lecții de curatoriat ({{ propuneri|length }})</h2>
+  {% for l in propuneri %}
+  <article class="card">
+    <p><strong>{{ l.text }}</strong></p>
+    <p class="slab">{{ clienti.get(l.tenant_id, "client") }} · {{ etichete_sursa.get(l.sursa, l.sursa) }}{% if l.domeniu %} · {{ l.domeniu_tip }}: {{ l.domeniu }}{% endif %}{% if l.sensibila %} · <strong>atinge conformitatea, prețurile sau promisiunile</strong>{% endif %}</p>
+    {{ dovezi(l.dovezi) }}
+    {% if este_proprietar %}
+    <form method="post" action="/invatare/lectie/{{ l.id }}/aproba">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit">Aprobă lecția</button>
+    </form>
+    <form method="post" action="/invatare/lectie/{{ l.id }}/respinge">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="motiv_{{ l.id }}">De ce o respingi</label>
+      <input id="motiv_{{ l.id }}" name="motiv" type="text" required minlength="3" maxlength="300">
+      <button type="submit" class="secundar">Respinge</button>
+    </form>
+    {% endif %}
+  </article>
+  {% else %}
+  <p class="slab">Nicio lecție nu așteaptă. Sistemul propune lecții după fiecare 20 de postări măsurate ale unui client.</p>
+  {% endfor %}
+</section>
+
+{% if client %}
+<section class="card" aria-labelledby="active">
+  <h2 id="active">Lecții active ({{ active|length }})</h2>
+  {% for l in active %}
+  <article class="card">
+    <p><strong>{{ l.text }}</strong></p>
+    <p class="slab">A ajutat de {{ l.a_ajutat }} ori, a dăunat de {{ l.a_daunat }} ori{% if l.decis_la %} · aprobată la {{ l.decis_la.strftime("%d.%m.%Y") }}{% endif %}</p>
+    {{ dovezi(l.dovezi) }}
+    {% if este_proprietar %}
+    <form method="post" action="/invatare/lectie/{{ l.id }}/retrage">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="retrage_{{ l.id }}">De ce anulezi promovarea (opțional)</label>
+      <input id="retrage_{{ l.id }}" name="motiv" type="text" maxlength="300">
+      <button type="submit" class="secundar">Anulează promovarea</button>
+    </form>
+    {% endif %}
+  </article>
+  {% else %}
+  <p class="slab">Nicio lecție activă.</p>
+  {% endfor %}
+</section>
+
+<section class="card" aria-labelledby="istoric">
+  <h2 id="istoric">Istoricul promovărilor și al revenirilor</h2>
+  {% if istoric %}
+  <div class="defilare">
+  <table>
+    <thead><tr><th scope="col">Data</th><th scope="col">Stare</th><th scope="col">Lecția</th><th scope="col">Motiv</th></tr></thead>
+    <tbody>
+    {% for l in istoric %}
+      <tr><td>{{ l.actualizat_la.strftime("%d.%m.%Y") }}</td><td>{{ etichete_stare_lectie.get(l.stare, l.stare) }}{% if not l.decis_de and l.stare == "retrasa" %} (automat){% endif %}</td><td>{{ l.text }}</td><td>{{ l.motiv or "–" }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="slab">Nicio decizie încă.</p>
+  {% endif %}
+</section>
+
+<section class="card" aria-labelledby="experimente">
+  <h2 id="experimente">Registrul de experimente</h2>
+  {% for e in experimente %}
+  <article class="card">
+    <p><strong>{{ e.ipoteza }}</strong></p>
+    <p>{{ etichete_dimensiune.get(e.dimensiune, e.dimensiune) }}: „{{ e.varianta_a }}” (A) față de „{{ e.varianta_b }}” (B) · {{ etichete_stare_experiment.get(e.stare, e.stare) }}{% if e.concluzie %}: {{ etichete_concluzie.get(e.concluzie, e.concluzie) }}{% endif %}</p>
+    <p class="slab">Regula de oprire, fixată la pornire: cel puțin {{ e.minim_pe_varianta }} postări pe variantă, cel mult {{ e.durata_maxima_zile }} de zile. Început la {{ e.inceput_la.strftime("%d.%m.%Y") }}{% if e.incheiat_la %}, încheiat la {{ e.incheiat_la.strftime("%d.%m.%Y") }}{% endif %}{% if e.motiv %} · {{ e.motiv }}{% endif %}</p>
+    {% if e.rezultat %}<p class="slab">{% for cheie, valoare in e.rezultat.items() %}{{ cheie|replace("_", " ") }}: {{ valoare }}{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+    {% if este_proprietar and e.stare == "in_curs" %}
+    <form method="post" action="/invatare/experiment/{{ e.id }}/opreste">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="opreste_{{ e.id }}">De ce îl oprești</label>
+      <input id="opreste_{{ e.id }}" name="motiv" type="text" required minlength="3" maxlength="300">
+      <button type="submit" class="secundar">Oprește experimentul</button>
+    </form>
+    {% endif %}
+  </article>
+  {% else %}
+  <p class="slab">Niciun experiment declarat.</p>
+  {% endfor %}
+  {% if este_proprietar %}
+  <details>
+    <summary>Declară un experiment</summary>
+    <form method="post" action="/invatare/experiment/{{ client }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="ipoteza">Ipoteza, în cuvinte</label>
+      <input id="ipoteza" name="ipoteza" type="text" required minlength="10" maxlength="400">
+      <label for="dimensiune">Ce compari</label>
+      <select id="dimensiune" name="dimensiune">
+        {% for d in dimensiuni_experiment %}<option value="{{ d }}">{{ etichete_dimensiune.get(d, d) }}</option>{% endfor %}
+      </select>
+      <label for="varianta_a">Varianta A</label>
+      <input id="varianta_a" name="varianta_a" type="text" required maxlength="80">
+      <label for="varianta_b">Varianta B</label>
+      <input id="varianta_b" name="varianta_b" type="text" required maxlength="80">
+      <label for="minim_pe_varianta">Postări minime pe variantă</label>
+      <input id="minim_pe_varianta" name="minim_pe_varianta" type="number" inputmode="numeric" min="2" value="10" required>
+      <label for="durata_maxima_zile">Durata maximă, în zile</label>
+      <input id="durata_maxima_zile" name="durata_maxima_zile" type="number" inputmode="numeric" min="1" value="60" required>
+      <button type="submit" class="secundar">Declară</button>
+    </form>
+    <p class="slab">Un singur experiment în curs pe fiecare dimensiune. Ce declari aici nu se mai poate schimba după pornire.</p>
+  </details>
+  {% endif %}
+</section>
+
+<section class="card" aria-labelledby="adaptiv">
+  <h2 id="adaptiv">Alegerea adaptivă</h2>
+  <p class="slab">Media estimată a interacțiunilor pe afișare, din postările ultimelor 90 de zile. Sub {{ publicari_minime }} postări pe variantă, concluzia e fragilă. Cel puțin {{ (explorare * 100)|round|int }}% din alegeri merg pe variante mai puțin testate.</p>
+  {% for d, lista in variante.items() %}
+  <h3>{{ etichete_dimensiune.get(d, d) }}</h3>
+  {% if lista %}
+  <div class="defilare">
+  <table>
+    <thead><tr><th scope="col">Varianta</th><th scope="col">Medie estimată</th><th scope="col">Postări</th><th scope="col">Încredere</th></tr></thead>
+    <tbody>
+    {% for v in lista %}
+      <tr><th scope="row">{{ v.valoare }}</th><td>{{ "%.1f"|format(v.medie * 100) }}%</td><td>{{ v.publicari }}</td><td>{% if v.de_incredere %}suficiente date{% else %}date puține{% endif %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="slab">Nicio postare măsurată încă.</p>
+  {% endif %}
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

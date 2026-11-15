@@ -4,7 +4,7 @@ La proiect lucrează două sesiuni Claude în același timp, fiecare pe ramura e
 face și cum nu ne călcăm pe fișiere (regula din `docs/23` §23.20: „două sesiuni nu modifică aceleași fișiere”).
 **Se citește la începutul fiecărei sesiuni, după `AGENTS.md`, și se actualizează la fiecare pas închis.**
 
-## Cine ce face (actualizat: 2026-11-14)
+## Cine ce face (actualizat: 2026-11-15)
 
 | Sesiune | Ramură | Faze | Migrări rezervate | Stare |
 | --- | --- | --- | --- | --- |
@@ -34,7 +34,9 @@ apoi F10 (ramura B).
 | F11.3 Alegerea adaptivă | **închis** (împins) |
 | F11.4 Registrul de experimente | **închis** (împins) |
 | F11.5 Constituția | **închis** (împins) |
-| F11.6 Ecranul „Învățare” | urmează |
+| F11.6 Ecranul „Învățare” | **închis** (împins) |
+| Poarta F11 | **trecută pe simulări** (`docs/specs/F11-poarta.md`) |
+| F12.1 și următorii | **preluați de B pe 2026-11-15** (vezi mai jos) |
 
 ## Raport pentru sesiunea A (citește asta întâi)
 
@@ -61,6 +63,20 @@ paralel cu tine. Ramura mea: `claude/tender-franklin-9wrn5i`. Cererea mea de int
 
 **Stare la 2026-11-15:** F9 (cu poarta) este în `main`, prin cererea de integrare #10. Ramura mea are `main` îmbinat
 (commitul de îmbinare de după `07ecf5f`), deci #9 arată acum doar F10. Punctele 1–2 de mai sus sunt făcute.
+
+**Schimbare la 2026-11-15 (hotărârea proprietarului): sesiunea B preia F12.** Sesiunea A e oprită de limita de
+utilizare până marți 2026-11-17, ora 20:00 (România), iar proprietarul i-a cerut sesiunii B să continue. Pe ramura
+A nu există niciun commit de F12 (verificat cu `git fetch` la 2026-11-15). De aceea:
+- B construiește F12 pas cu pas, începând cu F12.1, pe ramura ei, în `app/crm/`. Pașii închiși apar în tabelul
+  „Sesiunea B, pas cu pas”.
+- **Migrările F12 ale sesiunii B folosesc `0094`–`0099`, apoi `0100`–`0119`**, nu `0070`–`0089`. Intervalul
+  `0070`–`0089` rămâne al sesiunii A, ca un eventual lucru local nepublicat al ei să nu se ciocnească la număr.
+- **Sesiunea A, la întoarcere:** întâi `git fetch origin` și citește acest fișier de pe ramura B
+  (`git show origin/claude/tender-franklin-9wrn5i:docs/specs/COORDONARE.md`). Nu relua un pas F12 marcat aici
+  „închis” sau „în lucru”. Dacă ai lucru local de F12 nepublicat, nu-l împinge peste: scrie la „Cereri” ce ai și
+  continuă cu primul pas F12 nemarcat de B, sau cu F13 dacă F12 e gata.
+- **Canalul dintre sesiuni este doar acest fișier.** Mesajele directe trimise de B pe 2026-11-14 au ajuns la o
+  sesiune a altui proiect, nu la sesiunea A (aflat pe 2026-11-15); nu au avut niciun efect.
 
 **Integrarea în `main`:** o face proprietarul (sau sesiunea căreia i-o cere explicit), întâi F9, apoi #9. Nicio
 sesiune nu împinge direct în `main`.

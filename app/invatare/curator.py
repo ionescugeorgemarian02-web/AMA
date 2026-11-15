@@ -54,6 +54,18 @@ def active(
     return list(db.execute(q.order_by((Lectie.a_ajutat - Lectie.a_daunat).desc(), Lectie.creat_la)).scalars())
 
 
+def istoric(db: Session, tenant_id: uuid.UUID, *, limita: int = 50) -> list[Lectie]:
+    """Promovările și revenirile unui client (11.7): lecțiile decise, cele mai recente întâi."""
+    return list(
+        db.execute(
+            select(Lectie)
+            .where(Lectie.tenant_id == tenant_id, Lectie.stare.in_(("activa", "retrasa", "respinsa")))
+            .order_by(Lectie.actualizat_la.desc())
+            .limit(limita)
+        ).scalars()
+    )
+
+
 def _muta(
     db: Session,
     r: Lectie,

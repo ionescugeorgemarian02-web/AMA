@@ -14,6 +14,7 @@
     <li><a href="/publicare">Publicare asistată <span aria-hidden="true">›</span></a></li>
     <li><a href="/leaduri">Leaduri din site <span aria-hidden="true">›</span></a></li>
     <li><a href="/analiza">Rapoarte și analiză: cifrele postărilor <span aria-hidden="true">›</span></a></li>
+    {% if poate_invatare %}<li><a href="/invatare">Învățare: lecții, experimente, înghețare <span aria-hidden="true">›</span></a></li>{% endif %}
     {% if este_proprietar %}<li><a href="/validatoare">Validatoare: bancul de evaluare <span aria-hidden="true">›</span></a></li>{% endif %}
     <li><a href="/validatoare/carantina">Validatoare: carantină și contestații <span aria-hidden="true">›</span></a></li>
     {% if este_proprietar %}<li><a href="/validatoare/exemple">Validatoare: exemple propuse pentru setul de aur <span aria-hidden="true">›</span></a></li>{% endif %}

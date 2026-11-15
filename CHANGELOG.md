@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F11.6 — Ecranul „Învățare” și poarta F11
+- Ecranul `/invatare` (lecții de curatoriat cu dovezi, aprobare, respingere, anularea promovării, înghețare, registrul de experimente, alegerea adaptivă); `curator.istoric`. Poarta F11: `docs/specs/F11-poarta.md`. Fără migrare.
+
 ### F11.5 — Constituția
 - `invatare.constitutie` (fluxul de învățare marcat, o promovare pe săptămână, înghețarea, indicatorii de gardă), declanșatorul `ama_fara_invatare`, garda `scripts/check_invatare.py` în `make guards`. Migrarea `0093`.
 
