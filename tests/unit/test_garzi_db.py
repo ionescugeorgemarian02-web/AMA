@@ -79,6 +79,7 @@ CONTEXT_AGENTIE = {
     "app/analiza/colector.py",
     "app/cercetare/tendinte.py",  # jobul de dimineață (F10.7): lista clienților cu profil și inboxul nou
     "app/cercetare/reclame_concurenta.py",  # jobul săptămânal (F10.8): lista concurenților tuturor clienților
+    "app/invatare/experimente.py",  # jobul zilnic (F11.4): lista experimentelor în curs ale tuturor clienților
 }
 
 

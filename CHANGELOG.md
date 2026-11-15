@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F11.4 — Registrul de experimente
+- `invatare.experimente` (declarare, regula de oprire, evaluare zilnică, oprire de către om), jobul `invatare.experimente`. Migrarea `0092`.
+
 ### F11.3 — Alegerea adaptivă
 - `invatare.alegere` (bandit Thompson: explorare 15%, uitare în 90 de zile, pornire de la media nișei), preferința de tipar la alegerea hook-ului (`continut.scriere.inregistreaza_preferinta_tipar`).
 

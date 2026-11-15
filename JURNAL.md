@@ -590,3 +590,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Verificat: 5 teste unitare pe date simulate, 1 de integrare.
 
   - Găsit la revizuire: fără nicio postare măsurată, preferința de tipar ar fi fost o tragere la întâmplare între variante egale și putea schimba hook-ul ales (și testele F6, nedeterminist). Acum, fără date, nu există preferință (testat).
+- **F11.4 — Registrul de experimente.**
+  - Construit: `invatare.experimente`, migrarea `0092` (cu declanșatorul care îngheață cele declarate), spec F11.4. Hotărâri (D-007): experimentul observă, nu repartizează; câștigător doar cu prag + semnificație.
+  - Verificat: 3 teste unitare, 2 de integrare.
+
