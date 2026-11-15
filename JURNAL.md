@@ -602,4 +602,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Găsit de teste: nimic în cod; un test al meu folosea o cheie de lecție prea scurtă pentru constrângerea din bază.
   - Verificat: 4 teste de ecran, 1 test cap-coadă al porții. Neconstruit: rulările optimizatorului și seturile de aur în timp (F14).
   - **Faza F11 e închisă pe simulări.** Sesiunea A e oprită de limita de utilizare până marți 2026-11-17, 20:00 (ora României); proprietarul a cerut ca sesiunea B să continue.
+- **F12.1 — CRM-ul minimal (sesiunea B a preluat F12).**
+  - Construit: `app/crm/{modele,registru}.py`, migrarea `0094`, `app/panou/crm_web.py` cu două șabloane, apelul din `site.audit.confirma`, `app.crm` în `MODULE_FLUXURI`, spec F12.1. Hotărâri (D-007): o singură ușă de intrare; recomandarea nu aduce consimțământ de email; unirea nu șterge.
+  - Găsit de teste: „SRL-D” nu era recunoscut ca formă juridică. Cheia străină spre `leaduri` e `ON DELETE SET NULL`, altfel curățarea lead-urilor din site (și testele care o fac) ar fi fost blocată.
+  - Verificat: 17 teste unitare, 8 de integrare, 5 de izolare; împreună cu testele site-ului, unitare și de izolare: 1962 passed.
 

@@ -23,6 +23,7 @@ from sqlalchemy import event, func, select
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
+from app.crm import registru as crm
 from app.db import sesiune_agentie
 from app.ids import new_id
 from app.logging import get_logger
@@ -158,6 +159,16 @@ def confirma(db: Session, jeton: str) -> Lead | None:
     jurnal.record(db, "lead.confirmat", obiect_tip="lead", obiect_id=lead.id, actor_tip="anonim")
     evenimente.emite(
         db, "lead.confirmat", sursa="site", obiect_tip="lead", obiect_id=lead.id, date={"sursa": lead.sursa}
+    )
+    # F12.1: lead-ul confirmat intră în CRM, cu sursă și temei (o singură dată: cheia e lead-ul din site)
+    crm.primeste(
+        db,
+        email=lead.email,
+        firma=lead.firma,
+        site_url=lead.site_url,
+        sursa="formular_audit",
+        dovada="opt-in dublu confirmat din linkul primit pe email",
+        lead_site_id=lead.id,
     )
     lead_id = lead.id
 

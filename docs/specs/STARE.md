@@ -266,6 +266,12 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F11.6 Ecranul „Învățare” | verificat local, prin cereri HTTP: aprobi o lecție și anulezi o promovare din panou; refuzurile Constituției se văd pe ecran; înghețare; experimente; analistul doar citește. **Nu e verificat pe un telefon real; rulările optimizatorului și seturile de aur lipsesc (F14)** | `tests/integration/test_invatare_ecran.py` |
 | Poarta F11 | trecută pe date simulate: o lecție promovată și una retrasă, cu urmă completă | `tests/integration/test_poarta_f11.py`, `docs/specs/F11-poarta.md` |
 
+## Faza F12 — CRM, email, inbox (preluată de sesiunea B pe 2026-11-15)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F12.1 CRM-ul minimal | verificat local: lead-ul confirmat din formular apare cu sursă și temei și nu se dublează; etape, istoricul consimțământului, unirea duplicatelor, sarcini de urmărire, export. **Doar CRM-ul agenției (nu cel vândut clienților); fără oportunități separate; fără ștergerea la 24 de luni** | `tests/integration/test_crm.py`, `tests/isolation/test_crm_rls.py`, `tests/unit/test_crm_registru.py` |
+
 ### De verificat la migrare (F11)
 - F11.1: pragurile Reflectorului (20 de postări pe lot, 3 pe grup, 25% diferență) pe date reale; efectul valorilor extreme asupra mediei lotului.
 - F11.3: alegerea adaptivă pe postări reale măsurate; media nișei pe categorii reale; legarea recomandării de sloturi de planificarea publicării (F9.7).

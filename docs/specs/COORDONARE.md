@@ -36,7 +36,9 @@ apoi F10 (ramura B).
 | F11.5 Constituția | **închis** (împins) |
 | F11.6 Ecranul „Învățare” | **închis** (împins) |
 | Poarta F11 | **trecută pe simulări** (`docs/specs/F11-poarta.md`) |
-| F12.1 și următorii | **preluați de B pe 2026-11-15** (vezi mai jos) |
+| F12.1 CRM-ul minimal | **închis** (împins), migrarea `0094` |
+| F12.2 Email către abonați | urmează (B) |
+| F12.3–F12.10 | nepornite; B le ia în ordine cât A e oprită |
 
 ## Raport pentru sesiunea A (citește asta întâi)
 

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.1 — CRM-ul minimal
+- `app/crm` (firme, contacte, lead-uri pe etape, istoricul consimțământului, unirea duplicatelor, sarcini de urmărire, export), ecranul `/crm`, jobul `crm.igiena`; lead-ul confirmat din formularul de audit intră în CRM. Migrarea `0094`.
+
 ### F11.6 — Ecranul „Învățare” și poarta F11
 - Ecranul `/invatare` (lecții de curatoriat cu dovezi, aprobare, respingere, anularea promovării, înghețare, registrul de experimente, alegerea adaptivă); `curator.istoric`. Poarta F11: `docs/specs/F11-poarta.md`. Fără migrare.
 
