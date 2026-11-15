@@ -610,4 +610,5 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `app/crm/email.py`, migrarea `0095`, `app/site/dezabonare_web.py`, poarta de suprimare din `efecte/sistem.incearca`, `antete` pe mesajul cutiei simulate, ecranul `/crm/email`, spec F12.2. Hotărâri (D-007): suprimarea se verifică și în clipa trimiterii; deschiderea linkului nu dezabonează, butonul da; tranzacționalele nu sunt oprite.
   - Atins în afara `app/crm`, prin adăugare: `app/operare/efecte/sistem.py` (poarta), `app/connectors/email/__init__.py` (antete), `app/site/__init__.py` (ruta).
   - Verificat: 4 teste unitare, 5 de integrare; cu unitarele, izolarea, site-ul, efectele și facturarea: 2006 passed. **Fără furnizor real de email: totul pe cutia simulată.**
+  - CI a picat pe `746a041`: testul existent „toate rutele care schimbă starea au gardă CSRF” a prins ruta `POST /site/dezabonare/{jeton}`. E o excepție reală (RFC 8058: programul de email trimite POST-ul fără cookie), apărată de jetonul semnat; am adăugat-o în lista de excepții a testului, cu justificare. Greșeala mea: am împins fără suita completă.
 
