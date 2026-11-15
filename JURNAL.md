@@ -581,4 +581,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `invatare.reflector`, `invatare.modele`, migrarea `0090` (`down_revision` = `0061`), spec F11.1. Hotărâri (D-007): reguli deterministe; doar propune; lecțiile sunt pe client.
   - Verificat: 4 teste unitare, 1 de integrare.
   - Rămâne deschis: editările omului ca semnal; jobul de reflecție și ecranul (F11.2, F11.6).
+- **F11.2 — Curatorul și playbook-ul.**
+  - Construit: `invatare.curator`, punctul de extensie `continut.scriere.inregistreaza_adaos_context` (singura atingere în F6), migrarea `0091`, `app.invatare` în `worker.MODULE_FLUXURI`, spec F11.2.
+  - Găsit: jurnalul de audit refuză cheia de detaliu numită `cheie` (arată a secret); redenumită `lectie`.
+  - Verificat: 2 teste de integrare (cu promptul real al autorului și decizia reală).
 

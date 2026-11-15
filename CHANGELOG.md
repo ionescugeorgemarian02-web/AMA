@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F11.2 — Curatorul și playbook-ul
+- `invatare.curator` (aprobare, respingere, retragere, contoare, limita de 40, retragere automată), lecțiile active în promptul autorului (`continut.scriere.inregistreaza_adaos_context`), `lectii_folosite`. Migrarea `0091`.
+
 ### F11.1 — Reflectorul
 - `invatare.reflector` (lotul închis, propuneri de lecții cu dovezi din rezultate, verdicte și decizii), tabelele `loturi_reflectie` și `lectii`. Migrarea `0090`.
 

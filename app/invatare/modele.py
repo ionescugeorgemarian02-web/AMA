@@ -48,3 +48,14 @@ class Lectie(BazaInvatare):
     decis_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     actualizat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class LectieFolosita(BazaInvatare):
+    """O lecție intrată în contextul autorului pentru un livrabil (F11.2, migrarea 0091)."""
+
+    __tablename__ = "lectii_folosite"
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    lectie_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    socotit: Mapped[bool] = mapped_column(Boolean, default=False)
+    folosita_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -129,11 +129,23 @@ def variante(db: Session, livrabil_id: uuid.UUID) -> list[VariantaHook]:
     )
 
 
+# Adaosuri la contextul autorului, înregistrate de alte module (F11.2: lecțiile active de playbook). Fiecare
+# primește livrabilul și întoarce un bloc de text sau șir gol. Conținutul nu depinde de modulul care îl dă.
+ADAOSURI_CONTEXT: list[Callable[[Session, productie.Livrabil], str]] = []
+
+
+def inregistreaza_adaos_context(f: Callable[[Session, productie.Livrabil], str]) -> None:
+    if f not in ADAOSURI_CONTEXT:
+        ADAOSURI_CONTEXT.append(f)
+
+
 def exemple_text(db: Session, lv: productie.Livrabil) -> str:
-    """Exemplele aprobate și respinse pentru același tip și canal (F6.7); șir gol dacă nu există."""
+    """Exemplele aprobate și respinse pentru același tip și canal (F6.7), urmate de adaosurile înregistrate
+    (lecțiile de playbook, F11.2); șir gol dacă nu există nimic."""
     from app.continut import feedback
 
-    return feedback.exemple_text(db, lv)
+    blocuri = [feedback.exemple_text(db, lv), *(f(db, lv) for f in ADAOSURI_CONTEXT)]
+    return "\n\n".join(b for b in blocuri if b)
 
 
 def hook_ales(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> str:

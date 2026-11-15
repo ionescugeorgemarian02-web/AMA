@@ -45,6 +45,7 @@ MODULE_FLUXURI: tuple[str, ...] = (
     "app.analiza.colector",
     "app.cercetare.tendinte",
     "app.cercetare.reclame_concurenta",
+    "app.invatare",  # F11.2: lecțiile intră în contextul autorului și contoarele se actualizează la decizie
 )
 
 

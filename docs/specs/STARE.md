@@ -259,6 +259,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F11.1 Reflectorul | verificat local: după un lot închis de 20 de postări măsurate apar propuneri de lecții cu dovezi (din rezultate, din verdicte, din respingeri); sub prag nimic; fără dubluri; izolare pe client. **Editările omului nu sunt încă citite; formulare pe șablon** | `tests/integration/test_invatare_reflector.py`, `tests/unit/test_invatare_reflector.py` |
+| F11.2 Curatorul și playbook-ul | verificat local: lecția aprobată intră în promptul autorului la sarcina următoare, e notată pe livrabil, iar decizia omului îi mișcă contoarele; retragere automată când a dăunat mai mult; limita de 40 pe domeniu; lecțiile sensibile doar cu proprietarul. **Unirea lecțiilor asemănătoare nu e construită** | `tests/integration/test_invatare_curator.py` |
 
 ### De verificat la migrare (F11)
 - F11.1: pragurile Reflectorului (20 de postări pe lot, 3 pe grup, 25% diferență) pe date reale; efectul valorilor extreme asupra mediei lotului.
