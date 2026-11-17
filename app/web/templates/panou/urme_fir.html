@@ -1,0 +1,12 @@
+{% extends "panou/baza.html" %}
+{% block title %}Fir {{ fir[:12] }} · Urme · AMA{% endblock %}
+{% block pagina %}
+<h1>Firul {{ fir[:12] }}…</h1>
+<p class="slab"><a href="/urme">Urme</a> · {{ urme|length }} urme, în ordine</p>
+<div class="card">
+  <table>
+    <thead><tr><th scope="col">La</th><th scope="col">Componentă / acțiune</th><th scope="col">Rezultat</th><th scope="col">Durată</th><th scope="col">Cauza</th></tr></thead>
+    <tbody>{% for x in urme %}<tr id="u-{{ x.id }}" data-rezultat="{{ x.rezultat }}"><td>{{ x.la.strftime("%Y-%m-%d %H:%M:%S") }}</td><th scope="row">{{ x.componenta }}/{{ x.actiune }}{% if x.motiv %}<br><span class="slab">{{ x.motiv }}</span>{% endif %}</th><td>{{ x.rezultat }}{% if x.cod %} ({{ x.cod }}){% endif %}</td><td>{{ x.durata_ms if x.durata_ms is not none else "–" }}</td><td>{% if x.cauza_id %}<a href="#u-{{ x.cauza_id }}">↑</a>{% else %}sursă{% endif %}</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+{% endblock %}

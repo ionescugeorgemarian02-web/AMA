@@ -184,4 +184,5 @@ Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py
 | FT.2 Firul de corelare și urmele componentelor | **închis** (împins) |
 | FT.3 Indicatorii pe componentă | **închis** (împins) |
 | FT.4 Analiza lunară automată | **închis** (împins), migrarea `0077` |
+| FT.5 Ecranul „Urme” și exportul | **închis** (împins) |
 

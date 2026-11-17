@@ -668,3 +668,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **FT.4 — Analiza lunară automată.**
   - Construit: migrarea `0077`, `analiza.py`, `fluxuri.py` (cron 1 ale lunii), `MODULE_FLUXURI`, garda contextului de agenție.
   - Verificat: `tests/integration/test_urme_analiza.py` (regresii, porți, motive, costuri, lanțuri, lanț întrerupt, regenerare), migrările, garda.
+- **FT.5 — Ecranul „Urme” și exportul.**
+  - Construit: `app/panou/urme_web.py`, șabloanele `panou/urme.html`, `panou/urme_fir.html`, ruta în `app/panou/__init__.py`, rândul din `meniu.html`.
+  - Verificat: `tests/integration/test_urme_ecran.py` (ecran, generare, fir, JSON, trei CSV-uri, erori 400, 403 pentru analist); toate unitarele verzi.

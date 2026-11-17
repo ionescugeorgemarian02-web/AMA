@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### FT.5 — Ecranul „Urme” și exportul
+- `/urme` (raportul lunii, generarea, firul), exporturile `/urme/export.json` și `/urme/export.csv`, legătura din meniu (proprietar). Fără migrare.
+
 ### FT.4 — Analiza lunară automată
 - `app/operare/urme/analiza.py` (bine/prost, regresii, costuri, porți picate, motive de respingere, lanțul fiecărui eșec până la sursă), `urme_rapoarte`, jobul lunar `urme.analiza_lunara`. Migrarea `0077`.
 

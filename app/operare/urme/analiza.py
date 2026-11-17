@@ -212,7 +212,9 @@ def analizeaza(db: Session, luna: dt.date) -> dict[str, Any]:
 
 def genereaza(db: Session, luna: dt.date) -> dict[str, Any]:
     """Analizează și salvează (înlocuiește) raportul lunii. Cere sesiune de agenție."""
-    continut = json.loads(json.dumps(analizeaza(db, luna)))  # exact forma salvată (tuplurile devin liste)
+    continut: dict[str, Any] = json.loads(
+        json.dumps(analizeaza(db, luna))
+    )  # exact forma salvată (tuplurile devin liste)
     db.execute(
         insert(RaportUrme)
         .values(id=new_id(), luna=luna, continut=continut)
