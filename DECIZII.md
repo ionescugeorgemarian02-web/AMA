@@ -128,3 +128,15 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
   3.000 lei/lună, 80 lei pe campanie [I].
 - **Consecințe:** criteriile se verifică în CI; campania reală, cu bani reali, rămâne la „De verificat la migrare”, cu același raport
   dublu și aceeași verificare de plafoane (`raport.depasiri`).
+
+### D-016 (2026-11-17) — Modul local pe PC-ul proprietarului
+
+- **Context:** proprietarul vrea să încerce platforma pe calculatorul lui (Windows cu WSL2 sau Mac), înainte de VPS.
+- **Hotărâre (D-007):** `infra/compose/local.yml` construiește imaginea din `Dockerfile` (fără registru, fără Caddy),
+  publică aplicația doar pe `127.0.0.1:8000`, rulează cu `AMA_ENV=dev` și cu toți conectorii pe simulatoare. Imaginea
+  aplicației nu are amprentă (e construită local), deci numele ei vine dintr-o variabilă (`${AMA_IMAGE_LOCAL}`), excepție
+  admisă de `check_pins`; Postgres rămâne fixat pe amprentă. O singură cheie LLM opțională (OpenRouter); fără ea, mod simulat
+  (gateway-ul refuză vizibil sarcinile cu model). Datele demo: `python -m app.demo.populare` (idempotentă, refuzată în
+  staging/producție).
+- **Consecințe:** `make local-up / local-down / local-reset`, runbook `docs/runbooks/rulare-locala.md`.
+

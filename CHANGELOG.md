@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Modul local
+- `infra/compose/local.yml`, `infra/env/local.env.example`, `make local-up/local-down/local-reset`, `app/demo` (popularea cu „Cafeneaua Zorilor”), runbook `docs/runbooks/rulare-locala.md`, D-016. Fără migrare.
+
 ### Poarta F13
 - `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md`; fișierele reclamelor intră în lista locurilor cu scop de agenție (`tests/unit/test_garzi_db.py`). Fără migrare.
 

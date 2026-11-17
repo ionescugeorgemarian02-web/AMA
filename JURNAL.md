@@ -652,3 +652,8 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md`; cele 5 fișiere ale reclamelor cu `sesiune_agentie` adăugate (cu justificare) în `CONTEXT_AGENTIE` din `tests/unit/test_garzi_db.py`.
   - Verificat: `make check` complet o dată: lint, tipuri, gărzi verzi; teste 3121 passed, 1 failed (garda contextului de agenție, reparată și rerulată împreună cu poarta și Consiliul: verzi). `make guards` și `make audit` (fără vulnerabilități) verzi.
   - **Faza F13 e închisă pe simulări.** Rămân la migrare: conturile reale Meta/Google Ads, campania reală cu bani reali, Consiliul real.
+- **Modul local (PC-ul proprietarului).**
+  - Construit: `infra/compose/local.yml` (build local, Postgres cu pgvector, migrate, app pe 127.0.0.1:8000, worker, volume), `infra/env/local.env.example` (parole generate de `make local-env`, o cheie LLM opțională), `app/demo/populare.py`, ținte `make local-*`, runbook, D-016.
+  - Verificat: `docker compose … config -q` (fără daemon în container), `check_pins` verde, `tests/unit/test_compose_local.py`, `tests/integration/test_populare_demo.py`.
+  - Rămas: pornirea reală cu Docker Desktop (NEVERIFICAT, fără daemon aici).
+

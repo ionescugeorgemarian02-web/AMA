@@ -90,6 +90,8 @@ CONTEXT_AGENTIE = {
     "app/reclame/teste.py",
     "app/reclame/strateg.py",
     "app/reclame/prompturi.py",
+    # Modul local (D-016): popularea demo creează proprietarul și clientul, ca `app/conturi/cli.py`
+    "app/demo/populare.py",
 }
 
 

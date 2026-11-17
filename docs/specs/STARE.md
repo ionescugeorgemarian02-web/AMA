@@ -301,3 +301,9 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F13.9: împărțirea egală a bugetului pe variante la Meta (un set pe variantă) și pragul de 90% pe volume reale.
 - F13.10: campania reală de 14 zile (cont, card, buget mic) cu raportul dublu; marja pentru supralivrarea Meta.
 - F13.2: developer token-ul (nivel Explorer/Basic), MCC-ul agenției, versiunea Google Ads API, conturile reale.
+
+## Modul local și FT — Trasabilitate totală (sesiunea A, din 2026-11-17)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| Modul local | verificat: `docker compose config` valid, imaginea construită local (D-016), conectori simulați, popularea demo „Cafeneaua Zorilor” idempotentă pe Postgres real. **Pornirea cu Docker Desktop pe Windows/Mac: NEVERIFICATĂ** | `tests/unit/test_compose_local.py`, `tests/integration/test_populare_demo.py`, `docs/runbooks/rulare-locala.md` |
