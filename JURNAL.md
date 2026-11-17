@@ -631,3 +631,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `app/reclame/{gardian,urgenta}.py`, verdictul gardianului în `propuneri`, supravegherea în jobul orar, D-010.
   - Găsit de teste: perioada de așteptare bloca și decizia directă a proprietarului (acum scutită de ritm, nu de plafoane); fără token nici pauza nu pleacă (anunțul cere oprirea manuală).
   - Verificat: 3 teste unitare, 5 de integrare; toate testele reclamelor verzi.
+- **F13.6 — Strategul și înregistrările de decizie.**
+  - Construit: `app/reclame/strateg.py`, `app/reclame/prompturi.py`, `prompts/reclame.strateg.v1.md`, migrarea `0073`, jobul săptămânal, secțiunea din ecran. (Și o corectură de lungime de linie în `urgenta.py`, scăpată la F13.5.)
+  - Verificat: 1 test unitar, 1 de integrare (model FALS); toate testele reclamelor și migrările verzi.

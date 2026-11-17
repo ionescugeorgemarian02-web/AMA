@@ -122,8 +122,8 @@ def opreste_tot(motiv: str, acum: dt.datetime | None = None) -> int:
         notificari.notifica(
             notificari.Nivel.CRITIC,
             "Reclamele au fost oprite",
-            f"{motiv}. {len(active)} campanii puse pe pauză. Dacă platforma refuză pauza (de ex. token expirat), "
-            "oprește-le din managerul de reclame. Repornirea e manuală.",
+            f"{len(active)} campanii puse pe pauză; dacă platforma refuză pauza (token expirat),"
+            f" oprește-le din managerul de reclame. Repornirea e manuală. Motiv: {motiv}",
             url="/reclame",
         )
     return len(active)

@@ -130,3 +130,25 @@ class Propunere(BazaReclame):
     decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     decis_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
     aplicat_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DecizieReclame(BazaReclame):
+    """O înregistrare de decizie (F13.6–F13.7, migrarea 0073): ce s-a văzut, ce s-a decis, ce se așteaptă."""
+
+    __tablename__ = "reclame_decizii"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    cont_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    campanie_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    sursa: Mapped[str] = mapped_column(Text)
+    de_la: Mapped[dt.date] = mapped_column(Date)
+    pana_la: Mapped[dt.date] = mapped_column(Date)
+    observat: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    iesire: Mapped[str] = mapped_column(Text)
+    motiv: Mapped[str] = mapped_column(Text)
+    alternative: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    asteptat: Mapped[str] = mapped_column(Text, default="")
+    verificare_la: Mapped[dt.date] = mapped_column(Date)
+    propuneri: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    model: Mapped[str | None] = mapped_column(Text)
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

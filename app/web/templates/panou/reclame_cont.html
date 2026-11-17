@@ -26,6 +26,17 @@
   {% else %}<p class="slab">Nicio campanie construită.</p>{% endfor %}
 </section>
 
+<section class="card" aria-labelledby="decizii">
+  <h2 id="decizii">Deciziile Strategului și ale Consiliului</h2>
+  {% for d in decizii %}
+  <article data-decizie="{{ d.id }}" data-iesire="{{ d.iesire }}">
+    <h3>{{ d.de_la }} – {{ d.pana_la }} · {{ {"continua": "Continuă", "ajusteaza": "Ajustează", "pivoteaza": "Pivotează", "opreste": "Oprește", "asteapta": "Așteaptă"}[d.iesire] }} ({{ d.sursa }})</h3>
+    <p>{{ d.motiv }}. Se așteaptă: {{ d.asteptat }}; se verifică pe {{ d.verificare_la }}.</p>
+    {% if d.alternative %}<ol>{% for a in d.alternative %}<li>{{ a.ipoteza }} <span class="slab">(unghi: {{ a.unghi }}; {{ a.dovezi }})</span></li>{% endfor %}</ol>{% endif %}
+  </article>
+  {% else %}<p class="slab">Nicio decizie încă.</p>{% endfor %}
+</section>
+
 <section class="card" aria-labelledby="schimbari">
   <h2 id="schimbari">Ce s-a schimbat și de ce</h2>
   <ul>
@@ -103,6 +114,17 @@
     {% if c.stare == "activa" %}<form method="post" action="/reclame/campanie/{{ c.id }}/pauza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Pune pe pauză</button></form>{% endif %}
   </article>
   {% else %}<p class="slab">Nicio campanie construită.</p>{% endfor %}
+</section>
+
+<section class="card" aria-labelledby="decizii">
+  <h2 id="decizii">Deciziile Strategului și ale Consiliului</h2>
+  {% for d in decizii %}
+  <article data-decizie="{{ d.id }}" data-iesire="{{ d.iesire }}">
+    <h3>{{ d.de_la }} – {{ d.pana_la }} · {{ {"continua": "Continuă", "ajusteaza": "Ajustează", "pivoteaza": "Pivotează", "opreste": "Oprește", "asteapta": "Așteaptă"}[d.iesire] }} ({{ d.sursa }})</h3>
+    <p>{{ d.motiv }}. Se așteaptă: {{ d.asteptat }}; se verifică pe {{ d.verificare_la }}.</p>
+    {% if d.alternative %}<ol>{% for a in d.alternative %}<li>{{ a.ipoteza }} <span class="slab">(unghi: {{ a.unghi }}; {{ a.dovezi }})</span></li>{% endfor %}</ol>{% endif %}
+  </article>
+  {% else %}<p class="slab">Nicio decizie încă.</p>{% endfor %}
 </section>
 
 <section class="card" aria-labelledby="schimbari">

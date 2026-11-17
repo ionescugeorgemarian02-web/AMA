@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F13.6 — Strategul și înregistrările de decizie
+- `app/reclame/strateg.py` (reguli pentru cele patru ieșiri, ipotezele prin gateway, propunerea de pauză), promptul `reclame.strateg.v1`, jobul `reclame.strateg`. Migrarea `0073`.
+
 ### F13.5 — Gardianul de buget și oprirea de urgență
 - `app/reclame/{gardian,urgenta}.py` (plafoane, ritm, anomalii, oprirea globală cu pauza tuturor campaniilor și anunț critic), supravegherea după fiecare citire. D-010. Fără migrare.
 

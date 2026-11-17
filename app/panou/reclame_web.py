@@ -28,7 +28,7 @@ from app.conturi import (
 )
 from app.conturi.roluri import ROLURI_AGENTIE
 from app.panou.sabloane import pagina
-from app.reclame import constructor, plan, propuneri, rezultate
+from app.reclame import constructor, plan, propuneri, rezultate, strateg
 
 router = APIRouter(prefix="/reclame", tags=["reclame"])
 Agentie = Annotated[SesiuneCurenta, Depends(require_role(*ROLURI_AGENTIE))]
@@ -129,6 +129,7 @@ def cont(
         campanii_construite=constructor.campanii(db, c.id),
         propuneri_cont=propuneri.ale_contului(db, c.id),
         etichete_stare=propuneri.ETICHETE_STARE,
+        decizii=strateg.ale_contului(db, c.id),
         mesaj=mesaj,
         eroare=eroare,
     )
