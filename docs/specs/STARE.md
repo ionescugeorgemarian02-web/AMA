@@ -307,3 +307,4 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | Modul local | verificat: `docker compose config` valid, imaginea construită local (D-016), conectori simulați, popularea demo „Cafeneaua Zorilor” idempotentă pe Postgres real. **Pornirea cu Docker Desktop pe Windows/Mac: NEVERIFICATĂ** | `tests/unit/test_compose_local.py`, `tests/integration/test_populare_demo.py`, `docs/runbooks/rulare-locala.md` |
+| FT.1 Jurnalul unic de urme | verificat local (Postgres real): urme cu fir, cauză, cost, durată, rezultat; rolul aplicației nu modifică/șterge (și proprietarul e oprit de declanșator); clientul își vede doar urmele lui; secretele și datele personale nu ajung în clar | `tests/integration/test_urme_jurnal.py`, `tests/isolation/test_urme_rls.py`, `tests/unit/test_urme_rezumat.py` |

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### FT.1 — Jurnalul unic de urme
+- `app/operare/urme` (`emite`, `inregistreaza`, `span`, `corelare`, rezumatul fără secrete și date personale), tabelul `urme` doar cu adăugare, RLS, D-018. Migrarea `0076`.
+
 ### Modul local
 - `infra/compose/local.yml`, `infra/env/local.env.example`, `make local-up/local-down/local-reset`, `app/demo` (popularea cu „Cafeneaua Zorilor”), runbook `docs/runbooks/rulare-locala.md`, D-016. Fără migrare.
 

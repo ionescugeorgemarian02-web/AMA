@@ -92,6 +92,9 @@ CONTEXT_AGENTIE = {
     "app/reclame/prompturi.py",
     # Modul local (D-016): popularea demo creează proprietarul și clientul, ca `app/conturi/cli.py`
     "app/demo/populare.py",
+    # FT: urmele componentelor fără sesiune (gateway, conectori, motor) se scriu cu scop de agenție; analiza
+    # lunară citește toate urmele
+    "app/operare/urme/jurnal.py",
 }
 
 

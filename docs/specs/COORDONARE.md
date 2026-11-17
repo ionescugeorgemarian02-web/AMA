@@ -174,3 +174,11 @@ Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py
 - Migrări 0120–0139; decizii D-C01, D-C02, …
 - PR-ul lui C îl revizuiește și îl unește sesiunea A. A nu atinge Shopify.
 - A continuă: modul local (`infra/compose/local.yml`), apoi FT (trasabilitate totală, `app/operare/urme`), apoi F14.
+
+## Sesiunea A, modul local și FT pas cu pas
+
+| Pas | Stare |
+| --- | --- |
+| Modul local (`infra/compose/local.yml`, `app/demo`) | **închis** (împins), D-016 |
+| FT.1 Jurnalul unic de urme | **închis** (împins), migrarea `0076`, D-018 |
+

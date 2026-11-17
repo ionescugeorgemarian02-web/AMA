@@ -140,3 +140,15 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
   staging/producție).
 - **Consecințe:** `make local-up / local-down / local-reset`, runbook `docs/runbooks/rulare-locala.md`.
 
+
+### D-018 (2026-11-17) — Trasabilitatea totală: un singur jurnal de urme, append-only
+
+- **Context:** proprietarul cere ca orice componentă (agenți, Creier, gateway, porți, validare, efecte, conectori, aprobări,
+  bugete) să lase o urmă cu cine/ce/de ce, cost, durată, rezultat și legătura cu fluxul-părinte, iar o analiză lunară să
+  explice fiecare eșec până la evenimentul-sursă.
+- **Hotărâre (D-007):** tabelul `urme` (migrarea `0076`), separat de `jurnal_audit`/`jurnal_evenimente` (care rămân):
+  fir = `correlation_id` (HTTP, job, `corelare`), cauză = urma-părinte din context (`span`). Doar adăugare (drepturi +
+  declanșator), RLS pe client. Scrierea nu strică niciodată acțiunea (punct de salvare sau tranzacție proprie, „cel mai bun
+  efort”). Fără FK spre `clienti`. Rezumate mascate (secrete, email, telefon, CNP, IBAN, card).
+- **Consecințe:** pașii FT.2–FT.5 leagă componentele, calculează indicatorii, analiza lunară și ecranul; retenția și
+  partiționarea pe VPS rămân de stabilit la migrare.

@@ -656,4 +656,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `infra/compose/local.yml` (build local, Postgres cu pgvector, migrate, app pe 127.0.0.1:8000, worker, volume), `infra/env/local.env.example` (parole generate de `make local-env`, o cheie LLM opțională), `app/demo/populare.py`, ținte `make local-*`, runbook, D-016.
   - Verificat: `docker compose … config -q` (fără daemon în container), `check_pins` verde, `tests/unit/test_compose_local.py`, `tests/integration/test_populare_demo.py`.
   - Rămas: pornirea reală cu Docker Desktop (NEVERIFICAT, fără daemon aici).
-
+- **FT.1 — Jurnalul unic de urme.**
+  - Construit: migrarea `0076` (tabelul `urme`, declanșatorul doar-adăugare, RLS, fără UPDATE/DELETE pentru `ama_app`), `app/operare/urme` (jurnal, rezumat, model), `AMA_URME_ACTIVE`, D-018.
+  - Verificat: testele unitare ale rezumatului, de integrare ale jurnalului (fir, cauză, cost, eșec, atomicitate, declanșator), de izolare; meta-testul RLS, migrările, garda contextului de agenție.
