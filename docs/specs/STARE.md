@@ -318,3 +318,8 @@ FS.2: catalog persistent cu HMAC pe corp brut, upsert și tombstone, versiuni mo
 3 teste DB și 10 teste unitare trecute, guards/audit verzi. Contract HTTP local paginat.
 De verificat la migrare: înregistrarea webhook-urilor, payload-ul ștergerii (contractul local cere updated_at),
 paginarea Admin GraphQL, câmpurile comerciale complete și cote/reîncercări. Catalogul actual expune ID și titlu.
+
+FS.3: comenzi și clienți persistenți pe tenant, email criptat, eligibilitate CRM doar cu acord explicit;
+4 teste DB și 11 unitare trecute; guards, audit, mypy și ruff verzi. API HTTP local, fără CRM agenție.
+De verificat la migrare: protected customer data, actualizări și retrageri reale, istoric comenzi peste 60 zile,
+monede fără două zecimale (contractul local acceptă numai sume exact reprezentabile în sutimi).

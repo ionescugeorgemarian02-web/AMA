@@ -426,3 +426,8 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 - Catalog Shopify minimal tenant, upsert fără dubluri, ignorarea versiunilor vechi și ștergere logică.
 - HMAC webhook verificat pe corpul brut; contract HTTP local paginat, fără trafic real. Migrare 0121.
+
+## 2026-11-17 — FS.3 (sesiunea C)
+
+- Import local comenzi și clienți Shopify, versiuni monotone, email criptat și consimțământ explicit pentru CRM tenant.
+- Migrare 0122 cu RLS; nicio scriere în CRM-ul agenției.

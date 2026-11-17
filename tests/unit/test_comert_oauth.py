@@ -66,3 +66,15 @@ def test_catalog_cursor_blocat():
     )
     with pytest.raises(ValueError):
         c.catalog(uuid.uuid4().hex)
+
+
+def test_vanzari_http_local():
+    def raspunde(r):
+        assert r.url.path == "/date/comanda"
+        assert r.headers["X-Shopify-Access-Token"]
+        return httpx.Response(200, json=[{"id": "1"}])
+
+    c = ShopifySimulat(httpx.MockTransport(raspunde))
+    assert c.vanzari("comanda", uuid.uuid4().hex) == [{"id": "1"}]
+    with pytest.raises(ValueError):
+        c.vanzari("necunoscut", uuid.uuid4().hex)

@@ -671,3 +671,11 @@ webhook HMAC SHA256 base64, tombstone și versiuni UTC, paginare locală limitat
 Verificat: 3 passed OAuth/catalog DB, 10 passed unit conector; ruff și mypy module noi: succes;
 make guards: succes; make audit: No known vulnerabilities found. API real și catalogul comercial complet
 (câmpuri de preț/variante/imagini) rămân deschise și declarate în STARE; FS.2 acoperă nucleul minimal.
+
+## 2026-11-17 — C, FS.3
+
+Fetch/merge main înainte de pas: deja actualizat. Specificație/test înainte de cod.
+Comenzi în bani întregi, fără PII în JSON, email AES-GCM, consimțământ explicit și retragere.
+Verificat: 4 passed izolare OAuth/catalog/vânzări; 11 passed unit HTTP local; mypy/ruff module: succes;
+make guards: succes; make audit: No known vulnerabilities found. CRM tenant expus ca API de citire;
+trimiterea de email și integrarea în alt CRM nu sunt executate. Restricții reale în STARE.

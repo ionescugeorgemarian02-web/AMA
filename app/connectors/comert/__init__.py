@@ -47,3 +47,16 @@ class ShopifySimulat:
                     raise ValueError("Cursor Shopify repetat")
                 vazute.add(cursor)
         raise ValueError("Catalog prea mare pentru un lot")
+
+    def vanzari(self, tip: str, token: str) -> list[dict[str, object]]:
+        """# SIMULAT: lot local de comenzi sau clienți, normalizat de adaptor."""
+        if tip not in {"comanda", "client"}:
+            raise ValueError("Tip nesuportat")
+        with httpx.Client(transport=self.transport, base_url="https://shopify.invalid") as client:
+            r = client.get(f"/date/{tip}", headers={"X-Shopify-Access-Token": token})
+            if r.status_code != 200:
+                raise ValueError("Import Shopify eșuat")
+            corp = r.json()
+            if not isinstance(corp, list):
+                raise ValueError("Lot invalid")
+            return corp

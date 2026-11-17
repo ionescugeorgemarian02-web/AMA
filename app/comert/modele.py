@@ -4,6 +4,7 @@ import datetime as dt
 import uuid
 
 from sqlalchemy import DateTime, LargeBinary, Text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.ids import new_id
@@ -30,4 +31,15 @@ class Produs(Baza):
     id_extern: Mapped[str] = mapped_column(Text, primary_key=True)
     titlu: Mapped[str] = mapped_column(Text)
     activ: Mapped[bool]
+    versiune: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+
+
+class DateComert(Baza):
+    __tablename__ = "comert_date"
+    tenant_id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    magazin: Mapped[str] = mapped_column(Text, primary_key=True)
+    tip: Mapped[str] = mapped_column(Text, primary_key=True)
+    id_extern: Mapped[str] = mapped_column(Text, primary_key=True)
+    date: Mapped[dict[str, object]] = mapped_column(JSONB)
+    email_criptat: Mapped[bytes | None] = mapped_column(LargeBinary)
     versiune: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
