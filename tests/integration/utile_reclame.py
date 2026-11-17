@@ -27,6 +27,17 @@ TABELE: tuple[str, ...] = (
     "reclame_conturi",
 )
 PAGINI: dict[str, bool] = {}
+TEXT_PAGINA = (
+    "Audit gratuit de marketing pentru firma ta. Unde pierzi clienți, trei greșeli de pe site și exemplul unei "
+    "cafenele care a crescut. Cerere de audit în 48 de ore."
+)
+
+
+def pagina_simulata(url: str) -> str | None:
+    """# SIMULAT: pagina de audit a agenției (fără rețea); `PAGINI[url] = False` o face să nu răspundă."""
+    return TEXT_PAGINA if PAGINI.get(url.split("?")[0], True) else None
+
+
 AZI = dt.date(2026, 11, 17)
 ACUM = dt.datetime(2026, 11, 17, 18, 0, tzinfo=dt.UTC)
 
@@ -65,10 +76,11 @@ def cont_agentie(
 ) -> Iterator[Callable[..., tuple[uuid.UUID, uuid.UUID]]]:
     """Fabrică: (tenant, cont_id) pentru contul de reclame al agenției, cu plafoane mici [I]. Pagina de
     destinație „răspunde” (fără rețea); testele de urgență schimbă `PAGINI`."""
-    from app.reclame import urgenta
+    from app.reclame import urgenta, verificare
 
     curata(admin_engine)
     monkeypatch.setattr(urgenta, "VERIFICA_PAGINA", lambda url: PAGINI.get(url, True))
+    monkeypatch.setattr(verificare, "CITESTE_PAGINA", pagina_simulata)
 
     def creeaza(
         platforma: str = "meta", cont_extern: str = "act_1001", **plafoane: int

@@ -5,7 +5,7 @@ Modul manual asistat: răspunsul (scris aici în locul lui Claude, # SIMULAT) se
 import json
 import re
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -102,8 +102,16 @@ def test_decizia_luata_in_claude_apare_in_platforma_si_opreste_campania(
         assert "eroare=" in r.headers["location"]
 
 
-def test_plafonul_lunar_amana_dosarul(cont_agentie: Fabrica, config: Callable[..., None]) -> None:
+@pytest.fixture
+def plafon_unu(config: Callable[..., None]) -> Iterator[None]:
+    from app.config import get_settings
+
     config(reclame_consiliu_plafon_lunar="1")
+    yield
+    get_settings.cache_clear()  # setarea nu rămâne testelor următoare
+
+
+def test_plafonul_lunar_amana_dosarul(cont_agentie: Fabrica, plafon_unu: None) -> None:
     _, cont_id = cont_agentie()
     with sesiune_agentie() as db:
         assert (

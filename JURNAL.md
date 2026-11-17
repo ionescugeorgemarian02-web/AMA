@@ -637,3 +637,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F13.7 — Consiliul.**
   - Construit: `app/reclame/consiliu.py`, migrarea `0074`, `prompts/reclame.consiliu.v1.md`, setările `reclame_consiliu_*`, ecranul `/reclame/consiliu` cu șablonul lui, D-012.
   - Verificat: 3 teste de integrare (manual prin HTTP, plafon, API pe model FALS).
+- **F13.8 — Verificarea reclamelor înainte de lansare.**
+  - Construit: `app/reclame/verificare.py`, `rulepacks/reclame.toml` (4 reguli [I]), blocarea în `constructor`, reverificarea la activare în `propuneri`.
+  - Găsit de teste: testul pachetelor cere `verificat_la` ≤ o dată fixă (am mutat-o la data noului pachet, nu am antedatat regulile); garda „doar încărcătorul numește rulepacks/” a prins un docstring al meu.
+  - Verificat: 6 teste unitare, 1 de integrare; testele pachetelor de reguli, G3, banc, carantină și poarta F5 rămân verzi.

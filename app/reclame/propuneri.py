@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 
 from app.operare import audit, opriri
 from app.operare.efecte import sistem
-from app.reclame import gardian, rezultate
+from app.reclame import gardian, rezultate, verificare
 from app.reclame.modele import Anunt, Campanie, ContReclame, Propunere
 
 TIPURI = ("creeaza", "stare", "buget", "stare_anunt")
@@ -81,6 +81,18 @@ def _verdict(db: Session, p: Propunere, cont: ContReclame, c: Campanie, acum: dt
     return gardian.verifica(p.tip, p.inainte, p.dupa, p.sursa, context_gardian(db, cont, c, acum)).ca_dict()
 
 
+def verificare_lansare(db: Session, c: Campanie) -> list[str]:
+    """Verificarea dinaintea activării (16.3 pasul 6, F13.8): o reclamă bună și pagina de destinație vie."""
+    bune = [
+        a for a in db.execute(select(Anunt).where(Anunt.campanie_id == c.id)).scalars() if a.stare == "activa"
+    ]
+    if not bune:
+        return ["campania nu are nicio reclamă trecută de verificare"]
+    if verificare.CITESTE_PAGINA(bune[0].link) is None:
+        return ["pagina de destinație nu răspunde"]
+    return []
+
+
 def propune(
     db: Session,
     campanie_id: uuid.UUID,
@@ -129,6 +141,10 @@ def propune(
     db.add(p)
     db.flush()
     p.verdict = _verdict(db, p, cont, c, acum)
+    if tip == "stare" and dupa.get("stare") == "activa" and p.verdict.get("permis"):
+        lipsuri = verificare_lansare(db, c)
+        if lipsuri:
+            p.verdict = {"permis": False, "motive": lipsuri, "cere_client": False}
     if not p.verdict.get("permis"):
         p.stare, p.decis_la = "refuzata", acum
     audit.record(

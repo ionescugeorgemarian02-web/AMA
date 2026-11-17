@@ -14,8 +14,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.reclame import plan as plan_media
-from app.reclame import propuneri
-from app.reclame.modele import Anunt, Campanie, PlanMediaRand
+from app.reclame import propuneri, verificare
+from app.reclame.modele import Anunt, Campanie, ContReclame, PlanMediaRand
 
 
 @dataclass(frozen=True)
@@ -40,6 +40,9 @@ def construieste(
     if db.execute(select(Campanie.id).where(Campanie.plan_id == plan_id)).first() is not None:
         raise ConstructieRefuzata("planul a fost deja construit")
     p = plan_media.plan_din(r)
+    cont = db.get(ContReclame, r.cont_id)
+    if cont is None:
+        raise ConstructieRefuzata("cont inexistent")
     facute: list[Campanie] = []
     for cp in p.campanii:
         c = Campanie(
@@ -54,10 +57,13 @@ def construieste(
         db.add(c)
         db.flush()
         variante = cp.variante if cp.rol == "test" else ["scalare"]
+        bune = 0
         for v in variante:
             cr = creative.get(v)
             if cr is None:
                 raise ConstructieRefuzata(f"lipsește creativul pentru „{v}”")
+            link = plan_media.link_cu_utm(p, v)
+            probleme = verificare.verifica(cr.titlu, cr.text, link, cont.platforma, generat_ai=cr.generat_ai)
             db.add(
                 Anunt(
                     tenant_id=r.tenant_id,
@@ -67,10 +73,17 @@ def construieste(
                     titlu=cr.titlu,
                     text=cr.text,
                     generat_ai=cr.generat_ai,
-                    link=plan_media.link_cu_utm(p, v),
+                    link=link,
+                    verificare=probleme,
+                    stare="blocata" if probleme else "in_constructie",
                 )
             )
+            bune += 0 if probleme else 1
         db.flush()
+        facute.append(c)
+        if not bune:  # verificarea dinaintea lansării (F13.8): nicio reclamă bună, campania nu se creează
+            c.stare = "esuata"
+            continue
         pr = propuneri.propune(
             db,
             c.id,
@@ -82,7 +95,6 @@ def construieste(
         )
         if pr.stare == "propusa":
             propuneri.aproba(db, pr.id, utilizator_id=utilizator_id)
-        facute.append(c)
     return facute
 
 

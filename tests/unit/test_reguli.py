@@ -11,7 +11,7 @@ from app.validare.reguli import Context, Regula, ReguliInvalide
 
 TOATE = reguli.toate_regulile()
 IDS = [r.id for _, r in TOATE]
-ASTAZI_FIX = dt.date(2026, 11, 13)  # data scrierii pachetelor de început; nu ceasul real
+ASTAZI_FIX = dt.date(2026, 11, 17)  # data celui mai nou pachet (reclame.toml, F13.8); nu ceasul real
 
 
 def canal_pachet(p: reguli.PachetIncarcat) -> str:

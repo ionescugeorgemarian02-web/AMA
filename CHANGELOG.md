@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F13.8 — Verificarea reclamelor înainte de lansare
+- `app/reclame/verificare.py`, pachetul `rulepacks/reclame.toml`, blocarea la construcție și reverificarea la activare. Fără migrare.
+
 ### F13.7 — Consiliul
 - `app/reclame/consiliu.py` (dosarul, importul deciziei, plafonul lunar, modul API), ecranul `/reclame/consiliu`, promptul `reclame.consiliu.v1`, D-012. Migrarea `0074`.
 
