@@ -117,3 +117,14 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
   alege o opțiune; acțiunile sunt ale opțiunii, nu inventate de model. Importul făcut de om aprobă propunerile; în modul API
   (`intreaba_api`, prin gateway) propunerile așteaptă omul. Plafon: 8 dosare pe lună [I]; peste el dosarul se amână.
 - **Consecințe:** Claude rămâne în afara căii critice (ADR-06); trecerea la API cere doar profilul real și creditul lunar.
+
+### D-014 (2026-11-17) — Campania reală de 14 zile și poarta F13 devin o simulare accelerată
+
+- **Context:** F13.10 cere o campanie reală pe contul agenției, cu buget mic, timp de două săptămâni; poarta F13 cere oprirea de
+  urgență testată pe o campanie reală. Nu există încă cont de reclame aprobat, card sau acces la API (D-001, D-007).
+- **Hotărâre (D-007):** amândouă rulează ca simulare accelerată (`tests/integration/lant_reclame.py`): platforma de reclame e
+  simulată (HTTP real, cheltuială zilnică cu ritm variabil sub buget), restul e platforma reală (plan, verificare, executor, gardian,
+  supraveghere, teste creative, Strateg, site-ul cu vizite și cereri de audit), cu ceasul controlat. Plafoanele de probă: 100 lei/zi,
+  3.000 lei/lună, 80 lei pe campanie [I].
+- **Consecințe:** criteriile se verifică în CI; campania reală, cu bani reali, rămâne la „De verificat la migrare”, cu același raport
+  dublu și aceeași verificare de plafoane (`raport.depasiri`).

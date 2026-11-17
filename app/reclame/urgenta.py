@@ -70,9 +70,12 @@ def semnale(db: Session, cont: ContReclame, acum: dt.datetime) -> list[Anomalie]
     planificat = sum(c.buget_zilnic_bani for c in active)
     t_azi = rezultate.totaluri(db, cont.id, azi, azi)
     fractiune = max((acum - dt.datetime.combine(azi, dt.time(), dt.UTC)).total_seconds() / 86400, 1 / 24)
-    if t_azi.cheltuiala_bani >= CHELTUIALA_MINIMA_BANI and t_azi.cheltuiala_bani > MULTIPLU_RITM * max(
-        1, planificat
-    ) * min(1.0, fractiune):
+    # fără campanii active nu există ritm planificat (cheltuiala zilei e de dinainte de pauză)
+    if (
+        planificat
+        and t_azi.cheltuiala_bani >= CHELTUIALA_MINIMA_BANI
+        and t_azi.cheltuiala_bani > MULTIPLU_RITM * max(1, planificat) * min(1.0, fractiune)
+    ):
         out.append(Anomalie(cont.id, "ritm", "cheltuiala de azi depășește de câteva ori ritmul planificat"))
     ieri = rezultate.totaluri(db, cont.id, azi - dt.timedelta(days=1), azi - dt.timedelta(days=1))
     inainte = rezultate.totaluri(db, cont.id, azi - dt.timedelta(days=8), azi - dt.timedelta(days=2))

@@ -5,6 +5,7 @@
 - `POST /reclame/campanie/<id>/{activeaza|pauza}` și `POST
 /reclame/propunere/<id>/{aproba|respinge|anuleaza}`:
   schimbările (F13.4); anularea aplică imediat starea de dinainte. Doar proprietarul.
+- `/reclame/cont/<id>/raport`: raportul dublu, platformă și site (F13.10).
 - `/reclame/consiliu`: dosarele de Consiliu (F13.7); dosarul se copiază în Claude, decizia se lipește înapoi.
 - `/reclame/cont/<id>`: contul, pe campanii și pe zile, cum le arată managerul de reclame (F13.1, F13.2).
 Citirea cere `rapoarte.citeste`.
@@ -29,7 +30,7 @@ from app.conturi import (
 )
 from app.conturi.roluri import ROLURI_AGENTIE
 from app.panou.sabloane import pagina
-from app.reclame import consiliu, constructor, plan, propuneri, rezultate, strateg, teste
+from app.reclame import consiliu, constructor, plan, propuneri, raport, rezultate, strateg, teste
 
 router = APIRouter(prefix="/reclame", tags=["reclame"])
 Agentie = Annotated[SesiuneCurenta, Depends(require_role(*ROLURI_AGENTIE))]
@@ -250,3 +251,26 @@ async def consiliu_importa(request: Request, dosar_id: str, u: Proprietar, db: D
     except (consiliu.DosarRefuzat, propuneri.PropunereRefuzata) as exc:
         return RedirectResponse(f"/reclame/consiliu/{did}?eroare={str(exc)[:300]}", status_code=303)
     return RedirectResponse(f"/reclame/cont/{rec.cont_id}?mesaj=decizie_consiliu", status_code=303)
+
+
+@router.get("/cont/{cont_id}/raport")
+def raport_dublu(
+    request: Request, cont_id: str, u: Agentie, _p: PoateCiti, db: DbSession, zile: int = 14
+) -> Response:
+    """Raportul dublu (F13.10, 16.7): platforma și site-ul, zi cu zi, cu diferențele explicate."""
+    c = db.get(reclame.ContReclame, _id(cont_id))
+    if c is None:
+        raise HTTPException(status_code=404, detail="Cont inexistent.")
+    zile = max(1, min(zile, 90))
+    azi = _azi()
+    de_la = azi - dt.timedelta(days=zile - 1)
+    return pagina(
+        request,
+        u,
+        "panou/reclame_raport.html",
+        tab="meniu",
+        cont=c,
+        lei=lei,
+        r=raport.raport_dublu(db, c.id, de_la, azi),
+        depasiri=raport.depasiri(db, c.id, de_la, azi),
+    )

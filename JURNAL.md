@@ -644,3 +644,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F13.9 — Testarea creativurilor.**
   - Construit: `app/reclame/teste.py`, migrarea `0075` (tabelul testelor, tipul `adauga_anunt`), acțiunea `creeaza_anunt` la Meta, evaluarea în jobul orar, secțiunea din ecran.
   - Verificat: 2 teste unitare, 1 de integrare; toate testele reclamelor și migrările verzi.
+- **F13.10 — Campania de probă (simulare accelerată, D-014).**
+  - Construit: `app/reclame/raport.py`, ecranul raportului dublu, `tests/integration/lant_reclame.py`, D-014. Datele testelor reclamelor citesc acum ziua reală (panoul o folosește), restul primește `acum` explicit.
+  - Găsit de teste: după repornirea manuală, cheltuiala de dimineață (de dinainte de pauză) reoprea totul; ritmul nu se mai judecă fără campanii active.
+  - Verificat: testul de 14 zile + toate testele reclamelor.

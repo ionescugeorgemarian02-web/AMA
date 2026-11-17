@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F13.10 — Campania de probă (simulare accelerată)
+- `app/reclame/raport.py` (raportul dublu platformă/site, verificarea plafoanelor), ecranul `/reclame/cont/<id>/raport`, simularea de 14 zile, D-014. Fără migrare.
+
 ### F13.9 — Testarea creativurilor
 - `app/reclame/teste.py` (probabilitatea de a fi cea mai bună, date minime, oprirea pierzătoarelor, câștigătoarea în scalare), propunerea `adauga_anunt`. Migrarea `0075`.
 

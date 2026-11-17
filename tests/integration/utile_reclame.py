@@ -39,8 +39,8 @@ def pagina_simulata(url: str) -> str | None:
     return TEXT_PAGINA if PAGINI.get(url.split("?")[0], True) else None
 
 
-AZI = dt.date(2026, 11, 17)
-ACUM = dt.datetime(2026, 11, 17, 18, 0, tzinfo=dt.UTC)
+AZI = dt.datetime.now(dt.UTC).date()  # panoul citește ceasul real; restul primește `acum` explicit
+ACUM = dt.datetime.combine(AZI, dt.time(18), dt.UTC)
 
 
 def curata(admin: Engine, tabele: tuple[str, ...] = TABELE) -> None:

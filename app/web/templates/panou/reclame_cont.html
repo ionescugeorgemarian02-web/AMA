@@ -62,7 +62,7 @@
 {% endblock %}
 {% block pagina %}
 <h1>{{ cont.nume }}</h1>
-<p class="slab"><a href="/reclame">Reclame</a> · {{ platforme[cont.platforma] }} · {{ de_la }} – {{ pana_la }} ·
+<p class="slab"><a href="/reclame">Reclame</a> · {{ platforme[cont.platforma] }} · {{ de_la }} – {{ pana_la }} · <a href="/reclame/cont/{{ cont.id }}/raport">Raport dublu</a> ·
   {% for z in (7, 30, 90) %}<a href="/reclame/cont/{{ cont.id }}?zile={{ z }}"{% if z == zile %} aria-current="true"{% endif %}>{{ z }} de zile</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
 
 {% if mesaj %}<p role="status" class="card">{{ {"plan_aproba": "Planul a fost aprobat.", "plan_respinge": "Planul a fost respins.", "campanie_activeaza": "Activarea a plecat spre platformă.", "campanie_pauza": "Punerea pe pauză a plecat spre platformă.", "propunere_aproba": "Schimbarea a fost aprobată și pleacă spre platformă.", "propunere_respinge": "Propunerea a fost respinsă.", "propunere_anuleaza": "Anularea a plecat: revine starea de dinainte.", "decizie_consiliu": "Decizia Consiliului a fost importată."}.get(mesaj, "") }}</p>{% endif %}

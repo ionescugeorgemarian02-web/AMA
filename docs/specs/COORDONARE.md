@@ -160,6 +160,7 @@ cu „extension "vector" is not available”.
 | F13.6 Strategul | **închis** (împins), migrarea `0073` |
 | F13.7 Consiliul | **închis** (împins), migrarea `0074` |
 | F13.9 Testarea creativurilor | **închis** (împins), migrarea `0075` |
+| F13.10 Campania de probă | **închis** (împins), simulare accelerată (D-014) |
 | F13.8 Verificarea înainte de lansare | **închis** (împins); pachet nou `rulepacks/reclame.toml`, `ASTAZI_FIX` din `tests/unit/test_reguli.py` mutat la 2026-11-17 |
 
 Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py` (tipurile reclamelor, la final),
