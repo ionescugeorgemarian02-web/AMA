@@ -152,3 +152,6 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
   efort”). Fără FK spre `clienti`. Rezumate mascate (secrete, email, telefon, CNP, IBAN, card).
 - **Consecințe:** pașii FT.2–FT.5 leagă componentele, calculează indicatorii, analiza lunară și ecranul; retenția și
   partiționarea pe VPS rămân de stabilit la migrare.
+- **Completare (poarta FT):** la ștergerea unui client (`app/db/stergere.py`), `urme` se păstrează ca `jurnal_audit`
+  (rezumate deja mascate; urma de final a jobului de ștergere se scrie oricum după ștergere). Un fir fără context
+  explicit nu se mai lipește de firul de execuție: `span` își pune firul doar cât ține, apoi îl scoate.

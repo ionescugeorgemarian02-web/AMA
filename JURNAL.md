@@ -671,3 +671,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **FT.5 — Ecranul „Urme” și exportul.**
   - Construit: `app/panou/urme_web.py`, șabloanele `panou/urme.html`, `panou/urme_fir.html`, ruta în `app/panou/__init__.py`, rândul din `meniu.html`.
   - Verificat: `tests/integration/test_urme_ecran.py` (ecran, generare, fir, JSON, trei CSV-uri, erori 400, 403 pentru analist); toate unitarele verzi.
+- **Poarta FT — Trasabilitate totală.**
+  - Construit: poarta, `fluxuri_poarta_ft.py`, reparațiile găsite de `make check`: firul scăpat din `span`/`corelare_curenta` (toate urmele unei sesiuni pytest ajungeau pe un fir), `urme` în `PASTRATE_IMPLICIT` la ștergere, testul populării robust la baza comună.
+  - Verificat: `make check` complet: prima rulare 3138 passed, 10 failed (firul scăpat, ștergerea clientului, popularea); reparate, rulate împreună (verzi), apoi `make check` din nou: lint, tipuri, gărzi verzi; 3146 passed, 2 failed (poarta și popularea presupuneau o bază doar a lor). Reparate (analiza primește `tenant_id`, testul populării compară înainte/după) și rerulate după testele de validare și onboarding pe aceeași bază: verzi.

@@ -185,4 +185,5 @@ Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py
 | FT.3 Indicatorii pe componentă | **închis** (împins) |
 | FT.4 Analiza lunară automată | **închis** (împins), migrarea `0077` |
 | FT.5 Ecranul „Urme” și exportul | **închis** (împins) |
+| Poarta FT | **trecută pe simulare** (`docs/specs/FT-poarta.md`) |
 

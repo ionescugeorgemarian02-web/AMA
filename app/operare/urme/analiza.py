@@ -17,6 +17,7 @@ from app.operare.urme import indicatori
 from app.operare.urme.modele import RaportUrme, Urma
 
 RELE = ("esec", "respins", "blocat")
+CAUZE = (*RELE, "amanat")  # o amânare dinăuntru (429, cotă) poate fi cauza unui eșec
 PRAG_REGRESIE_PP = 0.05  # rata de eșec crește cu cel puțin 5 puncte procentuale
 PRAG_DURATA = 1.5  # p95 crește cu cel puțin 50%
 PRAG_COST = 1.3  # costul crește cu cel puțin 30%
@@ -48,13 +49,14 @@ def _scurt(u: Urma) -> dict[str, Any]:
     }  # fmt: skip
 
 
-def _lanturi(db: Session, de_la: dt.datetime, pana_la: dt.datetime) -> list[dict[str, Any]]:
+def _lanturi(
+    db: Session, de_la: dt.datetime, pana_la: dt.datetime, tenant_id: uuid.UUID | None = None
+) -> list[dict[str, Any]]:
     """Fiecare urmă rea din lună: lanțul ei (sursa → … → eșecul) și cauza probabilă (prima rea dinăuntru)."""
-    fire = (
-        select(Urma.corelare_id)
-        .where(Urma.la >= de_la, Urma.la < pana_la, Urma.rezultat.in_(RELE))
-        .distinct()
-    )
+    fire = select(Urma.corelare_id).where(Urma.la >= de_la, Urma.la < pana_la, Urma.rezultat.in_(RELE))
+    if tenant_id is not None:
+        fire = fire.where(Urma.tenant_id == tenant_id)
+    fire = fire.distinct()
     toate = list(db.scalars(select(Urma).where(Urma.corelare_id.in_(fire)).order_by(Urma.la, Urma.id)))
     dupa_id = {u.id: u for u in toate}
     copii: dict[uuid.UUID, list[Urma]] = defaultdict(list)
@@ -65,7 +67,7 @@ def _lanturi(db: Session, de_la: dt.datetime, pana_la: dt.datetime) -> list[dict
             copii[u.cauza_id].append(u)
     out: list[dict[str, Any]] = []
     for u in toate:
-        if not (de_la <= u.la < pana_la and u.rezultat in RELE):
+        if not (de_la <= u.la < pana_la and u.rezultat in RELE) or (tenant_id and u.tenant_id != tenant_id):
             continue
         lant, cur, vazute, intrerupt = [u], u, {u.id}, False
         while cur.cauza_id is not None:
@@ -106,7 +108,7 @@ def _cauza_interioara(u: Urma, copii: dict[uuid.UUID, list[Urma]]) -> dict[str, 
         if c.id in vazute:
             continue
         vazute.add(c.id)
-        if c.rezultat in RELE:
+        if c.rezultat in CAUZE:
             gasit = c
             stiva = list(copii.get(c.id, []))  # coboară în eșecul găsit
     return _scurt(gasit) if gasit else None
@@ -130,21 +132,30 @@ def _explica(u: Urma, sursa: Urma, cauza: dict[str, Any] | None) -> str:
 
 
 def _grupate(
-    db: Session, de_la: dt.datetime, pana_la: dt.datetime, componente: tuple[str, ...], camp: str
+    db: Session,
+    de_la: dt.datetime,
+    pana_la: dt.datetime,
+    componente: tuple[str, ...],
+    camp: str,
+    tenant_id: uuid.UUID | None = None,
 ) -> list[list[Any]]:
     q = text(
         f"SELECT componenta, actiune, {camp}, count(*) FROM urme WHERE la >= :a AND la < :b "  # noqa: S608
         "AND rezultat IN ('esec', 'respins', 'blocat') AND componenta = ANY(:c) "
+        "AND (CAST(:t AS uuid) IS NULL OR tenant_id = CAST(:t AS uuid)) "
         "GROUP BY 1, 2, 3 ORDER BY 4 DESC, 1, 2"
     )
-    return [list(r) for r in db.execute(q, {"a": de_la, "b": pana_la, "c": list(componente)})]
+    return [list(r) for r in db.execute(q, {"a": de_la, "b": pana_la, "c": list(componente), "t": tenant_id})]
 
 
-def analizeaza(db: Session, luna: dt.date) -> dict[str, Any]:
+def analizeaza(db: Session, luna: dt.date, *, tenant_id: uuid.UUID | None = None) -> dict[str, Any]:
     """Raportul lunii `luna` (prima zi a lunii), în comparație cu luna precedentă. Nu scrie nimic."""
     de_la, pana_la = _limite(luna)
-    acum = {i.componenta: i for i in indicatori.calculeaza(db, de_la, pana_la)}
-    inainte = {i.componenta: i for i in indicatori.calculeaza(db, *_limite(luna_precedenta(luna)))}
+    acum = {i.componenta: i for i in indicatori.calculeaza(db, de_la, pana_la, tenant_id=tenant_id)}
+    inainte = {
+        i.componenta: i
+        for i in indicatori.calculeaza(db, *_limite(luna_precedenta(luna)), tenant_id=tenant_id)
+    }
     bine, prost, regresii = [], [], []
     for c, i in acum.items():
         v = inainte.get(c)
@@ -189,9 +200,10 @@ def analizeaza(db: Session, luna: dt.date) -> dict[str, Any]:
     for i in acum.values():
         for unit, cost in i.cost.items():
             costuri[unit] += float(cost)
-    esecuri = _lanturi(db, de_la, pana_la)
+    esecuri = _lanturi(db, de_la, pana_la, tenant_id)
     return {
         "luna": luna.isoformat(),
+        "client": None if tenant_id is None else str(tenant_id),
         "perioada": [de_la.isoformat(), pana_la.isoformat()],
         "total_urme": sum(i.total for i in acum.values()),
         "total_esecuri": len(esecuri),
@@ -203,8 +215,8 @@ def analizeaza(db: Session, luna: dt.date) -> dict[str, Any]:
             "total": dict(costuri),
             "pe_componenta": {c: {u: float(v) for u, v in i.cost.items()} for c, i in acum.items() if i.cost},
         },
-        "porti_picate": _grupate(db, de_la, pana_la, PORTI, "cod"),
-        "motive_respingere": _grupate(db, de_la, pana_la, RESPINGERI, "motiv"),
+        "porti_picate": _grupate(db, de_la, pana_la, PORTI, "cod", tenant_id),
+        "motive_respingere": _grupate(db, de_la, pana_la, RESPINGERI, "motiv", tenant_id),
         "esecuri": esecuri[:ESECURI_DETALIATE],
         "esecuri_netaiate": len(esecuri) <= ESECURI_DETALIATE,
     }

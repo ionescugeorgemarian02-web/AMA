@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta FT — Trasabilitate totală
+- `tests/integration/test_poarta_ft.py` (o lună simulată prin motor, conector HTTP, producție și poarta Creierului), `docs/specs/FT-poarta.md`; cauza probabilă include amânările (429); firul nu mai rămâne agățat în contextul firului de execuție; `urme` se păstrează la ștergerea unui client (D-018). Fără migrare.
+
 ### FT.5 — Ecranul „Urme” și exportul
 - `/urme` (raportul lunii, generarea, firul), exporturile `/urme/export.json` și `/urme/export.csv`, legătura din meniu (proprietar). Fără migrare.
 

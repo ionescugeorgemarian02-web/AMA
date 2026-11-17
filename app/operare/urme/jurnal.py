@@ -40,12 +40,9 @@ def active() -> bool:
 
 
 def corelare_curenta() -> str:
-    """Firul curent; dacă nu există, unul nou (setat în context, ca urmele următoare să-l împartă)."""
-    cid = correlation_id.get()
-    if not cid:
-        cid = new_id().hex
-        correlation_id.set(cid)
-    return cid
+    """Firul curent; dacă nu există, unul nou doar pentru această urmă (contextul nu se schimbă: un fir
+    rămas agățat într-un fir de execuție refolosit ar lipi operații fără legătură)."""
+    return correlation_id.get() or new_id().hex
 
 
 @contextmanager
@@ -158,7 +155,9 @@ def span(componenta: str, actiune: str, *, db: Session | None = None, **kw: Any)
     """Măsoară o operație; urmele scrise înăuntru o au drept cauză. Excepția = `esec` (tipul ei în `cod`) și
     trece mai departe. Urma se scrie la ieșire (în `db` dacă e dată, altfel în tranzacție proprie)."""
     s = Span(id=new_id())
-    corelare_curenta()
+    jeton_fir = (
+        None if correlation_id.get() else correlation_id.set(new_id().hex)
+    )  # fir propriu, doar cât ține
     parinte = cauza_curenta.get()
     jeton = cauza_curenta.set(s.id)
     start = time.monotonic()
@@ -172,6 +171,7 @@ def span(componenta: str, actiune: str, *, db: Session | None = None, **kw: Any)
     finally:
         cauza_curenta.reset(jeton)
         valori = dict(kw)
+        valori.setdefault("corelare_id", correlation_id.get())
         valori.update(
             id=s.id, cauza_id=kw.get("cauza_id", parinte), rezultat=s.rezultat,
             motiv=s.motiv or kw.get("motiv", ""), cod=s.cod, cost=s.cost, unitate_cost=s.unitate_cost,
@@ -182,6 +182,8 @@ def span(componenta: str, actiune: str, *, db: Session | None = None, **kw: Any)
             inregistreaza(db, componenta, actiune, **valori)
         else:
             emite(componenta, actiune, **valori)
+        if jeton_fir is not None:
+            correlation_id.reset(jeton_fir)
 
 
 def rezultat_din_tip(tip: str) -> str:
