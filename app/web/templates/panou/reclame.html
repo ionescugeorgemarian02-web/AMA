@@ -1,0 +1,21 @@
+{% extends "panou/baza.html" %}
+{% block title %}Reclame · AMA{% endblock %}
+{% block pagina %}
+<h1>Reclame</h1>
+<p class="slab">Cifrele vin din managerul de reclame al fiecărei platforme, recitite în fiecare oră. Sume în moneda contului.</p>
+{% for r in randuri %}
+<section class="card" aria-labelledby="cont-{{ r.cont.id }}">
+  <h2 id="cont-{{ r.cont.id }}"><a href="/reclame/cont/{{ r.cont.id }}">{{ r.cont.nume }}</a></h2>
+  <p class="slab">{{ platforme[r.cont.platforma] }}{% if r.cont.al_agentiei %} · contul agenției{% endif %}{% if r.cont.eroare_citire %} · <strong>ultima citire a eșuat</strong>{% endif %}</p>
+  <table>
+    <tbody>
+      <tr><th scope="row">Cheltuiala de azi</th><td data-camp="azi">{{ lei(r.azi.cheltuiala_bani) }} din {{ lei(r.cont.plafon_zilnic_bani) }} {{ r.cont.moneda }}</td></tr>
+      <tr><th scope="row">Cheltuiala lunii</th><td data-camp="luna">{{ lei(r.luna.cheltuiala_bani) }} din {{ lei(r.cont.plafon_lunar_bani) }} {{ r.cont.moneda }}</td></tr>
+      <tr><th scope="row">Ultimele 30 de zile</th><td data-camp="t30">{{ lei(r.t30.cheltuiala_bani) }} {{ r.cont.moneda }} · {{ r.t30.afisari }} afișări · {{ r.t30.clicuri }} clicuri · {{ r.t30.rezultate }} rezultate</td></tr>
+    </tbody>
+  </table>
+</section>
+{% else %}
+<p class="slab">Niciun cont de reclame legat încă.</p>
+{% endfor %}
+{% endblock %}

@@ -612,3 +612,9 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Verificat: 4 teste unitare, 5 de integrare; cu unitarele, izolarea, site-ul, efectele și facturarea: 2006 passed. **Fără furnizor real de email: totul pe cutia simulată.**
   - CI a picat pe `746a041`: testul existent „toate rutele care schimbă starea au gardă CSRF” a prins ruta `POST /site/dezabonare/{jeton}`. E o excepție reală (RFC 8058: programul de email trimite POST-ul fără cookie), apărată de jetonul semnat; am adăugat-o în lista de excepții a testului, cu justificare. Greșeala mea: am împins fără suita completă.
 
+
+## Sesiunea A — F13 (Reclame, Strateg, Consiliu), din 2026-11-17
+
+- **F13.1 — Citirea rezultatelor Meta.**
+  - Construit: `app/reclame/{modele,rezultate,fluxuri}.py`, migrarea `0070`, `app/connectors/reclame/`, ușa `app/operare/efecte/reclame.py`, tipurile `RandReclame`/`StareCont`/`CititorReclame` (adăugate în `app/connectors/contract.py`), `app/panou/reclame_web.py` + 2 șabloane, rândul din meniu, `reclame_conectori` în config, `app.reclame.fluxuri` în worker, Marketing API simulat (`tests/platforme/meta_ads.py`).
+  - Verificat: 3 teste unitare, 4 de integrare, plus meta-testul RLS și migrările (urcare/coborâre).

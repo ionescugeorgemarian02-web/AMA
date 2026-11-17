@@ -1,0 +1,39 @@
+{% extends "panou/baza.html" %}
+{% block title %}{{ cont.nume }} · Reclame · AMA{% endblock %}
+{% block pagina %}
+<h1>{{ cont.nume }}</h1>
+<p class="slab"><a href="/reclame">Reclame</a> · {{ platforme[cont.platforma] }} · {{ de_la }} – {{ pana_la }} ·
+  {% for z in (7, 30, 90) %}<a href="/reclame/cont/{{ cont.id }}?zile={{ z }}"{% if z == zile %} aria-current="true"{% endif %}>{{ z }} de zile</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+
+<section class="card" aria-labelledby="total">
+  <h2 id="total">Total</h2>
+  <table>
+    <tbody>
+      <tr><th scope="row">Cheltuială</th><td data-camp="cheltuiala">{{ lei(total.cheltuiala_bani) }} {{ cont.moneda }}</td></tr>
+      <tr><th scope="row">Afișări</th><td data-camp="afisari">{{ total.afisari }}</td></tr>
+      <tr><th scope="row">Clicuri</th><td data-camp="clicuri">{{ total.clicuri }}</td></tr>
+      <tr><th scope="row">Rezultate</th><td data-camp="rezultate">{{ total.rezultate }}</td></tr>
+      <tr><th scope="row">Cost pe rezultat</th><td data-camp="cpr">{{ lei(total.cost_pe_rezultat_bani) }}</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" aria-labelledby="campanii">
+  <h2 id="campanii">Pe campanii</h2>
+  {% if campanii %}
+  <table>
+    <thead><tr><th scope="col">Campanie</th><th scope="col">Cheltuială</th><th scope="col">Afișări</th><th scope="col">Clicuri</th><th scope="col">Rezultate</th></tr></thead>
+    <tbody>
+    {% for ext, nume, t in campanii %}
+      <tr data-campanie="{{ ext }}"><th scope="row">{{ nume or ext }}</th><td>{{ lei(t.cheltuiala_bani) }}</td><td>{{ t.afisari }}</td><td>{{ t.clicuri }}</td><td>{{ t.rezultate }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="slab">Nicio cheltuială în acest interval.</p>{% endif %}
+</section>
+
+<section class="card" aria-labelledby="zile">
+  <h2 id="zile">Pe zile</h2>
+  <ul>{% for z, t in pe_zile %}<li>{{ z }}: {{ lei(t.cheltuiala_bani) }} · {{ t.clicuri }} clicuri · {{ t.rezultate }} rezultate</li>{% endfor %}</ul>
+</section>
+{% endblock %}

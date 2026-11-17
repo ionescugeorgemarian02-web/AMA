@@ -276,3 +276,12 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 ### De verificat la migrare (F11)
 - F11.1: pragurile Reflectorului (20 de postări pe lot, 3 pe grup, 25% diferență) pe date reale; efectul valorilor extreme asupra mediei lotului.
 - F11.3: alegerea adaptivă pe postări reale măsurate; media nișei pe categorii reale; legarea recomandării de sloturi de planificarea publicării (F9.7).
+
+## Faza F13 — Reclame, Strateg, Consiliu (sesiunea A, din 2026-11-17)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F13.1 Citirea rezultatelor Meta | verificat pe Marketing API SIMULAT: cifrele contului agenției (pe campanii, reclame, zile) apar în `/reclame` și coincid cu evidența „managerului”; recitirea nu dublează; eroarea de token e spusă pe cont | `tests/integration/test_reclame_meta.py`, `tests/unit/test_reclame_meta.py` |
+
+### De verificat la migrare (F13)
+- F13.1: contul real Meta al agenției, accesul `ads_read` (App Review), numele acțiunii de conversie și fusul orar al contului; comparația panou ↔ managerul de reclame pe cifre reale.

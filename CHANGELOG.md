@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F13.1 — Citirea rezultatelor Meta
+- `app/reclame` (conturi de reclame cu plafoane, rezultate zilnice, citire orară `reclame.citire`), conectorul `app/connectors/reclame/meta.py` prin ușa `app/operare/efecte/reclame.py`, ecranul `/reclame`. Migrarea `0070`.
+
 ### F12.2 — Email către abonați
 - `app/crm/email.py` (ușa de trimitere: suprimare, matrice pe țări, consimțământ, praguri, limită zilnică, domeniu), dezabonarea dintr-un clic (`/site/dezabonare/<jeton>`), verificarea suprimării în executorul de efecte, ecranul `/crm/email`. Migrarea `0095`.
 

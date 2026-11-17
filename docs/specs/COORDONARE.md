@@ -147,3 +147,12 @@ cu „extension "vector" is not available”.
   Consiliu), în `app/reclame/` (și `app/connectors/reclame/`), cu migrările rezervate A `0070`–`0089`
   (`down_revision` al primei = capul din `main`, acum `0095`). Decizii A: numere pare.
 - Sesiunea B, la reluare: `git fetch origin` și îmbină `origin/main` în ramura ta înainte de F12.3.
+
+## Sesiunea A, F13 pas cu pas
+
+| Pas | Stare |
+| --- | --- |
+| F13.1 Citirea rezultatelor Meta | **închis** (împins), migrarea `0070` |
+
+Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py` (tipurile reclamelor, la final),
+`app/config.py` (`reclame_conectori`), `app/worker.py`, `app/panou/__init__.py`, `panou/meniu.html`.
