@@ -9,6 +9,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from app.comert.web import router as router_comert
 from app.panou.alerte_web import router as router_alerte
 from app.panou.analiza_web import router as router_analiza
 from app.panou.aprobari_web import router as router_aprobari
@@ -66,6 +67,7 @@ def inregistreaza(app: FastAPI) -> None:
     app.include_router(router_crm)
     app.include_router(router_invatare)
     app.include_router(router_reclame)
+    app.include_router(router_comert)
 
 
 __all__ = ["STATIC", "inregistreaza"]

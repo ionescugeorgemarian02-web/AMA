@@ -327,3 +327,7 @@ monede fără două zecimale (contractul local acceptă numai sume exact repreze
 FS.4: calcul lunar UTC, UTM/cod explicit, net după anulări/rambursări, separat pe monedă.
 2 teste calcul/import trecute, ruff/mypy/guards/audit verzi. API public pentru raport lunar;
 integrarea în F10 cerută în COORDONARE, în afara zonei C.
+
+FS.5: /comert pentru tenant activ, starea sincronizării și cifre lunare pe monede;
+2 teste panou/import și 1 succes/eroare sincronizare trecute. Ruff/mypy/guards/audit verzi.
+Sincronizatorul acceptă cititori injectați locali; loturile sunt separate, eroarea declară explicit date parțiale.

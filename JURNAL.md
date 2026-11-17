@@ -686,3 +686,12 @@ Fetch/merge origin/main: deja actualizat. Spec și test înainte de cod. Atribui
 comenzile cer created_at, nu folosesc data actualizării pentru luna vânzării.
 Verificat: 2 passed calcul/import DB; ruff/mypy: succes; make guards: succes;
 make audit: No known vulnerabilities found. Consumatorul F10 solicitat în COORDONARE; nu am ieșit din zonă.
+
+## 2026-11-17 — C, FS.5
+
+Fetch/merge main: deja actualizat. Spec și acceptare înainte de cod.
+Ecran /comert autentificat cu permisiune rapoarte, tenant din sesiune, Jinja autoescape;
+nici tokenul, nici emailurile nu ajung în contextul șablonului. Stare persistentă succes/eroare/ultima reușită.
+Verificat: 2 passed panou/import, 1 passed succes/eroare sincronizare; ruff/mypy: succes;
+make guards: succes; make audit: No known vulnerabilities found. Avertisment existent FastAPI/httpx deprecated.
+În fișierele comune app/panou/__init__.py și meniu sunt exclusiv rânduri adăugate.

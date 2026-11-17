@@ -43,3 +43,11 @@ class DateComert(Baza):
     date: Mapped[dict[str, object]] = mapped_column(JSONB)
     email_criptat: Mapped[bytes | None] = mapped_column(LargeBinary)
     versiune: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+
+
+class Sincronizare(Baza):
+    __tablename__ = "comert_sincronizari"
+    tenant_id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    magazin: Mapped[str] = mapped_column(Text, primary_key=True)
+    stare: Mapped[str] = mapped_column(Text)
+    ultima_reusita: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))

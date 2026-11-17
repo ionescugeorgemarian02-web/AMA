@@ -435,3 +435,8 @@ Format: o intrare pe pas, cea mai nouă sus.
 ## 2026-11-17 — FS.4 (sesiunea C)
 
 - API raport lunar vânzări atribuite UTM/cod, net după anulări/rambursări, fără conversii valutare.
+
+## 2026-11-17 — FS.5 (sesiunea C)
+
+- Ecran Shopify în meniu, izolat pe tenant activ, cifre lunare și stare sincronizare.
+- Sincronizator cu token decriptat la citire și cititori injectați; păstrează ultima reușită după eroare. Migrare 0123.
