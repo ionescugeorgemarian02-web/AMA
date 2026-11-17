@@ -167,3 +167,10 @@ cu „extension "vector" is not available”.
 Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py` (tipurile reclamelor, la final),
 `app/config.py` (`reclame_conectori`, `google_ads_*`), `app/operare/efecte/sistem.py` (tipul `reclama`, oprirea
 `reclame`; **atenție B:** migrarea `0072` pune `CHECK (tip IN ('email','plata','reclama'))` pe `efecte_sistem`), `app/worker.py`, `app/panou/__init__.py`, `panou/meniu.html`.
+
+## Sesiunea C — Shopify (2026-11-17)
+
+Ramură `claude/shopify-c`, din `origin/main`; doar `app/comert/`, `app/connectors/comert/`,
+testele și specificațiile proprii. Migrări rezervate `0120`–`0139`, prima `0120` din `0075`.
+Decizii D-C01 etc. FS.1 în lucru; FS.2–FS.6 urmează. Fișiere comune doar prin adăugare.
+Integrarea PR draft o face sesiunea A, după revizuire; C nu unește în main.

@@ -416,3 +416,8 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ### F0.2 — Repo și reguli
 - `AGENTS.md`, `DECIZII.md`, structura de directoare, documentul de arhitectură împărțit pe secțiuni în `docs/`, cele 16 ADR-uri, șablonul de cerere de integrare, CI.
+
+## 2026-11-17 — FS.1 (sesiunea C)
+
+- Autorizare Shopify simulată prin HTTP local, stare unică expirabilă, HMAC callback și token AES-GCM legat de tenant/magazin.
+- Migrare 0120 din 0075, RLS forțat; teste de izolare și criptare.

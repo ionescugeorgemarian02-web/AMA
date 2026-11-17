@@ -301,3 +301,15 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F13.9: împărțirea egală a bugetului pe variante la Meta (un set pe variantă) și pragul de 90% pe volume reale.
 - F13.10: campania reală de 14 zile (cont, card, buget mic) cu raportul dublu; marja pentru supralivrarea Meta.
 - F13.2: developer token-ul (nivel Explorer/Basic), MCC-ul agenției, versiunea Google Ads API, conturile reale.
+
+## Shopify — sesiunea C, 2026-11-17
+
+FS.1 în verificare; FS.2–FS.6 nepornite. API exclusiv simulat, fără magazin real.
+
+### De verificat la migrare — Shopify
+
+Instalarea aplicației pe magazin real, permisiunile read_products/read_orders/read_customers,
+accesul la datele protejate ale clienților, canonicalizarea HMAC a callbackului real, schimbul codului,
+revocarea/dezinstalarea, ciclul de viață al tokenului și rotația cheii. Nu sunt validate prin simulare.
+
+FS.1: închis pe simulare; 14 teste OAuth/RLS trecute pe Postgres 16 cu pgvector.

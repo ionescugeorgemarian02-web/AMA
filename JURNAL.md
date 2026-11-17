@@ -652,3 +652,13 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md`; cele 5 fișiere ale reclamelor cu `sesiune_agentie` adăugate (cu justificare) în `CONTEXT_AGENTIE` din `tests/unit/test_garzi_db.py`.
   - Verificat: `make check` complet o dată: lint, tipuri, gărzi verzi; teste 3121 passed, 1 failed (garda contextului de agenție, reparată și rerulată împreună cu poarta și Consiliul: verzi). `make guards` și `make audit` (fără vulnerabilități) verzi.
   - **Faza F13 e închisă pe simulări.** Rămân la migrare: conturile reale Meta/Google Ads, campania reală cu bani reali, Consiliul real.
+
+## 2026-11-17 — C, FS.1
+
+Specificație și teste înaintea implementării. OAuth simulat, consum stare înainte de HTTP, protecție la
+răspuns întârziat, AES-GCM cu AAD tenant/magazin. Migrare 0120 din capul main 0075.
+Verificat: pytest OAuth unit + izolare + meta RLS: 14 passed (Postgres 16/pgvector, Docker local);
+pytest unit OAuth + gărzi DB: 11 passed; mypy module noi și ruff: succes;
+make guards: succes; make audit: No known vulnerabilities found. Prima încercare DB a sărit 6 teste
+(port ocupat de containerul care tocmai pornise); rerularea explicită pe container: toate 14 trecute.
+API real și revizuire de alt model: rămân pentru migrare, respectiv sesiunea A înainte de integrare.

@@ -128,3 +128,11 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
   3.000 lei/lună, 80 lei pe campanie [I].
 - **Consecințe:** criteriile se verifică în CI; campania reală, cu bani reali, rămâne la „De verificat la migrare”, cu același raport
   dublu și aceeași verificare de plafoane (`raport.depasiri`).
+
+## D-C01 — Shopify simulat și date ale magazinului izolate (2026-11-17)
+
+Sesiunea C: Shopify Admin API rămâne exclusiv contract HTTP local (MockTransport obligatoriu),
+până la migrarea pe VPS. Datele cumpărătorilor sunt ale tenantului, nu se importă automat în CRM-ul
+agenției din F12. Tokenul este criptat cu primitivele existente și AAD tenant + domeniu magazin.
+Autorizarea consumă starea înainte de schimb; un răspuns întârziat nu înlocuiește autorizarea nouă.
+Revizuirea autentificării/izolării de alt model rămâne condiție de integrare pentru sesiunea A.
