@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F13.5 — Gardianul de buget și oprirea de urgență
+- `app/reclame/{gardian,urgenta}.py` (plafoane, ritm, anomalii, oprirea globală cu pauza tuturor campaniilor și anunț critic), supravegherea după fiecare citire. D-010. Fără migrare.
+
 ### F13.4 — Constructorul de campanii, propunerile de schimbare și executorul
 - `app/reclame/{constructor,propuneri}.py`, scrierea în adaptoarele Meta și Google, executantul efectelor `reclama` (în `efecte/sistem.py`, prin adăugare), panoul cu activare, aprobare și anulare. Migrarea `0072`.
 

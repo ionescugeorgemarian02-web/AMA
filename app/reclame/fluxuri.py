@@ -4,14 +4,16 @@ import datetime as dt
 from typing import Any
 
 from app.operare import motor
-from app.reclame import rezultate
+from app.reclame import rezultate, urgenta
 
 NUME_CITIRE = "reclame.citire"
 
 
 @motor.pas("reclame.pas_citire")
 def _pas_citire() -> str:
-    return str(rezultate.citeste_toate())
+    citite = rezultate.citeste_toate()
+    anomalii = urgenta.supravegheaza()  # F13.5: după fiecare citire, semnalele de urgență
+    return f"{citite} anomalii={len(anomalii)}"
 
 
 @motor.flux(NUME_CITIRE)

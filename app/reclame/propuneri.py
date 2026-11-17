@@ -13,11 +13,12 @@ import json
 import uuid
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.operare import audit
+from app.operare import audit, opriri
 from app.operare.efecte import sistem
+from app.reclame import gardian, rezultate
 from app.reclame.modele import Anunt, Campanie, ContReclame, Propunere
 
 TIPURI = ("creeaza", "stare", "buget", "stare_anunt")
@@ -40,9 +41,44 @@ def stare_campanie(c: Campanie) -> dict[str, Any]:
     return {"stare": "activa" if c.stare == "activa" else "pauza", "buget_zilnic_bani": c.buget_zilnic_bani}
 
 
+def context_gardian(db: Session, cont: ContReclame, c: Campanie, acum: dt.datetime) -> gardian.Context:
+    """Ce știe gardianul despre cont în clipa propunerii (bugetele active, cheltuiala lunii, ritmul)."""
+    azi = acum.date()
+    inceput_luna = azi.replace(day=1)
+    luna_urmatoare = (inceput_luna + dt.timedelta(days=32)).replace(day=1)
+    suma = db.execute(
+        select(func.coalesce(func.sum(Campanie.buget_zilnic_bani), 0)).where(
+            Campanie.cont_id == cont.id, Campanie.stare == "activa", Campanie.id != c.id
+        )
+    ).scalar_one()
+    automate = db.execute(
+        select(func.count()).where(
+            Propunere.cont_id == cont.id,
+            Propunere.sursa.in_(gardian.AUTOMATE),
+            Propunere.stare.in_(("aprobata", "aplicata")),
+            Propunere.creat_la >= dt.datetime.combine(azi, dt.time(), dt.UTC),
+        )
+    ).scalar_one()
+    return gardian.Context(
+        plafon_zilnic_bani=cont.plafon_zilnic_bani,
+        plafon_lunar_bani=cont.plafon_lunar_bani,
+        plafon_campanie_bani=cont.plafon_campanie_bani,
+        schimbare_max_pct=cont.schimbare_max_pct,
+        asteptare_ore=cont.asteptare_ore,
+        schimbari_pe_zi=cont.schimbari_pe_zi,
+        suma_active_bani=int(suma),
+        cheltuit_luna_bani=rezultate.totaluri(db, cont.id, inceput_luna, azi).cheltuiala_bani,
+        zile_ramase=(luna_urmatoare - azi).days,
+        schimbari_automate_azi=int(automate),
+        ultima_schimbare=c.schimbat_la,
+        reclame_oprite=opriri.este_oprit(db, opriri.Oprire.RECLAME),
+        acum=acum,
+    )
+
+
 def _verdict(db: Session, p: Propunere, cont: ContReclame, c: Campanie, acum: dt.datetime) -> dict[str, Any]:
-    """Verdictul gardianului de buget (F13.5). Fără reguli încă: totul e permis."""
-    return {"permis": True, "motive": []}
+    """Verdictul gardianului de buget (F13.5)."""
+    return gardian.verifica(p.tip, p.inainte, p.dupa, p.sursa, context_gardian(db, cont, c, acum)).ca_dict()
 
 
 def propune(

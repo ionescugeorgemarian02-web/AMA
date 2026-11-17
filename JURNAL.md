@@ -627,3 +627,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F13.4 — Constructorul de campanii, propunerile și executorul.**
   - Construit: `app/reclame/{constructor,propuneri}.py`, migrarea `0072`, scrierea în `meta.py`/`google.py`, `Executant` în `app/connectors/reclame`, tipul `reclama` + oprirea `reclame` în `efecte/sistem.py` (rânduri adăugate), rutele de activare/aprobare/anulare.
   - Verificat: 4 teste de integrare noi; împreună cu restul reclamelor, emailul CRM (aceeași ușă de efecte) și migrările: verzi.
+- **F13.5 — Gardianul de buget și oprirea de urgență.**
+  - Construit: `app/reclame/{gardian,urgenta}.py`, verdictul gardianului în `propuneri`, supravegherea în jobul orar, D-010.
+  - Găsit de teste: perioada de așteptare bloca și decizia directă a proprietarului (acum scutită de ritm, nu de plafoane); fără token nici pauza nu pleacă (anunțul cere oprirea manuală).
+  - Verificat: 3 teste unitare, 5 de integrare; toate testele reclamelor verzi.

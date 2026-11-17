@@ -96,3 +96,15 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
   accelerată documentată (ceas controlat), cu tot ce e real trecut la „De verificat la migrare”.
 - **Consecințe:** nicio schimbare nu ajunge la platformă fără gardian și fără executor; trecerea pe conturi reale înseamnă
   `AMA_RECLAME_CONECTORI`, tokenuri în `publicare_conturi` și verificarea formelor reale ale API-urilor.
+
+### D-010 (2026-11-17) — Gardianul de buget: ce e scutit și cât de larg oprește urgența
+
+- **Context:** `docs/16` §16.4–16.5 dau regulile, dar nu spun cum se tratează pauza, anularea, decizia directă a proprietarului
+  sau cât de mult oprește o anomalie.
+- **Hotărâre (D-007):** (1) plafoanele (pe campanie, zilnic, lunar proiectat) se aplică oricărei schimbări care pornește sau mărește
+  cheltuiala, indiferent de sursă; peste plafon = refuz cu „cere aprobarea clientului”. (2) Regulile de ritm (20%/zi, 48 h de
+  așteptare, 5 schimbări automate pe zi) se aplică surselor automate și Strategului/Consiliului; anularea și decizia directă a
+  proprietarului în panou sunt scutite. (3) Pauza și scăderea de buget trec mereu, inclusiv sub oprire. (4) O anomalie pe orice
+  cont pune oprirea globală `reclame` și pauza pe toate campaniile active (16.5: „totul pe pauză”); repornirea e manuală, campanie
+  cu campanie. (5) Fără token nici pauza nu pleacă: anunțul critic cere oprirea manuală din managerul de reclame.
+- **Consecințe:** o anomalie la un client oprește și campaniile celorlalți; se revizuiește când sunt mai mulți clienți cu reclame.
