@@ -1,0 +1,25 @@
+{% extends "panou/baza.html" %}
+{% block title %}Raport dublu · {{ cont.nume }} · AMA{% endblock %}
+{% block pagina %}
+<h1>Raport dublu: platformă și site</h1>
+<p class="slab"><a href="/reclame/cont/{{ cont.id }}">{{ cont.nume }}</a> · {{ r.de_la }} – {{ r.pana_la }}</p>
+<section class="card" aria-labelledby="plafoane">
+  <h2 id="plafoane">Plafoane</h2>
+  {% if depasiri %}<ul role="alert">{% for d in depasiri %}<li>{{ d }}</li>{% endfor %}</ul>
+  {% else %}<p data-plafoane="respectate">Nicio depășire de plafon și nicio schimbare fără verdictul gardianului.</p>{% endif %}
+</section>
+<section class="card" aria-labelledby="zile">
+  <h2 id="zile">Zi cu zi</h2>
+  <table>
+    <thead><tr><th scope="col">Zi</th><th scope="col">Cheltuială</th><th scope="col">Clicuri (platforma)</th><th scope="col">Vizite audit (site)</th><th scope="col">Rezultate (platforma)</th><th scope="col">Cereri de audit (site)</th></tr></thead>
+    <tbody>
+    {% for z in r.zile %}<tr><th scope="row">{{ z.zi }}</th><td>{{ lei(z.platforma.cheltuiala_bani) }}</td><td>{{ z.platforma.clicuri }}</td><td>{{ z.vizite_audit }}</td><td>{{ z.platforma.rezultate }}</td><td>{{ z.cereri_audit }}</td></tr>{% endfor %}
+    <tr data-total="1"><th scope="row">Total</th><td>{{ lei(r.platforma.cheltuiala_bani) }}</td><td>{{ r.platforma.clicuri }}</td><td>{{ r.vizite_audit }}</td><td>{{ r.platforma.rezultate }}</td><td>{{ r.cereri_audit }}</td></tr>
+    </tbody>
+  </table>
+</section>
+<section class="card" aria-labelledby="diferente">
+  <h2 id="diferente">De ce diferă</h2>
+  <ul>{% for e in r.explicatii %}<li>{{ e }}</li>{% else %}<li>Cifrele coincid.</li>{% endfor %}</ul>
+</section>
+{% endblock %}

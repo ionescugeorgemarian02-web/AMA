@@ -612,3 +612,43 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Verificat: 4 teste unitare, 5 de integrare; cu unitarele, izolarea, site-ul, efectele și facturarea: 2006 passed. **Fără furnizor real de email: totul pe cutia simulată.**
   - CI a picat pe `746a041`: testul existent „toate rutele care schimbă starea au gardă CSRF” a prins ruta `POST /site/dezabonare/{jeton}`. E o excepție reală (RFC 8058: programul de email trimite POST-ul fără cookie), apărată de jetonul semnat; am adăugat-o în lista de excepții a testului, cu justificare. Greșeala mea: am împins fără suita completă.
 
+
+## Sesiunea A — F13 (Reclame, Strateg, Consiliu), din 2026-11-17
+
+- **F13.1 — Citirea rezultatelor Meta.**
+  - Construit: `app/reclame/{modele,rezultate,fluxuri}.py`, migrarea `0070`, `app/connectors/reclame/`, ușa `app/operare/efecte/reclame.py`, tipurile `RandReclame`/`StareCont`/`CititorReclame` (adăugate în `app/connectors/contract.py`), `app/panou/reclame_web.py` + 2 șabloane, rândul din meniu, `reclame_conectori` în config, `app.reclame.fluxuri` în worker, Marketing API simulat (`tests/platforme/meta_ads.py`).
+  - Verificat: 3 teste unitare, 4 de integrare, plus meta-testul RLS și migrările (urcare/coborâre).
+- **F13.2 — Citirea rezultatelor Google Ads.**
+  - Construit: `app/connectors/reclame/google.py`, setările `google_ads_*`, `tests/platforme/google_ads.py` (cu scrierile pentru F13.4), D-008 în `DECIZII.md`.
+  - Verificat: 1 test unitar, 2 de integrare (plus F13.1 din nou).
+- **F13.3 — Planificatorul media.**
+  - Construit: `app/reclame/plan.py`, migrarea `0071`, ruta `POST /reclame/plan/<id>/<acțiune>`, secțiunea din șablonul contului.
+  - Verificat: 3 teste unitare, 2 de integrare (plus migrările).
+- **F13.4 — Constructorul de campanii, propunerile și executorul.**
+  - Construit: `app/reclame/{constructor,propuneri}.py`, migrarea `0072`, scrierea în `meta.py`/`google.py`, `Executant` în `app/connectors/reclame`, tipul `reclama` + oprirea `reclame` în `efecte/sistem.py` (rânduri adăugate), rutele de activare/aprobare/anulare.
+  - Verificat: 4 teste de integrare noi; împreună cu restul reclamelor, emailul CRM (aceeași ușă de efecte) și migrările: verzi.
+- **F13.5 — Gardianul de buget și oprirea de urgență.**
+  - Construit: `app/reclame/{gardian,urgenta}.py`, verdictul gardianului în `propuneri`, supravegherea în jobul orar, D-010.
+  - Găsit de teste: perioada de așteptare bloca și decizia directă a proprietarului (acum scutită de ritm, nu de plafoane); fără token nici pauza nu pleacă (anunțul cere oprirea manuală).
+  - Verificat: 3 teste unitare, 5 de integrare; toate testele reclamelor verzi.
+- **F13.6 — Strategul și înregistrările de decizie.**
+  - Construit: `app/reclame/strateg.py`, `app/reclame/prompturi.py`, `prompts/reclame.strateg.v1.md`, migrarea `0073`, jobul săptămânal, secțiunea din ecran. (Și o corectură de lungime de linie în `urgenta.py`, scăpată la F13.5.)
+  - Verificat: 1 test unitar, 1 de integrare (model FALS); toate testele reclamelor și migrările verzi.
+- **F13.7 — Consiliul.**
+  - Construit: `app/reclame/consiliu.py`, migrarea `0074`, `prompts/reclame.consiliu.v1.md`, setările `reclame_consiliu_*`, ecranul `/reclame/consiliu` cu șablonul lui, D-012.
+  - Verificat: 3 teste de integrare (manual prin HTTP, plafon, API pe model FALS).
+- **F13.8 — Verificarea reclamelor înainte de lansare.**
+  - Construit: `app/reclame/verificare.py`, `rulepacks/reclame.toml` (4 reguli [I]), blocarea în `constructor`, reverificarea la activare în `propuneri`.
+  - Găsit de teste: testul pachetelor cere `verificat_la` ≤ o dată fixă (am mutat-o la data noului pachet, nu am antedatat regulile); garda „doar încărcătorul numește rulepacks/” a prins un docstring al meu.
+  - Verificat: 6 teste unitare, 1 de integrare; testele pachetelor de reguli, G3, banc, carantină și poarta F5 rămân verzi.
+- **F13.9 — Testarea creativurilor.**
+  - Construit: `app/reclame/teste.py`, migrarea `0075` (tabelul testelor, tipul `adauga_anunt`), acțiunea `creeaza_anunt` la Meta, evaluarea în jobul orar, secțiunea din ecran.
+  - Verificat: 2 teste unitare, 1 de integrare; toate testele reclamelor și migrările verzi.
+- **F13.10 — Campania de probă (simulare accelerată, D-014).**
+  - Construit: `app/reclame/raport.py`, ecranul raportului dublu, `tests/integration/lant_reclame.py`, D-014. Datele testelor reclamelor citesc acum ziua reală (panoul o folosește), restul primește `acum` explicit.
+  - Găsit de teste: după repornirea manuală, cheltuiala de dimineață (de dinainte de pauză) reoprea totul; ritmul nu se mai judecă fără campanii active.
+  - Verificat: testul de 14 zile + toate testele reclamelor.
+- **Poarta F13.**
+  - Construit: `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md`; cele 5 fișiere ale reclamelor cu `sesiune_agentie` adăugate (cu justificare) în `CONTEXT_AGENTIE` din `tests/unit/test_garzi_db.py`.
+  - Verificat: `make check` complet o dată: lint, tipuri, gărzi verzi; teste 3121 passed, 1 failed (garda contextului de agenție, reparată și rerulată împreună cu poarta și Consiliul: verzi). `make guards` și `make audit` (fără vulnerabilități) verzi.
+  - **Faza F13 e închisă pe simulări.** Rămân la migrare: conturile reale Meta/Google Ads, campania reală cu bani reali, Consiliul real.

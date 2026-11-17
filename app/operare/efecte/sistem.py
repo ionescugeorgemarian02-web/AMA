@@ -31,6 +31,8 @@ from app.operare.efecte.servicii import EfectRefuzat, _fara_secrete
 
 log = get_logger("app.efecte.sistem")
 TIPURI = ("email", "plata")
+# F13.4 (D-008): scrierile la platformele de reclame
+TIPURI += ("reclama",)  # type: ignore[assignment]
 
 
 def _conector(tip: str) -> Any:
@@ -47,6 +49,10 @@ def _conector(tip: str) -> Any:
 
             plati.PROCESATOR.secret = s.plati_webhook_secret.get_secret_value()
             registru.inregistreaza_sistem(tip, plati.PROCESATOR)
+        elif tip == "reclama":
+            from app.connectors import reclame  # adaptoarele platformelor de reclame (F13.4)
+
+            registru.inregistreaza_sistem(tip, reclame.EXECUTANT)
         return registru.conector_sistem(tip)
 
 
@@ -109,6 +115,12 @@ def incearca(efect_id: uuid.UUID) -> str:
         ).scalar_one()
         if e.stare in ("trimis", "esuat", "anulat"):
             return e.stare
+        if (
+            e.tip == "reclama"
+            and e.payload.get("stare") != "pauza"
+            and opriri.este_oprit(db, opriri.Oprire.RECLAME)
+        ):
+            return "oprit"  # F13.5: oprirea reclamelor ține pe loc orice, în afară de punerea pe pauză
         if e.tenant_id is not None and opriri.este_oprit(db, opriri.Oprire.CLIENT, tenant_id=e.tenant_id):
             return "oprit"
         if e.tip == "email" and e.payload.get("categorie") == "marketing" and _suprimat(db, e.payload):

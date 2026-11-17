@@ -81,3 +81,50 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
 - **Consecințe:** rapoartele (F10.5) și învățarea (F11) pot avea încredere că o cifră de la „24 de ore” a fost citită în fereastra ei.
   Verificarea de completitudine (`colector.completitudine`) arată câte intervale lipsesc. Grația de 7 zile se revizuiește pe date reale.
 
+
+### D-008 (2026-11-17) — Reclamele (F13): adaptoare peste platforme simulate, efectele prin „outbox”-ul de sistem
+
+- **Context:** F13 cere conturi reale Meta și Google Ads, bugete reale, Claude ca Consiliu și o campanie reală de 14 zile.
+  Nimic din acestea nu există încă (aprobări, carduri, conturi; D-001, D-007).
+- **Hotărâre (D-007):** (1) fiecare platformă are un adaptor în `app/connectors/reclame/` (citire și scriere), chemat doar prin
+  ușa executorului (`app/operare/efecte/reclame.py` pentru citire, efectele de sistem de tip `reclama` pentru scriere);
+  testele rulează pe Marketing API și Google Ads API simulate (`tests/platforme/`), care vorbesc HTTP adevărat.
+  (2) Scrierile la platformă refolosesc `efecte_sistem` (cheie de idempotență, încercări, oprirea pe client) plus oprirea
+  `reclame`; nu se face un al doilea executor. (3) Banii se țin în subunități întregi (bani). (4) Planul media (I1), gardianul
+  (I3), anomaliile (I6) și testele creative (I4) sunt reguli deterministe; modelul (prin gateway) scrie doar ipotezele
+  Strategului și răspunsul Consiliului în modul API. (5) Campania reală de 14 zile și poarta pe campanie reală devin o simulare
+  accelerată documentată (ceas controlat), cu tot ce e real trecut la „De verificat la migrare”.
+- **Consecințe:** nicio schimbare nu ajunge la platformă fără gardian și fără executor; trecerea pe conturi reale înseamnă
+  `AMA_RECLAME_CONECTORI`, tokenuri în `publicare_conturi` și verificarea formelor reale ale API-urilor.
+
+### D-010 (2026-11-17) — Gardianul de buget: ce e scutit și cât de larg oprește urgența
+
+- **Context:** `docs/16` §16.4–16.5 dau regulile, dar nu spun cum se tratează pauza, anularea, decizia directă a proprietarului
+  sau cât de mult oprește o anomalie.
+- **Hotărâre (D-007):** (1) plafoanele (pe campanie, zilnic, lunar proiectat) se aplică oricărei schimbări care pornește sau mărește
+  cheltuiala, indiferent de sursă; peste plafon = refuz cu „cere aprobarea clientului”. (2) Regulile de ritm (20%/zi, 48 h de
+  așteptare, 5 schimbări automate pe zi) se aplică surselor automate și Strategului/Consiliului; anularea și decizia directă a
+  proprietarului în panou sunt scutite. (3) Pauza și scăderea de buget trec mereu, inclusiv sub oprire. (4) O anomalie pe orice
+  cont pune oprirea globală `reclame` și pauza pe toate campaniile active (16.5: „totul pe pauză”); repornirea e manuală, campanie
+  cu campanie. (5) Fără token nici pauza nu pleacă: anunțul critic cere oprirea manuală din managerul de reclame.
+- **Consecințe:** o anomalie la un client oprește și campaniile celorlalți; se revizuiește când sunt mai mulți clienți cu reclame.
+
+### D-012 (2026-11-17) — Consiliul: modul manual asistat, cu API-ul în spatele aceleiași uși
+
+- **Context:** `docs/07` §7.6 dă patru moduri de conectare a lui Claude ca Consiliu și recomandă începutul manual.
+- **Hotărâre (D-007):** modul implicit e **manual asistat** (`AMA_RECLAME_CONSILIU_MOD=manual`): dosarul (cifre, opțiuni cu
+  acțiunile lor, întrebări, formatul JSON al răspunsului) se copiază în Claude, iar răspunsul se lipește în panou. Consiliul
+  alege o opțiune; acțiunile sunt ale opțiunii, nu inventate de model. Importul făcut de om aprobă propunerile; în modul API
+  (`intreaba_api`, prin gateway) propunerile așteaptă omul. Plafon: 8 dosare pe lună [I]; peste el dosarul se amână.
+- **Consecințe:** Claude rămâne în afara căii critice (ADR-06); trecerea la API cere doar profilul real și creditul lunar.
+
+### D-014 (2026-11-17) — Campania reală de 14 zile și poarta F13 devin o simulare accelerată
+
+- **Context:** F13.10 cere o campanie reală pe contul agenției, cu buget mic, timp de două săptămâni; poarta F13 cere oprirea de
+  urgență testată pe o campanie reală. Nu există încă cont de reclame aprobat, card sau acces la API (D-001, D-007).
+- **Hotărâre (D-007):** amândouă rulează ca simulare accelerată (`tests/integration/lant_reclame.py`): platforma de reclame e
+  simulată (HTTP real, cheltuială zilnică cu ritm variabil sub buget), restul e platforma reală (plan, verificare, executor, gardian,
+  supraveghere, teste creative, Strateg, site-ul cu vizite și cereri de audit), cu ceasul controlat. Plafoanele de probă: 100 lei/zi,
+  3.000 lei/lună, 80 lei pe campanie [I].
+- **Consecințe:** criteriile se verifică în CI; campania reală, cu bani reali, rămâne la „De verificat la migrare”, cu același raport
+  dublu și aceeași verificare de plafoane (`raport.depasiri`).

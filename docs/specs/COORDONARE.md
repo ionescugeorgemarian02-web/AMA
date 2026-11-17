@@ -137,3 +137,33 @@ cu „extension "vector" is not available”.
   din `app/connectors/publicare/youtube.py`. Fără ea, curba de retenție primește 403 pe conturile reale (cifrele
   obișnuite merg). Nu am modificat eu fișierul, fiind al fazei F9. Constanta există deja ca
   `app.connectors.metrici.youtube.SCOP_ANALYTICS`.
+
+## Actualizare sesiunea A (2026-11-17)
+
+- A a revenit după limita săptămânală. Cererea de integrare #9 (F10, F11, F12.1–F12.2) era verde în CI și a fost unită
+  în `main` de sesiunea A (`1b1aba5`), după D-007. Ramura A pornește acum din acel `main`.
+- Cererea B → A (F10.2) e făcută: `yt-analytics.readonly` în `SCOPURI` (`app/connectors/publicare/youtube.py`).
+- **Împărțirea de acum:** **B continuă F12** (F12.3–F12.10, cum scrie mai sus). **A preia F13** (reclame, Strateg,
+  Consiliu), în `app/reclame/` (și `app/connectors/reclame/`), cu migrările rezervate A `0070`–`0089`
+  (`down_revision` al primei = capul din `main`, acum `0095`). Decizii A: numere pare.
+- Sesiunea B, la reluare: `git fetch origin` și îmbină `origin/main` în ramura ta înainte de F12.3.
+
+## Sesiunea A, F13 pas cu pas
+
+| Pas | Stare |
+| --- | --- |
+| F13.1 Citirea rezultatelor Meta | **închis** (împins), migrarea `0070` |
+| F13.2 Citirea rezultatelor Google Ads | **închis** (împins) |
+| F13.3 Planificatorul media | **închis** (împins), migrarea `0071` |
+| F13.4 Constructorul, propunerile, executorul | **închis** (împins), migrarea `0072` |
+| F13.5 Gardianul și oprirea de urgență | **închis** (împins) |
+| F13.6 Strategul | **închis** (împins), migrarea `0073` |
+| F13.7 Consiliul | **închis** (împins), migrarea `0074` |
+| F13.9 Testarea creativurilor | **închis** (împins), migrarea `0075` |
+| F13.10 Campania de probă | **închis** (împins), simulare accelerată (D-014) |
+| Poarta F13 | **trecută pe simulare** (`docs/specs/F13-poarta.md`); `make check` complet: 3121 passed + 1 reparat (garda contextului de agenție) |
+| F13.8 Verificarea înainte de lansare | **închis** (împins); pachet nou `rulepacks/reclame.toml`, `ASTAZI_FIX` din `tests/unit/test_reguli.py` mutat la 2026-11-17 |
+
+Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py` (tipurile reclamelor, la final),
+`app/config.py` (`reclame_conectori`, `google_ads_*`), `app/operare/efecte/sistem.py` (tipul `reclama`, oprirea
+`reclame`; **atenție B:** migrarea `0072` pune `CHECK (tip IN ('email','plata','reclama'))` pe `efecte_sistem`), `app/worker.py`, `app/panou/__init__.py`, `panou/meniu.html`.

@@ -82,6 +82,14 @@ CONTEXT_AGENTIE = {
     "app/cercetare/tendinte.py",  # jobul de dimineață (F10.7): lista clienților cu profil și inboxul nou
     "app/cercetare/reclame_concurenta.py",  # jobul săptămânal (F10.8): lista concurenților tuturor clienților
     "app/invatare/experimente.py",  # jobul zilnic (F11.4): lista experimentelor în curs ale tuturor clienților
+    # F13 (reclame): joburile orare și săptămânale rulează peste conturile de reclame ale tuturor clienților, fără
+    # utilizator (citirea rezultatelor, supravegherea și oprirea de urgență, testele creative, Strategul), iar
+    # prompturile se sincronizează în registrul global al gateway-ului
+    "app/reclame/rezultate.py",
+    "app/reclame/urgenta.py",
+    "app/reclame/teste.py",
+    "app/reclame/strateg.py",
+    "app/reclame/prompturi.py",
 }
 
 

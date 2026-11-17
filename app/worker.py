@@ -47,6 +47,7 @@ MODULE_FLUXURI: tuple[str, ...] = (
     "app.cercetare.reclame_concurenta",
     "app.invatare",  # F11.2: lecțiile intră în contextul autorului și contoarele se actualizează la decizie
     "app.crm",  # F12.1: igiena zilnică a CRM-ului (unirea firmelor duplicate, sarcinile de urmărire)
+    "app.reclame.fluxuri",  # F13: citirea rezultatelor de reclame, gardianul, oprirea de urgență
 )
 
 

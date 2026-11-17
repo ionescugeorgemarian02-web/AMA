@@ -194,3 +194,45 @@ class CititorRetentie(Protocol):
     def retentie(
         self, tenant_id: uuid.UUID, id_extern: str, de_la: dt.date, pana_la: dt.date
     ) -> list[tuple[float, float]]: ...
+
+
+# --- reclamele plătite (F13): rezultatele citite din contul de reclame; doar date, importabile de oriunde
+# -------------------------------------
+
+
+@dataclass(frozen=True)
+class RandReclame:
+    """Cifrele unei zile pentru un obiect din contul de reclame (campanie sau reclamă), cum le arată managerul
+    de reclame al platformei. Banii sunt în subunități ale monedei contului (bani, cenți)."""
+
+    nivel: str  # „campanie” sau „reclama”
+    id_extern: str
+    nume: str
+    zi: dt.date
+    cheltuiala_bani: int = 0
+    afisari: int = 0
+    clicuri: int = 0
+    rezultate: int = 0  # conversiile urmărite (lead-uri, cereri de audit)
+    parinte_extern: str = ""  # campania unei reclame
+
+
+@dataclass(frozen=True)
+class StareCont:
+    """Starea contului de reclame (F13.5): problemele de politică sau de plată se văd aici."""
+
+    activ: bool
+    motiv: str = ""
+
+
+@runtime_checkable
+class CititorReclame(Protocol):
+    """Cititorul contului de reclame al unei platforme (F13.1, F13.2). Doar citește; aruncă erorile
+    clasificate din `app.operare.motor`."""
+
+    platforma: str
+
+    def rezultate(
+        self, tenant_id: uuid.UUID, cont_extern: str, de_la: dt.date, pana_la: dt.date
+    ) -> list[RandReclame]: ...
+
+    def stare_cont(self, tenant_id: uuid.UUID, cont_extern: str) -> StareCont: ...

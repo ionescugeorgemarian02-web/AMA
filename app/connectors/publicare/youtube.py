@@ -45,6 +45,7 @@ API = "https://www.googleapis.com"
 SCOPURI = (
     "https://www.googleapis.com/auth/youtube.upload",
     "https://www.googleapis.com/auth/youtube.readonly",
+    "https://www.googleapis.com/auth/yt-analytics.readonly",  # cererea B (F10.2): curba de retenție
 )
 PACIFIC = zoneinfo.ZoneInfo("America/Los_Angeles")
 

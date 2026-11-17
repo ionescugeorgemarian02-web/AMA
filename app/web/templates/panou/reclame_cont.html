@@ -1,0 +1,152 @@
+{% extends "panou/baza.html" %}
+{% block title %}{{ cont.nume }} · Reclame · AMA<section class="card" aria-labelledby="planuri">
+  <h2 id="planuri">Planuri media</h2>
+  {% for p in planuri %}
+  <article data-plan="{{ p.id }}" data-stare="{{ p.stare }}">
+    <h3>{{ p.continut.masurare.utm_campaign }} · {{ {"propus": "propus", "aprobat": "aprobat", "respins": "respins"}[p.stare] }}</h3>
+    <ul>{% for c in p.continut.campanii %}<li>{{ c.nume }} ({{ c.rol }}): {{ lei(c.buget_zilnic_bani) }} pe zi{% if c.variante %} · variante: {{ c.variante|join(", ") }}{% endif %}</li>{% endfor %}</ul>
+    <p class="slab">Oprire la cost pe rezultat peste {{ p.continut.criterii_oprire.multiplu_pierdere }} × {{ lei(p.continut.criterii_oprire.cost_tinta_bani) }}, după {{ p.continut.criterii_oprire.afisari_minime }} afișări și {{ p.continut.criterii_oprire.clicuri_minime }} clicuri.</p>
+    {% if p.probleme %}<ul class="probleme">{% for x in p.probleme %}<li>{{ x }}</li>{% endfor %}</ul>{% endif %}
+    {% if p.stare == "propus" %}
+    <form method="post" action="/reclame/plan/{{ p.id }}/aproba"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Aprobă planul</button></form>
+    <form method="post" action="/reclame/plan/{{ p.id }}/respinge"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Respinge</button></form>
+    {% endif %}
+  </article>
+  {% else %}<p class="slab">Niciun plan media.</p>{% endfor %}
+</section>
+<section class="card" aria-labelledby="construite">
+  <h2 id="construite">Campanii construite</h2>
+  {% for c in campanii_construite %}
+  <article data-campanie-id="{{ c.id }}" data-stare="{{ c.stare }}">
+    <h3>{{ c.nume }}</h3>
+    <p>{{ etichete_stare.get(c.stare, c.stare) }} · {{ lei(c.buget_zilnic_bani) }} pe zi</p>
+    {% if c.stare == "in_pauza" %}<form method="post" action="/reclame/campanie/{{ c.id }}/activeaza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Activează</button></form>{% endif %}
+    {% if c.stare == "activa" %}<form method="post" action="/reclame/campanie/{{ c.id }}/pauza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Pune pe pauză</button></form>{% endif %}
+  </article>
+  {% else %}<p class="slab">Nicio campanie construită.</p>{% endfor %}
+</section>
+
+<section class="card" aria-labelledby="teste">
+  <h2 id="teste">Teste de creative</h2>
+  {% for t in teste_creative %}
+  <article data-test="{{ t.id }}" data-stare="{{ t.stare }}">
+    <p>Variabila: {{ t.variabila }} · {{ {"in_curs": "în curs", "incheiat": "încheiat", "oprit": "oprit"}[t.stare] }} · {{ t.motiv }}</p>
+    <ul>{% for v in t.variante %}<li>{{ v.varianta }}: {{ v.afisari }} afișări, {{ v.rezultate }} rezultate, {{ "%.0f"|format(v.probabilitate * 100) }}% să fie cea mai bună{% if t.castigator_anunt_id and v.anunt_id == t.castigator_anunt_id|string %} · <strong>câștigătoare</strong>{% endif %}</li>{% endfor %}</ul>
+  </article>
+  {% else %}<p class="slab">Niciun test de creative.</p>{% endfor %}
+</section>
+
+<section class="card" aria-labelledby="decizii">
+  <h2 id="decizii">Deciziile Strategului și ale Consiliului</h2>
+  {% for d in decizii %}
+  <article data-decizie="{{ d.id }}" data-iesire="{{ d.iesire }}">
+    <h3>{{ d.de_la }} – {{ d.pana_la }} · {{ {"continua": "Continuă", "ajusteaza": "Ajustează", "pivoteaza": "Pivotează", "opreste": "Oprește", "asteapta": "Așteaptă"}[d.iesire] }} ({{ d.sursa }})</h3>
+    <p>{{ d.motiv }}. Se așteaptă: {{ d.asteptat }}; se verifică pe {{ d.verificare_la }}.</p>
+    {% if d.alternative %}<ol>{% for a in d.alternative %}<li>{{ a.ipoteza }} <span class="slab">(unghi: {{ a.unghi }}; {{ a.dovezi }})</span></li>{% endfor %}</ol>{% endif %}
+  </article>
+  {% else %}<p class="slab">Nicio decizie încă.</p>{% endfor %}
+</section>
+
+<section class="card" aria-labelledby="schimbari">
+  <h2 id="schimbari">Ce s-a schimbat și de ce</h2>
+  <ul>
+  {% for p in propuneri_cont %}
+    <li data-propunere="{{ p.id }}" data-stare="{{ p.stare }}">{{ p.creat_la.strftime("%d.%m %H:%M") }} · {{ p.motiv }} · {{ p.tip }}: {{ p.inainte }} → {{ p.dupa }} · <strong>{{ p.stare }}</strong>
+      {% if p.verdict.motive %}<br><span class="slab">{{ p.verdict.motive|join("; ") }}</span>{% endif %}
+      {% if p.stare == "propusa" %}<form method="post" action="/reclame/propunere/{{ p.id }}/aproba"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Aprobă</button></form><form method="post" action="/reclame/propunere/{{ p.id }}/respinge"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Respinge</button></form>{% endif %}
+      {% if p.stare == "aplicata" and p.tip != "creeaza" %}<form method="post" action="/reclame/propunere/{{ p.id }}/anuleaza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Anulează</button></form>{% endif %}
+    </li>
+  {% else %}<li class="slab">Nicio schimbare.</li>{% endfor %}
+  </ul>
+</section>
+{% endblock %}
+{% block pagina %}
+<h1>{{ cont.nume }}</h1>
+<p class="slab"><a href="/reclame">Reclame</a> · {{ platforme[cont.platforma] }} · {{ de_la }} – {{ pana_la }} · <a href="/reclame/cont/{{ cont.id }}/raport">Raport dublu</a> ·
+  {% for z in (7, 30, 90) %}<a href="/reclame/cont/{{ cont.id }}?zile={{ z }}"{% if z == zile %} aria-current="true"{% endif %}>{{ z }} de zile</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+
+{% if mesaj %}<p role="status" class="card">{{ {"plan_aproba": "Planul a fost aprobat.", "plan_respinge": "Planul a fost respins.", "campanie_activeaza": "Activarea a plecat spre platformă.", "campanie_pauza": "Punerea pe pauză a plecat spre platformă.", "propunere_aproba": "Schimbarea a fost aprobată și pleacă spre platformă.", "propunere_respinge": "Propunerea a fost respinsă.", "propunere_anuleaza": "Anularea a plecat: revine starea de dinainte.", "decizie_consiliu": "Decizia Consiliului a fost importată."}.get(mesaj, "") }}</p>{% endif %}
+{% if eroare %}<p role="alert" class="card">Nu s-a putut: {{ eroare }}</p>{% endif %}
+
+<section class="card" aria-labelledby="total">
+  <h2 id="total">Total</h2>
+  <table>
+    <tbody>
+      <tr><th scope="row">Cheltuială</th><td data-camp="cheltuiala">{{ lei(total.cheltuiala_bani) }} {{ cont.moneda }}</td></tr>
+      <tr><th scope="row">Afișări</th><td data-camp="afisari">{{ total.afisari }}</td></tr>
+      <tr><th scope="row">Clicuri</th><td data-camp="clicuri">{{ total.clicuri }}</td></tr>
+      <tr><th scope="row">Rezultate</th><td data-camp="rezultate">{{ total.rezultate }}</td></tr>
+      <tr><th scope="row">Cost pe rezultat</th><td data-camp="cpr">{{ lei(total.cost_pe_rezultat_bani) }}</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" aria-labelledby="campanii">
+  <h2 id="campanii">Pe campanii</h2>
+  {% if campanii %}
+  <table>
+    <thead><tr><th scope="col">Campanie</th><th scope="col">Cheltuială</th><th scope="col">Afișări</th><th scope="col">Clicuri</th><th scope="col">Rezultate</th></tr></thead>
+    <tbody>
+    {% for ext, nume, t in campanii %}
+      <tr data-campanie="{{ ext }}"><th scope="row">{{ nume or ext }}</th><td>{{ lei(t.cheltuiala_bani) }}</td><td>{{ t.afisari }}</td><td>{{ t.clicuri }}</td><td>{{ t.rezultate }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="slab">Nicio cheltuială în acest interval.</p>{% endif %}
+</section>
+
+<section class="card" aria-labelledby="zile">
+  <h2 id="zile">Pe zile</h2>
+  <ul>{% for z, t in pe_zile %}<li>{{ z }}: {{ lei(t.cheltuiala_bani) }} · {{ t.clicuri }} clicuri · {{ t.rezultate }} rezultate</li>{% endfor %}</ul>
+</section>
+<section class="card" aria-labelledby="planuri">
+  <h2 id="planuri">Planuri media</h2>
+  {% for p in planuri %}
+  <article data-plan="{{ p.id }}" data-stare="{{ p.stare }}">
+    <h3>{{ p.continut.masurare.utm_campaign }} · {{ {"propus": "propus", "aprobat": "aprobat", "respins": "respins"}[p.stare] }}</h3>
+    <ul>{% for c in p.continut.campanii %}<li>{{ c.nume }} ({{ c.rol }}): {{ lei(c.buget_zilnic_bani) }} pe zi{% if c.variante %} · variante: {{ c.variante|join(", ") }}{% endif %}</li>{% endfor %}</ul>
+    <p class="slab">Oprire la cost pe rezultat peste {{ p.continut.criterii_oprire.multiplu_pierdere }} × {{ lei(p.continut.criterii_oprire.cost_tinta_bani) }}, după {{ p.continut.criterii_oprire.afisari_minime }} afișări și {{ p.continut.criterii_oprire.clicuri_minime }} clicuri.</p>
+    {% if p.probleme %}<ul class="probleme">{% for x in p.probleme %}<li>{{ x }}</li>{% endfor %}</ul>{% endif %}
+    {% if p.stare == "propus" %}
+    <form method="post" action="/reclame/plan/{{ p.id }}/aproba"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Aprobă planul</button></form>
+    <form method="post" action="/reclame/plan/{{ p.id }}/respinge"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Respinge</button></form>
+    {% endif %}
+  </article>
+  {% else %}<p class="slab">Niciun plan media.</p>{% endfor %}
+</section>
+<section class="card" aria-labelledby="construite">
+  <h2 id="construite">Campanii construite</h2>
+  {% for c in campanii_construite %}
+  <article data-campanie-id="{{ c.id }}" data-stare="{{ c.stare }}">
+    <h3>{{ c.nume }}</h3>
+    <p>{{ etichete_stare.get(c.stare, c.stare) }} · {{ lei(c.buget_zilnic_bani) }} pe zi</p>
+    {% if c.stare == "in_pauza" %}<form method="post" action="/reclame/campanie/{{ c.id }}/activeaza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Activează</button></form>{% endif %}
+    {% if c.stare == "activa" %}<form method="post" action="/reclame/campanie/{{ c.id }}/pauza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Pune pe pauză</button></form>{% endif %}
+  </article>
+  {% else %}<p class="slab">Nicio campanie construită.</p>{% endfor %}
+</section>
+
+<section class="card" aria-labelledby="decizii">
+  <h2 id="decizii">Deciziile Strategului și ale Consiliului</h2>
+  {% for d in decizii %}
+  <article data-decizie="{{ d.id }}" data-iesire="{{ d.iesire }}">
+    <h3>{{ d.de_la }} – {{ d.pana_la }} · {{ {"continua": "Continuă", "ajusteaza": "Ajustează", "pivoteaza": "Pivotează", "opreste": "Oprește", "asteapta": "Așteaptă"}[d.iesire] }} ({{ d.sursa }})</h3>
+    <p>{{ d.motiv }}. Se așteaptă: {{ d.asteptat }}; se verifică pe {{ d.verificare_la }}.</p>
+    {% if d.alternative %}<ol>{% for a in d.alternative %}<li>{{ a.ipoteza }} <span class="slab">(unghi: {{ a.unghi }}; {{ a.dovezi }})</span></li>{% endfor %}</ol>{% endif %}
+  </article>
+  {% else %}<p class="slab">Nicio decizie încă.</p>{% endfor %}
+</section>
+
+<section class="card" aria-labelledby="schimbari">
+  <h2 id="schimbari">Ce s-a schimbat și de ce</h2>
+  <ul>
+  {% for p in propuneri_cont %}
+    <li data-propunere="{{ p.id }}" data-stare="{{ p.stare }}">{{ p.creat_la.strftime("%d.%m %H:%M") }} · {{ p.motiv }} · {{ p.tip }}: {{ p.inainte }} → {{ p.dupa }} · <strong>{{ p.stare }}</strong>
+      {% if p.verdict.motive %}<br><span class="slab">{{ p.verdict.motive|join("; ") }}</span>{% endif %}
+      {% if p.stare == "propusa" %}<form method="post" action="/reclame/propunere/{{ p.id }}/aproba"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Aprobă</button></form><form method="post" action="/reclame/propunere/{{ p.id }}/respinge"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Respinge</button></form>{% endif %}
+      {% if p.stare == "aplicata" and p.tip != "creeaza" %}<form method="post" action="/reclame/propunere/{{ p.id }}/anuleaza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Anulează</button></form>{% endif %}
+    </li>
+  {% else %}<li class="slab">Nicio schimbare.</li>{% endfor %}
+  </ul>
+</section>
+{% endblock %}

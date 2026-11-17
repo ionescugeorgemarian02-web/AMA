@@ -4,6 +4,39 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F13
+- `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md`; fișierele reclamelor intră în lista locurilor cu scop de agenție (`tests/unit/test_garzi_db.py`). Fără migrare.
+
+### F13.10 — Campania de probă (simulare accelerată)
+- `app/reclame/raport.py` (raportul dublu platformă/site, verificarea plafoanelor), ecranul `/reclame/cont/<id>/raport`, simularea de 14 zile, D-014. Fără migrare.
+
+### F13.9 — Testarea creativurilor
+- `app/reclame/teste.py` (probabilitatea de a fi cea mai bună, date minime, oprirea pierzătoarelor, câștigătoarea în scalare), propunerea `adauga_anunt`. Migrarea `0075`.
+
+### F13.8 — Verificarea reclamelor înainte de lansare
+- `app/reclame/verificare.py`, pachetul `rulepacks/reclame.toml`, blocarea la construcție și reverificarea la activare. Fără migrare.
+
+### F13.7 — Consiliul
+- `app/reclame/consiliu.py` (dosarul, importul deciziei, plafonul lunar, modul API), ecranul `/reclame/consiliu`, promptul `reclame.consiliu.v1`, D-012. Migrarea `0074`.
+
+### F13.6 — Strategul și înregistrările de decizie
+- `app/reclame/strateg.py` (reguli pentru cele patru ieșiri, ipotezele prin gateway, propunerea de pauză), promptul `reclame.strateg.v1`, jobul `reclame.strateg`. Migrarea `0073`.
+
+### F13.5 — Gardianul de buget și oprirea de urgență
+- `app/reclame/{gardian,urgenta}.py` (plafoane, ritm, anomalii, oprirea globală cu pauza tuturor campaniilor și anunț critic), supravegherea după fiecare citire. D-010. Fără migrare.
+
+### F13.4 — Constructorul de campanii, propunerile de schimbare și executorul
+- `app/reclame/{constructor,propuneri}.py`, scrierea în adaptoarele Meta și Google, executantul efectelor `reclama` (în `efecte/sistem.py`, prin adăugare), panoul cu activare, aprobare și anulare. Migrarea `0072`.
+
+### F13.3 — Planificatorul media
+- `app/reclame/plan.py` (planul determinist, verificarea, decizia), secțiunea „Planuri media” din `/reclame/cont/<id>`. Migrarea `0071`.
+
+### F13.2 — Citirea rezultatelor Google Ads
+- Adaptorul `app/connectors/reclame/google.py` (GAQL `searchStream`), setările Google Ads, Google Ads API simulat. Fără migrare.
+
+### F13.1 — Citirea rezultatelor Meta
+- `app/reclame` (conturi de reclame cu plafoane, rezultate zilnice, citire orară `reclame.citire`), conectorul `app/connectors/reclame/meta.py` prin ușa `app/operare/efecte/reclame.py`, ecranul `/reclame`. Migrarea `0070`.
+
 ### F12.2 — Email către abonați
 - `app/crm/email.py` (ușa de trimitere: suprimare, matrice pe țări, consimțământ, praguri, limită zilnică, domeniu), dezabonarea dintr-un clic (`/site/dezabonare/<jeton>`), verificarea suprimării în executorul de efecte, ecranul `/crm/email`. Migrarea `0095`.
 

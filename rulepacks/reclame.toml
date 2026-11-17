@@ -1,0 +1,65 @@
+pachet = "reclame"
+tip = "platforma"
+titlu = "Reclame plătite (Meta Ads și Google Ads)"
+versiune = 1
+canale = ["meta_ads", "google_ads"]
+
+[[reguli]]
+id = "reclame-atribute-personale"
+text = "Reclama nu afirmă și nu sugerează atribute personale ale celui care o vede (sănătate, greutate, datorii, situație personală)."
+potrivire = "regex"
+tipare = [
+  '\b(?:esti|sunteti|te simti|va simtiti|suferi|suferiti) (?:de )?(?:supraponderal\w*|gras\w*|diabet\w*|depresi\w*|insomni\w*|chel\w*|indatorat\w*|singur\w*|anxios\w*|anxietate)\b',
+  '\b(?:ai|aveti) (?:datorii|diabet|depresie|kilograme in plus)\b',
+]
+severitate = "critica"
+marcaj = "[I]"
+verificat_la = 2026-11-17
+sursa = { tip = "politica_platformei", titlu = "Standardele de publicitate Meta: atribute personale", url = "https://transparency.meta.com/policies/ad-standards/" }
+exemple_blocate = ["Ești supraponderal? Avem soluția.", "Ai datorii? Sună-ne azi.", "Te simți singur în afacere?"]
+exemple_trece = ["Proprietarii de cafenele ne cer des un audit.", "Află ce funcționează pe site-ul firmei tale."]
+
+[[reguli]]
+id = "reclame-promisiuni-rezultat"
+text = "Reclama nu promite rezultate garantate (vânzări, clienți, venituri) și nu promite multiplicarea lor."
+potrivire = "regex"
+tipare = [
+  '\b(?:rezultate|vanzari|clienti|venituri|profit) garantat\w*\b',
+  '\bgarantam (?:rezultate|vanzari|clienti|venituri|profit)\w*\b',
+  '\b(?:dublezi|triplezi|dublati|triplati|dubleaza|tripleaza)\w* (?:vanzarile|clientii|veniturile|profitul)\b',
+]
+severitate = "majora"
+marcaj = "[I]"
+verificat_la = 2026-11-17
+sursa = { tip = "politica_platformei", titlu = "Google Ads: afirmații nesusținute; Meta: practici înșelătoare", url = "https://support.google.com/adspolicy/answer/6020955" }
+exemple_blocate = ["Vânzări garantate în 30 de zile!", "Îți dublezi vânzările cu auditul nostru.", "Garantăm clienți noi."]
+exemple_trece = ["Auditul îți arată unde pierzi clienți.", "Primești trei recomandări concrete."]
+
+[[reguli]]
+id = "reclame-categorii-speciale"
+text = "Fără reclame din categoriile speciale (credite, locuri de muncă, locuințe) sau pe teme politice și sociale: agenția nu le rulează."
+potrivire = "regex"
+tipare = [
+  '\b(?:credit\w*|imprumut\w*|angajam|angajari|locuri de munca|apartament\w* de vanzare|inchiriem|alegeri\w*|partid\w*|referendum\w*)\b',
+  '\bvoteaz\w*\b',
+]
+severitate = "critica"
+marcaj = "[I]"
+verificat_la = 2026-11-17
+sursa = { tip = "politica_platformei", titlu = "Meta: categorii speciale de reclame și reclame politice", url = "https://www.facebook.com/business/help/298000447747885" }
+exemple_blocate = ["Credit rapid pentru firma ta.", "Angajăm vânzători în Cluj.", "Votează schimbarea la alegeri!"]
+exemple_trece = ["Audit gratuit pentru site-ul firmei tale.", "Vino la degustare sâmbătă."]
+
+[[reguli]]
+id = "reclame-produse-restrictionate"
+text = "Fără produse restricționate în reclame (alcool, tutun, țigări electronice, pariuri, arme, medicamente)."
+potrivire = "regex"
+tipare = [
+  '\b(?:alcool\w*|tutun|tigar\w*|vape\w*|pariu\w*|cazino\w*|pacanele|arme|pistol\w*|medicament\w*)\b',
+]
+severitate = "critica"
+marcaj = "[I]"
+verificat_la = 2026-11-17
+sursa = { tip = "politica_platformei", titlu = "Google Ads: conținut restricționat; Meta: produse restricționate", url = "https://support.google.com/adspolicy/answer/6008942" }
+exemple_blocate = ["Țigări electronice la jumătate de preț.", "Pariuri sportive cu bonus."]
+exemple_trece = ["Cafea de specialitate, prăjită săptămânal.", "Audit de marketing în 48 de ore."]

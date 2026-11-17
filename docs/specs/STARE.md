@@ -276,3 +276,28 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 ### De verificat la migrare (F11)
 - F11.1: pragurile Reflectorului (20 de postări pe lot, 3 pe grup, 25% diferență) pe date reale; efectul valorilor extreme asupra mediei lotului.
 - F11.3: alegerea adaptivă pe postări reale măsurate; media nișei pe categorii reale; legarea recomandării de sloturi de planificarea publicării (F9.7).
+
+## Faza F13 — Reclame, Strateg, Consiliu (sesiunea A, din 2026-11-17)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F13.1 Citirea rezultatelor Meta | verificat pe Marketing API SIMULAT: cifrele contului agenției (pe campanii, reclame, zile) apar în `/reclame` și coincid cu evidența „managerului”; recitirea nu dublează; eroarea de token e spusă pe cont | `tests/integration/test_reclame_meta.py`, `tests/unit/test_reclame_meta.py` |
+| F13.2 Citirea rezultatelor Google Ads | verificat pe Google Ads API SIMULAT: aceleași cifre în panou ca în „consolă” (micro → bani, conversii întregi), token respins = autentificare | `tests/integration/test_reclame_google.py`, `tests/unit/test_reclame_google.py` |
+| F13.3 Planificatorul media | verificat local: planul de probă (scalare + test 20% pe 3 unghiuri, plafoane, criterii de oprire, UTM) trece verificarea și se aprobă din panou; cel peste plafon nu se aprobă; aprobat = neschimbabil. **Aprobarea în portal de către client nu e construită** | `tests/integration/test_reclame_plan.py`, `tests/unit/test_reclame_plan.py` |
+| F13.4 Constructorul, propunerile, executorul | verificat pe Meta și Google SIMULATE: din planul aprobat, campaniile apar în pauză (răspunsul pierdut nu dublează); activarea și bugetul trec prin propuneri tipizate cu starea de dinainte; anularea dintr-o atingere în panou readuce bugetul | `tests/integration/test_reclame_campanii.py` |
+| F13.5 Gardianul și oprirea de urgență | verificat pe platformă SIMULATĂ: propunerea peste plafon e refuzată (nimic la platformă); cheltuiala de 4× ritmul pune totul pe pauză, oprește reclamele și trimite un singur anunț critic; la fel urmărirea tăcută, contul cu problemă, pagina căzută, tokenul expirat. **Pragurile, necalibrate** | `tests/integration/test_reclame_urgenta.py`, `tests/unit/test_reclame_gardian.py` |
+| F13.6 Strategul și înregistrările de decizie | verificat pe date SIMULATE și model FALS: două săptămâni slabe → „oprește”, cu trei ipoteze (20% din buget) și o propunere de pauză care așteaptă omul; înregistrarea nu se poate rescrie. **Calitatea ipotezelor pe model real: NEVERIFICATĂ** | `tests/integration/test_reclame_strateg.py`, `tests/unit/test_reclame_strateg.py` |
+| F13.7 Consiliul | verificat local (HTTP): dosarul se pregătește, răspunsul „din Claude” lipit în panou devine decizie și pune campania pe pauză la platforma SIMULATĂ; răspunsul fără formă sau cu opțiune inventată e refuzat; plafonul lunar amână; modul API (model FALS) scrie decizia, iar oprirea așteaptă omul. **Răspunsul real al lui Claude: NEVERIFICAT** | `tests/integration/test_reclame_consiliu.py` |
+| F13.8 Verificarea înainte de lansare | verificat local: reclamele cu atribute personale, promisiuni, categorii speciale, produse restricționate sau fără dezvăluire AI sunt blocate și nu ajung la platforma SIMULATĂ; campania fără reclame bune nu se creează; activarea cu pagina căzută e refuzată. **Regulile sunt [I]; respingerea platformei nu devine încă exemplu** | `tests/integration/test_reclame_verificare.py`, `tests/unit/test_reclame_verificare.py` |
+| F13.9 Testarea creativurilor | verificat pe platformă SIMULATĂ: trei variante cu buget egal și mic; după date minime, varianta mai bună trece de 90%, pierzătoarele se opresc la platformă, câștigătoarea apare în campania de scalare. **Bugetul egal la Meta real (seturi separate) și Google: neconstruite** | `tests/integration/test_reclame_teste.py`, `tests/unit/test_reclame_teste.py` |
+| F13.10 Campania de probă | verificat în simulare accelerată (D-014): 14 zile pe contul agenției, fără nicio depășire de plafon și fără oprire de urgență; raportul dublu (platformă / site, cu diferențele explicate) în `/reclame/cont/<id>/raport`. **Campania reală, cu bani reali: la migrare** | `tests/integration/test_reclame_campanie_proba.py` |
+| Poarta F13 | trecută pe simulare accelerată (D-014): oprirea de urgență exersată pe campania de probă de 14 zile (totul pe pauză la platformă, un anunț critic, repornire manuală); toate încercările peste plafon refuzate, fără efect; nicio depășire | `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md` |
+
+### De verificat la migrare (F13)
+- F13.1: contul real Meta al agenției, accesul `ads_read` (App Review), numele acțiunii de conversie și fusul orar al contului; comparația panou ↔ managerul de reclame pe cifre reale.
+- F13.4: câmpurile reale de creare la Meta (set, țintire, creativ) și Google (Search, reclamă responsivă); crearea atomică la Google.
+- F13.5: pragurile anomaliilor pe cheltuieli reale; o anomalie la un client oprește tot (D-010), de revizuit cu mai mulți clienți.
+- F13.7: un dosar real deschis în Claude (telefon) și importat; pentru modul API: profilul T4 și creditul lunar.
+- F13.9: împărțirea egală a bugetului pe variante la Meta (un set pe variantă) și pragul de 90% pe volume reale.
+- F13.10: campania reală de 14 zile (cont, card, buget mic) cu raportul dublu; marja pentru supralivrarea Meta.
+- F13.2: developer token-ul (nivel Explorer/Basic), MCC-ul agenției, versiunea Google Ads API, conturile reale.
