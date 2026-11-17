@@ -26,6 +26,16 @@
   {% else %}<p class="slab">Nicio campanie construită.</p>{% endfor %}
 </section>
 
+<section class="card" aria-labelledby="teste">
+  <h2 id="teste">Teste de creative</h2>
+  {% for t in teste_creative %}
+  <article data-test="{{ t.id }}" data-stare="{{ t.stare }}">
+    <p>Variabila: {{ t.variabila }} · {{ {"in_curs": "în curs", "incheiat": "încheiat", "oprit": "oprit"}[t.stare] }} · {{ t.motiv }}</p>
+    <ul>{% for v in t.variante %}<li>{{ v.varianta }}: {{ v.afisari }} afișări, {{ v.rezultate }} rezultate, {{ "%.0f"|format(v.probabilitate * 100) }}% să fie cea mai bună{% if t.castigator_anunt_id and v.anunt_id == t.castigator_anunt_id|string %} · <strong>câștigătoare</strong>{% endif %}</li>{% endfor %}</ul>
+  </article>
+  {% else %}<p class="slab">Niciun test de creative.</p>{% endfor %}
+</section>
+
 <section class="card" aria-labelledby="decizii">
   <h2 id="decizii">Deciziile Strategului și ale Consiliului</h2>
   {% for d in decizii %}

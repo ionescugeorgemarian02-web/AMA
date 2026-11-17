@@ -239,6 +239,10 @@ class ContGoogle:
                 "adGroupAds",
                 [{"update": {"resourceName": obiect, "status": stare}, "updateMask": "status"}],
             )
+        elif actiune == "creeaza_anunt":  # NECONSTRUIT: testele de creative rulează pe Meta (F13.9)
+            raise EroareDefinitiva(
+                "adăugarea unei reclame într-o campanie existentă nu e construită pentru Google"
+            )
         elif actiune == "buget_campanie":
             c = self._campanie(tenant_id, cid, id_=obiect)
             if c is None:

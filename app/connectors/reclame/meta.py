@@ -154,6 +154,21 @@ class ScriereMeta:
                 )
             return RezultatPlatforma(id_extern=cid, link=json.dumps({"reclame": harta}))
         obiect = str(payload["obiect_extern"])
+        if actiune == "creeaza_anunt":  # F13.9: câștigătoarea unui test intră în campania de scalare
+            existente = self._copii(token, obiect, "ads")
+            if payload["nume"] in existente:
+                return RezultatPlatforma(id_extern=existente[payload["nume"]])
+            seturi = list(self._copii(token, obiect, "adsets").values())
+            if not seturi:
+                raise EroareDefinitiva("campania nu are set de reclame")
+            creativ = {"title": payload["titlu"], "body": payload["text"], "link_url": payload["link"]}
+            date = {
+                "name": payload["nume"],
+                "adset_id": seturi[0],
+                "status": "ACTIVE",
+                "creative": json.dumps(creativ),
+            }
+            return RezultatPlatforma(id_extern=self._creeaza(token, act, "ads", date))
         if actiune in ("stare_campanie", "stare_anunt"):
             date = {"status": STARI[str(payload["stare"])]}
         elif actiune == "buget_campanie":

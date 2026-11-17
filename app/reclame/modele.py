@@ -173,3 +173,19 @@ class DosarConsiliu(BazaReclame):
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     decis_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ExperimentCreativ(BazaReclame):
+    """Testul de creative al unei campanii de test (F13.9, migrarea 0075)."""
+
+    __tablename__ = "reclame_teste"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    campanie_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    variabila: Mapped[str] = mapped_column(Text)
+    stare: Mapped[str] = mapped_column(Text, default="in_curs")
+    castigator_anunt_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    variante: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    inceput_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    incheiat_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))

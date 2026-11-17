@@ -21,7 +21,7 @@ from app.operare.efecte import sistem
 from app.reclame import gardian, rezultate, verificare
 from app.reclame.modele import Anunt, Campanie, ContReclame, Propunere
 
-TIPURI = ("creeaza", "stare", "buget", "stare_anunt")
+TIPURI = ("creeaza", "stare", "buget", "stare_anunt", "adauga_anunt")
 STARI_CAMPANIE = {"pauza": "in_pauza", "activa": "activa"}
 ETICHETE_STARE = {
     "in_constructie": "în construcție",
@@ -120,10 +120,12 @@ def propune(
     if tip != "creeaza" and c.id_extern is None:
         raise PropunereRefuzata("campania nu există încă la platformă")
     inainte: dict[str, Any] = stare_campanie(c)
-    if tip == "stare_anunt":
+    if tip in ("stare_anunt", "adauga_anunt"):
         a = db.get(Anunt, anunt_id) if anunt_id else None
-        if a is None or a.campanie_id != c.id or a.id_extern is None:
-            raise PropunereRefuzata("reclama nu există la platformă")
+        if a is None or a.campanie_id != c.id or (tip == "stare_anunt") != (a.id_extern is not None):
+            raise PropunereRefuzata(
+                "reclama nu există la platformă" if tip == "stare_anunt" else "reclamă invalidă"
+            )
         inainte = {"stare": "activa" if a.stare == "activa" else "pauza"}
     p = Propunere(
         tenant_id=c.tenant_id,
@@ -184,6 +186,15 @@ def _payload(db: Session, p: Propunere, c: Campanie, cont: ContReclame) -> dict[
             "buget_zilnic_bani": int(p.dupa["buget_zilnic_bani"]),
         }
     a = db.get(Anunt, p.anunt_id)
+    if p.tip == "adauga_anunt" and a is not None:
+        return comun | {
+            "actiune": "creeaza_anunt",
+            "obiect_extern": c.id_extern,
+            "nume": a.nume,
+            "titlu": a.titlu,
+            "text": a.text,
+            "link": a.link,
+        }
     return comun | {
         "actiune": "stare_anunt",
         "obiect_extern": a.id_extern if a else "",
@@ -256,7 +267,9 @@ def reconciliaza(db: Session) -> int:
             c.buget_zilnic_bani = int(p.dupa["buget_zilnic_bani"])
         else:
             anunt = db.get(Anunt, p.anunt_id)
-            if anunt is not None:
+            if anunt is not None and p.tip == "adauga_anunt":
+                anunt.id_extern, anunt.stare = e.id_extern, "activa"
+            elif anunt is not None:
                 anunt.stare = "activa" if p.dupa["stare"] == "activa" else "oprita"
         c.schimbat_la = p.aplicat_la
         audit.record(

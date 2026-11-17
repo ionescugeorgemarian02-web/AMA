@@ -49,7 +49,7 @@ def verifica(tip: str, inainte: dict[str, Any], dupa: dict[str, Any], sursa: str
     stare_noua = str(dupa.get("stare", inainte.get("stare", "pauza")))
     buget_vechi = int(inainte.get("buget_zilnic_bani", 0) or 0)
     buget_nou = int(dupa.get("buget_zilnic_bani", buget_vechi) or 0)
-    if tip == "stare_anunt" or (tip == "creeaza" and stare_noua == "pauza"):
+    if tip in ("stare_anunt", "adauga_anunt") or (tip == "creeaza" and stare_noua == "pauza"):
         # o reclamă dintr-o campanie sau o campanie nouă în pauză nu schimbă cheltuiala în sine
         return (
             Verdict(True)

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F13.9 — Testarea creativurilor
+- `app/reclame/teste.py` (probabilitatea de a fi cea mai bună, date minime, oprirea pierzătoarelor, câștigătoarea în scalare), propunerea `adauga_anunt`. Migrarea `0075`.
+
 ### F13.8 — Verificarea reclamelor înainte de lansare
 - `app/reclame/verificare.py`, pachetul `rulepacks/reclame.toml`, blocarea la construcție și reverificarea la activare. Fără migrare.
 

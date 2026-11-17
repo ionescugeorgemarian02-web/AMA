@@ -29,7 +29,7 @@ from app.conturi import (
 )
 from app.conturi.roluri import ROLURI_AGENTIE
 from app.panou.sabloane import pagina
-from app.reclame import consiliu, constructor, plan, propuneri, rezultate, strateg
+from app.reclame import consiliu, constructor, plan, propuneri, rezultate, strateg, teste
 
 router = APIRouter(prefix="/reclame", tags=["reclame"])
 Agentie = Annotated[SesiuneCurenta, Depends(require_role(*ROLURI_AGENTIE))]
@@ -131,6 +131,7 @@ def cont(
         propuneri_cont=propuneri.ale_contului(db, c.id),
         etichete_stare=propuneri.ETICHETE_STARE,
         decizii=strateg.ale_contului(db, c.id),
+        teste_creative=teste.ale_contului(db, c.id),
         mesaj=mesaj,
         eroare=eroare,
     )

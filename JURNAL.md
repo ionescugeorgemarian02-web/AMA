@@ -641,3 +641,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `app/reclame/verificare.py`, `rulepacks/reclame.toml` (4 reguli [I]), blocarea în `constructor`, reverificarea la activare în `propuneri`.
   - Găsit de teste: testul pachetelor cere `verificat_la` ≤ o dată fixă (am mutat-o la data noului pachet, nu am antedatat regulile); garda „doar încărcătorul numește rulepacks/” a prins un docstring al meu.
   - Verificat: 6 teste unitare, 1 de integrare; testele pachetelor de reguli, G3, banc, carantină și poarta F5 rămân verzi.
+- **F13.9 — Testarea creativurilor.**
+  - Construit: `app/reclame/teste.py`, migrarea `0075` (tabelul testelor, tipul `adauga_anunt`), acțiunea `creeaza_anunt` la Meta, evaluarea în jobul orar, secțiunea din ecran.
+  - Verificat: 2 teste unitare, 1 de integrare; toate testele reclamelor și migrările verzi.

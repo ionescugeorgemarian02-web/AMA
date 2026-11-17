@@ -4,7 +4,7 @@ import datetime as dt
 from typing import Any
 
 from app.operare import motor
-from app.reclame import rezultate, strateg, urgenta
+from app.reclame import rezultate, strateg, teste, urgenta
 
 NUME_CITIRE = "reclame.citire"
 NUME_STRATEG = "reclame.strateg"
@@ -14,7 +14,8 @@ NUME_STRATEG = "reclame.strateg"
 def _pas_citire() -> str:
     citite = rezultate.citeste_toate()
     anomalii = urgenta.supravegheaza()  # F13.5: după fiecare citire, semnalele de urgență
-    return f"{citite} anomalii={len(anomalii)}"
+    testele = teste.evalueaza_toate()  # F13.9: testele de creative, pe cifrele proaspete
+    return f"{citite} anomalii={len(anomalii)} teste={testele}"
 
 
 @motor.flux(NUME_CITIRE)

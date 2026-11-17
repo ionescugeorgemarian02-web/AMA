@@ -289,10 +289,12 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F13.6 Strategul și înregistrările de decizie | verificat pe date SIMULATE și model FALS: două săptămâni slabe → „oprește”, cu trei ipoteze (20% din buget) și o propunere de pauză care așteaptă omul; înregistrarea nu se poate rescrie. **Calitatea ipotezelor pe model real: NEVERIFICATĂ** | `tests/integration/test_reclame_strateg.py`, `tests/unit/test_reclame_strateg.py` |
 | F13.7 Consiliul | verificat local (HTTP): dosarul se pregătește, răspunsul „din Claude” lipit în panou devine decizie și pune campania pe pauză la platforma SIMULATĂ; răspunsul fără formă sau cu opțiune inventată e refuzat; plafonul lunar amână; modul API (model FALS) scrie decizia, iar oprirea așteaptă omul. **Răspunsul real al lui Claude: NEVERIFICAT** | `tests/integration/test_reclame_consiliu.py` |
 | F13.8 Verificarea înainte de lansare | verificat local: reclamele cu atribute personale, promisiuni, categorii speciale, produse restricționate sau fără dezvăluire AI sunt blocate și nu ajung la platforma SIMULATĂ; campania fără reclame bune nu se creează; activarea cu pagina căzută e refuzată. **Regulile sunt [I]; respingerea platformei nu devine încă exemplu** | `tests/integration/test_reclame_verificare.py`, `tests/unit/test_reclame_verificare.py` |
+| F13.9 Testarea creativurilor | verificat pe platformă SIMULATĂ: trei variante cu buget egal și mic; după date minime, varianta mai bună trece de 90%, pierzătoarele se opresc la platformă, câștigătoarea apare în campania de scalare. **Bugetul egal la Meta real (seturi separate) și Google: neconstruite** | `tests/integration/test_reclame_teste.py`, `tests/unit/test_reclame_teste.py` |
 
 ### De verificat la migrare (F13)
 - F13.1: contul real Meta al agenției, accesul `ads_read` (App Review), numele acțiunii de conversie și fusul orar al contului; comparația panou ↔ managerul de reclame pe cifre reale.
 - F13.4: câmpurile reale de creare la Meta (set, țintire, creativ) și Google (Search, reclamă responsivă); crearea atomică la Google.
 - F13.5: pragurile anomaliilor pe cheltuieli reale; o anomalie la un client oprește tot (D-010), de revizuit cu mai mulți clienți.
 - F13.7: un dosar real deschis în Claude (telefon) și importat; pentru modul API: profilul T4 și creditul lunar.
+- F13.9: împărțirea egală a bugetului pe variante la Meta (un set pe variantă) și pragul de 90% pe volume reale.
 - F13.2: developer token-ul (nivel Explorer/Basic), MCC-ul agenției, versiunea Google Ads API, conturile reale.
