@@ -161,6 +161,7 @@ cu „extension "vector" is not available”.
 | F13.7 Consiliul | **închis** (împins), migrarea `0074` |
 | F13.9 Testarea creativurilor | **închis** (împins), migrarea `0075` |
 | F13.10 Campania de probă | **închis** (împins), simulare accelerată (D-014) |
+| Poarta F13 | **trecută pe simulare** (`docs/specs/F13-poarta.md`); `make check` complet: 3121 passed + 1 reparat (garda contextului de agenție) |
 | F13.8 Verificarea înainte de lansare | **închis** (împins); pachet nou `rulepacks/reclame.toml`, `ASTAZI_FIX` din `tests/unit/test_reguli.py` mutat la 2026-11-17 |
 
 Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py` (tipurile reclamelor, la final),

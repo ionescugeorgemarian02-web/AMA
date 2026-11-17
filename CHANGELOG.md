@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F13
+- `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md`; fișierele reclamelor intră în lista locurilor cu scop de agenție (`tests/unit/test_garzi_db.py`). Fără migrare.
+
 ### F13.10 — Campania de probă (simulare accelerată)
 - `app/reclame/raport.py` (raportul dublu platformă/site, verificarea plafoanelor), ecranul `/reclame/cont/<id>/raport`, simularea de 14 zile, D-014. Fără migrare.
 

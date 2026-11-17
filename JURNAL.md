@@ -648,3 +648,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `app/reclame/raport.py`, ecranul raportului dublu, `tests/integration/lant_reclame.py`, D-014. Datele testelor reclamelor citesc acum ziua reală (panoul o folosește), restul primește `acum` explicit.
   - Găsit de teste: după repornirea manuală, cheltuiala de dimineață (de dinainte de pauză) reoprea totul; ritmul nu se mai judecă fără campanii active.
   - Verificat: testul de 14 zile + toate testele reclamelor.
+- **Poarta F13.**
+  - Construit: `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md`; cele 5 fișiere ale reclamelor cu `sesiune_agentie` adăugate (cu justificare) în `CONTEXT_AGENTIE` din `tests/unit/test_garzi_db.py`.
+  - Verificat: `make check` complet o dată: lint, tipuri, gărzi verzi; teste 3121 passed, 1 failed (garda contextului de agenție, reparată și rerulată împreună cu poarta și Consiliul: verzi). `make guards` și `make audit` (fără vulnerabilități) verzi.
+  - **Faza F13 e închisă pe simulări.** Rămân la migrare: conturile reale Meta/Google Ads, campania reală cu bani reali, Consiliul real.
