@@ -405,7 +405,15 @@ def test_toate_rutele_care_schimba_starea_au_garda_csrf() -> None:
     # constant; antet-secret + listă de conversații): `tests/integration/test_livrare_panou.py` și `test_telegram.py`.
     # Webhook-ul procesatorului de plăți (F7.6) se apără prin semnătura HMAC a corpului și vechimea evenimentului:
     # `tests/integration/test_facturare.py`.
-    fara_csrf_justificat = {"/intern/livrare/rezultat", "/telegram/webhook", "/facturare/webhook"}
+    # Dezabonarea dintr-un clic (F12.2): programele de email trimit POST-ul din antetul `List-Unsubscribe-Post`
+    # fără pagină și fără cookie, deci nu pot purta un jeton CSRF. Autentificarea e jetonul semnat (HMAC) din
+    # adresă, iar singurul efect posibil e dezabonarea adresei din jeton: `tests/integration/test_crm_email.py`.
+    fara_csrf_justificat = {
+        "/intern/livrare/rezultat",
+        "/telegram/webhook",
+        "/facturare/webhook",
+        "/site/dezabonare/{jeton}",
+    }
     nepazite = [
         r.path
         for r in verificate

@@ -54,6 +54,7 @@ CONTEXT_AGENTIE = {
     "app/site/analiza.py",
     "app/site/web.py",
     "app/site/audit.py",
+    "app/crm/registru.py",  # jobul zilnic de igienă a CRM-ului (F12.1): date ale agenției, fără utilizator
     "app/site/audit_web.py",
     # Efectele de sistem (F7): jobul de trimitere rulează fără utilizator; emailul către un lead nu are client.
     "app/operare/efecte/sistem.py",
@@ -68,12 +69,19 @@ CONTEXT_AGENTIE = {
     "app/portal/date.py",
     # Paginile de captare publicate (F7.9) și articolele (F7.10) se servesc public, din site.
     "app/site/captare_web.py",
+    "app/site/dezabonare_web.py",  # dezabonarea dintr-un clic (F12.2): vizitator anonim, jeton semnat
     # Cota de unități a platformelor (F9.4): a proiectului agenției, nu a unui client.
     "app/publicare/cote.py",
     "app/publicare/programare.py",  # jobul la minut (F9.7): fără utilizator, peste toți clienții
     "app/publicare/sanatate.py",  # gardianul conturilor (F9.8): fără utilizator, peste toți clienții
     "app/connectors/publicare/blog.py",  # blogul găzduit al agenției (F9.9): site_articole e al agenției
     "app/seo/articole.py",
+    # Colectorul de metrici (F10.1): job fără utilizator; lista postărilor de citit e peste toți clienții, iar
+    # citirea și scrierea fiecăreia rulează pe clientul ei.
+    "app/analiza/colector.py",
+    "app/cercetare/tendinte.py",  # jobul de dimineață (F10.7): lista clienților cu profil și inboxul nou
+    "app/cercetare/reclame_concurenta.py",  # jobul săptămânal (F10.8): lista concurenților tuturor clienților
+    "app/invatare/experimente.py",  # jobul zilnic (F11.4): lista experimentelor în curs ale tuturor clienților
 }
 
 

@@ -15,7 +15,7 @@ import json
 import uuid
 from typing import Any
 
-from sqlalchemy import event, select
+from sqlalchemy import event, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
@@ -96,6 +96,11 @@ def cere(
     return e
 
 
+def _suprimat(db: Session, payload: dict[str, Any]) -> bool:
+    adresa = str(payload.get("catre") or "").strip().lower()
+    return db.execute(text("SELECT 1 FROM crm_suprimari WHERE email = :e"), {"e": adresa}).first() is not None
+
+
 def incearca(efect_id: uuid.UUID) -> str:
     """O încercare: `trimis`, `oprit`, `esuat`. Aruncă `EroareTemporara` (rezultatul se reîncearcă)."""
     with sesiune_agentie() as db:
@@ -106,8 +111,16 @@ def incearca(efect_id: uuid.UUID) -> str:
             return e.stare
         if e.tenant_id is not None and opriri.este_oprit(db, opriri.Oprire.CLIENT, tenant_id=e.tenant_id):
             return "oprit"
-        e.incercari += 1
+        if e.tip == "email" and e.payload.get("categorie") == "marketing" and _suprimat(db, e.payload):
+            # F12.2: lista de suprimare se verifică și în clipa trimiterii, nu doar la cerere
+            suprimat = True
+        else:
+            suprimat = False
+            e.incercari += 1
         spec = EfectSistem(id=e.id, tip=e.tip, idem=e.cheia, tenant_id=e.tenant_id, payload=dict(e.payload))
+    if suprimat:
+        _incheie(efect_id, "anulat", eroare="adresa este în lista de suprimare")
+        return "anulat"
     try:
         rezultat: RezultatPlatforma = _conector(spec.tip).trimite(spec)
     except motor.EroareDefinitiva as exc:

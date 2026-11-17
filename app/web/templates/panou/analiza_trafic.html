@@ -1,0 +1,39 @@
+{% extends "panou/baza.html" %}
+{% block title %}Site: vizite și cereri de audit · AMA{% endblock %}
+{% block pagina %}
+<h1>Site: vizite și cereri de audit</h1>
+<p class="slab"><a href="/analiza">Rapoarte și analiză</a> · {{ p.de_la }} – {{ p.pana_la }} ·
+  {% for z in (7, 30, 90) %}<a href="/analiza/trafic?zile={{ z }}"{% if z == zile %} aria-current="true"{% endif %}>{{ z }} de zile</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+
+<section class="card" aria-labelledby="palnie">
+  <h2 id="palnie">De la vizită la client</h2>
+  <table>
+    <tbody>
+      <tr><th scope="row">Vizite numărate (toate paginile)</th><td>{{ p.vizite }}</td></tr>
+      <tr><th scope="row">Vizite numărate pe pagina de audit</th><td>{{ p.vizite_audit }}</td></tr>
+      <tr><th scope="row">Cereri de audit</th><td><strong>{{ p.cereri }}</strong></td></tr>
+      <tr><th scope="row">Adrese confirmate</th><td>{{ p.confirmate }}</td></tr>
+      <tr><th scope="row">Audituri livrate</th><td>{{ p.audituri_gata }}</td></tr>
+      <tr><th scope="row">Deveniți clienți</th><td>{{ p.clienti }}</td></tr>
+    </tbody>
+  </table>
+  <p>{% if p.cereri_la_suta is none %}<span class="slab">Fără vizite numărate pe pagina de audit nu se poate calcula o rată.</span>{% else %}Cel mult <strong>{{ "%.1f"|format(p.cereri_la_suta) }}</strong> cereri la 100 de vizite ale paginii de audit.{% endif %}</p>
+  <p class="slab">Vizitele se numără doar pentru vizitatorii care au acceptat analiza, fără niciun identificator; numărul real de vizite este mai mare, deci rata reală este mai mică. Cererile de audit sunt exacte.</p>
+</section>
+
+{% if p.pe_sursa %}
+<section class="card" aria-labelledby="surse">
+  <h2 id="surse">Cereri pe sursă</h2>
+  <ul>{% for sursa, n in p.pe_sursa.items() %}<li>{{ sursa }}: {{ n }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+<section class="card" aria-labelledby="pagini">
+  <h2 id="pagini">Cele mai vizitate pagini</h2>
+  {% if p.pe_pagina %}
+  <ul>{% for cale, n in p.pe_pagina %}<li>{{ cale }}: {{ n }}</li>{% endfor %}</ul>
+  {% else %}
+  <p class="slab">Nicio vizită numărată în acest interval.</p>
+  {% endif %}
+</section>
+{% endblock %}

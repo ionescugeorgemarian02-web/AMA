@@ -51,8 +51,13 @@ def test_raportul_se_genereaza_pentru_un_brand_propriu(
     assert postari["livrate"] >= 2 and postari["pachet"] is None  # brand propriu: fără abonament
     assert c["aprobari"]["decise"] == 3 and c["aprobari"]["din_prima"] == 2
     assert c["aprobari"]["motive_respingere"] == {"Hook slab": 1}
-    assert "F10" in c["rezultate"] and c["nevoi"]
-    assert set(c) == {"luna", "livrat", "rezultate", "aprobari", "public", "plan_luna_urmatoare", "nevoi"}
+    # F10.5: fără postări măsurate, raportul o spune (nu inventează cifre) și trece controlul pe cifre
+    assert "Nicio postare măsurată" in c["rezultate"] and c["nevoi"]
+    assert c["cifre"]["postari_masurate"] == 0 and c["verificare"]["g2_cifre"] == "trecut"
+    assert set(c) == {
+        "luna", "livrat", "rezultate", "aprobari", "public", "plan_luna_urmatoare", "nevoi",
+        "cifre", "ce_a_mers", "ce_nu_a_mers", "verificare",
+    }  # fmt: skip
     with sesiune_tenant(tenant, om) as db:  # regenerarea înlocuiește, nu dublează
         analiza.raport_lunar.genereaza(db, tenant, luna)
         assert len(analiza.raport_lunar.ale_clientului(db, tenant)) == 1

@@ -171,6 +171,10 @@ class Settings(BaseSettings):
     # cu conector real activ și aplicațiile agenției la platforme. NEVERIFICAT: valorile reale, la migrare.
     public_url: str = "http://localhost:8000"
     publicare_conectori: str = ""  # de ex. „facebook,instagram”; gol = niciun conector real
+    # Cheia YouTube Data API pentru clipurile populare (tendințe, F10.7); goală = sursa e sărită.
+    youtube_api_key: SecretStr = Field(default=SecretStr(""))
+    # Tokenul pentru Meta Ad Library API (identitate confirmată, F0.6); gol = analistul de reclame nu citește.
+    meta_ad_library_token: SecretStr = Field(default=SecretStr(""))
     meta_app_id: str = ""
     meta_app_secret: SecretStr = Field(default=SecretStr(""))
     meta_graph_versiune: str = "v23.0"

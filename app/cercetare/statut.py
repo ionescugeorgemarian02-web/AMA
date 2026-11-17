@@ -89,6 +89,15 @@ STATUTE: dict[str, StatutSursa] = {
             False,
             "Fără API oficial. Doar manual.",
         ),
+        StatutSursa(
+            "meta_ad_library",
+            "Biblioteca de reclame Meta",
+            "Meta Ad Library API",
+            False,
+            True,
+            False,
+            "Citită prin API-ul oficial (F10.8), doar pentru analiză: textul reclamelor nu se reutilizează.",
+        ),
     )
 }
 

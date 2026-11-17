@@ -42,6 +42,11 @@ MODULE_FLUXURI: tuple[str, ...] = (
     "app.media.fluxuri",
     "app.publicare.programare",
     "app.publicare.sanatate",
+    "app.analiza.colector",
+    "app.cercetare.tendinte",
+    "app.cercetare.reclame_concurenta",
+    "app.invatare",  # F11.2: lecțiile intră în contextul autorului și contoarele se actualizează la decizie
+    "app.crm",  # F12.1: igiena zilnică a CRM-ului (unirea firmelor duplicate, sarcinile de urmărire)
 )
 
 

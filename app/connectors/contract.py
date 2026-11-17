@@ -128,3 +128,69 @@ class Limite:
         if self.procent_folosit is not None and self.procent_folosit >= 80.0:
             return True
         return self.ramase is not None and self.total is not None and self.ramase <= max(1, self.total // 10)
+
+
+# --- metricile unei postări (F10.1, K1): doar date, importabile de oriunde
+# -------------------------------------
+
+
+@dataclass(frozen=True)
+class Metrici:
+    """Rezultatele unei postări, așa cum le dă platforma în momentul citirii (valori cumulate de la
+    publicare). `None` = platforma nu dă cifra pe acest canal; nu se pune zero în locul unei cifre lipsă."""
+
+    afisari: int | None = None  # de câte ori a fost afișată (impresii / vizualizări ale postării)
+    acoperire: int | None = None  # conturi unice care au văzut-o (reach)
+    vizualizari: int | None = None  # redări video
+    aprecieri: int | None = None
+    comentarii: int | None = None
+    distribuiri: int | None = None
+    salvari: int | None = None
+    clicuri: int | None = None
+    timp_vizionare_s: int | None = None
+
+    def ca_dict(self) -> dict[str, int]:
+        """Doar cifrele pe care platforma le-a dat."""
+        return {k: int(v) for k, v in self.__dict__.items() if v is not None}
+
+    @property
+    def goale(self) -> bool:
+        return not self.ca_dict()
+
+
+CHEI_METRICI: tuple[str, ...] = tuple(Metrici.__dataclass_fields__)
+
+ETICHETE_METRICI: dict[str, str] = {
+    "afisari": "Afișări",
+    "acoperire": "Acoperire",
+    "vizualizari": "Vizualizări",
+    "aprecieri": "Aprecieri",
+    "comentarii": "Comentarii",
+    "distribuiri": "Distribuiri",
+    "salvari": "Salvări",
+    "clicuri": "Clicuri",
+    "timp_vizionare_s": "Timp de vizionare (s)",
+}
+
+
+@runtime_checkable
+class CititorMetrici(Protocol):
+    """Cititorul de metrici al unui canal (K1). Aruncă erorile clasificate din `app.operare.motor`;
+    `EroareDefinitiva` = postarea nu mai există sau platforma nu dă metrici pentru ea."""
+
+    canal: str
+
+    def metrici(self, tenant_id: uuid.UUID, id_extern: str) -> Metrici: ...
+
+
+@runtime_checkable
+class CititorRetentie(Protocol):
+    """Cititorul curbei de retenție a unui clip (F10.2). Întoarce punctele (poziția în clip, între 0 și 1;
+    partea din public care se uită în acel punct, 1.0 = toți cei care au pornit clipul; poate trece de 1.0
+    când un pasaj e revăzut), în ordinea poziției. Listă goală = platforma nu are încă date."""
+
+    canal: str
+
+    def retentie(
+        self, tenant_id: uuid.UUID, id_extern: str, de_la: dt.date, pana_la: dt.date
+    ) -> list[tuple[float, float]]: ...

@@ -1,0 +1,90 @@
+{% extends "panou/baza.html" %}
+{% block title %}{{ firma.nume }} · CRM · AMA{% endblock %}
+{% block pagina %}
+<h1>{{ firma.nume }}</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/crm">CRM</a> · Etapă: <strong>{{ etichete_etapa.get(lead.etapa, lead.etapa) }}</strong>{% if lead.motiv_pierdere %} ({{ lead.motiv_pierdere }}){% endif %}</p>
+
+<section class="card" aria-labelledby="contact">
+  <h2 id="contact">Contact</h2>
+  <dl>
+    <dt>Email</dt><dd>{{ contact.email }}</dd>
+    {% if contact.nume %}<dt>Nume</dt><dd>{{ contact.nume }}</dd>{% endif %}
+    {% if contact.telefon %}<dt>Telefon</dt><dd>{{ contact.telefon }}</dd>{% endif %}
+    {% if firma.domeniu %}<dt>Site</dt><dd>{{ firma.domeniu }}</dd>{% endif %}
+    <dt>Sursă</dt><dd>{{ etichete_sursa.get(lead.sursa, lead.sursa) }}</dd>
+    <dt>Temeiul contactului</dt><dd>{{ etichete_temei.get(lead.temei, lead.temei) }}</dd>
+  </dl>
+</section>
+
+{% if tranzitii %}
+<section class="card" aria-labelledby="etapa">
+  <h2 id="etapa">Schimbă etapa</h2>
+  <form method="post" action="/crm/lead/{{ lead.id }}/etapa">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="etapa_noua">Etapa nouă</label>
+    <select id="etapa_noua" name="etapa">
+      {% for e in tranzitii %}<option value="{{ e }}">{{ etichete_etapa[e] }}</option>{% endfor %}
+    </select>
+    <label for="motiv">Motiv (obligatoriu la „pierdut”)</label>
+    <input id="motiv" name="motiv" type="text" maxlength="300">
+    <button type="submit">Salvează</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="card" aria-labelledby="consimtamant">
+  <h2 id="consimtamant">Istoricul consimțământului</h2>
+  <ul>
+  {% for c in consimtamant %}
+    <li>{{ c.la.strftime("%d.%m.%Y %H:%M") }} · {{ c.scop|replace("_", " ") }}: <strong>{% if c.acordat %}acordat{% else %}retras{% endif %}</strong> · {{ etichete_sursa.get(c.sursa, c.sursa) }}{% if c.dovada %} · {{ c.dovada }}{% endif %}</li>
+  {% else %}
+    <li class="slab">Niciun rând.</li>
+  {% endfor %}
+  </ul>
+  {% if consimtamant and consimtamant[0].acordat %}
+  <form method="post" action="/crm/lead/{{ lead.id }}/retrage">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="scop" value="{{ consimtamant[0].scop }}">
+    <label for="dovada">Cum a cerut retragerea (opțional)</label>
+    <input id="dovada" name="dovada" type="text" maxlength="300">
+    <button type="submit" class="secundar">Retrage consimțământul</button>
+  </form>
+  {% endif %}
+</section>
+
+<section class="card" aria-labelledby="sarcini">
+  <h2 id="sarcini">Sarcini</h2>
+  <ul>
+  {% for s in sarcini %}
+    <li>{{ s.titlu }} · {{ s.scadenta.strftime("%d.%m.%Y") }} · {% if s.stare == "deschisa" %}deschisă{% elif s.stare == "facuta" %}făcută{% else %}anulată{% endif %}</li>
+  {% else %}
+    <li class="slab">Nicio sarcină.</li>
+  {% endfor %}
+  </ul>
+  <form method="post" action="/crm/lead/{{ lead.id }}/sarcina">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="titlu">Sarcină nouă</label>
+    <input id="titlu" name="titlu" type="text" required minlength="3" maxlength="200">
+    <label for="scadenta">Până la</label>
+    <input id="scadenta" name="scadenta" type="date" required value="{{ maine }}">
+    <button type="submit" class="secundar">Adaugă sarcina</button>
+  </form>
+</section>
+
+<section class="card" aria-labelledby="activitati">
+  <h2 id="activitati">Activitate</h2>
+  <ul>
+  {% for a in activitati %}
+    <li>{{ a.la.strftime("%d.%m.%Y %H:%M") }} · {{ a.text }}</li>
+  {% endfor %}
+  </ul>
+  <form method="post" action="/crm/lead/{{ lead.id }}/nota">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="nota">Notă</label>
+    <textarea id="nota" name="nota" required minlength="2" maxlength="1000" rows="3"></textarea>
+    <button type="submit" class="secundar">Salvează nota</button>
+  </form>
+</section>
+{% endblock %}

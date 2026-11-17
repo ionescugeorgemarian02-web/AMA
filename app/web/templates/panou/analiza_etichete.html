@@ -1,0 +1,38 @@
+{% extends "panou/baza.html" %}
+{% block title %}Ce merge · AMA{% endblock %}
+{% macro recompensa(p) %}{% if p.recompensa is none %}<span class="slab">fără recompensă încă</span>{% elif p.recompensa_tip == "retentie_medie" %}{{ "%.0f"|format(p.recompensa * 100) }}% retenție medie{% else %}{{ "%.1f"|format(p.recompensa * 100) }} interacțiuni la 100 de afișări{% endif %}{% endmacro %}
+{% block pagina %}
+<h1>Ce merge</h1>
+<p class="slab"><a href="/analiza">Toate postările măsurate</a> · Recompensa se citește la 72 de ore de la publicare. Tipurile diferite de recompensă nu se amestecă.</p>
+<form method="get" action="/analiza/etichete" class="card">
+  <label for="dupa">Sortează și grupează după</label>
+  <select id="dupa" name="dupa">
+    {% for cheie, nume in grupari.items() %}<option value="{{ cheie }}"{% if cheie == dupa %} selected{% endif %}>{{ nume }}</option>{% endfor %}
+  </select>
+  <label for="client">Client</label>
+  <select id="client" name="client">
+    <option value="">Toți clienții</option>
+    {% for id, nume in clienti.items() %}<option value="{{ id }}"{% if id|string == client %} selected{% endif %}>{{ nume }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="secundar">Arată</button>
+</form>
+
+{% for g, medii in grupuri %}
+<section class="card grup-eticheta" aria-label="{{ grupari[dupa] }}: {{ g.valoare }}">
+  <h2>{{ g.valoare }} <span class="insigna">{{ g.postari|length }} {% if g.postari|length == 1 %}postare{% else %}postări{% endif %}</span></h2>
+  {% if medii %}
+  <p>{% for tip, (n, medie) in medii.items() %}Media: <strong>{% if tip == "retentie_medie" %}{{ "%.0f"|format(medie * 100) }}% retenție medie{% else %}{{ "%.1f"|format(medie * 100) }} interacțiuni la 100 de afișări{% endif %}</strong> (din {{ n }}){% if not loop.last %} · {% endif %}{% endfor %}</p>
+  {% else %}
+  <p class="slab">Nicio postare cu recompensă încă (prea devreme sau fără afișări raportate).</p>
+  {% endif %}
+  <ul>
+  {% for p in g.postari %}
+    <li><a href="/analiza/livrabil/{{ p.livrabil_id }}">{{ clienti.get(p.tenant_id, "Client") }} · {{ p.canal }} · {{ p.publicat_la|moment }}</a>: {{ recompensa(p) }}
+      <span class="slab">{% if dupa != "tipar_hook" and p.tipar_hook %}hook: {{ etichete_hook.get(p.tipar_hook, p.tipar_hook) }} · {% endif %}{% if dupa != "format" %}{{ p.format }} · {% endif %}{% if dupa != "slot" %}{{ eticheta_slot(p.zi_saptamana, p.ora) }}{% endif %}{% if dupa != "pilon" and p.pilon %} · {{ p.pilon }}{% endif %}</span></li>
+  {% endfor %}
+  </ul>
+</section>
+{% else %}
+<p class="slab">Nicio postare etichetată încă. Etichetele apar la prima citire de cifre a unei postări.</p>
+{% endfor %}
+{% endblock %}

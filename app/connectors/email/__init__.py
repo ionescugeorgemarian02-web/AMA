@@ -18,6 +18,7 @@ class Mesaj:
     subiect: str
     text: str
     idem: str
+    antete: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -37,7 +38,8 @@ class CutiePostalaSimulata:
         if self.esueaza > 0:
             self.esueaza -= 1
             raise ConnectionError("furnizorul de email nu răspunde (simulat)")
-        self.mesaje.append(Mesaj(str(p["catre"]), str(p["subiect"]), str(p["text"]), efect.idem))
+        antete = {str(k): str(v) for k, v in dict(p.get("antete") or {}).items()}
+        self.mesaje.append(Mesaj(str(p["catre"]), str(p["subiect"]), str(p["text"]), efect.idem, antete))
         return RezultatPlatforma(id_extern=f"sim-{len(self.mesaje) - 1}")
 
     def catre(self, adresa: str) -> list[Mesaj]:

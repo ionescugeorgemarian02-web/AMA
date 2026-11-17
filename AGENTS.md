@@ -1,6 +1,7 @@
 # Reguli pentru agenții de cod
 
 Fișier unic, citit la începutul fiecărei sesiuni. Sursa de adevăr pentru specificații este `docs/` (index: `docs/index.md`).
+La proiect lucrează două sesiuni în paralel: citește și [`docs/specs/COORDONARE.md`](docs/specs/COORDONARE.md) (cine ce face, migrări rezervate, reluarea după limită).
 
 ## Scopul proiectului
 

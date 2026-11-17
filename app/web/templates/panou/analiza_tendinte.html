@@ -1,0 +1,58 @@
+{% extends "panou/baza.html" %}
+{% block title %}Tendințe · AMA{% endblock %}
+{% block pagina %}
+<h1>Tendințe</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/analiza">Rapoarte și analiză</a> · Fișele se scriu în fiecare dimineață, din tendințele Google pentru România, clipurile populare YouTube și fluxurile de nișă ale clientului.</p>
+<form method="get" action="/analiza/tendinte" class="card">
+  <label for="client">Client</label>
+  <select id="client" name="client">
+    <option value="">Alege clientul</option>
+    {% for id, nume in clienti.items() %}<option value="{{ id }}"{% if id == client %} selected{% endif %}>{{ nume }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="secundar">Arată</button>
+</form>
+
+{% if client %}
+<section class="card" aria-labelledby="fise">
+  <h2 id="fise">Fișe de tendință</h2>
+  {% for f in fise %}
+  <article class="card" aria-label="{{ f.subiect }}">
+    <h3>{{ f.subiect }}
+      <span class="insigna {% if f.semnal == 'confirmat' %}ok{% else %}atentie{% endif %}">{% if f.semnal == "confirmat" %}confirmat{% else %}semnal slab{% endif %}</span>
+      {% if f.stare == "exclusa" %}<span class="insigna atentie">exclus: subiect sensibil</span>{% elif f.risc == "drepturi" %}<span class="insigna atentie">atenție la drepturi</span>{% endif %}</h3>
+    <p class="slab">{{ f.zi }} · {% if f.origine == "inbox" %}din inbox{% else %}din surse{% endif %} · potrivire cu nișa {{ "%.0f"|format(f.scor_nisa * 100) }}%{% if f.termeni_potriviti %} ({{ f.termeni_potriviti|join(", ") }}){% endif %} · valabilă până la {{ f.valabil_pana }}</p>
+    {% if f.unghi %}<p>{{ f.unghi }}</p>{% endif %}
+    {% if f.propunere %}<p><strong>Propunere de calendar:</strong> {{ f.propunere.tip }} pe {{ f.propunere.zi }}: {{ f.propunere.subiect }}</p>{% endif %}
+    <ul>{% for d in f.dovezi %}<li>{{ d.sursa }}: {% if d.url %}<a href="{{ d.url }}" rel="noopener noreferrer nofollow">{{ d.titlu or d.url }}</a>{% else %}{{ d.titlu }}{% endif %}</li>{% endfor %}</ul>
+  </article>
+  {% else %}
+  <p class="slab">Nicio fișă încă. {% if not profil or not profil.termeni %}Completează întâi cuvintele-cheie ale nișei, mai jos.{% endif %}</p>
+  {% endfor %}
+</section>
+
+{% if poate_edita %}
+<section class="card" aria-labelledby="inbox">
+  <h2 id="inbox">Inboxul de tendințe</h2>
+  <form method="post" action="/analiza/tendinte/{{ client }}/inbox">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="text">Lipește un link sau scrie ce ai văzut că merge acum</label>
+    <textarea id="text" name="text" rows="3" required maxlength="2000"></textarea>
+    <button type="submit">Trimite</button>
+  </form>
+</section>
+<section class="card" aria-labelledby="profil">
+  <h2 id="profil">Profilul de nișă</h2>
+  <form method="post" action="/analiza/tendinte/{{ client }}/profil">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="termeni">Cuvinte-cheie ale nișei, despărțite prin virgulă</label>
+    <textarea id="termeni" name="termeni" rows="3">{{ profil.termeni|join(", ") if profil else "" }}</textarea>
+    <label for="fluxuri">Fluxuri RSS de nișă, câte unul pe rând</label>
+    <textarea id="fluxuri" name="fluxuri" rows="3">{{ profil.fluxuri|join("\n") if profil else "" }}</textarea>
+    <button type="submit" class="secundar">Salvează profilul</button>
+  </form>
+</section>
+{% endif %}
+{% endif %}
+{% endblock %}

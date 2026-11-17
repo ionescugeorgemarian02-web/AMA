@@ -1,0 +1,67 @@
+{% extends "panou/baza.html" %}
+{% block title %}CRM · AMA{% endblock %}
+{% block pagina %}
+<h1>CRM</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab">Doar persoane care au cerut contactul sau au scris primele. Fiecare contact are sursă, temei și istoricul consimțământului. <a href="/crm/export.csv">Export complet (CSV)</a> · <a href="/crm/email">Email către abonați: suprimări și țări</a></p>
+
+<nav aria-label="Etape">
+  <ul>
+    <li><a href="/crm"{% if not etapa %} aria-current="page"{% endif %}>Toate</a></li>
+    {% for cod, nume in etichete_etapa.items() %}<li><a href="/crm?etapa={{ cod }}"{% if etapa == cod %} aria-current="page"{% endif %}>{{ nume|capitalize }} ({{ numar[cod] }})</a></li>{% endfor %}
+  </ul>
+</nav>
+
+<section class="card" aria-labelledby="sarcini">
+  <h2 id="sarcini">Sarcini de urmărire ({{ sarcini|length }})</h2>
+  {% for s, firma in sarcini %}
+  <form method="post" action="/crm/sarcina/{{ s.id }}/inchide">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <p><a href="/crm/lead/{{ s.lead_id }}">{{ firma.nume }}</a>: {{ s.titlu }} · {% if s.scadenta < azi %}<strong>întârziată din {{ s.scadenta.strftime("%d.%m.%Y") }}</strong>{% else %}până la {{ s.scadenta.strftime("%d.%m.%Y") }}{% endif %}
+    <button type="submit" class="secundar">Făcut</button></p>
+  </form>
+  {% else %}
+  <p class="slab">Nicio sarcină deschisă.</p>
+  {% endfor %}
+</section>
+
+<section class="card" aria-labelledby="leaduri">
+  <h2 id="leaduri">Lead-uri{% if etapa %}: {{ etichete_etapa[etapa] }}{% endif %}</h2>
+  {% if randuri %}
+  <div class="defilare">
+  <table>
+    <thead><tr><th scope="col">Firmă</th><th scope="col">Contact</th><th scope="col">Sursă</th><th scope="col">Temei</th><th scope="col">Etapă</th></tr></thead>
+    <tbody>
+    {% for lead, contact, firma in randuri %}
+      <tr><th scope="row"><a href="/crm/lead/{{ lead.id }}">{{ firma.nume }}</a></th><td>{{ contact.email }}</td><td>{{ etichete_sursa.get(lead.sursa, lead.sursa) }}</td><td>{{ etichete_temei.get(lead.temei, lead.temei) }}</td><td>{{ etichete_etapa.get(lead.etapa, lead.etapa) }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="slab">Niciun lead aici. Cererile de audit confirmate din site apar singure.</p>
+  {% endif %}
+</section>
+
+<section class="card" aria-labelledby="adauga">
+  <h2 id="adauga">Adaugă o recomandare</h2>
+  <p class="slab">Pentru o persoană care ți-a fost prezentată personal. Temeiul contactului: introducere personală.</p>
+  <form method="post" action="/crm/lead">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="firma">Firma</label>
+    <input id="firma" name="firma" type="text" required minlength="2" maxlength="200">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required maxlength="254">
+    <label for="nume">Numele persoanei (opțional)</label>
+    <input id="nume" name="nume" type="text" maxlength="200">
+    <label for="telefon">Telefon (opțional)</label>
+    <input id="telefon" name="telefon" type="tel" maxlength="40">
+    <label for="site_url">Site (opțional)</label>
+    <input id="site_url" name="site_url" type="text" maxlength="300">
+    <label for="dovada">Cine a făcut prezentarea și când</label>
+    <input id="dovada" name="dovada" type="text" required minlength="3" maxlength="300">
+    <button type="submit">Adaugă</button>
+  </form>
+</section>
+{% endblock %}

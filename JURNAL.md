@@ -528,3 +528,87 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **Poarta F9.**
   - Testul cap-coadă trecut pe simulare (șase canale aprobate, unul neaprobat, motorul real în proces, ~20 s). `make check` complet a rulat o dată pe fiecare pas, pe arborele lui (F9.3 și F9.4 au avut câte o rulare repetată: formatarea unui test, respectiv lista locurilor cu context de agenție, ambele reparate înainte de push). Rămâne deschis: tot ce ține de platformele reale (conturi, chei, aprobări) — la migrare.
   - Găsit la poartă: blogul agenției e comun bazei de test, iar poarta publică aceeași adresă înaintea testului F9.9; testul F9.9 golește acum adresa înainte să verifice că nimic nu apare fără aprobare.
+
+## 2026-11-14 — Sesiunea B: coordonare și faza F10 (Analiză și cercetare)
+- **Coordonare.**
+  - A doua sesiune de cod, pornită de proprietar ca să lucreze în paralel cu prima. Ramura `claude/tender-franklin-9wrn5i`, pornită din vârful F9.10 (`3d09d15`) al ramurii `claude/amazing-volta-ou9t2u`. Repartizarea (F9 + F12 la sesiunea A, F10 + F11 la sesiunea B), migrările rezervate și regulile pentru fișierele comune sunt în `docs/specs/COORDONARE.md`; sesiunea A a fost anunțată prin mesaj.
+  - Sarcină programată la oră care trimite sesiunii „continuă de unde ai rămas” (reluarea după limita de utilizare).
+  - Mediu: containerul nou nu are `pgvector`; fără el toate testele cu bază pică la pregătire. Comanda e în `COORDONARE.md`.
+- **F10.1 — Colectorul de metrici.**
+  - Construit: `analiza.colector`, `analiza.modele`, `connectors.metrici` (șase cititori), `efecte.metrici`, `contract.Metrici`, migrarea `0057`, spec F10.1. Hotărâri (D-009): cititori separați de conectorii de publicare (F9 neatins); rulare la 10 minute; intervalul ratat rămâne fără cifre; cifra lipsă nu devine zero; cifre introduse de om pentru canalele asistate.
+  - Găsit de teste: `EroareAutentificare` moștenește `EroareDefinitiva`; prinsă în ordinea greșită, un token expirat ar fi marcat intervalul „indisponibil” în loc să aștepte reautorizarea. Ordinea e corectată și comentată.
+  - Verificat: 13 teste unitare, 10 de contract, 8 de integrare, 3 de izolare.
+  - Rămâne deschis: formularul de introducere manuală a cifrelor (vine cu F10.4); toți cititorii reali sunt NEVERIFICAȚI pe conturi reale.
+- **F10.2 — Curba de retenție YouTube.**
+  - Construit: `analiza.retentie`, `CititorRetentieYoutube`, cititorul fals de retenție, `panou.analiza_web` cu două șabloane, rândul din meniu, clasa CSS `.grafic`, migrarea `0058`, spec F10.2. Hotărâri (D-007): curba se citește după metricile de la 72 de ore, 7 și 28 de zile și e un adaos (eșecul ei nu strică cifrele); grafic SVG pe server, fără bibliotecă. Formularul de introducere manuală rămas deschis la F10.1 e aici.
+  - Verificat: 5 teste unitare, 1 de contract, 4 de integrare, 1 de izolare.
+  - Rămâne deschis: permisiunea `yt-analytics.readonly` lipsește din `SCOPURI` (fișier F9): cerere către sesiunea A în `COORDONARE.md`.
+- **F10.3 — Legarea de etichete.**
+  - Construit: `analiza.etichete`, șablonul `analiza_etichete.html`, ruta `/analiza/etichete`, migrarea `0059`, spec F10.3. Hotărâri (D-007): etichetele vin doar din date existente; recompensa din citirea de la 72 de ore (sau prima de după), cu tipul ei; tipurile nu se amestecă în medii; numărul de postări stă lângă fiecare medie.
+  - Verificat: 8 teste unitare, 3 de integrare, 1 de izolare.
+  - Notă de proces: prima rulare a suitei complete pe F10.1 a fost invalidată de mine (am rulat alte sesiuni de test pe același server Postgres; conftest-ul schimbă parolele rolurilor de test la fiecare sesiune). De acum suita completă rulează pe un server separat (`AMA_PGTEST_DIR`/`AMA_PGTEST_PORT`), pe o copie înghețată a commitului.
+- **Verificare completă.** Suita întreagă pe commitul F10.2 (`4186a47`), pe server Postgres separat: `2938 passed, 1 skipped` (13 min). CI GitHub pe cererea de integrare #9: verde pe F10.3.
+- **F10.4 — Tablouri de bord și scor de sănătate.**
+  - Construit: `analiza.sanatate`, șablonul `analiza_clienti.html`, ruta `/analiza/clienti`, spec F10.4. Fără migrare. Hotărâri (D-007): reguli pure, calcul la afișare; minutele de om sunt estimare declarată; procent fără cazuri = „–”.
+  - Găsit: garda din bază nu lasă schimbată o cerere de aprobare; testul îmbătrânește cererea ca superutilizator, cu declanșatoarele oprite doar în acea tranzacție.
+  - Verificat: 7 teste unitare, 3 de integrare.
+
+  - Abatere: primul commit F10.4 (`git log`: „F10.4: tablouri de bord…”) a fost împins cu două teste picate (garda `check_gateway`: import din `app.gateway.reguli_buget`; `test_panou`: cereri de aprobare lăsate în așteptare de testul meu). Reparat în commitul următor; rulate apoi în ordinea suitei: `tests/integration/test_analiza_*`, `test_aprobari*`, `test_panou`, `tests/unit` → 1828 trecute.
+- **F10.5 — Raportul lunar complet.**
+  - Construit: `analiza.raport_cifre`, legarea în `raport_lunar.compune`, tabelul și frazele în `portal/rapoarte.html`, spec F10.5. Hotărâri (D-007): fraze deterministe, verificate cu extractorul G2; fără model.
+  - Test existent schimbat (F7.8, `test_raport_lunar.py`): mesajul „vine cu F10” a dispărut, iar setul de chei are patru chei noi; verificarea nu a fost slăbită.
+  - Verificat: 4 teste unitare, 2 de integrare.
+- **F10.6 — Analiza de trafic proprie.**
+  - Construit: `analiza.trafic`, șablonul `analiza_trafic.html`, ruta `/analiza/trafic`, spec F10.6. Fără migrare și fără colectare nouă: vizitele cu acord (F7.1) și leadurile (F7.2) existau. Hotărâri (D-007): rata e limită de sus și e afișată ca atare.
+  - Verificat: 2 teste de integrare.
+
+- **CI roșu pe F10.4–F10.5, reparat.** Suita completă pe F10.6: `1 failed, 2971 passed`. Cauza: `test_analiza_sanatate` lăsa în baza comună un abonament restant, pe care jobul de restanțe din `test_facturare` îl găsea. Testul meu își șterge acum abonamentele de probă. Lecție: înainte de împins un pas care adaugă teste cu date la nivel de agenție, rulez și testele care citesc aceleași tabele.
+- **F10.7 — Cercetătorul de tendințe.**
+  - Construit: `cercetare.tendinte`, migrarea `0060`, ecranul `/analiza/tendinte`, `AMA_YOUTUBE_API_KEY` în configurare, spec F10.7. Hotărâri (D-007): totul pe reguli; unghiul e ciornă deterministă (partea cu model a lui C2 nu e construită); cheia YouTube în antet.
+  - Găsit de teste: potrivirea după început de cuvânt nu recunoștea „cafelei” pentru „cafea” (acum: rădăcină comună); „mort” prindea „mortar” (formele scurte se potrivesc doar exact).
+  - Verificat: 5 teste unitare, 2 de integrare.
+- **F10.8 — Analistul de reclame ale concurenței.**
+  - Construit: `cercetare.reclame_concurenta`, statutul `meta_ad_library` în `cercetare/statut.py`, migrarea `0061`, ecranul `/analiza/concurenta`, `AMA_META_AD_LIBRARY_TOKEN`, spec F10.8. Hotărâri (D-007): reclamele observate devin documente colectate cu statut nereutilizabil, deci G7 le apără fără nicio schimbare în validare; unghiul pe reguli; fără token jobul nu citește.
+  - Verificat: 4 teste unitare, 2 de integrare (cu validatorul G7 real).
+- **Poarta F10:** parțială, vezi `docs/specs/F10-poarta.md`. Toți pașii F10.1–F10.8 sunt închiși pe simulări; „date reale” rămâne la migrare.
+
+- **Verificare completă F10.** Suita întreagă pe commitul F10.8 (`037f8b9`): `2987 passed, 1 skipped` (12 min, server Postgres separat). Cererea de integrare #9 are descrierea actualizată.
+- **CI pe `b9afd65`: 1 eșec din 2992, în afara fazei F10.** `tests/integration/test_calibrare.py::test_esantionul_saptamanal_este_job_programat` (F5.8): testul cere ca eșantionul de 10 verdicte, ales dintre TOȚI clienții din baza comună a sesiunii, să conțină unul al clientului testului. Testele anterioare din același fișier lasă câte 22 de candidați pentru alți clienți, deci rezultatul depinde de tragere. Diferența F10 nu atinge validarea și nu creează verdicte G10. Local, pe același cod: `2987 passed`. Am repornit o singură dată jobul picat. **Propunere (pentru cine deține F5/validare):** testul să șteargă candidații vechi sau să verifice doar numărul și apartenența la fereastră.
+
+## 2026-11-15 — Sesiunea B: îmbinarea cu main și faza F11 (Învățare 1)
+- **Îmbinare.** F9 a intrat în `main` prin cererea de integrare #10 (sesiunea A). Am îmbinat `main` în ramura mea (trei conflicte în `CHANGELOG.md`, `JURNAL.md`, `STARE.md`, rezolvate păstrând ambele părți). Sesiunea a stat oprită ~4 ore (limita de utilizare) și a reluat din sarcina programată.
+- **F11.1 — Reflectorul.**
+  - Construit: `invatare.reflector`, `invatare.modele`, migrarea `0090` (`down_revision` = `0061`), spec F11.1. Hotărâri (D-007): reguli deterministe; doar propune; lecțiile sunt pe client.
+  - Verificat: 4 teste unitare, 1 de integrare.
+  - Rămâne deschis: editările omului ca semnal; jobul de reflecție și ecranul (F11.2, F11.6).
+- **F11.2 — Curatorul și playbook-ul.**
+  - Construit: `invatare.curator`, punctul de extensie `continut.scriere.inregistreaza_adaos_context` (singura atingere în F6), migrarea `0091`, `app.invatare` în `worker.MODULE_FLUXURI`, spec F11.2.
+  - Găsit: jurnalul de audit refuză cheia de detaliu numită `cheie` (arată a secret); redenumită `lectie`.
+  - Verificat: 2 teste de integrare (cu promptul real al autorului și decizia reală).
+- **F11.3 — Alegerea adaptivă.**
+  - Construit: `invatare.alegere`, punctul de extensie `inregistreaza_preferinta_tipar` și parametrul `tipar_preferat` în `continut.scriere.alege` (comportamentul vechi rămâne când nu există preferință), spec F11.3. Fără migrare.
+  - Verificat: 5 teste unitare pe date simulate, 1 de integrare.
+
+  - Găsit la revizuire: fără nicio postare măsurată, preferința de tipar ar fi fost o tragere la întâmplare între variante egale și putea schimba hook-ul ales (și testele F6, nedeterminist). Acum, fără date, nu există preferință (testat).
+- **F11.4 — Registrul de experimente.**
+  - Construit: `invatare.experimente`, migrarea `0092` (cu declanșatorul care îngheață cele declarate), spec F11.4. Hotărâri (D-007): experimentul observă, nu repartizează; câștigător doar cu prag + semnificație.
+  - Verificat: 3 teste unitare, 2 de integrare.
+- **F11.5 — Constituția.**
+  - Construit: `invatare.constitutie`, migrarea `0093`, `scripts/check_invatare.py` (+ `Makefile`), Reflectorul și contoarele Curatorului rulează sub marcaj, spec F11.5. Hotărâri (D-007): gardul e în bază; regula săptămânală se aplică lecțiilor pe domeniu.
+  - Găsit de teste: refacerea marcajului într-un `finally` ascundea eroarea adevărată când tranzacția era deja anulată (acum se reface doar la succes). Testul F11.2 al limitei de 40 a fost adaptat la regula săptămânală (aprobări la 8 zile distanță), fără a slăbi verificarea.
+  - Verificat: 3 teste unitare, 3 de integrare.
+- **F11.6 — Ecranul „Învățare” și poarta F11.**
+  - Construit: `app/panou/invatare_web.py`, șablonul `panou/invatare.html`, rândul din meniu (doar pentru cine are `invatare.citeste`), `curator.istoric`, spec F11.6, `F11-poarta.md`. Hotărâri (D-007): deciziile le ia doar proprietarul; ecranul nu are reguli proprii, arată refuzul din `app.invatare`.
+  - Găsit de teste: nimic în cod; un test al meu folosea o cheie de lecție prea scurtă pentru constrângerea din bază.
+  - Verificat: 4 teste de ecran, 1 test cap-coadă al porții. Neconstruit: rulările optimizatorului și seturile de aur în timp (F14).
+  - **Faza F11 e închisă pe simulări.** Sesiunea A e oprită de limita de utilizare până marți 2026-11-17, 20:00 (ora României); proprietarul a cerut ca sesiunea B să continue.
+- **F12.1 — CRM-ul minimal (sesiunea B a preluat F12).**
+  - Construit: `app/crm/{modele,registru}.py`, migrarea `0094`, `app/panou/crm_web.py` cu două șabloane, apelul din `site.audit.confirma`, `app.crm` în `MODULE_FLUXURI`, spec F12.1. Hotărâri (D-007): o singură ușă de intrare; recomandarea nu aduce consimțământ de email; unirea nu șterge.
+  - Găsit de teste: „SRL-D” nu era recunoscut ca formă juridică. Cheia străină spre `leaduri` e `ON DELETE SET NULL`, altfel curățarea lead-urilor din site (și testele care o fac) ar fi fost blocată.
+  - Verificat: 17 teste unitare, 8 de integrare, 5 de izolare; împreună cu testele site-ului, unitare și de izolare: 1962 passed.
+- **F12.2 — Email către abonați.**
+  - Construit: `app/crm/email.py`, migrarea `0095`, `app/site/dezabonare_web.py`, poarta de suprimare din `efecte/sistem.incearca`, `antete` pe mesajul cutiei simulate, ecranul `/crm/email`, spec F12.2. Hotărâri (D-007): suprimarea se verifică și în clipa trimiterii; deschiderea linkului nu dezabonează, butonul da; tranzacționalele nu sunt oprite.
+  - Atins în afara `app/crm`, prin adăugare: `app/operare/efecte/sistem.py` (poarta), `app/connectors/email/__init__.py` (antete), `app/site/__init__.py` (ruta).
+  - Verificat: 4 teste unitare, 5 de integrare; cu unitarele, izolarea, site-ul, efectele și facturarea: 2006 passed. **Fără furnizor real de email: totul pe cutia simulată.**
+  - CI a picat pe `746a041`: testul existent „toate rutele care schimbă starea au gardă CSRF” a prins ruta `POST /site/dezabonare/{jeton}`. E o excepție reală (RFC 8058: programul de email trimite POST-ul fără cookie), apărată de jetonul semnat; am adăugat-o în lista de excepții a testului, cu justificare. Greșeala mea: am împins fără suita completă.
+

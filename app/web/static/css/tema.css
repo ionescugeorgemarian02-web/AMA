@@ -147,3 +147,5 @@ del { background: var(--pericol-fundal); }
 .prompter-rapid { animation-duration: 50s; }
 @keyframes defilare { from { transform: translateY(0); } to { transform: translateY(-100%); } }
 @media (prefers-reduced-motion: reduce) { .prompter { height: auto; } .prompter-text { animation: none; padding-top: 0; } }
+/* Graficele randate pe server (F10.2): SVG cu culoarea textului, lat cât cardul. */
+.grafic { display: block; width: 100%; height: auto; max-height: 14rem; }

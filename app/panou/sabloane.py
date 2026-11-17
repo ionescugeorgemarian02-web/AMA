@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.conturi import SesiuneCurenta
-from app.conturi.roluri import Rol
+from app.conturi.roluri import Permisiune, Rol, poate
 
 DIRECTOR = Path(__file__).resolve().parents[1] / "web" / "templates"
 STATIC = DIRECTOR.parent / "static"
@@ -62,6 +62,7 @@ def pagina(
             "etichete_stare": ETICHETE_STARE,
             "etichete_cerere": ETICHETE_CERERE,
             "este_proprietar": u.rol is Rol.PROPRIETAR,
+            "poate_invatare": poate(u.rol, Permisiune.INVATARE_CITESTE),
             **context,
         },
         status_code=status,

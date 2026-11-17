@@ -109,12 +109,44 @@ def scor_hook(
     return scor, probleme
 
 
+TOLERANTA_PREFERINTA = 5  # câte puncte de scor poate ceda calitatea în fața tiparului preferat (F11.3)
+
+
 def alege(
-    hookuri: list[HookPropus], continut_brief: dict[str, object], *, cuvinte_maxim: int = CUVINTE_HOOK_MAXIM
+    hookuri: list[HookPropus],
+    continut_brief: dict[str, object],
+    *,
+    cuvinte_maxim: int = CUVINTE_HOOK_MAXIM,
+    tipar_preferat: str | None = None,
 ) -> int:
-    """Indicele hook-ului ales: cel mai mare scor; la egalitate, primul."""
+    """Indicele hook-ului ales: cel mai mare scor; la egalitate, primul. Dacă alegerea adaptivă (F11.3)
+    preferă un tipar, câștigă primul hook de acel tipar aflat la cel mult `TOLERANTA_PREFERINTA` puncte de
+    cel mai bun: calitatea rămâne filtrul, preferința doar departajează variantele apropiate."""
     scoruri = [scor_hook(h.text, continut_brief, cuvinte_maxim=cuvinte_maxim)[0] for h in hookuri]
-    return max(range(len(hookuri)), key=lambda i: (scoruri[i], -i))
+    cel_mai_bun = max(range(len(hookuri)), key=lambda i: (scoruri[i], -i))
+    if tipar_preferat is not None:
+        for i, h in enumerate(hookuri):
+            if h.tipar == tipar_preferat and scoruri[i] >= scoruri[cel_mai_bun] - TOLERANTA_PREFERINTA:
+                return i
+    return cel_mai_bun
+
+
+# Preferința de tipar, dată de alt modul (F11.3: alegerea adaptivă). Primește livrabilul și tiparele
+# propuse; întoarce tiparul preferat sau `None`.
+PREFERINTE_TIPAR: list[Callable[[Session, productie.Livrabil, list[str]], str | None]] = []
+
+
+def inregistreaza_preferinta_tipar(f: Callable[[Session, productie.Livrabil, list[str]], str | None]) -> None:
+    if f not in PREFERINTE_TIPAR:
+        PREFERINTE_TIPAR.append(f)
+
+
+def _tipar_preferat(db: Session, lv: productie.Livrabil, tipare: list[str]) -> str | None:
+    for f in PREFERINTE_TIPAR:
+        t = f(db, lv, tipare)
+        if t is not None:
+            return t
+    return None
 
 
 # --- serviciile
@@ -129,11 +161,23 @@ def variante(db: Session, livrabil_id: uuid.UUID) -> list[VariantaHook]:
     )
 
 
+# Adaosuri la contextul autorului, înregistrate de alte module (F11.2: lecțiile active de playbook). Fiecare
+# primește livrabilul și întoarce un bloc de text sau șir gol. Conținutul nu depinde de modulul care îl dă.
+ADAOSURI_CONTEXT: list[Callable[[Session, productie.Livrabil], str]] = []
+
+
+def inregistreaza_adaos_context(f: Callable[[Session, productie.Livrabil], str]) -> None:
+    if f not in ADAOSURI_CONTEXT:
+        ADAOSURI_CONTEXT.append(f)
+
+
 def exemple_text(db: Session, lv: productie.Livrabil) -> str:
-    """Exemplele aprobate și respinse pentru același tip și canal (F6.7); șir gol dacă nu există."""
+    """Exemplele aprobate și respinse pentru același tip și canal (F6.7), urmate de adaosurile înregistrate
+    (lecțiile de playbook, F11.2); șir gol dacă nu există nimic."""
     from app.continut import feedback
 
-    return feedback.exemple_text(db, lv)
+    blocuri = [feedback.exemple_text(db, lv), *(f(db, lv) for f in ADAOSURI_CONTEXT)]
+    return "\n\n".join(b for b in blocuri if b)
 
 
 def hook_ales(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> str:
@@ -163,7 +207,8 @@ def hook_ales(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> str:
         raise TypeError("ieșirea nu respectă schema promptului")
     hookuri = r.iesire.hookuri
     maxim = CUVINTE_HOOK_PE_TIP.get(lv.tip, CUVINTE_HOOK_MAXIM)
-    ales = alege(hookuri, b, cuvinte_maxim=maxim)
+    preferat = _tipar_preferat(db, lv, [h.tipar for h in hookuri])
+    ales = alege(hookuri, b, cuvinte_maxim=maxim, tipar_preferat=preferat)
     for i, h in enumerate(hookuri):
         scor, probleme = scor_hook(h.text, b, cuvinte_maxim=maxim)
         db.add(

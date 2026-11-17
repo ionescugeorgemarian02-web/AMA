@@ -4,6 +4,56 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.2 — Email către abonați
+- `app/crm/email.py` (ușa de trimitere: suprimare, matrice pe țări, consimțământ, praguri, limită zilnică, domeniu), dezabonarea dintr-un clic (`/site/dezabonare/<jeton>`), verificarea suprimării în executorul de efecte, ecranul `/crm/email`. Migrarea `0095`.
+
+### F12.1 — CRM-ul minimal
+- `app/crm` (firme, contacte, lead-uri pe etape, istoricul consimțământului, unirea duplicatelor, sarcini de urmărire, export), ecranul `/crm`, jobul `crm.igiena`; lead-ul confirmat din formularul de audit intră în CRM. Migrarea `0094`.
+
+### F11.6 — Ecranul „Învățare” și poarta F11
+- Ecranul `/invatare` (lecții de curatoriat cu dovezi, aprobare, respingere, anularea promovării, înghețare, registrul de experimente, alegerea adaptivă); `curator.istoric`. Poarta F11: `docs/specs/F11-poarta.md`. Fără migrare.
+
+### F11.5 — Constituția
+- `invatare.constitutie` (fluxul de învățare marcat, o promovare pe săptămână, înghețarea, indicatorii de gardă), declanșatorul `ama_fara_invatare`, garda `scripts/check_invatare.py` în `make guards`. Migrarea `0093`.
+
+### F11.4 — Registrul de experimente
+- `invatare.experimente` (declarare, regula de oprire, evaluare zilnică, oprire de către om), jobul `invatare.experimente`. Migrarea `0092`.
+
+### F11.3 — Alegerea adaptivă
+- `invatare.alegere` (bandit Thompson: explorare 15%, uitare în 90 de zile, pornire de la media nișei), preferința de tipar la alegerea hook-ului (`continut.scriere.inregistreaza_preferinta_tipar`).
+
+### F11.2 — Curatorul și playbook-ul
+- `invatare.curator` (aprobare, respingere, retragere, contoare, limita de 40, retragere automată), lecțiile active în promptul autorului (`continut.scriere.inregistreaza_adaos_context`), `lectii_folosite`. Migrarea `0091`.
+
+### F11.1 — Reflectorul
+- `invatare.reflector` (lotul închis, propuneri de lecții cu dovezi din rezultate, verdicte și decizii), tabelele `loturi_reflectie` și `lectii`. Migrarea `0090`.
+
+### F10.8 — Analistul de reclame ale concurenței
+- `cercetare.reclame_concurenta` (Meta Ad Library, unghiuri pe reguli, harta unghiurilor, reclamele de durată, spații libere), statutul de sursă `meta_ad_library` (G7 blochează textele apropiate), jobul săptămânal `cercetare.reclame`, ecranul `/analiza/concurenta`, setarea `AMA_META_AD_LIBRARY_TOKEN`. Migrarea `0061`.
+
+### F10.7 — Cercetătorul de tendințe
+- `cercetare.tendinte` (surse oficiale, profil de nișă, fișe cu dovezi, inbox → fișă și propunere de calendar), jobul zilnic `cercetare.tendinte`, ecranul `/analiza/tendinte`, setarea `AMA_YOUTUBE_API_KEY`. Migrarea `0060`.
+
+### F10.6 — Analiza de trafic proprie
+- `analiza.trafic` (pâlnia vizite cu acord → cereri de audit → clienți), ecranul `/analiza/trafic`.
+
+### F10.5 — Raportul lunar complet
+- `analiza.raport_cifre` (cifrele lunii, frazele deterministe, controlul „G2 pe cifre”); `raport_lunar` și șablonul din portal arată cifrele măsurate.
+
+### F10.4 — Tablouri de bord și scor de sănătate
+- `analiza.sanatate` (semnalele de risc din 4.10, scorul, indicatorii din 4.13), ecranul `/analiza/clienti`.
+
+### F10.3 — Legarea de etichete
+- `analiza.etichete` (tipar de hook, format, pilon, unghi, slot local, recompensa de la 72 de ore; grupare și sortare), ecranul `/analiza/etichete`. Migrarea `0059`.
+
+### F10.2 — Curba de retenție YouTube
+- `analiza.retentie` (validare, rezumat, linia SVG, o curbă pe clip, citită la 72 de ore, 7 și 28 de zile), cititorul `CititorRetentieYoutube` (YouTube Analytics), ecranul „Rapoarte și analiză” (`/analiza`, `/analiza/livrabil/<id>`: cifrele pe intervale, curba, introducerea manuală a cifrelor). Migrarea `0058`.
+
+### F10.1 — Colectorul de metrici
+- `analiza.colector` (citiri la 1 oră, 24 de ore, 72 de ore, 7 și 28 de zile; intervale ratate și indisponibile; cifre introduse de om; verificarea de completitudine), jobul `analiza.colector` la 10 minute, cititorii `connectors.metrici` (Facebook, Instagram, YouTube, LinkedIn, TikTok, fals), ușa `efecte.metrici`, tipul `contract.Metrici`. Migrarea `0057`.
+
+### Coordonare — două sesiuni de cod în paralel
+- `docs/specs/COORDONARE.md`: repartizarea fazelor, migrările rezervate, regulile pentru fișierele comune, reluarea după limita de utilizare.
 ### Poarta F9
 - Testul de poartă `tests/integration/test_poarta_f9.py`: o postare publică, o singură dată, pe fiecare canal aprobat; canalul neaprobat rămâne pe asistat.
 

@@ -1,0 +1,68 @@
+{% extends "panou/baza.html" %}
+{% block title %}Cifrele postării · AMA{% endblock %}
+{% block pagina %}
+<h1>Cifrele postării</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/analiza">Toate postările măsurate</a> · {{ livrabil.tip }} pe {{ livrabil.canal }} · <span class="insigna">{{ eticheta_stare }}</span></p>
+
+<section class="card" aria-labelledby="cifre">
+  <h2 id="cifre">Cifre pe intervale</h2>
+  {% if citiri %}
+  <div class="defilare">
+  <table>
+    <thead><tr><th scope="col">De la publicare</th>{% for i in intervale %}<th scope="col">{{ etichete_interval[i] }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for k in chei %}
+      <tr><th scope="row">{{ etichete_metrici[k] }}</th>{% for i in intervale %}<td>{% if i in citiri and k in citiri[i].valori %}{{ citiri[i].valori[k] }}{% else %}–{% endif %}</td>{% endfor %}</tr>
+    {% endfor %}
+      <tr><th scope="row">Citirea</th>{% for i in intervale %}<td>{% if i not in citiri %}<span class="slab">urmează</span>{% elif citiri[i].stare == "citit" %}{% if citiri[i].sursa == "manual" %}de om{% else %}platformă{% endif %}{% else %}<span class="insigna atentie">{{ citiri[i].stare }}</span>{% endif %}</td>{% endfor %}</tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="slab">Cifrele sunt cumulate de la publicare. „–” înseamnă că platforma nu dă cifra; „ratat” că intervalul a trecut fără citire; „indisponibil” că platforma a refuzat (postare ștearsă sau nepublicată).</p>
+  {% else %}
+  <p class="slab">Nicio citire încă.</p>
+  {% endif %}
+</section>
+
+{% if grafic %}
+<section class="card" aria-labelledby="retentie">
+  <h2 id="retentie">Curba de retenție</h2>
+  <svg class="grafic" viewBox="-2 -4 {{ grafic.latime + 4 }} {{ grafic.inaltime + 8 }}" role="img" aria-labelledby="retentie-titlu retentie-descriere">
+    <title id="retentie-titlu">Curba de retenție a clipului</title>
+    <desc id="retentie-descriere">Retenția medie {{ grafic.medie }}; după primele 10% din clip {{ grafic.dupa_hook }}; la final {{ grafic.la_final }}.</desc>
+    <line x1="0" y1="{{ grafic.inaltime }}" x2="{{ grafic.latime }}" y2="{{ grafic.inaltime }}" stroke="currentColor" stroke-width="0.5" opacity="0.5"/>
+    <line x1="0" y1="0" x2="0" y2="{{ grafic.inaltime }}" stroke="currentColor" stroke-width="0.5" opacity="0.5"/>
+    <polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" points="{{ grafic.linie }}"/>
+  </svg>
+  <p class="slab">De la stânga (începutul clipului) la dreapta (sfârșitul). Sus: {{ grafic.varf }} din cei care au pornit clipul.</p>
+  <ul>
+    <li>Retenția medie: <strong>{{ grafic.medie }}</strong></li>
+    <li>După primele 10% din clip (cât ține începutul): <strong>{{ grafic.dupa_hook }}</strong></li>
+    <li>La final: <strong>{{ grafic.la_final }}</strong></li>
+    {% if grafic.are_cadere %}<li>Cea mai mare cădere: <strong>{{ grafic.cadere_marime }}</strong> la {{ grafic.cadere_pozitie }} din clip</li>{% endif %}
+  </ul>
+  <p class="slab">{{ grafic.puncte }} puncte, citite la {{ grafic.citit_la|moment }}.</p>
+</section>
+{% endif %}
+
+{% if poate_edita %}
+<section class="card" aria-labelledby="manual">
+  <h2 id="manual">Introdu cifrele din aplicația platformei</h2>
+  <p class="slab">Pentru canalele publicate asistat. Completezi doar cifrele pe care le vezi; cele citite direct de la platformă nu se pot înlocui.</p>
+  <form method="post" action="/analiza/livrabil/{{ livrabil.id }}/metrici">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="interval">Momentul citirii</label>
+    <select id="interval" name="interval" required>
+      {% for i in intervale %}<option value="{{ i }}">la {{ etichete_interval[i] }} de la publicare</option>{% endfor %}
+    </select>
+    {% for k in toate_cheile %}
+    <label for="m-{{ k }}">{{ etichete_metrici[k] }}</label>
+    <input id="m-{{ k }}" name="{{ k }}" type="text" inputmode="numeric" pattern="[0-9 .]*" autocomplete="off">
+    {% endfor %}
+    <button type="submit">Salvează cifrele</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}
