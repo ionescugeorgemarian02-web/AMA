@@ -17,7 +17,7 @@ pytestmark = pytest.mark.db
 
 
 def semneaza(p, secret):
-    p = dict(p)
+    p = {k: v for k, v in p.items() if k != "hmac"}
     p["hmac"] = hmac.new(
         secret.encode(), "&".join(f"{k}={p[k]}" for k in sorted(p)).encode(), hashlib.sha256
     ).hexdigest()

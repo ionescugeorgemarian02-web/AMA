@@ -440,3 +440,8 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 - Ecran Shopify în meniu, izolat pe tenant activ, cifre lunare și stare sincronizare.
 - Sincronizator cu token decriptat la citire și cititori injectați; păstrează ultima reușită după eroare. Migrare 0123.
+
+## 2026-11-17 — FS.6 (sesiunea C)
+
+- Poarta Shopify cap-coadă pe HTTP local, 19 teste proprii trecute; catalog completat cu câmpuri comerciale, migrare 0124.
+- make check unic: 3132 passed, 4 failed (media), 1 skipped; rezultatul și operațiile reale rămase în STARE.

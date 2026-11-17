@@ -695,3 +695,29 @@ nici tokenul, nici emailurile nu ajung în contextul șablonului. Stare persiste
 Verificat: 2 passed panou/import, 1 passed succes/eroare sincronizare; ruff/mypy: succes;
 make guards: succes; make audit: No known vulnerabilities found. Avertisment existent FastAPI/httpx deprecated.
 În fișierele comune app/panou/__init__.py și meniu sunt exclusiv rânduri adăugate.
+
+## 2026-11-17 — C, FS.6, poarta Shopify
+
+Fetch/merge origin/main înainte de pas: deja actualizat. Specificația și testul porții scrise înainte de cod.
+Poarta trece OAuth semnat, token criptat folosit prin antet, paginare HTTP locală, catalog cu variante,
+webhook repetat, acord/retragere CRM, raport lunar atribuit și ecran autentificat fără secrete.
+Catalogul minimal FS.2 completat cu descriere/handle/imagini/variante, migrare 0124. Surse oficiale Shopify
+consultate pentru OAuth/HMAC; nu s-au generat operații GraphQL și helper-ele skillului nu există local.
+Corectată pregătirea testului de stare greșită, ca semnătura să fie validă și refuzul să testeze chiar starea.
+
+Verificat exact:
+- 19 passed în toate testele Shopify (Postgres 16 + pgvector, fără pytest concurent).
+- make check complet o singură dată: lint, mypy (397 fișiere), guards trecute;
+  **3132 passed, 4 failed, 1 skipped**, 27 warnings, 811,50 s.
+- Cele 4 eșecuri: test_media_capacitate::test_zece_video_pe_culoarele_grele_cu_textul_in_mers,
+  test_media_montaj::test_un_video_vertical_complet_iese_din_lista[B],
+  test_media_provenienta::test_fiecare_fisier_final_are_pasaport_si_eticheta,
+  test_poarta_f8::test_poarta_f8_zece_video_consecutive_trec_controlul_fara_interventie.
+  Randările sunt respinse; poarta F8 arată G6.format yuvj420p. Nu am modificat media.
+- Rerulare țintită justificată de eșecuri: montaj[B] eșuează și izolat; 19 teste Shopify trec din nou,
+  total 1 failed, 19 passed în 7,71 s. Nu s-a repetat make check complet.
+- make audit: No known vulnerabilities found; alembic heads: 0124 unic.
+- Fișiere comune: zero rânduri existente șterse/modificate față de origin/main.
+
+Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în F10/CRM de sesiunile proprii,
+și toate operațiile reale marcate „De verificat la migrare”. PR rămâne draft, fără merge din sesiunea C.

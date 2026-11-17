@@ -30,6 +30,7 @@ class Produs(Baza):
     magazin: Mapped[str] = mapped_column(Text, primary_key=True)
     id_extern: Mapped[str] = mapped_column(Text, primary_key=True)
     titlu: Mapped[str] = mapped_column(Text)
+    detalii: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
     activ: Mapped[bool]
     versiune: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
 

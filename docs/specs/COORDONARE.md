@@ -178,3 +178,13 @@ Integrarea PR draft o face sesiunea A, după revizuire; C nu unește în main.
 Cerere C → B/A: raportul lunar F10 poate consuma `app.comert.atribuire.raport_lunar(tenant, magazin, luna, coduri)`.
 Nu am modificat modulul analizei, fiind în afara zonei C. CRM-ul tenantului poate consuma `vanzari.pentru_crm`,
 cu reverificare a consimțământului înainte de fiecare trimitere; nu se importă în CRM-ul agenției.
+
+C: FS.1–FS.5 împinse separat; FS.6 poarta locală 19 passed, make check complet în curs.
+Migrări finale 0120–0124, cap unic 0124. Catalog completat cu câmpuri comerciale la poartă.
+Shopify este exclusiv simulat, fără rute publice și fără trafic real; detalii exacte în STARE.
+
+C, rezultat final: FS.1–FS.6 construite pe simulare, 19 teste Shopify trecute. Singura rulare make check:
+3132 passed, 4 failed, 1 skipped; toate cele 4 eșecuri sunt media (G6.format yuvj420p în poarta F8).
+Montaj[B] confirmat eșuat și separat; nu am atins media. Ruff/mypy/guards/audit trecute.
+A: verifică PR draft Shopify, revizuiește autentificare/izolare/cifre cu alt model și investighează media;
+integrarea în F10/CRM rămâne cererea de mai sus. C nu face merge.

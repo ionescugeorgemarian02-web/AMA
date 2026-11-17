@@ -38,6 +38,15 @@ def salveaza(tenant: uuid.UUID, shop: str, produse: list[dict[str, Any]], *, ste
                 magazin=shop,
                 id_extern=str(p["id"]),
                 titlu=str(p.get("title", "")),
+                detalii={
+                    "descriere": str(p.get("body_html", "")),
+                    "handle": str(p.get("handle", "")),
+                    "imagini": [str(i["src"]) for i in p.get("images", [])],
+                    "variante": [
+                        {k: v.get(k) for k in ("id", "sku", "price", "inventory_quantity")}
+                        for v in p.get("variants", [])
+                    ],
+                },
                 activ=not sters,
                 versiune=v,
             )
@@ -46,6 +55,7 @@ def salveaza(tenant: uuid.UUID, shop: str, produse: list[dict[str, Any]], *, ste
                     index_elements=[Produs.tenant_id, Produs.magazin, Produs.id_extern],
                     set_={
                         "titlu": q.excluded.titlu,
+                        "detalii": q.excluded.detalii,
                         "activ": q.excluded.activ,
                         "versiune": q.excluded.versiune,
                     },
@@ -57,7 +67,7 @@ def salveaza(tenant: uuid.UUID, shop: str, produse: list[dict[str, Any]], *, ste
 def lista(tenant: uuid.UUID, shop: str) -> list[dict[str, Any]]:
     with sesiune_tenant(tenant) as db:
         return [
-            {"id_extern": p.id_extern, "titlu": p.titlu}
+            {"id_extern": p.id_extern, "titlu": p.titlu, "detalii": p.detalii}
             for p in db.scalars(
                 select(Produs)
                 .where(Produs.magazin == domeniu(shop), Produs.activ.is_(True))
