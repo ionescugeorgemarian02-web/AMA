@@ -323,3 +323,7 @@ FS.3: comenzi și clienți persistenți pe tenant, email criptat, eligibilitate 
 4 teste DB și 11 unitare trecute; guards, audit, mypy și ruff verzi. API HTTP local, fără CRM agenție.
 De verificat la migrare: protected customer data, actualizări și retrageri reale, istoric comenzi peste 60 zile,
 monede fără două zecimale (contractul local acceptă numai sume exact reprezentabile în sutimi).
+
+FS.4: calcul lunar UTC, UTM/cod explicit, net după anulări/rambursări, separat pe monedă.
+2 teste calcul/import trecute, ruff/mypy/guards/audit verzi. API public pentru raport lunar;
+integrarea în F10 cerută în COORDONARE, în afara zonei C.

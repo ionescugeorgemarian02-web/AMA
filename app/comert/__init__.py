@@ -1,5 +1,5 @@
 """Comerț Shopify: date tenant, OAuth și sincronizare simulată."""
 
-from app.comert import catalog, oauth, vanzari
+from app.comert import atribuire, catalog, oauth, vanzari
 
-__all__ = ["catalog", "oauth", "vanzari"]
+__all__ = ["atribuire", "catalog", "oauth", "vanzari"]

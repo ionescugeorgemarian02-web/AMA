@@ -34,6 +34,7 @@ def importa(tenant: uuid.UUID, shop: str, tip: str, randuri: list[dict[str, Any]
                     raise ValueError("Sumă invalidă")
                 date = {
                     "total_bani": int(suma),
+                    "creata_la": str(r["created_at"]),
                     "moneda": str(r["currency"]),
                     "utm_source": str(r.get("utm_source", "")),
                     "utm_campaign": str(r.get("utm_campaign", "")),

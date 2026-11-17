@@ -174,3 +174,7 @@ Ramură `claude/shopify-c`, din `origin/main`; doar `app/comert/`, `app/connecto
 testele și specificațiile proprii. Migrări rezervate `0120`–`0139`, prima `0120` din `0075`.
 Decizii D-C01 etc. FS.1 în lucru; FS.2–FS.6 urmează. Fișiere comune doar prin adăugare.
 Integrarea PR draft o face sesiunea A, după revizuire; C nu unește în main.
+
+Cerere C → B/A: raportul lunar F10 poate consuma `app.comert.atribuire.raport_lunar(tenant, magazin, luna, coduri)`.
+Nu am modificat modulul analizei, fiind în afara zonei C. CRM-ul tenantului poate consuma `vanzari.pentru_crm`,
+cu reverificare a consimțământului înainte de fiecare trimitere; nu se importă în CRM-ul agenției.

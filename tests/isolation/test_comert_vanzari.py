@@ -10,7 +10,13 @@ pytestmark = pytest.mark.db
 def test_comenzi_clienti_consimtamant(date, chei_de_test):
     shop = f"m{uuid.uuid4().hex}.myshopify.com"
     oauth.incepe(date.a, shop, "id", "https://ama.invalid/callback")
-    comanda = {"id": "1", "updated_at": "2026-11-17T12:00:00Z", "total_price": "12.34", "currency": "RON"}
+    comanda = {
+        "id": "1",
+        "updated_at": "2026-11-17T12:00:00Z",
+        "total_price": "12.34",
+        "created_at": "2026-11-17T12:00:00Z",
+        "currency": "RON",
+    }
     for _ in range(2):
         vanzari.importa(date.a, shop, "comanda", [comanda])
     assert len(vanzari.citeste(date.a, shop, "comanda")) == 1

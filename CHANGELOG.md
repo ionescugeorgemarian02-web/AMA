@@ -431,3 +431,7 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 - Import local comenzi și clienți Shopify, versiuni monotone, email criptat și consimțământ explicit pentru CRM tenant.
 - Migrare 0122 cu RLS; nicio scriere în CRM-ul agenției.
+
+## 2026-11-17 — FS.4 (sesiunea C)
+
+- API raport lunar vânzări atribuite UTM/cod, net după anulări/rambursări, fără conversii valutare.

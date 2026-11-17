@@ -136,3 +136,10 @@ până la migrarea pe VPS. Datele cumpărătorilor sunt ale tenantului, nu se im
 agenției din F12. Tokenul este criptat cu primitivele existente și AAD tenant + domeniu magazin.
 Autorizarea consumă starea înainte de schimb; un răspuns întârziat nu înlocuiește autorizarea nouă.
 Revizuirea autentificării/izolării de alt model rămâne condiție de integrare pentru sesiunea A.
+
+## D-C02 — Atribuire Shopify deterministă (2026-11-17)
+
+UTM are prioritate față de codurile de reducere mapate explicit de consumator; lipsa sursei este
+„necunoscut”. Luna este UTC, monedele nu se adună. Anulările nu contribuie, rambursările reduc netul
+până la zero. Atribuirea declară sursa observată, nu dovedește cauzalitate. Raportul lunar consumă API-ul
+comerțului; modificarea F10 este lăsată sesiunii proprietare a modulului (cerere în COORDONARE).

@@ -679,3 +679,10 @@ Comenzi în bani întregi, fără PII în JSON, email AES-GCM, consimțământ e
 Verificat: 4 passed izolare OAuth/catalog/vânzări; 11 passed unit HTTP local; mypy/ruff module: succes;
 make guards: succes; make audit: No known vulnerabilities found. CRM tenant expus ca API de citire;
 trimiterea de email și integrarea în alt CRM nu sunt executate. Restricții reale în STARE.
+
+## 2026-11-17 — C, FS.4
+
+Fetch/merge origin/main: deja actualizat. Spec și test înainte de cod. Atribuire deterministă D-C02;
+comenzile cer created_at, nu folosesc data actualizării pentru luna vânzării.
+Verificat: 2 passed calcul/import DB; ruff/mypy: succes; make guards: succes;
+make audit: No known vulnerabilities found. Consumatorul F10 solicitat în COORDONARE; nu am ieșit din zonă.
