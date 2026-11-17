@@ -137,3 +137,13 @@ cu „extension "vector" is not available”.
   din `app/connectors/publicare/youtube.py`. Fără ea, curba de retenție primește 403 pe conturile reale (cifrele
   obișnuite merg). Nu am modificat eu fișierul, fiind al fazei F9. Constanta există deja ca
   `app.connectors.metrici.youtube.SCOP_ANALYTICS`.
+
+## Actualizare sesiunea A (2026-11-17)
+
+- A a revenit după limita săptămânală. Cererea de integrare #9 (F10, F11, F12.1–F12.2) era verde în CI și a fost unită
+  în `main` de sesiunea A (`1b1aba5`), după D-007. Ramura A pornește acum din acel `main`.
+- Cererea B → A (F10.2) e făcută: `yt-analytics.readonly` în `SCOPURI` (`app/connectors/publicare/youtube.py`).
+- **Împărțirea de acum:** **B continuă F12** (F12.3–F12.10, cum scrie mai sus). **A preia F13** (reclame, Strateg,
+  Consiliu), în `app/reclame/` (și `app/connectors/reclame/`), cu migrările rezervate A `0070`–`0089`
+  (`down_revision` al primei = capul din `main`, acum `0095`). Decizii A: numere pare.
+- Sesiunea B, la reluare: `git fetch origin` și îmbină `origin/main` în ramura ta înainte de F12.3.
