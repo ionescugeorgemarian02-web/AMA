@@ -292,3 +292,8 @@ Toate pachetele conțin video și raport lunar. De aceea pilotul nu poate porni 
 - Până la aprobarea permisiunilor de mesaje, „răspunsurile asistate la comentarii” din pachetul Creștere înseamnă răspunsuri propuse de platformă și trimise de om.
 - Până la aprobările API, cifrele din raportul unui client-pilot vin din exporturile platformelor sau din accesul de test dat aplicației, nu din citirea automată \[I\]. Timpul acesta se adaugă la minutele de om per client.
 - Dacă planul întârzie, fazele F11–F14 se mută după lansare. Fazele F0–F8 și F10 nu se scurtează.
+
+## Adăugiri cerute de proprietar (2026-11-17)
+
+- **FT Trasabilitate totală** (după F13, înainte de F14; sesiunea A). Orice componentă (agenți, Creier, gateway, porți, cascada de validare, motorul de efecte, conectori, aprobări, bugete) emite evenimente într-un jurnal unic append-only (`app/operare/urme`): cine, ce, de ce, intrări/ieșiri rezumate, cost, durată, rezultat, legătură cu fluxul părinte (id de corelare). Peste el: indicatori pe componentă, analiza lunară automată (ce a mers bine/prost, regresii, costuri, porți picate, motive de respingere), raport în panou și export. *Gata când:* o lună simulată produce un raport care explică fiecare eșec până la evenimentul-sursă.
+- **Conector Shopify** (după F15; `app/connectors/comert`). Platforma rulează separat (VPS), Shopify devine sursă și destinație: produse/catalog pentru reclame și conținut, comenzi și clienți pentru analiză și CRM, atribuirea vânzărilor pe campanii; ulterior aplicație Shopify încorporată în admin. Simulat până la migrare (D-007).
