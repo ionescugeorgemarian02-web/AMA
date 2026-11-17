@@ -25,3 +25,25 @@ class ShopifySimulat:
             if not isinstance(token, str) or not token:
                 raise ValueError("Token Shopify absent")
             return token
+
+    def catalog(self, token: str) -> list[dict[str, object]]:
+        """# SIMULAT: contrat normalizat local, nu operație Admin API reală."""
+        produse: list[dict[str, object]] = []
+        cursor = ""
+        vazute: set[str] = set()
+        with httpx.Client(transport=self.transport, base_url="https://shopify.invalid") as client:
+            for _ in range(100):
+                r = client.get(
+                    "/catalog", params={"cursor": cursor}, headers={"X-Shopify-Access-Token": token}
+                )
+                if r.status_code != 200:
+                    raise ValueError("Sincronizarea catalogului a eșuat")
+                corp = r.json()
+                produse.extend(corp["produse"])
+                cursor = corp.get("cursor", "")
+                if not cursor:
+                    return produse
+                if cursor in vazute:
+                    raise ValueError("Cursor Shopify repetat")
+                vazute.add(cursor)
+        raise ValueError("Catalog prea mare pentru un lot")

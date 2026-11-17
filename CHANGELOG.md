@@ -421,3 +421,8 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 - Autorizare Shopify simulată prin HTTP local, stare unică expirabilă, HMAC callback și token AES-GCM legat de tenant/magazin.
 - Migrare 0120 din 0075, RLS forțat; teste de izolare și criptare.
+
+## 2026-11-17 — FS.2 (sesiunea C)
+
+- Catalog Shopify minimal tenant, upsert fără dubluri, ignorarea versiunilor vechi și ștergere logică.
+- HMAC webhook verificat pe corpul brut; contract HTTP local paginat, fără trafic real. Migrare 0121.

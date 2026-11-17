@@ -662,3 +662,12 @@ pytest unit OAuth + gărzi DB: 11 passed; mypy module noi și ruff: succes;
 make guards: succes; make audit: No known vulnerabilities found. Prima încercare DB a sărit 6 teste
 (port ocupat de containerul care tocmai pornise); rerularea explicită pe container: toate 14 trecute.
 API real și revizuire de alt model: rămân pentru migrare, respectiv sesiunea A înainte de integrare.
+
+## 2026-11-17 — C, FS.2
+
+Fetch/merge origin/main înainte de pas (deja actualizat), citite ultimele note A/B.
+Specificație și acceptare scrise înaintea implementării. Catalog minimal ID/titlu cu RLS,
+webhook HMAC SHA256 base64, tombstone și versiuni UTC, paginare locală limitată.
+Verificat: 3 passed OAuth/catalog DB, 10 passed unit conector; ruff și mypy module noi: succes;
+make guards: succes; make audit: No known vulnerabilities found. API real și catalogul comercial complet
+(câmpuri de preț/variante/imagini) rămân deschise și declarate în STARE; FS.2 acoperă nucleul minimal.

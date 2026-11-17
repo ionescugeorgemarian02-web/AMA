@@ -47,3 +47,22 @@ def test_schimb_refuzat(status, corp):
     c = ShopifySimulat(httpx.MockTransport(lambda _: httpx.Response(status, json=corp)))
     with pytest.raises(ValueError):
         c.schimba_cod("cod", "id", uuid.uuid4().hex)
+
+
+def test_catalog_paginat():
+    def raspunde(r):
+        assert r.headers["X-Shopify-Access-Token"]
+        if not r.url.params["cursor"]:
+            return httpx.Response(200, json={"produse": [{"id": "1"}], "cursor": "pagina2"})
+        return httpx.Response(200, json={"produse": [{"id": "2"}]})
+
+    c = ShopifySimulat(httpx.MockTransport(raspunde))
+    assert [p["id"] for p in c.catalog(uuid.uuid4().hex)] == ["1", "2"]
+
+
+def test_catalog_cursor_blocat():
+    c = ShopifySimulat(
+        httpx.MockTransport(lambda _: httpx.Response(200, json={"produse": [], "cursor": "fix"}))
+    )
+    with pytest.raises(ValueError):
+        c.catalog(uuid.uuid4().hex)

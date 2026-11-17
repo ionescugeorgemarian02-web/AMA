@@ -313,3 +313,8 @@ accesul la datele protejate ale clienților, canonicalizarea HMAC a callbackului
 revocarea/dezinstalarea, ciclul de viață al tokenului și rotația cheii. Nu sunt validate prin simulare.
 
 FS.1: închis pe simulare; 14 teste OAuth/RLS trecute pe Postgres 16 cu pgvector.
+
+FS.2: catalog persistent cu HMAC pe corp brut, upsert și tombstone, versiuni monotone;
+3 teste DB și 10 teste unitare trecute, guards/audit verzi. Contract HTTP local paginat.
+De verificat la migrare: înregistrarea webhook-urilor, payload-ul ștergerii (contractul local cere updated_at),
+paginarea Admin GraphQL, câmpurile comerciale complete și cote/reîncercări. Catalogul actual expune ID și titlu.
