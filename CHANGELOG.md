@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### FT.2 — Firul de corelare și urmele componentelor
+- firul trece din cerere în job și în joburile-copil (motor), urme pentru gateway, porțile cascadei și ale Creierului, conectori HTTP, aprobări, gardianul de buget, oglinda evenimentelor de domeniu. Fără migrare.
+
 ### FT.1 — Jurnalul unic de urme
 - `app/operare/urme` (`emite`, `inregistreaza`, `span`, `corelare`, rezumatul fără secrete și date personale), tabelul `urme` doar cu adăugare, RLS, D-018. Migrarea `0076`.
 

@@ -11,9 +11,11 @@ dată;
 """
 
 import time
+from decimal import Decimal
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
 
+from app.operare import urme
 from app.validare.agregare import Agregat, agrega
 from app.validare.intrare import Intrare
 from app.validare.registru import Pas
@@ -41,6 +43,37 @@ def _ca_lista(rezultat: Verdict | Sequence[Verdict] | None) -> list[Verdict]:
 
 
 def _ruleaza_pas(pas: Pas, intrare: Intrare) -> list[Verdict]:
+    with urme.span(
+        "validare",
+        f"poarta:{pas.definitie.cod}",
+        tenant_id=intrare.livrabil.tenant_id,
+        obiect_tip="livrabil",
+        obiect_id=str(intrare.livrabil.id),
+        intrari={"treapta": pas.definitie.treapta, "versiune": pas.definitie.versiune},
+    ) as s:
+        verdicte = _ruleaza_pas_masurat(pas, intrare)
+        _rezultat_poarta(s, verdicte)
+    return verdicte
+
+
+def _rezultat_poarta(s: urme.Span, verdicte: list[Verdict]) -> None:
+    """FT.2: urma porții: `blocat` (verdict care oprește), `respins` (eșec), `ok`; motivul, costul."""
+    rele = [v for v in verdicte if v.rezultat.value != "trece"]
+    if any(v.blocheaza for v in verdicte):
+        s.rezultat = "blocat"
+    elif any(v.rezultat.value == "esec" for v in verdicte):
+        s.rezultat = "respins"
+    if rele:
+        s.cod = rele[0].severitate.value if rele[0].severitate else rele[0].rezultat.value
+        s.motiv = "; ".join(v.instructiune or v.rezultat.value for v in rele)[:500]
+    s.cost = sum((v.cost.pret_umbra for v in verdicte), Decimal(0))
+    s.unitate_cost = "usd_umbra" if s.cost else ""
+    s.iesiri = {
+        "verdicte": [{"rezultat": v.rezultat, "severitate": v.severitate, "scor": v.scor} for v in verdicte]
+    }
+
+
+def _ruleaza_pas_masurat(pas: Pas, intrare: Intrare) -> list[Verdict]:
     start = time.monotonic()
     verdicte = _ca_lista(pas.implementare(intrare))
     durata = int((time.monotonic() - start) * 1000)

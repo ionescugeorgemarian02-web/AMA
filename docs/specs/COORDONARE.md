@@ -181,4 +181,5 @@ Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py
 | --- | --- |
 | Modul local (`infra/compose/local.yml`, `app/demo`) | **închis** (împins), D-016 |
 | FT.1 Jurnalul unic de urme | **închis** (împins), migrarea `0076`, D-018 |
+| FT.2 Firul de corelare și urmele componentelor | **închis** (împins) |
 

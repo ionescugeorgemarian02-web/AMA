@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
@@ -165,7 +165,8 @@ def span(componenta: str, actiune: str, *, db: Session | None = None, **kw: Any)
     try:
         yield s
     except BaseException as exc:
-        s.rezultat, s.cod = "esec", s.cod or type(exc).__name__
+        s.rezultat = "esec" if s.rezultat == "ok" else s.rezultat
+        s.cod = s.cod or type(exc).__name__
         s.motiv = s.motiv or str(exc)[:300]
         raise
     finally:
@@ -181,3 +182,36 @@ def span(componenta: str, actiune: str, *, db: Session | None = None, **kw: Any)
             inregistreaza(db, componenta, actiune, **valori)
         else:
             emite(componenta, actiune, **valori)
+
+
+def rezultat_din_tip(tip: str) -> str:
+    """Rezultatul unei urme oglindite dintr-un eveniment de domeniu, după numele lui."""
+    t = tip.lower()
+    for parti, rez in (
+        (("respins", "refuzat", "refuzata", "contestat"), "respins"),
+        (("esuat", "esec", "eroare", "epuizat", "expirat", "expirata"), "esec"),
+        (("blocat", "carantina", "oprit"), "blocat"),
+        (("amanat",), "amanat"),
+    ):
+        if any(p in t for p in parti):
+            return rez
+    return "ok"
+
+
+def fir_pentru_job(job_id: str) -> tuple[str, uuid.UUID] | None:
+    """Firul și cauza cu care a fost pus în coadă jobul `job_id` (urma `motor/trimis`), dacă există."""
+    if not active():
+        return None
+    try:
+        with sesiune_agentie() as db:
+            r = db.execute(
+                select(Urma.corelare_id, Urma.id)
+                .where(Urma.componenta == "motor", Urma.obiect_tip == "job", Urma.obiect_id == job_id[:100])
+                .where(Urma.actiune.startswith("trimis:"))
+                .order_by(Urma.la)
+                .limit(1)
+            ).first()
+        return (r[0], r[1]) if r else None
+    except Exception as exc:
+        log.warning("firul jobului necitit", extra={"tip_eroare": type(exc).__name__})
+        return None

@@ -659,3 +659,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **FT.1 — Jurnalul unic de urme.**
   - Construit: migrarea `0076` (tabelul `urme`, declanșatorul doar-adăugare, RLS, fără UPDATE/DELETE pentru `ama_app`), `app/operare/urme` (jurnal, rezumat, model), `AMA_URME_ACTIVE`, D-018.
   - Verificat: testele unitare ale rezumatului, de integrare ale jurnalului (fir, cauză, cost, eșec, atomicitate, declanșator), de izolare; meta-testul RLS, migrările, garda contextului de agenție.
+- **FT.2 — Firul de corelare și urmele componentelor.**
+  - Construit: motor (`trimite`/`flux`), `evenimente.emite` (oglinda), gateway `_incheie`, `validare.cascada`, `creier.versiuni`, `ClientHttp.cere`, `aprobari.decide`, `reclame.propuneri`.
+  - Verificat: `tests/integration/test_urme_propagare.py`; regresie pe motor, gateway, efecte, validare, producție, Creier, publicare, reclame, aprobări, izolare și toate unitarele: verzi.

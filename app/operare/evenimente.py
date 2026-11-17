@@ -5,7 +5,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from app.operare import jurnale
+from app.operare import jurnale, urme
 from app.operare.modele import JurnalEveniment
 
 
@@ -20,7 +20,8 @@ def emite(
     tenant_id: uuid.UUID | str | None = jurnale.DIN_CONTEXT,
     date: dict[str, Any] | None = None,
 ) -> uuid.UUID:
-    """Scrie un eveniment în tranzacția `db` (aceeași cu acțiunea)."""
+    """Scrie un eveniment în tranzacția `db` (aceeași cu acțiunea) și oglinda lui în urme (FT.2)."""
+    _urma(db, tip, sursa, obiect_tip, obiect_id, utilizator_id, tenant_id, date)
     return jurnale.scrie(
         db,
         JurnalEveniment,
@@ -34,3 +35,37 @@ def emite(
         utilizator_id=utilizator_id,
         tenant_id=tenant_id,
     )
+
+
+def _urma(
+    db: Session,
+    tip: str,
+    sursa: str,
+    obiect_tip: str | None,
+    obiect_id: object | None,
+    utilizator_id: uuid.UUID | None,
+    tenant_id: uuid.UUID | str | None,
+    date: dict[str, Any] | None,
+) -> None:
+    motiv = str((date or {}).get("motiv") or (date or {}).get("motiv_standard") or "")
+    urme.inregistreaza(
+        db,
+        sursa,
+        tip,
+        rezultat=urme.rezultat_din_tip(tip),
+        motiv=motiv,
+        obiect_tip=obiect_tip,
+        obiect_id=None if obiect_id is None else str(obiect_id),
+        intrari=date or {},
+        actor=f"utilizator:{utilizator_id}" if utilizator_id else None,
+        tenant_id=_uuid(tenant_id),
+    )
+
+
+def _uuid(valoare: object) -> uuid.UUID | None:
+    if isinstance(valoare, uuid.UUID) or valoare is None:
+        return valoare
+    try:
+        return uuid.UUID(str(valoare))
+    except ValueError:
+        return None

@@ -35,7 +35,7 @@ from app.creier.compartimente import (
 from app.creier.diferenta import Schimbare, diferenta
 from app.creier.modele import IntrareCreier, VersiuneCreier
 from app.ids import new_id
-from app.operare import audit
+from app.operare import audit, urme
 
 
 class EroareCreier(Exception):
@@ -208,6 +208,16 @@ def _poarta(
 ) -> None:
     probleme = cmp.probleme_poarta(db, tenant_id, compartiment, continut)
     if probleme:
+        # FT.2: poarta picată rămâne în urme chiar dacă tranzacția apelantului se anulează
+        urme.emite(
+            "creier",
+            f"poarta:{compartiment.value}",
+            rezultat="blocat",
+            motiv="; ".join(probleme)[:500],
+            cod="poarta_inchisa",
+            tenant_id=tenant_id,
+            iesiri={"probleme": probleme},
+        )
         raise cmp.PoartaInchisa(probleme)
 
 
@@ -234,6 +244,11 @@ def _urma(
             **detalii,
         },
     )
+    urme.inregistreaza(
+        db, "creier", actiune, tenant_id=i.tenant_id, obiect_tip="creier_versiune", obiect_id=str(v.id),
+        actor=f"utilizator:{utilizator_id}" if utilizator_id else None, motiv=str(detalii.get("motiv") or ""),
+        rezultat=urme.rezultat_din_tip(actiune), intrari={"compartiment": i.compartiment, "versiune": v.nr},
+    )  # fmt: skip
 
 
 def _adauga_versiune(
