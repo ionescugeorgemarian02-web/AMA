@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F13.7 — Consiliul
+- `app/reclame/consiliu.py` (dosarul, importul deciziei, plafonul lunar, modul API), ecranul `/reclame/consiliu`, promptul `reclame.consiliu.v1`, D-012. Migrarea `0074`.
+
 ### F13.6 — Strategul și înregistrările de decizie
 - `app/reclame/strateg.py` (reguli pentru cele patru ieșiri, ipotezele prin gateway, propunerea de pauză), promptul `reclame.strateg.v1`, jobul `reclame.strateg`. Migrarea `0073`.
 

@@ -108,3 +108,12 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
   cont pune oprirea globală `reclame` și pauza pe toate campaniile active (16.5: „totul pe pauză”); repornirea e manuală, campanie
   cu campanie. (5) Fără token nici pauza nu pleacă: anunțul critic cere oprirea manuală din managerul de reclame.
 - **Consecințe:** o anomalie la un client oprește și campaniile celorlalți; se revizuiește când sunt mai mulți clienți cu reclame.
+
+### D-012 (2026-11-17) — Consiliul: modul manual asistat, cu API-ul în spatele aceleiași uși
+
+- **Context:** `docs/07` §7.6 dă patru moduri de conectare a lui Claude ca Consiliu și recomandă începutul manual.
+- **Hotărâre (D-007):** modul implicit e **manual asistat** (`AMA_RECLAME_CONSILIU_MOD=manual`): dosarul (cifre, opțiuni cu
+  acțiunile lor, întrebări, formatul JSON al răspunsului) se copiază în Claude, iar răspunsul se lipește în panou. Consiliul
+  alege o opțiune; acțiunile sunt ale opțiunii, nu inventate de model. Importul făcut de om aprobă propunerile; în modul API
+  (`intreaba_api`, prin gateway) propunerile așteaptă omul. Plafon: 8 dosare pe lună [I]; peste el dosarul se amână.
+- **Consecințe:** Claude rămâne în afara căii critice (ADR-06); trecerea la API cere doar profilul real și creditul lunar.

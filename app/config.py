@@ -194,6 +194,9 @@ class Settings(BaseSettings):
     google_ads_versiune: str = "v21"
     google_ads_developer_token: SecretStr = Field(default=SecretStr(""))
     google_ads_login_customer_id: str = ""  # contul de administrator (MCC) al agenției, doar cifre
+    # Consiliul (F13.7, docs/07 §7.6): plafonul lunar de dosare și modul de conectare (`manual` sau `api`).
+    reclame_consiliu_plafon_lunar: int = Field(default=8, ge=0, le=100)
+    reclame_consiliu_mod: str = "manual"
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

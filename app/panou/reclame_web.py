@@ -5,6 +5,7 @@
 - `POST /reclame/campanie/<id>/{activeaza|pauza}` și `POST
 /reclame/propunere/<id>/{aproba|respinge|anuleaza}`:
   schimbările (F13.4); anularea aplică imediat starea de dinainte. Doar proprietarul.
+- `/reclame/consiliu`: dosarele de Consiliu (F13.7); dosarul se copiază în Claude, decizia se lipește înapoi.
 - `/reclame/cont/<id>`: contul, pe campanii și pe zile, cum le arată managerul de reclame (F13.1, F13.2).
 Citirea cere `rapoarte.citeste`.
 """
@@ -28,7 +29,7 @@ from app.conturi import (
 )
 from app.conturi.roluri import ROLURI_AGENTIE
 from app.panou.sabloane import pagina
-from app.reclame import constructor, plan, propuneri, rezultate, strateg
+from app.reclame import consiliu, constructor, plan, propuneri, rezultate, strateg
 
 router = APIRouter(prefix="/reclame", tags=["reclame"])
 Agentie = Annotated[SesiuneCurenta, Depends(require_role(*ROLURI_AGENTIE))]
@@ -184,3 +185,67 @@ def decide_propunere(propunere_id: str, actiune: str, u: Proprietar, db: DbSessi
     except propuneri.PropunereRefuzata as exc:
         return _inapoi(cont_id, eroare=str(exc))
     return _inapoi(cont_id, f"propunere_{actiune}")
+
+
+# --- Consiliul (F13.7): dosarul se deschide în Claude, decizia se lipește înapoi
+@router.get("/consiliu")
+def consiliu_lista(request: Request, u: Proprietar, db: DbSession, mesaj: str = "") -> Response:
+    return pagina(
+        request,
+        u,
+        "panou/reclame_consiliu.html",
+        tab="meniu",
+        dosare=consiliu.dosare(db),
+        conturi=rezultate.conturi(db),
+        dosar=None,
+        mesaj=mesaj,
+        eroare="",
+    )
+
+
+@router.post("/consiliu/deschide", dependencies=[Depends(csrf_protect)])
+async def consiliu_deschide(request: Request, u: Proprietar, db: DbSession) -> Response:
+    f = await request.form()
+    try:
+        d = consiliu.deschide(
+            db,
+            _id(str(f.get("cont_id") or "")),
+            subiect=str(f.get("subiect") or "Revizuirea lunară a reclamelor").strip(),
+            motiv_apel=str(
+                f.get("motiv") or "Revizuirea lunară a strategiei (7.6), cu miză pe buget"
+            ).strip(),
+        )
+    except consiliu.DosarRefuzat as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from None
+    return RedirectResponse(f"/reclame/consiliu/{d.id}", status_code=303)
+
+
+@router.get("/consiliu/{dosar_id}")
+def consiliu_dosar(
+    request: Request, dosar_id: str, u: Proprietar, db: DbSession, eroare: str = ""
+) -> Response:
+    d = db.get(reclame.DosarConsiliu, _id(dosar_id))
+    if d is None:
+        raise HTTPException(status_code=404, detail="Dosar inexistent.")
+    return pagina(
+        request,
+        u,
+        "panou/reclame_consiliu.html",
+        tab="meniu",
+        dosar=d,
+        dosare=[],
+        conturi=[],
+        mesaj="",
+        eroare=eroare,
+    )
+
+
+@router.post("/consiliu/{dosar_id}/importa", dependencies=[Depends(csrf_protect)])
+async def consiliu_importa(request: Request, dosar_id: str, u: Proprietar, db: DbSession) -> Response:
+    did = _id(dosar_id)
+    text = str((await request.form()).get("raspuns") or "")
+    try:
+        rec = consiliu.importa(db, did, text, utilizator_id=u.utilizator_id)
+    except (consiliu.DosarRefuzat, propuneri.PropunereRefuzata) as exc:
+        return RedirectResponse(f"/reclame/consiliu/{did}?eroare={str(exc)[:300]}", status_code=303)
+    return RedirectResponse(f"/reclame/cont/{rec.cont_id}?mesaj=decizie_consiliu", status_code=303)

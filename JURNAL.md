@@ -634,3 +634,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F13.6 — Strategul și înregistrările de decizie.**
   - Construit: `app/reclame/strateg.py`, `app/reclame/prompturi.py`, `prompts/reclame.strateg.v1.md`, migrarea `0073`, jobul săptămânal, secțiunea din ecran. (Și o corectură de lungime de linie în `urgenta.py`, scăpată la F13.5.)
   - Verificat: 1 test unitar, 1 de integrare (model FALS); toate testele reclamelor și migrările verzi.
+- **F13.7 — Consiliul.**
+  - Construit: `app/reclame/consiliu.py`, migrarea `0074`, `prompts/reclame.consiliu.v1.md`, setările `reclame_consiliu_*`, ecranul `/reclame/consiliu` cu șablonul lui, D-012.
+  - Verificat: 3 teste de integrare (manual prin HTTP, plafon, API pe model FALS).

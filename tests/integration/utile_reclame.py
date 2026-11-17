@@ -17,6 +17,7 @@ from tests.platforme.google_ads import DEV_TOKEN, GoogleAdsSimulat
 from tests.platforme.meta_ads import MarketingSimulat
 
 TABELE: tuple[str, ...] = (
+    "reclame_dosare",
     "reclame_decizii",
     "reclame_propuneri",
     "reclame_anunturi",

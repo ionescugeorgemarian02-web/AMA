@@ -152,3 +152,24 @@ class DecizieReclame(BazaReclame):
     propuneri: Mapped[list[str]] = mapped_column(JSONB, default=list)
     model: Mapped[str | None] = mapped_column(Text)
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class DosarConsiliu(BazaReclame):
+    """Un dosar de Consiliu și decizia lui (F13.7, migrarea 0074)."""
+
+    __tablename__ = "reclame_dosare"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    cont_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    subiect: Mapped[str] = mapped_column(Text)
+    motiv_apel: Mapped[str] = mapped_column(Text)
+    continut: Mapped[str] = mapped_column(Text)
+    optiuni: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
+    mod: Mapped[str] = mapped_column(Text, default="manual")
+    stare: Mapped[str] = mapped_column(Text, default="deschis")
+    luna: Mapped[dt.date] = mapped_column(Date)
+    decizie: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    decizie_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    decis_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))

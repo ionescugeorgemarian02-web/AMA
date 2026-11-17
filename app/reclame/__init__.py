@@ -6,12 +6,13 @@ model,
 iar efectele la platformă pleacă doar prin executorul de efecte (`app.operare.efecte`).
 """
 
-from app.reclame import constructor, gardian, plan, propuneri, rezultate, strateg, urgenta
+from app.reclame import consiliu, constructor, gardian, plan, propuneri, rezultate, strateg, urgenta
 from app.reclame.modele import (
     Anunt,
     Campanie,
     ContReclame,
     DecizieReclame,
+    DosarConsiliu,
     PlanMediaRand,
     Propunere,
     RezultatReclame,
@@ -26,10 +27,12 @@ __all__ = [
     "ContInvalid",
     "ContReclame",
     "DecizieReclame",
+    "DosarConsiliu",
     "PlanMediaRand",
     "Propunere",
     "RezultatReclame",
     "Totaluri",
+    "consiliu",
     "constructor",
     "gardian",
     "plan",

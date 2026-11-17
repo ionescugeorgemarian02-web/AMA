@@ -158,6 +158,7 @@ cu „extension "vector" is not available”.
 | F13.4 Constructorul, propunerile, executorul | **închis** (împins), migrarea `0072` |
 | F13.5 Gardianul și oprirea de urgență | **închis** (împins) |
 | F13.6 Strategul | **închis** (împins), migrarea `0073` |
+| F13.7 Consiliul | **închis** (împins), migrarea `0074` |
 
 Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py` (tipurile reclamelor, la final),
 `app/config.py` (`reclame_conectori`, `google_ads_*`), `app/operare/efecte/sistem.py` (tipul `reclama`, oprirea

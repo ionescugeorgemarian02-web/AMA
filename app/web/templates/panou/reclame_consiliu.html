@@ -1,0 +1,35 @@
+{% extends "panou/baza.html" %}
+{% block title %}Consiliul · Reclame · AMA{% endblock %}
+{% block pagina %}
+<h1>Consiliul</h1>
+<p class="slab"><a href="/reclame">Reclame</a> · Deschizi dosarul în Claude, pe telefon, și lipești răspunsul aici (modul manual asistat).</p>
+{% if eroare %}<p role="alert" class="card">Nu s-a putut importa: {{ eroare }}</p>{% endif %}
+{% if dosar %}
+<section class="card" aria-labelledby="dosar">
+  <h2 id="dosar">{{ dosar.subiect }} · {{ {"deschis": "deschis", "decis": "decis", "amanat": "amânat: plafonul lunar de dosare e atins"}[dosar.stare] }}</h2>
+  <pre data-dosar="{{ dosar.id }}">{{ dosar.continut }}</pre>
+  {% if dosar.stare == "deschis" %}
+  <form method="post" action="/reclame/consiliu/{{ dosar.id }}/importa">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="raspuns">Răspunsul Consiliului (blocul JSON)</label>
+    <textarea id="raspuns" name="raspuns" rows="8" required></textarea>
+    <button>Importă decizia</button>
+  </form>
+  {% elif dosar.decizie %}<p>Alegerea: <strong>{{ dosar.decizie.alegere }}</strong> · {{ dosar.decizie.motive|join("; ") }}</p>{% endif %}
+</section>
+{% else %}
+<section class="card" aria-labelledby="nou">
+  <h2 id="nou">Dosar nou</h2>
+  {% for c in conturi %}
+  <form method="post" action="/reclame/consiliu/deschide">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="cont_id" value="{{ c.id }}">
+    <button>Pregătește dosarul pentru {{ c.nume }}</button>
+  </form>
+  {% else %}<p class="slab">Niciun cont de reclame.</p>{% endfor %}
+</section>
+<section class="card" aria-labelledby="lista">
+  <h2 id="lista">Dosare</h2>
+  <ul>{% for d in dosare %}<li><a href="/reclame/consiliu/{{ d.id }}">{{ d.subiect }}</a> · {{ d.stare }} · {{ d.creat_la.strftime("%d.%m.%Y") }}</li>{% else %}<li class="slab">Niciun dosar.</li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}
