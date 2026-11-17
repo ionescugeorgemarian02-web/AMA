@@ -16,7 +16,7 @@ from app.reclame import rezultate
 from tests.platforme.google_ads import DEV_TOKEN, GoogleAdsSimulat
 from tests.platforme.meta_ads import MarketingSimulat
 
-TABELE: tuple[str, ...] = ("reclame_rezultate", "reclame_conturi")
+TABELE: tuple[str, ...] = ("reclame_planuri", "reclame_rezultate", "reclame_conturi")
 AZI = dt.date(2026, 11, 17)
 ACUM = dt.datetime(2026, 11, 17, 18, 0, tzinfo=dt.UTC)
 
@@ -61,8 +61,8 @@ def cont_agentie(
         tenant = fabrica_clienti()
         p = {
             "plafon_zilnic_bani": 10_000,
-            "plafon_lunar_bani": 200_000,
-            "plafon_campanie_bani": 5_000,
+            "plafon_lunar_bani": 300_000,
+            "plafon_campanie_bani": 8_000,
         } | plafoane
         with sesiune_agentie() as db:
             c = rezultate.adauga_cont(db, tenant_id=tenant, platforma=platforma, cont_extern=cont_extern,

@@ -6,8 +6,8 @@ model,
 iar efectele la platformă pleacă doar prin executorul de efecte (`app.operare.efecte`).
 """
 
-from app.reclame import rezultate
-from app.reclame.modele import ContReclame, RezultatReclame
+from app.reclame import plan, rezultate
+from app.reclame.modele import ContReclame, PlanMediaRand, RezultatReclame
 from app.reclame.rezultate import ETICHETE_PLATFORME, PLATFORME, ContInvalid, Totaluri
 
 __all__ = [
@@ -15,7 +15,9 @@ __all__ = [
     "PLATFORME",
     "ContInvalid",
     "ContReclame",
+    "PlanMediaRand",
     "RezultatReclame",
     "Totaluri",
+    "plan",
     "rezultate",
 ]

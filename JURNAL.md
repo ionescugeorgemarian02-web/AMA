@@ -621,3 +621,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F13.2 — Citirea rezultatelor Google Ads.**
   - Construit: `app/connectors/reclame/google.py`, setările `google_ads_*`, `tests/platforme/google_ads.py` (cu scrierile pentru F13.4), D-008 în `DECIZII.md`.
   - Verificat: 1 test unitar, 2 de integrare (plus F13.1 din nou).
+- **F13.3 — Planificatorul media.**
+  - Construit: `app/reclame/plan.py`, migrarea `0071`, ruta `POST /reclame/plan/<id>/<acțiune>`, secțiunea din șablonul contului.
+  - Verificat: 3 teste unitare, 2 de integrare (plus migrările).

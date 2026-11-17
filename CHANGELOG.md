@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F13.3 — Planificatorul media
+- `app/reclame/plan.py` (planul determinist, verificarea, decizia), secțiunea „Planuri media” din `/reclame/cont/<id>`. Migrarea `0071`.
+
 ### F13.2 — Citirea rezultatelor Google Ads
 - Adaptorul `app/connectors/reclame/google.py` (GAQL `searchStream`), setările Google Ads, Google Ads API simulat. Fără migrare.
 

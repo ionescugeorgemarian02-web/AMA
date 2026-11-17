@@ -2,9 +2,10 @@
 
 import datetime as dt
 import uuid
+from typing import Any
 
 from sqlalchemy import BigInteger, Boolean, Date, DateTime, Integer, Text, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.ids import new_id
@@ -55,4 +56,16 @@ class RezultatReclame(BazaReclame):
     citit_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
-__all__ = ["BazaReclame", "ContReclame", "RezultatReclame"]
+class PlanMediaRand(BazaReclame):
+    """Un plan media (F13.3, migrarea 0071). Conținutul e `plan.PlanMedia` ca JSON."""
+
+    __tablename__ = "reclame_planuri"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    cont_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    continut: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    probleme: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    stare: Mapped[str] = mapped_column(Text, default="propus")
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    decis_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
