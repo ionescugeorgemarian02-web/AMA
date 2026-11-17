@@ -183,4 +183,5 @@ Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py
 | FT.1 Jurnalul unic de urme | **închis** (împins), migrarea `0076`, D-018 |
 | FT.2 Firul de corelare și urmele componentelor | **închis** (împins) |
 | FT.3 Indicatorii pe componentă | **închis** (împins) |
+| FT.4 Analiza lunară automată | **închis** (împins), migrarea `0077` |
 

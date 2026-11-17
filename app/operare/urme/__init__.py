@@ -6,7 +6,7 @@ with urme.span("gateway", "apel", tenant_id=t, intrari={...}) as s:
 urme.inregistreaza(db, "aprobare", "respinsa", rezultat="respins", motiv=motiv, obiect_id=ap.id)
 """
 
-from app.operare.urme import indicatori
+from app.operare.urme import analiza, indicatori
 from app.operare.urme.jurnal import (
     REZULTATE,
     Span,
@@ -22,15 +22,17 @@ from app.operare.urme.jurnal import (
     span,
     tenant_curent,
 )
-from app.operare.urme.modele import Urma
+from app.operare.urme.modele import RaportUrme, Urma
 from app.operare.urme.rezumat import mascheaza, rezuma
 
 __all__ = [
     "REZULTATE",
+    "RaportUrme",
     "Span",
     "Urma",
     "active",
     "actor_curent",
+    "analiza",
     "cauza_curenta",
     "corelare",
     "corelare_curenta",

@@ -5,7 +5,7 @@ import uuid
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import DateTime, Integer, Numeric, Text, func
+from sqlalchemy import Date, DateTime, Integer, Numeric, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -34,3 +34,13 @@ class Urma(BazaUrme):
     obiect_id: Mapped[str | None] = mapped_column(Text)
     intrari: Mapped[dict[str, Any]] = mapped_column(JSONB)
     iesiri: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
+class RaportUrme(BazaUrme):
+    """Analiza lunară (FT.4); una pe lună, regenerabilă (ultima generare câștigă)."""
+
+    __tablename__ = "urme_rapoarte"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    luna: Mapped[dt.date] = mapped_column(Date)
+    generat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    continut: Mapped[dict[str, Any]] = mapped_column(JSONB)

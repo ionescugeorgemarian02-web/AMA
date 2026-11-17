@@ -665,3 +665,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **FT.3 — Indicatorii pe componentă.**
   - Construit: `urme.indicatori.calculeaza`; reparat lintul rămas din FT.2 (reclame, cascadă).
   - Verificat: `tests/integration/test_urme_indicatori.py`; ruff, mypy verzi.
+- **FT.4 — Analiza lunară automată.**
+  - Construit: migrarea `0077`, `analiza.py`, `fluxuri.py` (cron 1 ale lunii), `MODULE_FLUXURI`, garda contextului de agenție.
+  - Verificat: `tests/integration/test_urme_analiza.py` (regresii, porți, motive, costuri, lanțuri, lanț întrerupt, regenerare), migrările, garda.

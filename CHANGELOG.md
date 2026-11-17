@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### FT.4 — Analiza lunară automată
+- `app/operare/urme/analiza.py` (bine/prost, regresii, costuri, porți picate, motive de respingere, lanțul fiecărui eșec până la sursă), `urme_rapoarte`, jobul lunar `urme.analiza_lunara`. Migrarea `0077`.
+
 ### FT.3 — Indicatorii pe componentă
 - `app/operare/urme/indicatori.py`: volum, rezultate, rata de eșec, cost pe unitate, durate p50/p95, coduri frecvente, pe interval și client. Fără migrare.
 

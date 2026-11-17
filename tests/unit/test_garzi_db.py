@@ -95,6 +95,7 @@ CONTEXT_AGENTIE = {
     # FT: urmele componentelor fără sesiune (gateway, conectori, motor) se scriu cu scop de agenție; analiza
     # lunară citește toate urmele
     "app/operare/urme/jurnal.py",
+    "app/operare/urme/fluxuri.py",
 }
 
 
