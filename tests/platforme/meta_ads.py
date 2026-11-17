@@ -40,11 +40,22 @@ class MarketingSimulat(PlatformaHttp):
 
     def adauga_campanie(self, nume: str, buget_bani: int, stare: str = "ACTIVE") -> str:
         cid = self._id()
-        self.obiecte[cid] = {"tip": "campaign", "id": cid, "name": nume, "status": stare, "daily_budget": buget_bani,
-                             "objective": "OUTCOME_LEADS"}  # fmt: skip
+        self.obiecte[cid] = {
+            "tip": "campaign",
+            "id": cid,
+            "name": nume,
+            "status": stare,
+            "daily_budget": buget_bani,
+            "objective": "OUTCOME_LEADS",
+        }
         aid = self._id()
-        self.obiecte[aid] = {"tip": "ad", "id": aid, "name": f"{nume} · reclama", "status": "ACTIVE",
-                             "campaign_id": cid}  # fmt: skip
+        self.obiecte[aid] = {
+            "tip": "ad",
+            "id": aid,
+            "name": f"{nume} · reclama",
+            "status": "ACTIVE",
+            "campaign_id": cid,
+        }
         return cid
 
     def inregistreaza(
@@ -54,8 +65,16 @@ class MarketingSimulat(PlatformaHttp):
         for k, v in (("bani", bani), ("afisari", afisari), ("clicuri", clicuri), ("rezultate", rezultate)):
             z[k] += v
 
-    def zi(self, zi: dt.date, *, ritm: float = 1.0, cpm_bani: int = 2000, ctr: float = 0.015,
-           conversie: float = 0.08, fractiune: float = 1.0) -> None:  # fmt: skip
+    def zi(
+        self,
+        zi: dt.date,
+        *,
+        ritm: float = 1.0,
+        cpm_bani: int = 2000,
+        ctr: float = 0.015,
+        conversie: float = 0.08,
+        fractiune: float = 1.0,
+    ) -> None:
         """Cheltuiala unei zile (sau a unei fracțiuni de zi) pe campaniile active, împărțită egal pe reclame."""
         for c in self.campanii():
             ads = [a for a in self.reclame(c["id"]) if a["status"] == "ACTIVE"]
@@ -66,8 +85,14 @@ class MarketingSimulat(PlatformaHttp):
                 bani = total // len(ads)
                 afis = bani * 1000 // max(1, int(a.get("cpm_bani", cpm_bani)))
                 clic = int(afis * float(a.get("ctr", ctr)))
-                self.inregistreaza(a["id"], zi, bani=bani, afisari=afis, clicuri=clic,
-                                   rezultate=int(clic * float(a.get("conversie", conversie))))  # fmt: skip
+                self.inregistreaza(
+                    a["id"],
+                    zi,
+                    bani=bani,
+                    afisari=afis,
+                    clicuri=clic,
+                    rezultate=int(clic * float(a.get("conversie", conversie))),
+                )
 
     def manager(self, de_la: dt.date, pana_la: dt.date) -> dict[str, int]:
         """Totalul contului, cum îl arată managerul de reclame (din evidența platformei)."""
@@ -90,8 +115,9 @@ class MarketingSimulat(PlatformaHttp):
     # --- erori ----------------------------------------------------------------------------------------------
     @staticmethod
     def eroare(cod_http: int, cod: int, mesaj: str, **extra: Any) -> httpx.Response:
-        return httpx.Response(cod_http, json={"error": {"message": mesaj, "type": "OAuthException", "code": cod,
-                                                        **extra}})  # fmt: skip
+        return httpx.Response(
+            cod_http, json={"error": {"message": mesaj, "type": "OAuthException", "code": cod, **extra}}
+        )
 
     @staticmethod
     def _id() -> str:
@@ -116,6 +142,20 @@ class MarketingSimulat(PlatformaHttp):
             return self.json(200, {"data": [self._public(o) for o in self.campanii()]})
         if req.method == "POST" and cale.startswith(f"{self.cont}/"):
             return self._creeaza(cale.split("/")[1], p, d)
+        parti = cale.split("/")
+        if (
+            req.method == "GET"
+            and len(parti) == 2
+            and parti[0] in self.obiecte
+            and parti[1] in ("adsets", "ads")
+        ):
+            tip = parti[1].removesuffix("s")
+            copii = [
+                self._public(o)
+                for o in self.obiecte.values()
+                if o["tip"] == tip and o.get("campaign_id") == parti[0]
+            ]
+            return self.json(200, {"data": copii})
         if cale in self.obiecte:
             o = self.obiecte[cale]
             if req.method == "GET":
@@ -151,8 +191,11 @@ class MarketingSimulat(PlatformaHttp):
             if parinte is None:
                 return self.eroare(400, 100, "Invalid parameter: adset_id")
             creativ = p.get("creative")
-            o |= {"adset_id": parinte["id"], "campaign_id": parinte["campaign_id"],
-                  "creative": json.loads(creativ) if isinstance(creativ, str) else creativ}  # fmt: skip
+            o |= {
+                "adset_id": parinte["id"],
+                "campaign_id": parinte["campaign_id"],
+                "creative": json.loads(creativ) if isinstance(creativ, str) else creativ,
+            }
         self.obiecte[oid] = o
         self.scrieri.append({"creat": tip, "id": oid, **p})
         if d == "pierde_raspunsul":
@@ -188,13 +231,19 @@ class MarketingSimulat(PlatformaHttp):
             o = self.obiecte[oid]
             c = self.obiecte[o["campaign_id"]] if pe_reclama else o
             r: dict[str, Any] = {
-                "campaign_id": c["id"], "campaign_name": c["name"], "date_start": zi.isoformat(),
-                "date_stop": zi.isoformat(), "spend": str(Decimal(v["bani"]) / 100),
-                "impressions": str(v["afisari"]), "clicks": str(v["clicuri"]),
-            }  # fmt: skip
+                "campaign_id": c["id"],
+                "campaign_name": c["name"],
+                "date_start": zi.isoformat(),
+                "date_stop": zi.isoformat(),
+                "spend": str(Decimal(v["bani"]) / 100),
+                "impressions": str(v["afisari"]),
+                "clicks": str(v["clicuri"]),
+            }
             if v["rezultate"]:
-                r["actions"] = [{"action_type": "link_click", "value": str(v["clicuri"])},
-                                {"action_type": "lead", "value": str(v["rezultate"])}]  # fmt: skip
+                r["actions"] = [
+                    {"action_type": "link_click", "value": str(v["clicuri"])},
+                    {"action_type": "lead", "value": str(v["rezultate"])},
+                ]
             if pe_reclama:
                 r |= {"ad_id": oid, "ad_name": o["name"]}
             randuri.append(r)

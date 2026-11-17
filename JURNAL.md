@@ -624,3 +624,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F13.3 — Planificatorul media.**
   - Construit: `app/reclame/plan.py`, migrarea `0071`, ruta `POST /reclame/plan/<id>/<acțiune>`, secțiunea din șablonul contului.
   - Verificat: 3 teste unitare, 2 de integrare (plus migrările).
+- **F13.4 — Constructorul de campanii, propunerile și executorul.**
+  - Construit: `app/reclame/{constructor,propuneri}.py`, migrarea `0072`, scrierea în `meta.py`/`google.py`, `Executant` în `app/connectors/reclame`, tipul `reclama` + oprirea `reclame` în `efecte/sistem.py` (rânduri adăugate), rutele de activare/aprobare/anulare.
+  - Verificat: 4 teste de integrare noi; împreună cu restul reclamelor, emailul CRM (aceeași ușă de efecte) și migrările: verzi.

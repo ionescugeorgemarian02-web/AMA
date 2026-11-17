@@ -2,6 +2,9 @@
 
 - `/reclame`: conturile active, cu cheltuiala zilei și a lunii față de plafon și totalurile pe 30 de zile.
 - `POST /reclame/plan/<id>/{aproba|respinge}`: decizia pe planul media (F13.3), doar proprietarul.
+- `POST /reclame/campanie/<id>/{activeaza|pauza}` și `POST
+/reclame/propunere/<id>/{aproba|respinge|anuleaza}`:
+  schimbările (F13.4); anularea aplică imediat starea de dinainte. Doar proprietarul.
 - `/reclame/cont/<id>`: contul, pe campanii și pe zile, cum le arată managerul de reclame (F13.1, F13.2).
 Citirea cere `rapoarte.citeste`.
 """
@@ -25,7 +28,7 @@ from app.conturi import (
 )
 from app.conturi.roluri import ROLURI_AGENTIE
 from app.panou.sabloane import pagina
-from app.reclame import plan, rezultate
+from app.reclame import constructor, plan, propuneri, rezultate
 
 router = APIRouter(prefix="/reclame", tags=["reclame"])
 Agentie = Annotated[SesiuneCurenta, Depends(require_role(*ROLURI_AGENTIE))]
@@ -67,9 +70,14 @@ def lista(request: Request, u: Agentie, _p: PoateCiti, db: DbSession) -> Respons
             }
         )
     return pagina(
-        request, u, "panou/reclame.html", tab="meniu", randuri=randuri, lei=lei,
+        request,
+        u,
+        "panou/reclame.html",
+        tab="meniu",
+        randuri=randuri,
+        lei=lei,
         platforme=reclame.ETICHETE_PLATFORME,
-    )  # fmt: skip
+    )
 
 
 @router.post("/plan/{plan_id}/{actiune}", dependencies=[Depends(csrf_protect)])
@@ -96,6 +104,7 @@ def cont(
     mesaj: str = "",
     eroare: str = "",
 ) -> Response:
+    propuneri.reconciliaza(db)
     c = db.get(reclame.ContReclame, _id(cont_id))
     if c is None:
         raise HTTPException(status_code=404, detail="Cont inexistent.")
@@ -103,13 +112,74 @@ def cont(
     azi = _azi()
     de_la = azi - dt.timedelta(days=zile - 1)
     return pagina(
-        request, u, "panou/reclame_cont.html", tab="meniu", cont=c, lei=lei, zile=zile, de_la=de_la,
+        request,
+        u,
+        "panou/reclame_cont.html",
+        tab="meniu",
+        cont=c,
+        lei=lei,
+        zile=zile,
+        de_la=de_la,
         pana_la=azi,
         total=rezultate.totaluri(db, c.id, de_la, azi),
         campanii=rezultate.pe_obiecte(db, c.id, de_la, azi),
         pe_zile=rezultate.pe_zile(db, c.id, de_la, azi),
         platforme=reclame.ETICHETE_PLATFORME,
         planuri=plan.ale_contului(db, c.id),
+        campanii_construite=constructor.campanii(db, c.id),
+        propuneri_cont=propuneri.ale_contului(db, c.id),
+        etichete_stare=propuneri.ETICHETE_STARE,
         mesaj=mesaj,
         eroare=eroare,
-    )  # fmt: skip
+    )
+
+
+MESAJE_SCHIMBARI = {"activeaza": "activa", "pauza": "pauza"}
+
+
+def _inapoi(cont_id: uuid.UUID, mesaj: str = "", eroare: str = "") -> RedirectResponse:
+    q = f"eroare={eroare[:300]}" if eroare else f"mesaj={mesaj}"
+    return RedirectResponse(f"/reclame/cont/{cont_id}?{q}", status_code=303)
+
+
+@router.post("/campanie/{campanie_id}/{actiune}", dependencies=[Depends(csrf_protect)])
+def schimba_starea(campanie_id: str, actiune: str, u: Proprietar, db: DbSession) -> Response:
+    c = db.get(reclame.Campanie, _id(campanie_id))
+    if c is None or actiune not in MESAJE_SCHIMBARI:
+        raise HTTPException(status_code=404, detail="Campanie inexistentă.")
+    try:
+        p = propuneri.propune(
+            db,
+            c.id,
+            "stare",
+            {"stare": MESAJE_SCHIMBARI[actiune]},
+            sursa="om",
+            utilizator_id=u.utilizator_id,
+            motiv="Activată de proprietar" if actiune == "activeaza" else "Pusă pe pauză de proprietar",
+        )
+        if p.stare != "propusa":
+            return _inapoi(c.cont_id, eroare="; ".join(p.verdict.get("motive", [])) or "schimbare refuzată")
+        propuneri.aproba(db, p.id, utilizator_id=u.utilizator_id)
+    except propuneri.PropunereRefuzata as exc:
+        return _inapoi(c.cont_id, eroare=str(exc))
+    return _inapoi(c.cont_id, f"campanie_{actiune}")
+
+
+@router.post("/propunere/{propunere_id}/{actiune}", dependencies=[Depends(csrf_protect)])
+def decide_propunere(propunere_id: str, actiune: str, u: Proprietar, db: DbSession) -> Response:
+    p = db.get(reclame.Propunere, _id(propunere_id))
+    if p is None or actiune not in ("aproba", "respinge", "anuleaza"):
+        raise HTTPException(status_code=404, detail="Propunere inexistentă.")
+    cont_id = p.cont_id
+    try:
+        if actiune == "aproba":
+            propuneri.aproba(db, p.id, utilizator_id=u.utilizator_id)
+        elif actiune == "respinge":
+            propuneri.respinge(db, p.id, utilizator_id=u.utilizator_id)
+        else:
+            inv = propuneri.anuleaza(db, p.id, utilizator_id=u.utilizator_id)
+            if inv.stare == "refuzata":
+                return _inapoi(cont_id, eroare="; ".join(inv.verdict.get("motive", [])))
+    except propuneri.PropunereRefuzata as exc:
+        return _inapoi(cont_id, eroare=str(exc))
+    return _inapoi(cont_id, f"propunere_{actiune}")

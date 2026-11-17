@@ -24,9 +24,13 @@ Fabrica = Callable[..., tuple[uuid.UUID, uuid.UUID]]
 
 
 def test_cifrele_contului_agentiei_apar_in_panou_si_coincid_cu_managerul(
-    meta: MarketingSimulat, depozit: object, cont_agentie: Fabrica, client: TestClient,
-    fabrica_conturi: Callable[..., Cont], ceas: dict[str, float],
-) -> None:  # fmt: skip
+    meta: MarketingSimulat,
+    depozit: object,
+    cont_agentie: Fabrica,
+    client: TestClient,
+    fabrica_conturi: Callable[..., Cont],
+    ceas: dict[str, float],
+) -> None:
     tenant, cont_id = cont_agentie()
     autorizeaza(depozit, meta, tenant)  # type: ignore[arg-type]
     a = meta.adauga_campanie("Audit gratuit – căutare", 3_000)
@@ -98,5 +102,13 @@ def test_eroarea_temporara_amana_citirea(
 
 def test_cont_cu_plafoane_incoerente_e_refuzat(fabrica_clienti: Callable[[], uuid.UUID]) -> None:
     with sesiune_agentie() as db, pytest.raises(rezultate.ContInvalid):
-        rezultate.adauga_cont(db, tenant_id=fabrica_clienti(), platforma="meta", cont_extern="act_9",
-                              nume="Greșit", plafon_zilnic_bani=100, plafon_lunar_bani=50, plafon_campanie_bani=100)  # fmt: skip
+        rezultate.adauga_cont(
+            db,
+            tenant_id=fabrica_clienti(),
+            platforma="meta",
+            cont_extern="act_9",
+            nume="Greșit",
+            plafon_zilnic_bani=100,
+            plafon_lunar_bani=50,
+            plafon_campanie_bani=100,
+        )

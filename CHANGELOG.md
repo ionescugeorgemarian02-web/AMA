@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F13.4 — Constructorul de campanii, propunerile de schimbare și executorul
+- `app/reclame/{constructor,propuneri}.py`, scrierea în adaptoarele Meta și Google, executantul efectelor `reclama` (în `efecte/sistem.py`, prin adăugare), panoul cu activare, aprobare și anulare. Migrarea `0072`.
+
 ### F13.3 — Planificatorul media
 - `app/reclame/plan.py` (planul determinist, verificarea, decizia), secțiunea „Planuri media” din `/reclame/cont/<id>`. Migrarea `0071`.
 

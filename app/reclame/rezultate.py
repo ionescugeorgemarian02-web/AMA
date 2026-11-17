@@ -53,18 +53,32 @@ def adauga_cont(
     if not 0 < plafon_campanie_bani <= plafon_zilnic_bani <= plafon_lunar_bani:
         raise ContInvalid("plafoanele cer: campanie ≤ zilnic ≤ lunar, toate pozitive")
     c = ContReclame(
-        tenant_id=tenant_id, platforma=platforma, cont_extern=cont_extern.strip(), nume=nume.strip(),
-        moneda=moneda, al_agentiei=al_agentiei, plafon_zilnic_bani=plafon_zilnic_bani,
-        plafon_lunar_bani=plafon_lunar_bani, plafon_campanie_bani=plafon_campanie_bani,
-    )  # fmt: skip
+        tenant_id=tenant_id,
+        platforma=platforma,
+        cont_extern=cont_extern.strip(),
+        nume=nume.strip(),
+        moneda=moneda,
+        al_agentiei=al_agentiei,
+        plafon_zilnic_bani=plafon_zilnic_bani,
+        plafon_lunar_bani=plafon_lunar_bani,
+        plafon_campanie_bani=plafon_campanie_bani,
+    )
     db.add(c)
     db.flush()
     audit.record(
-        db, "reclame.cont_adaugat", obiect_tip="reclame_cont", obiect_id=c.id, tenant_id=tenant_id,
-        utilizator_id=utilizator_id, actor_tip=None if utilizator_id else "sistem",
-        detalii={"platforma": platforma, "plafon_zilnic_bani": plafon_zilnic_bani,
-                 "plafon_lunar_bani": plafon_lunar_bani},
-    )  # fmt: skip
+        db,
+        "reclame.cont_adaugat",
+        obiect_tip="reclame_cont",
+        obiect_id=c.id,
+        tenant_id=tenant_id,
+        utilizator_id=utilizator_id,
+        actor_tip=None if utilizator_id else "sistem",
+        detalii={
+            "platforma": platforma,
+            "plafon_zilnic_bani": plafon_zilnic_bani,
+            "plafon_lunar_bani": plafon_lunar_bani,
+        },
+    )
     return c
 
 
@@ -78,20 +92,26 @@ def conturi(db: Session, *, doar_active: bool = True) -> list[ContReclame]:
 def _scrie(db: Session, cont: ContReclame, randuri: list[RandReclame], acum: dt.datetime) -> int:
     for r in randuri:
         valori = {
-            "nume": r.nume[:300], "parinte_extern": r.parinte_extern,
+            "nume": r.nume[:300],
+            "parinte_extern": r.parinte_extern,
             "cheltuiala_bani": max(0, r.cheltuiala_bani),
-            "afisari": max(0, r.afisari), "clicuri": max(0, r.clicuri), "rezultate": max(0, r.rezultate),
+            "afisari": max(0, r.afisari),
+            "clicuri": max(0, r.clicuri),
+            "rezultate": max(0, r.rezultate),
             "citit_la": acum,
-        }  # fmt: skip
+        }
         db.execute(
             pg_insert(RezultatReclame)
-            .values(tenant_id=cont.tenant_id, cont_id=cont.id, nivel=r.nivel, obiect_extern=r.id_extern,
-                    zi=r.zi,
-                    **valori)
-            .on_conflict_do_update(
-                index_elements=["cont_id", "nivel", "obiect_extern", "zi"], set_=valori
+            .values(
+                tenant_id=cont.tenant_id,
+                cont_id=cont.id,
+                nivel=r.nivel,
+                obiect_extern=r.id_extern,
+                zi=r.zi,
+                **valori,
             )
-        )  # fmt: skip
+            .on_conflict_do_update(index_elements=["cont_id", "nivel", "obiect_extern", "zi"], set_=valori)
+        )
     return len(randuri)
 
 
@@ -183,9 +203,14 @@ def _filtru(
 
 
 def totaluri(
-    db: Session, cont_id: uuid.UUID, de_la: dt.date, pana_la: dt.date, *, obiect_extern: str | None = None,
+    db: Session,
+    cont_id: uuid.UUID,
+    de_la: dt.date,
+    pana_la: dt.date,
+    *,
+    obiect_extern: str | None = None,
     nivel: str = "campanie",
-) -> Totaluri:  # fmt: skip
+) -> Totaluri:
     q = select(*SUME).where(*_filtru(cont_id, de_la, pana_la, nivel))
     if obiect_extern is not None:
         q = q.where(RezultatReclame.obiect_extern == obiect_extern)
@@ -194,9 +219,14 @@ def totaluri(
 
 
 def pe_obiecte(
-    db: Session, cont_id: uuid.UUID, de_la: dt.date, pana_la: dt.date, *, nivel: str = "campanie",
+    db: Session,
+    cont_id: uuid.UUID,
+    de_la: dt.date,
+    pana_la: dt.date,
+    *,
+    nivel: str = "campanie",
     parinte_extern: str | None = None,
-) -> list[tuple[str, str, Totaluri]]:  # fmt: skip
+) -> list[tuple[str, str, Totaluri]]:
     """(id extern, nume, totaluri) pe campanie (sau pe reclamă), cele mai scumpe primele."""
     q = select(RezultatReclame.obiect_extern, func.max(RezultatReclame.nume), *SUME).where(
         *_filtru(cont_id, de_la, pana_la, nivel)

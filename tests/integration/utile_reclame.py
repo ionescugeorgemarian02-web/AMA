@@ -16,16 +16,24 @@ from app.reclame import rezultate
 from tests.platforme.google_ads import DEV_TOKEN, GoogleAdsSimulat
 from tests.platforme.meta_ads import MarketingSimulat
 
-TABELE: tuple[str, ...] = ("reclame_planuri", "reclame_rezultate", "reclame_conturi")
+TABELE: tuple[str, ...] = (
+    "reclame_propuneri",
+    "reclame_anunturi",
+    "reclame_campanii",
+    "reclame_planuri",
+    "reclame_rezultate",
+    "reclame_conturi",
+)
 AZI = dt.date(2026, 11, 17)
 ACUM = dt.datetime(2026, 11, 17, 18, 0, tzinfo=dt.UTC)
 
 
 def curata(admin: Engine, tabele: tuple[str, ...] = TABELE) -> None:
     with admin.begin() as c:
+        c.execute(text("UPDATE reclame_propuneri SET efect_id = NULL, anuleaza_id = NULL"))
+        c.execute(text("DELETE FROM efecte_sistem WHERE tip = 'reclama'"))
         for t in tabele:
             c.execute(text(f"DELETE FROM {t}"))
-        c.execute(text("DELETE FROM efecte_sistem WHERE tip = 'reclama'"))
         c.execute(text("DELETE FROM opriri WHERE tip = 'reclame'"))
 
 
@@ -65,8 +73,15 @@ def cont_agentie(
             "plafon_campanie_bani": 8_000,
         } | plafoane
         with sesiune_agentie() as db:
-            c = rezultate.adauga_cont(db, tenant_id=tenant, platforma=platforma, cont_extern=cont_extern,
-                                      nume="Agenția – cont de test", al_agentiei=True, **p)  # fmt: skip
+            c = rezultate.adauga_cont(
+                db,
+                tenant_id=tenant,
+                platforma=platforma,
+                cont_extern=cont_extern,
+                nume="Agenția – cont de test",
+                al_agentiei=True,
+                **p,
+            )
             return tenant, c.id
 
     yield creeaza
@@ -83,3 +98,71 @@ def google(depozit: DepozitInMemorie) -> Iterator[GoogleAdsSimulat]:
     )
     yield sim
     registru_reclame.uita_tot()
+
+
+def executa_efecte() -> list[str]:
+    """Rulează pe loc efectele `reclama` în așteptare (ca jobul executorului) și reconciliază campaniile."""
+    from sqlalchemy import select
+
+    from app.operare import motor
+    from app.operare.efecte import EfectSistemRand, sistem
+    from app.reclame import propuneri
+
+    with sesiune_agentie() as db:
+        ids = list(
+            db.execute(
+                select(EfectSistemRand.id)
+                .where(EfectSistemRand.tip == "reclama", EfectSistemRand.stare == "in_asteptare")
+                .order_by(EfectSistemRand.creat_la)
+            ).scalars()
+        )
+    rez = []
+    for i in ids:
+        try:
+            rez.append(sistem.incearca(i))
+        except motor.EroareTemporara:
+            rez.append("temporar")
+    with sesiune_agentie() as db:
+        propuneri.reconciliaza(db)
+    return rez
+
+
+PARAMETRI_PLAN = {
+    "obiectiv": "lead",
+    "pagina_destinatie": "https://agentie.example/audit",
+    "buget_lunar_bani": 240_000,
+    "public": "Proprietari de IMM-uri din România, 25–60 de ani",
+    "cost_tinta_bani": 4_000,
+    "unghiuri": ["Unde pierzi clienți", "Trei greșeli de pe site", "Exemplu: o cafenea"],
+    "nume": "Audit gratuit",
+}
+
+
+def plan_aprobat(cont_id: uuid.UUID, om: uuid.UUID, **kw: object) -> uuid.UUID:
+    from app.reclame import plan
+
+    with sesiune_agentie() as db:
+        r = plan.propune(db, cont_id, **(PARAMETRI_PLAN | kw))
+        plan.decide(db, r.id, aprobat=True, utilizator_id=om)
+        return r.id
+
+
+def creative(plan_id: uuid.UUID) -> dict[str, object]:
+    from app.reclame.constructor import Creativ
+
+    return {
+        "scalare": Creativ("Audit gratuit de marketing", "Află în 48 de ore unde pierzi clienți."),
+        "Unde pierzi clienți": Creativ("Unde pierzi clienți?", "Auditul îți arată pașii care lipsesc."),
+        "Trei greșeli de pe site": Creativ("Trei greșeli de pe site", "Cele mai dese, explicate simplu."),
+        "Exemplu: o cafenea": Creativ("Cum a crescut o cafenea", "Un exemplu concret, pas cu pas."),
+    }
+
+
+def construieste(cont_id: uuid.UUID, om: uuid.UUID, **kw: object) -> list[uuid.UUID]:
+    from app.reclame import constructor
+
+    pid = plan_aprobat(cont_id, om, **kw)
+    with sesiune_agentie() as db:
+        ids = [c.id for c in constructor.construieste(db, pid, creative(pid))]  # type: ignore[arg-type]
+    executa_efecte()
+    return ids

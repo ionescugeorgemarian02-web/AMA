@@ -69,3 +69,64 @@ class PlanMediaRand(BazaReclame):
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     decis_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Campanie(BazaReclame):
+    """O campanie construită din planul aprobat (F13.4, migrarea 0072). Se creează în pauză."""
+
+    __tablename__ = "reclame_campanii"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    cont_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    plan_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    nume: Mapped[str] = mapped_column(Text)
+    rol: Mapped[str] = mapped_column(Text)
+    variabila: Mapped[str | None] = mapped_column(Text)
+    id_extern: Mapped[str | None] = mapped_column(Text)
+    stare: Mapped[str] = mapped_column(Text, default="in_constructie")
+    buget_zilnic_bani: Mapped[int] = mapped_column(BigInteger)
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    schimbat_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Anunt(BazaReclame):
+    """O reclamă (creativul) dintr-o campanie (migrarea 0072)."""
+
+    __tablename__ = "reclame_anunturi"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    campanie_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    nume: Mapped[str] = mapped_column(Text)
+    varianta: Mapped[str] = mapped_column(Text, default="")
+    titlu: Mapped[str] = mapped_column(Text)
+    text: Mapped[str] = mapped_column(Text)
+    link: Mapped[str] = mapped_column(Text)
+    generat_ai: Mapped[bool] = mapped_column(Boolean, default=False)
+    id_extern: Mapped[str | None] = mapped_column(Text)
+    stare: Mapped[str] = mapped_column(Text, default="in_constructie")
+    verificare: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Propunere(BazaReclame):
+    """O schimbare tipizată, cu starea de dinainte și de după (F13.4, migrarea 0072)."""
+
+    __tablename__ = "reclame_propuneri"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    cont_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    campanie_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    anunt_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    tip: Mapped[str] = mapped_column(Text)
+    inainte: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    dupa: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    motiv: Mapped[str] = mapped_column(Text)
+    sursa: Mapped[str] = mapped_column(Text)
+    stare: Mapped[str] = mapped_column(Text, default="propusa")
+    verdict: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    efect_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    anuleaza_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    decis_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    aplicat_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))

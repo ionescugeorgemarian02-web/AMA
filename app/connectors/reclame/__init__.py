@@ -6,8 +6,10 @@ Cititorii reali se încarcă la cerere pentru platformele din `AMA_RECLAME_CONEC
 """
 
 import importlib
+import uuid
+from typing import Any, Protocol, runtime_checkable
 
-from app.connectors.contract import CititorReclame
+from app.connectors.contract import CititorReclame, EfectSistem, RezultatPlatforma
 
 FABRICI: dict[str, str] = {
     "meta": "app.connectors.reclame.meta:ContMeta",
@@ -20,6 +22,30 @@ def _activi() -> set[str]:
     from app.config import get_settings
 
     return {c.strip() for c in get_settings().reclame_conectori.split(",") if c.strip()}
+
+
+@runtime_checkable
+class ContReclameApi(CititorReclame, Protocol):
+    """Adaptorul complet al unei platforme: citire (F13.1–F13.2) și scriere (F13.4)."""
+
+    def scrie(self, tenant_id: uuid.UUID, payload: dict[str, Any]) -> RezultatPlatforma: ...
+
+
+class Executant:
+    """Conectorul de sistem pentru efectele `reclama` (D-008): alege adaptorul după `payload["platforma"]`."""
+
+    def trimite(self, efect: EfectSistem) -> RezultatPlatforma:
+        from app.operare.motor import EroareDefinitiva
+
+        if efect.tenant_id is None:
+            raise EroareDefinitiva("efectul de reclame cere clientul")
+        c = cititor_pentru(str(efect.payload.get("platforma")))
+        if not isinstance(c, ContReclameApi):
+            raise EroareDefinitiva(f"platforma „{efect.payload.get('platforma')}” nu are conector de scriere")
+        return c.scrie(efect.tenant_id, efect.payload)
+
+
+EXECUTANT = Executant()
 
 
 def inregistreaza(platforma: str, cititor: CititorReclame) -> None:

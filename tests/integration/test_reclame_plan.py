@@ -20,17 +20,23 @@ from tests.integration.utile_reclame import cont_agentie  # noqa: F401
 
 pytestmark = pytest.mark.db
 PARAMETRI = {
-    "obiectiv": "lead", "pagina_destinatie": "https://agentie.example/audit", "buget_lunar_bani": 240_000,
-    "public": "Proprietari de IMM-uri din România, 25–60 de ani", "cost_tinta_bani": 4_000,
+    "obiectiv": "lead",
+    "pagina_destinatie": "https://agentie.example/audit",
+    "buget_lunar_bani": 240_000,
+    "public": "Proprietari de IMM-uri din România, 25–60 de ani",
+    "cost_tinta_bani": 4_000,
     "unghiuri": ["Auditul arată unde pierzi clienți", "Trei greșeli de pe site", "Exemplu: o cafenea"],
     "nume": "Audit gratuit",
-}  # fmt: skip
+}
 
 
 def test_planul_de_proba_are_structura_plafoane_criterii_si_trece_verificarea(
-    cont_agentie: Callable[..., tuple[uuid.UUID, uuid.UUID]], client: TestClient,
-    fabrica_conturi: Callable[..., Cont], ceas: dict[str, float], admin_engine: Engine,
-) -> None:  # fmt: skip
+    cont_agentie: Callable[..., tuple[uuid.UUID, uuid.UUID]],
+    client: TestClient,
+    fabrica_conturi: Callable[..., Cont],
+    ceas: dict[str, float],
+    admin_engine: Engine,
+) -> None:
     _, cont_id = cont_agentie()
     with sesiune_agentie() as db:
         r = plan.propune(db, cont_id, **PARAMETRI)
@@ -54,9 +60,11 @@ def test_planul_de_proba_are_structura_plafoane_criterii_si_trece_verificarea(
 
 
 def test_planul_peste_plafoane_nu_se_aproba(
-    cont_agentie: Callable[..., tuple[uuid.UUID, uuid.UUID]], client: TestClient,
-    fabrica_conturi: Callable[..., Cont], ceas: dict[str, float],
-) -> None:  # fmt: skip
+    cont_agentie: Callable[..., tuple[uuid.UUID, uuid.UUID]],
+    client: TestClient,
+    fabrica_conturi: Callable[..., Cont],
+    ceas: dict[str, float],
+) -> None:
     _, cont_id = cont_agentie(plafon_campanie_bani=2_000)
     with sesiune_agentie() as db:
         r = plan.propune(db, cont_id, **PARAMETRI)

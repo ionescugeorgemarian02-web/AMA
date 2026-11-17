@@ -12,11 +12,19 @@ def test_banii_se_pastreaza_exact_in_subunitati() -> None:
 
 def test_randul_de_insights() -> None:
     r = rand_din_insights(
-        {"campaign_id": "1", "campaign_name": "C", "ad_id": "9", "ad_name": "R", "date_start": "2026-11-10",
-         "spend": "3.50", "impressions": "100", "clicks": "4",
-         "actions": [{"action_type": "lead", "value": "2"}, {"action_type": "link_click", "value": "4"}]},
+        {
+            "campaign_id": "1",
+            "campaign_name": "C",
+            "ad_id": "9",
+            "ad_name": "R",
+            "date_start": "2026-11-10",
+            "spend": "3.50",
+            "impressions": "100",
+            "clicks": "4",
+            "actions": [{"action_type": "lead", "value": "2"}, {"action_type": "link_click", "value": "4"}],
+        },
         "reclama",
-    )  # fmt: skip
+    )
     assert (r.id_extern, r.parinte_extern, r.zi, r.cheltuiala_bani, r.rezultate) == (
         "9",
         "1",

@@ -47,8 +47,15 @@ class GoogleAdsSimulat(PlatformaHttp):
     def buget_bani(self, cid: str) -> int:
         return self.bugete[self.campanii_[cid]["campaignBudget"]] // MICRO
 
-    def zi(self, zi: dt.date, *, ritm: float = 1.0, cpm_bani: int = 1500, ctr: float = 0.03,
-           conversie: float = 0.1) -> None:  # fmt: skip
+    def zi(
+        self,
+        zi: dt.date,
+        *,
+        ritm: float = 1.0,
+        cpm_bani: int = 1500,
+        ctr: float = 0.03,
+        conversie: float = 0.1,
+    ) -> None:
         for c in self.campanii_.values():
             ads = [a for a in self.reclame_.values() if a["campanie"] == c["id"] and a["status"] == "ENABLED"]
             if c["status"] != "ENABLED" or not ads:
@@ -121,16 +128,25 @@ class GoogleAdsSimulat(PlatformaHttp):
                         or c.get("campaignBudget") not in self.bugete
                     ):
                         return self.eroare(400, "INVALID_ARGUMENT", "Request contains an invalid argument.")
-                    self.campanii_[oid] = {"id": oid, "name": c["name"], "status": c["status"],
-                                           "campaignBudget": c["campaignBudget"]}  # fmt: skip
+                    self.campanii_[oid] = {
+                        "id": oid,
+                        "name": c["name"],
+                        "status": c["status"],
+                        "campaignBudget": c["campaignBudget"],
+                    }
                     nume = f"customers/{self.client}/campaigns/{oid}"
                 elif colectie == "adGroups":
                     self.grupuri[oid] = str(c["campaign"]).rsplit("/", 1)[1]
                     nume = f"customers/{self.client}/adGroups/{oid}"
                 elif colectie == "adGroupAds":
                     grup = str(c["adGroup"]).rsplit("/", 1)[1]
-                    self.reclame_[oid] = {"id": oid, "name": c.get("ad", {}).get("name", ""), "status": c["status"],
-                                          "campanie": self.grupuri[grup], "ad": c.get("ad", {})}  # fmt: skip
+                    self.reclame_[oid] = {
+                        "id": oid,
+                        "name": c.get("ad", {}).get("name", ""),
+                        "status": c["status"],
+                        "campanie": self.grupuri[grup],
+                        "ad": c.get("ad", {}),
+                    }
                     nume = f"customers/{self.client}/adGroupAds/{grup}~{oid}"
                 else:
                     return self.eroare(400, "INVALID_ARGUMENT", "Unknown resource.")
@@ -144,6 +160,12 @@ class GoogleAdsSimulat(PlatformaHttp):
                     colectie == "campaigns" and nume.rsplit("/", 1)[1] in self.campanii_ and "status" in masca
                 ):
                     self.campanii_[nume.rsplit("/", 1)[1]]["status"] = u["status"]
+                elif (
+                    colectie == "adGroupAds"
+                    and nume.rsplit("~", 1)[-1] in self.reclame_
+                    and "status" in masca
+                ):
+                    self.reclame_[nume.rsplit("~", 1)[-1]]["status"] = u["status"]
                 else:
                     return self.eroare(400, "INVALID_ARGUMENT", "Resource not found or field not in mask.")
                 rezultate.append({"resourceName": nume})
@@ -154,11 +176,20 @@ class GoogleAdsSimulat(PlatformaHttp):
             return self.json(200, [{"results": [{"customer": {"id": self.client, "status": self.stare}}]}])
         if "FROM campaign_budget" in q or ("FROM campaign" in q and "segments.date" not in q):
             m = re.search(r"campaign\.name = '([^']*)'", q)
-            res = [{"campaign": {"id": c["id"], "name": c["name"], "status": c["status"],
-                                 "resourceName": f"customers/{self.client}/campaigns/{c['id']}",
-                                 "campaignBudget": c["campaignBudget"]},
-                    "campaignBudget": {"amountMicros": str(self.bugete[c["campaignBudget"]])}}
-                   for c in self.campanii_.values() if not m or c["name"] == m.group(1)]  # fmt: skip
+            res = [
+                {
+                    "campaign": {
+                        "id": c["id"],
+                        "name": c["name"],
+                        "status": c["status"],
+                        "resourceName": f"customers/{self.client}/campaigns/{c['id']}",
+                        "campaignBudget": c["campaignBudget"],
+                    },
+                    "campaignBudget": {"amountMicros": str(self.bugete[c["campaignBudget"]])},
+                }
+                for c in self.campanii_.values()
+                if not m or c["name"] == m.group(1)
+            ]
             return self.json(200, [{"results": res}] if res else [])
         m = re.search(r"BETWEEN '([\d-]+)' AND '([\d-]+)'", q)
         if not m:
@@ -177,12 +208,19 @@ class GoogleAdsSimulat(PlatformaHttp):
         for (oid, zi), v in grup.items():
             camp = self.campanii_[self.reclame_[oid]["campanie"] if pe_reclama else oid]
             r: dict[str, Any] = {
-                "campaign": {"resourceName": f"customers/{self.client}/campaigns/{camp['id']}", "id": camp["id"],
-                             "name": camp["name"]},
+                "campaign": {
+                    "resourceName": f"customers/{self.client}/campaigns/{camp['id']}",
+                    "id": camp["id"],
+                    "name": camp["name"],
+                },
                 "segments": {"date": zi.isoformat()},
-                "metrics": {"costMicros": str(v["bani"] * MICRO), "impressions": str(v["afisari"]),
-                            "clicks": str(v["clicuri"]), "conversions": float(v["rezultate"])},
-            }  # fmt: skip
+                "metrics": {
+                    "costMicros": str(v["bani"] * MICRO),
+                    "impressions": str(v["afisari"]),
+                    "clicks": str(v["clicuri"]),
+                    "conversions": float(v["rezultate"]),
+                },
+            }
             if pe_reclama:
                 r["adGroupAd"] = {"ad": {"id": oid, "name": self.reclame_[oid]["name"]}}
             res.append(r)

@@ -7,11 +7,14 @@ from app.connectors.reclame.google import client_id, rand_din_gaql
 
 def test_randul_gaql() -> None:
     r = rand_din_gaql(
-        {"campaign": {"id": "7", "name": "C"}, "adGroupAd": {"ad": {"id": "9", "name": "R"}},
-         "segments": {"date": "2026-11-10"},
-         "metrics": {"costMicros": "12345678", "impressions": "100", "clicks": "3", "conversions": 2.6}},
+        {
+            "campaign": {"id": "7", "name": "C"},
+            "adGroupAd": {"ad": {"id": "9", "name": "R"}},
+            "segments": {"date": "2026-11-10"},
+            "metrics": {"costMicros": "12345678", "impressions": "100", "clicks": "3", "conversions": 2.6},
+        },
         "reclama",
-    )  # fmt: skip
+    )
     assert (r.id_extern, r.parinte_extern, r.zi, r.cheltuiala_bani, r.rezultate) == (
         "9",
         "7",

@@ -10,14 +10,16 @@ zecimale (modelele de atribuire le împart); se rotunjesc în jos la rezultate �
 """
 
 import datetime as dt
+import json
 import uuid
 from typing import Any
 
 import httpx
 
 from app.config import get_settings
-from app.connectors.contract import RandReclame, StareCont, Token
+from app.connectors.contract import RandReclame, RezultatPlatforma, StareCont, Token
 from app.connectors.publicare.baza import ClientHttp, DepozitBaza, DepozitTokenuri, token_sau_autentificare
+from app.operare.motor import EroareDefinitiva
 
 BAZA = "https://googleads.googleapis.com"
 CANAL_TOKEN = "google_ads"  # noqa: S105  (numele canalului din depozit, nu un secret)
@@ -120,3 +122,141 @@ class ContGoogle:
         r = self.cauta(tenant_id, cont_extern, "SELECT customer.id, customer.status FROM customer")
         stare = str(((r[0] if r else {}).get("customer") or {}).get("status", "UNKNOWN"))
         return StareCont(activ=stare == "ENABLED", motiv="" if stare == "ENABLED" else f"contul este {stare}")
+
+    # --- scrierea (F13.4): campania în pauză (grupul și reclamele active sub ea); căutare după nume
+    # înainte de
+    # creare, ca reîncercarea după un răspuns pierdut să nu dubleze campania.
+    def _mutate(
+        self, tenant_id: uuid.UUID, cid: str, colectie: str, operatii: list[dict[str, Any]]
+    ) -> list[str]:
+        corp = self.cere(tenant_id, f"customers/{cid}/{colectie}:mutate", {"operations": operatii})
+        return [str(r["resourceName"]) for r in corp.get("results", [])]
+
+    def _campanie(
+        self, tenant_id: uuid.UUID, cid: str, *, nume: str = "", id_: str = ""
+    ) -> dict[str, Any] | None:
+        gaql = "SELECT campaign.id, campaign.name, campaign.status, campaign.campaign_budget FROM campaign"
+        if nume:
+            gaql += " WHERE campaign.name = '" + nume.replace("'", "") + "'"
+        for r in self.cauta(tenant_id, cid, gaql):
+            c = r.get("campaign") or {}
+            if (not nume or c.get("name") == nume.replace("'", "")) and (not id_ or str(c.get("id")) == id_):
+                return dict(c)
+        return None
+
+    def scrie(self, tenant_id: uuid.UUID, payload: dict[str, Any]) -> RezultatPlatforma:
+        cid = client_id(str(payload["cont_extern"]))
+        actiune = payload["actiune"]
+        if actiune == "creeaza_campanie":
+            nume = str(payload["nume"]).replace("'", "")
+            gasita = self._campanie(tenant_id, cid, nume=nume)
+            if gasita is not None:
+                return RezultatPlatforma(id_extern=str(gasita["id"]), link=json.dumps({"reclame": {}}))
+            [buget] = self._mutate(
+                tenant_id,
+                cid,
+                "campaignBudgets",
+                [
+                    {
+                        "create": {
+                            "name": f"{nume} · buget",
+                            "amountMicros": str(int(payload["buget_zilnic_bani"]) * MICRO_PE_BAN),
+                            "deliveryMethod": "STANDARD",
+                            "explicitlyShared": False,
+                        }
+                    }
+                ],
+            )
+            [campanie] = self._mutate(
+                tenant_id,
+                cid,
+                "campaigns",
+                [
+                    {
+                        "create": {
+                            "name": nume,
+                            "status": "PAUSED",
+                            "campaignBudget": buget,
+                            "advertisingChannelType": "SEARCH",
+                            "manualCpc": {},
+                            "containsEuPoliticalAdvertising": "DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING",
+                        }
+                    }
+                ],
+            )
+            [grup] = self._mutate(
+                tenant_id,
+                cid,
+                "adGroups",
+                [{"create": {"name": f"{nume} · grup", "campaign": campanie, "status": "ENABLED"}}],
+            )
+            harta: dict[str, str] = {}
+            for r in payload.get("reclame", []):
+                [anunt] = self._mutate(
+                    tenant_id,
+                    cid,
+                    "adGroupAds",
+                    [
+                        {
+                            "create": {
+                                "adGroup": grup,
+                                "status": "ENABLED",
+                                "ad": {
+                                    "name": r["nume"],
+                                    "finalUrls": [r["link"]],
+                                    "responsiveSearchAd": {
+                                        "headlines": [{"text": r["titlu"][:30]}],
+                                        "descriptions": [{"text": r["text"][:90]}],
+                                    },
+                                },
+                            }
+                        }
+                    ],
+                )
+                harta[r["nume"]] = anunt
+            return RezultatPlatforma(
+                id_extern=campanie.rsplit("/", 1)[1], link=json.dumps({"reclame": harta})
+            )
+        obiect = str(payload["obiect_extern"])
+        if actiune == "stare_campanie":
+            stare = "PAUSED" if payload["stare"] == "pauza" else "ENABLED"
+            self._mutate(
+                tenant_id,
+                cid,
+                "campaigns",
+                [
+                    {
+                        "update": {"resourceName": f"customers/{cid}/campaigns/{obiect}", "status": stare},
+                        "updateMask": "status",
+                    }
+                ],
+            )
+        elif actiune == "stare_anunt":
+            stare = "PAUSED" if payload["stare"] == "pauza" else "ENABLED"
+            self._mutate(
+                tenant_id,
+                cid,
+                "adGroupAds",
+                [{"update": {"resourceName": obiect, "status": stare}, "updateMask": "status"}],
+            )
+        elif actiune == "buget_campanie":
+            c = self._campanie(tenant_id, cid, id_=obiect)
+            if c is None:
+                raise EroareDefinitiva("campania nu există la Google Ads")
+            self._mutate(
+                tenant_id,
+                cid,
+                "campaignBudgets",
+                [
+                    {
+                        "update": {
+                            "resourceName": c["campaignBudget"],
+                            "amountMicros": str(int(payload["buget_zilnic_bani"]) * MICRO_PE_BAN),
+                        },
+                        "updateMask": "amount_micros",
+                    }
+                ],
+            )
+        else:
+            raise EroareDefinitiva(f"acțiune necunoscută: {actiune}")
+        return RezultatPlatforma(id_extern=obiect)

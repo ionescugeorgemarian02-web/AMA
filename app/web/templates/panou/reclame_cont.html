@@ -14,14 +14,38 @@
   </article>
   {% else %}<p class="slab">Niciun plan media.</p>{% endfor %}
 </section>
+<section class="card" aria-labelledby="construite">
+  <h2 id="construite">Campanii construite</h2>
+  {% for c in campanii_construite %}
+  <article data-campanie-id="{{ c.id }}" data-stare="{{ c.stare }}">
+    <h3>{{ c.nume }}</h3>
+    <p>{{ etichete_stare.get(c.stare, c.stare) }} · {{ lei(c.buget_zilnic_bani) }} pe zi</p>
+    {% if c.stare == "in_pauza" %}<form method="post" action="/reclame/campanie/{{ c.id }}/activeaza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Activează</button></form>{% endif %}
+    {% if c.stare == "activa" %}<form method="post" action="/reclame/campanie/{{ c.id }}/pauza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Pune pe pauză</button></form>{% endif %}
+  </article>
+  {% else %}<p class="slab">Nicio campanie construită.</p>{% endfor %}
+</section>
+
+<section class="card" aria-labelledby="schimbari">
+  <h2 id="schimbari">Ce s-a schimbat și de ce</h2>
+  <ul>
+  {% for p in propuneri_cont %}
+    <li data-propunere="{{ p.id }}" data-stare="{{ p.stare }}">{{ p.creat_la.strftime("%d.%m %H:%M") }} · {{ p.motiv }} · {{ p.tip }}: {{ p.inainte }} → {{ p.dupa }} · <strong>{{ p.stare }}</strong>
+      {% if p.verdict.motive %}<br><span class="slab">{{ p.verdict.motive|join("; ") }}</span>{% endif %}
+      {% if p.stare == "propusa" %}<form method="post" action="/reclame/propunere/{{ p.id }}/aproba"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Aprobă</button></form><form method="post" action="/reclame/propunere/{{ p.id }}/respinge"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Respinge</button></form>{% endif %}
+      {% if p.stare == "aplicata" and p.tip != "creeaza" %}<form method="post" action="/reclame/propunere/{{ p.id }}/anuleaza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Anulează</button></form>{% endif %}
+    </li>
+  {% else %}<li class="slab">Nicio schimbare.</li>{% endfor %}
+  </ul>
+</section>
 {% endblock %}
 {% block pagina %}
 <h1>{{ cont.nume }}</h1>
 <p class="slab"><a href="/reclame">Reclame</a> · {{ platforme[cont.platforma] }} · {{ de_la }} – {{ pana_la }} ·
   {% for z in (7, 30, 90) %}<a href="/reclame/cont/{{ cont.id }}?zile={{ z }}"{% if z == zile %} aria-current="true"{% endif %}>{{ z }} de zile</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
 
-{% if mesaj %}<p role="status" class="card">{{ {"plan_aproba": "Planul a fost aprobat.", "plan_respinge": "Planul a fost respins."}.get(mesaj, "") }}</p>{% endif %}
-{% if eroare %}<p role="alert" class="card">Planul nu poate fi aprobat: {{ eroare }}</p>{% endif %}
+{% if mesaj %}<p role="status" class="card">{{ {"plan_aproba": "Planul a fost aprobat.", "plan_respinge": "Planul a fost respins.", "campanie_activeaza": "Activarea a plecat spre platformă.", "campanie_pauza": "Punerea pe pauză a plecat spre platformă.", "propunere_aproba": "Schimbarea a fost aprobată și pleacă spre platformă.", "propunere_respinge": "Propunerea a fost respinsă.", "propunere_anuleaza": "Anularea a plecat: revine starea de dinainte."}.get(mesaj, "") }}</p>{% endif %}
+{% if eroare %}<p role="alert" class="card">Nu s-a putut: {{ eroare }}</p>{% endif %}
 
 <section class="card" aria-labelledby="total">
   <h2 id="total">Total</h2>
@@ -68,5 +92,29 @@
     {% endif %}
   </article>
   {% else %}<p class="slab">Niciun plan media.</p>{% endfor %}
+</section>
+<section class="card" aria-labelledby="construite">
+  <h2 id="construite">Campanii construite</h2>
+  {% for c in campanii_construite %}
+  <article data-campanie-id="{{ c.id }}" data-stare="{{ c.stare }}">
+    <h3>{{ c.nume }}</h3>
+    <p>{{ etichete_stare.get(c.stare, c.stare) }} · {{ lei(c.buget_zilnic_bani) }} pe zi</p>
+    {% if c.stare == "in_pauza" %}<form method="post" action="/reclame/campanie/{{ c.id }}/activeaza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Activează</button></form>{% endif %}
+    {% if c.stare == "activa" %}<form method="post" action="/reclame/campanie/{{ c.id }}/pauza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Pune pe pauză</button></form>{% endif %}
+  </article>
+  {% else %}<p class="slab">Nicio campanie construită.</p>{% endfor %}
+</section>
+
+<section class="card" aria-labelledby="schimbari">
+  <h2 id="schimbari">Ce s-a schimbat și de ce</h2>
+  <ul>
+  {% for p in propuneri_cont %}
+    <li data-propunere="{{ p.id }}" data-stare="{{ p.stare }}">{{ p.creat_la.strftime("%d.%m %H:%M") }} · {{ p.motiv }} · {{ p.tip }}: {{ p.inainte }} → {{ p.dupa }} · <strong>{{ p.stare }}</strong>
+      {% if p.verdict.motive %}<br><span class="slab">{{ p.verdict.motive|join("; ") }}</span>{% endif %}
+      {% if p.stare == "propusa" %}<form method="post" action="/reclame/propunere/{{ p.id }}/aproba"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Aprobă</button></form><form method="post" action="/reclame/propunere/{{ p.id }}/respinge"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Respinge</button></form>{% endif %}
+      {% if p.stare == "aplicata" and p.tip != "creeaza" %}<form method="post" action="/reclame/propunere/{{ p.id }}/anuleaza"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Anulează</button></form>{% endif %}
+    </li>
+  {% else %}<li class="slab">Nicio schimbare.</li>{% endfor %}
+  </ul>
 </section>
 {% endblock %}

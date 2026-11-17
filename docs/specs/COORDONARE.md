@@ -155,6 +155,8 @@ cu „extension "vector" is not available”.
 | F13.1 Citirea rezultatelor Meta | **închis** (împins), migrarea `0070` |
 | F13.2 Citirea rezultatelor Google Ads | **închis** (împins) |
 | F13.3 Planificatorul media | **închis** (împins), migrarea `0071` |
+| F13.4 Constructorul, propunerile, executorul | **închis** (împins), migrarea `0072` |
 
 Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py` (tipurile reclamelor, la final),
-`app/config.py` (`reclame_conectori`), `app/worker.py`, `app/panou/__init__.py`, `panou/meniu.html`.
+`app/config.py` (`reclame_conectori`, `google_ads_*`), `app/operare/efecte/sistem.py` (tipul `reclama`, oprirea
+`reclame`; **atenție B:** migrarea `0072` pune `CHECK (tip IN ('email','plata','reclama'))` pe `efecte_sistem`), `app/worker.py`, `app/panou/__init__.py`, `panou/meniu.html`.

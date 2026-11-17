@@ -5,15 +5,26 @@ from app.reclame.plan import CampaniePlan, CriteriiOprire, Masurare, PlanMedia, 
 
 def plan(**kw: object) -> PlanMedia:
     baza: dict[str, object] = {
-        "obiectiv": "lead", "pagina_destinatie": "https://agentie.example/audit", "buget_lunar_bani": 240_000,
+        "obiectiv": "lead",
+        "pagina_destinatie": "https://agentie.example/audit",
+        "buget_lunar_bani": 240_000,
         "campanii": [
             CampaniePlan(nume="A · scalare", rol="scalare", buget_zilnic_bani=6_400, public="IMM-uri"),
-            CampaniePlan(nume="A · test", rol="test", buget_zilnic_bani=1_600, public="IMM-uri", variabila="hook",
-                         variante=["preț", "timp", "dovadă"]),
+            CampaniePlan(
+                nume="A · test",
+                rol="test",
+                buget_zilnic_bani=1_600,
+                public="IMM-uri",
+                variabila="hook",
+                variante=["preț", "timp", "dovadă"],
+            ),
         ],
-        "plafon_zilnic_bani": 10_000, "plafon_lunar_bani": 300_000, "plafon_campanie_bani": 8_000,
-        "criterii_oprire": CriteriiOprire(cost_tinta_bani=4_000), "masurare": Masurare(utm_source="meta", utm_campaign="audit"),
-    }  # fmt: skip
+        "plafon_zilnic_bani": 10_000,
+        "plafon_lunar_bani": 300_000,
+        "plafon_campanie_bani": 8_000,
+        "criterii_oprire": CriteriiOprire(cost_tinta_bani=4_000),
+        "masurare": Masurare(utm_source="meta", utm_campaign="audit"),
+    }
     return PlanMedia.model_validate(baza | kw)
 
 
@@ -26,8 +37,13 @@ def test_planul_bun_trece_si_cel_peste_plafoane_nu() -> None:
 
 
 def test_structura_si_criteriile() -> None:
-    fara_scalare = plan(campanii=[CampaniePlan(nume="Test", rol="test", buget_zilnic_bani=100, public="IMM",
-                                                variabila="hook", variante=["a"])])  # fmt: skip
+    fara_scalare = plan(
+        campanii=[
+            CampaniePlan(
+                nume="Test", rol="test", buget_zilnic_bani=100, public="IMM", variabila="hook", variante=["a"]
+            )
+        ]
+    )
     p = verifica(fara_scalare)
     assert any("scalare" in x for x in p) and any("o singură variabilă" in x for x in p)
     p = verifica(plan(criterii_oprire=CriteriiOprire(cost_tinta_bani=100_000)))

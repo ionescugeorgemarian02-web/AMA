@@ -26,9 +26,13 @@ pytestmark = pytest.mark.db
 
 
 def test_cifrele_google_apar_in_panou_si_coincid_cu_consola(
-    google: GoogleAdsSimulat, depozit: DepozitInMemorie, cont_agentie: Callable[..., tuple[uuid.UUID, uuid.UUID]],
-    client: TestClient, fabrica_conturi: Callable[..., Cont], ceas: dict[str, float],
-) -> None:  # fmt: skip
+    google: GoogleAdsSimulat,
+    depozit: DepozitInMemorie,
+    cont_agentie: Callable[..., tuple[uuid.UUID, uuid.UUID]],
+    client: TestClient,
+    fabrica_conturi: Callable[..., Cont],
+    ceas: dict[str, float],
+) -> None:
     tenant, cont_id = cont_agentie("google", "123-456-7890")
     depozit.pune(tenant, CANAL_TOKEN, Token(acces=google.token_nou("ya29")))
     a = google.adauga_campanie("Căutare: audit marketing", 4_000)

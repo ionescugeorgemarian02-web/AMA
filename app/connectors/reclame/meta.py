@@ -19,7 +19,7 @@ from typing import Any
 import httpx
 
 from app.config import get_settings
-from app.connectors.contract import RandReclame, StareCont
+from app.connectors.contract import RandReclame, RezultatPlatforma, StareCont
 from app.connectors.publicare.baza import ClientHttp, DepozitBaza, DepozitTokenuri, token_sau_autentificare
 from app.connectors.publicare.facebook import GRAPH, clasifica_graph
 from app.operare.motor import EroareDefinitiva
@@ -28,8 +28,15 @@ CANAL_TOKEN = "meta_ads"  # noqa: S105  (numele canalului din depozit, nu un sec
 ACTIUNE_REZULTAT = "lead"
 CAMPURI = "campaign_id,campaign_name,spend,impressions,clicks,actions,date_start"
 # account_status din Marketing API: 1 = activ; restul (dezactivat, neplătit, în revizuire de risc) = problemă.
-STARI_CONT = {2: "cont dezactivat", 3: "plată restantă", 7: "în revizuire de risc", 9: "perioadă de grație",
-              100: "închidere în curs", 101: "închis", 201: "orice activ închis"}  # fmt: skip
+STARI_CONT = {
+    2: "cont dezactivat",
+    3: "plată restantă",
+    7: "în revizuire de risc",
+    9: "perioadă de grație",
+    100: "închidere în curs",
+    101: "închis",
+    201: "orice activ închis",
+}
 PAGINI_MAXIME = 50
 
 
@@ -67,7 +74,97 @@ def rand_din_insights(r: dict[str, Any], nivel: str) -> RandReclame:
     )
 
 
-class ContMeta:
+# --- scrierea (F13.4): campania se creează în pauză (setul și reclamele sunt active sub ea, deci nimic nu
+# rulează
+# până la activarea campaniei); fiecare pas caută întâi după nume, ca reîncercarea după un răspuns pierdut
+# să fie
+# sigură.
+OBIECTIVE = {"lead": "OUTCOME_LEADS", "trafic": "OUTCOME_TRAFFIC"}
+STARI = {"pauza": "PAUSED", "activa": "ACTIVE"}
+
+
+class ScriereMeta:
+    """Partea de scriere a contului Meta, folosită de executantul efectelor `reclama`."""
+
+    http: ClientHttp
+
+    def _token(self, tenant_id: uuid.UUID) -> Any:
+        raise NotImplementedError
+
+    @staticmethod
+    def _act(cont_extern: str) -> str:
+        return cont_extern if cont_extern.startswith("act_") else f"act_{cont_extern}"
+
+    def _copii(self, token: Any, parinte: str, colectie: str) -> dict[str, str]:
+        corp = self.http.cere(
+            "GET", f"{parinte}/{colectie}", token=token, params={"fields": "id,name", "limit": "500"}
+        )
+        return {str(o.get("name")): str(o["id"]) for o in corp.json().get("data", [])}
+
+    def _creeaza(self, token: Any, act: str, colectie: str, date: dict[str, str]) -> str:
+        return str(self.http.cere("POST", f"{act}/{colectie}", token=token, data=date).json()["id"])
+
+    def scrie(self, tenant_id: uuid.UUID, payload: dict[str, Any]) -> RezultatPlatforma:
+        token = self._token(tenant_id)
+        act = self._act(str(payload["cont_extern"]))
+        actiune = payload["actiune"]
+        if actiune == "creeaza_campanie":
+            nume = str(payload["nume"])
+            cid = self._copii(token, act, "campaigns").get(nume) or self._creeaza(
+                token,
+                act,
+                "campaigns",
+                {
+                    "name": nume,
+                    "objective": OBIECTIVE[str(payload["obiectiv"])],
+                    "status": "PAUSED",
+                    "special_ad_categories": "[]",
+                    "daily_budget": str(int(payload["buget_zilnic_bani"])),
+                },
+            )
+            set_nume = f"{nume} · set"
+            sid = self._copii(token, cid, "adsets").get(set_nume) or self._creeaza(
+                token,
+                act,
+                "adsets",
+                {
+                    "name": set_nume,
+                    "campaign_id": cid,
+                    "status": "ACTIVE",
+                    "billing_event": "IMPRESSIONS",
+                    "optimization_goal": "LEAD_GENERATION",
+                    "targeting": json.dumps({"geo_locations": {"countries": ["RO"]}}),
+                },
+            )
+            existente = self._copii(token, cid, "ads")
+            harta: dict[str, str] = {}
+            for r in payload.get("reclame", []):
+                harta[r["nume"]] = existente.get(r["nume"]) or self._creeaza(
+                    token,
+                    act,
+                    "ads",
+                    {
+                        "name": r["nume"],
+                        "adset_id": sid,
+                        "status": "ACTIVE",
+                        "creative": json.dumps(
+                            {"title": r["titlu"], "body": r["text"], "link_url": r["link"]}
+                        ),
+                    },
+                )
+            return RezultatPlatforma(id_extern=cid, link=json.dumps({"reclame": harta}))
+        obiect = str(payload["obiect_extern"])
+        if actiune in ("stare_campanie", "stare_anunt"):
+            date = {"status": STARI[str(payload["stare"])]}
+        elif actiune == "buget_campanie":
+            date = {"daily_budget": str(int(payload["buget_zilnic_bani"]))}
+        else:
+            raise EroareDefinitiva(f"acțiune necunoscută: {actiune}")
+        self.http.cere("POST", obiect, token=token, data=date)
+        return RezultatPlatforma(id_extern=obiect)
+
+
+class ContMeta(ScriereMeta):
     platforma = "meta"
 
     def __init__(
@@ -86,10 +183,6 @@ class ContMeta:
 
     def _token(self, tenant_id: uuid.UUID) -> Any:
         return token_sau_autentificare(self.depozit, tenant_id, CANAL_TOKEN)
-
-    @staticmethod
-    def _act(cont_extern: str) -> str:
-        return cont_extern if cont_extern.startswith("act_") else f"act_{cont_extern}"
 
     def _insights(
         self, tenant_id: uuid.UUID, cont_extern: str, de_la: dt.date, pana_la: dt.date, nivel: str
@@ -123,8 +216,10 @@ class ContMeta:
 
     def stare_cont(self, tenant_id: uuid.UUID, cont_extern: str) -> StareCont:
         corp = self.http.cere(
-            "GET", self._act(cont_extern), token=self._token(tenant_id),
+            "GET",
+            self._act(cont_extern),
+            token=self._token(tenant_id),
             params={"fields": "account_status,disable_reason"},
-        ).json()  # fmt: skip
+        ).json()
         cod = _intreg(corp.get("account_status"))
         return StareCont(activ=cod == 1, motiv="" if cod == 1 else STARI_CONT.get(cod, f"stare {cod}"))
