@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### FT.3 — Indicatorii pe componentă
+- `app/operare/urme/indicatori.py`: volum, rezultate, rata de eșec, cost pe unitate, durate p50/p95, coduri frecvente, pe interval și client. Fără migrare.
+
 ### FT.2 — Firul de corelare și urmele componentelor
 - firul trece din cerere în job și în joburile-copil (motor), urme pentru gateway, porțile cascadei și ale Creierului, conectori HTTP, aprobări, gardianul de buget, oglinda evenimentelor de domeniu. Fără migrare.
 

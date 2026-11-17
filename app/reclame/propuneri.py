@@ -150,10 +150,17 @@ def propune(
     if not p.verdict.get("permis"):
         p.stare, p.decis_la = "refuzata", acum
     urme.inregistreaza(
-        db, "buget", f"gardian:{tip}", tenant_id=c.tenant_id, obiect_tip="reclame_propunere", obiect_id=str(p.id),
-        rezultat="ok" if p.verdict.get("permis") else "respins", motiv="; ".join(p.verdict.get("motive") or []),
-        cod="" if p.verdict.get("permis") else "peste_plafon", intrari={"sursa": sursa, "inainte": inainte, "dupa": dupa},
-    )  # fmt: skip
+        db,
+        "buget",
+        f"gardian:{tip}",
+        tenant_id=c.tenant_id,
+        obiect_tip="reclame_propunere",
+        obiect_id=str(p.id),
+        rezultat="ok" if p.verdict.get("permis") else "respins",
+        motiv="; ".join(p.verdict.get("motive") or []),
+        cod="" if p.verdict.get("permis") else "peste_plafon",
+        intrari={"sursa": sursa, "inainte": inainte, "dupa": dupa},
+    )
     audit.record(
         db,
         "reclame.propunere",

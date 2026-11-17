@@ -11,9 +11,9 @@ dată;
 """
 
 import time
-from decimal import Decimal
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
+from decimal import Decimal
 
 from app.operare import urme
 from app.validare.agregare import Agregat, agrega

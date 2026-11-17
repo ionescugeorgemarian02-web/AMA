@@ -662,3 +662,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **FT.2 — Firul de corelare și urmele componentelor.**
   - Construit: motor (`trimite`/`flux`), `evenimente.emite` (oglinda), gateway `_incheie`, `validare.cascada`, `creier.versiuni`, `ClientHttp.cere`, `aprobari.decide`, `reclame.propuneri`.
   - Verificat: `tests/integration/test_urme_propagare.py`; regresie pe motor, gateway, efecte, validare, producție, Creier, publicare, reclame, aprobări, izolare și toate unitarele: verzi.
+- **FT.3 — Indicatorii pe componentă.**
+  - Construit: `urme.indicatori.calculeaza`; reparat lintul rămas din FT.2 (reclame, cascadă).
+  - Verificat: `tests/integration/test_urme_indicatori.py`; ruff, mypy verzi.
