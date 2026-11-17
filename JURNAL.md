@@ -618,3 +618,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F13.1 — Citirea rezultatelor Meta.**
   - Construit: `app/reclame/{modele,rezultate,fluxuri}.py`, migrarea `0070`, `app/connectors/reclame/`, ușa `app/operare/efecte/reclame.py`, tipurile `RandReclame`/`StareCont`/`CititorReclame` (adăugate în `app/connectors/contract.py`), `app/panou/reclame_web.py` + 2 șabloane, rândul din meniu, `reclame_conectori` în config, `app.reclame.fluxuri` în worker, Marketing API simulat (`tests/platforme/meta_ads.py`).
   - Verificat: 3 teste unitare, 4 de integrare, plus meta-testul RLS și migrările (urcare/coborâre).
+- **F13.2 — Citirea rezultatelor Google Ads.**
+  - Construit: `app/connectors/reclame/google.py`, setările `google_ads_*`, `tests/platforme/google_ads.py` (cu scrierile pentru F13.4), D-008 în `DECIZII.md`.
+  - Verificat: 1 test unitar, 2 de integrare (plus F13.1 din nou).

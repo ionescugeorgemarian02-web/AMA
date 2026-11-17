@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F13.2 — Citirea rezultatelor Google Ads
+- Adaptorul `app/connectors/reclame/google.py` (GAQL `searchStream`), setările Google Ads, Google Ads API simulat. Fără migrare.
+
 ### F13.1 — Citirea rezultatelor Meta
 - `app/reclame` (conturi de reclame cu plafoane, rezultate zilnice, citire orară `reclame.citire`), conectorul `app/connectors/reclame/meta.py` prin ușa `app/operare/efecte/reclame.py`, ecranul `/reclame`. Migrarea `0070`.
 

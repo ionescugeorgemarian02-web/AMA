@@ -13,6 +13,7 @@ from app.connectors.publicare.baza import DepozitInMemorie
 from app.connectors.reclame.meta import CANAL_TOKEN, ContMeta
 from app.db import sesiune_agentie
 from app.reclame import rezultate
+from tests.platforme.google_ads import DEV_TOKEN, GoogleAdsSimulat
 from tests.platforme.meta_ads import MarketingSimulat
 
 TABELE: tuple[str, ...] = ("reclame_rezultate", "reclame_conturi")
@@ -70,3 +71,15 @@ def cont_agentie(
 
     yield creeaza
     curata(admin_engine)
+
+
+@pytest.fixture
+def google(depozit: DepozitInMemorie) -> Iterator[GoogleAdsSimulat]:
+    from app.connectors.reclame.google import ContGoogle
+
+    sim = GoogleAdsSimulat()
+    registru_reclame.inregistreaza(
+        "google", ContGoogle(developer_token=DEV_TOKEN, depozit=depozit, transport=sim.transport)
+    )
+    yield sim
+    registru_reclame.uita_tot()

@@ -153,6 +153,7 @@ cu „extension "vector" is not available”.
 | Pas | Stare |
 | --- | --- |
 | F13.1 Citirea rezultatelor Meta | **închis** (împins), migrarea `0070` |
+| F13.2 Citirea rezultatelor Google Ads | **închis** (împins) |
 
 Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py` (tipurile reclamelor, la final),
 `app/config.py` (`reclame_conectori`), `app/worker.py`, `app/panou/__init__.py`, `panou/meniu.html`.

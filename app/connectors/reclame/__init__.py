@@ -11,6 +11,7 @@ from app.connectors.contract import CititorReclame
 
 FABRICI: dict[str, str] = {
     "meta": "app.connectors.reclame.meta:ContMeta",
+    "google": "app.connectors.reclame.google:ContGoogle",
 }
 _cititori: dict[str, CititorReclame] = {}
 

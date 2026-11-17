@@ -81,3 +81,18 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
 - **Consecințe:** rapoartele (F10.5) și învățarea (F11) pot avea încredere că o cifră de la „24 de ore” a fost citită în fereastra ei.
   Verificarea de completitudine (`colector.completitudine`) arată câte intervale lipsesc. Grația de 7 zile se revizuiește pe date reale.
 
+
+### D-008 (2026-11-17) — Reclamele (F13): adaptoare peste platforme simulate, efectele prin „outbox”-ul de sistem
+
+- **Context:** F13 cere conturi reale Meta și Google Ads, bugete reale, Claude ca Consiliu și o campanie reală de 14 zile.
+  Nimic din acestea nu există încă (aprobări, carduri, conturi; D-001, D-007).
+- **Hotărâre (D-007):** (1) fiecare platformă are un adaptor în `app/connectors/reclame/` (citire și scriere), chemat doar prin
+  ușa executorului (`app/operare/efecte/reclame.py` pentru citire, efectele de sistem de tip `reclama` pentru scriere);
+  testele rulează pe Marketing API și Google Ads API simulate (`tests/platforme/`), care vorbesc HTTP adevărat.
+  (2) Scrierile la platformă refolosesc `efecte_sistem` (cheie de idempotență, încercări, oprirea pe client) plus oprirea
+  `reclame`; nu se face un al doilea executor. (3) Banii se țin în subunități întregi (bani). (4) Planul media (I1), gardianul
+  (I3), anomaliile (I6) și testele creative (I4) sunt reguli deterministe; modelul (prin gateway) scrie doar ipotezele
+  Strategului și răspunsul Consiliului în modul API. (5) Campania reală de 14 zile și poarta pe campanie reală devin o simulare
+  accelerată documentată (ceas controlat), cu tot ce e real trecut la „De verificat la migrare”.
+- **Consecințe:** nicio schimbare nu ajunge la platformă fără gardian și fără executor; trecerea pe conturi reale înseamnă
+  `AMA_RECLAME_CONECTORI`, tokenuri în `publicare_conturi` și verificarea formelor reale ale API-urilor.

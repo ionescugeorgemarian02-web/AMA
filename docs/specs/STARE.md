@@ -282,6 +282,8 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F13.1 Citirea rezultatelor Meta | verificat pe Marketing API SIMULAT: cifrele contului agenției (pe campanii, reclame, zile) apar în `/reclame` și coincid cu evidența „managerului”; recitirea nu dublează; eroarea de token e spusă pe cont | `tests/integration/test_reclame_meta.py`, `tests/unit/test_reclame_meta.py` |
+| F13.2 Citirea rezultatelor Google Ads | verificat pe Google Ads API SIMULAT: aceleași cifre în panou ca în „consolă” (micro → bani, conversii întregi), token respins = autentificare | `tests/integration/test_reclame_google.py`, `tests/unit/test_reclame_google.py` |
 
 ### De verificat la migrare (F13)
 - F13.1: contul real Meta al agenției, accesul `ads_read` (App Review), numele acțiunii de conversie și fusul orar al contului; comparația panou ↔ managerul de reclame pe cifre reale.
+- F13.2: developer token-ul (nivel Explorer/Basic), MCC-ul agenției, versiunea Google Ads API, conturile reale.

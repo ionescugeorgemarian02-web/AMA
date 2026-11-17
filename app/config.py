@@ -191,6 +191,9 @@ class Settings(BaseSettings):
     # Reclamele plătite (F13): platformele cu conector real activ (de ex. „meta,google”; gol = niciunul).
     # NEVERIFICAT: conturile și accesul real (App Review Meta, nivelul Google Ads), la migrare.
     reclame_conectori: str = ""
+    google_ads_versiune: str = "v21"
+    google_ads_developer_token: SecretStr = Field(default=SecretStr(""))
+    google_ads_login_customer_id: str = ""  # contul de administrator (MCC) al agenției, doar cifre
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 
