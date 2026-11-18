@@ -1,0 +1,39 @@
+{% extends "panou/baza.html" %}
+{% block title %}Inbox social · AMA{% endblock %}
+{% block pagina %}
+<h1>Inbox social</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/crm">CRM</a> · Se citesc doar canalele aprobate de tine. Criticile și subiectele sensibile ajung la tine; nimic nu se șterge.</p>
+
+<section class="card" aria-labelledby="canale">
+  <h2 id="canale">Canale</h2>
+  {% set aprobate = {} %}{% for c in canale %}{% set _ = aprobate.update({c.canal: c}) %}{% endfor %}
+  {% for canal in canale_posibile %}
+  <form method="post" action="/crm/inbox/canal">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="canal" value="{{ canal }}">
+    {% if canal in aprobate and aprobate[canal].activ %}
+    <p>{{ canal }}: <strong>se citește</strong>{% if aprobate[canal].citit_pana_la %} (până la {{ aprobate[canal].citit_pana_la.strftime("%d.%m %H:%M") }} UTC){% endif %}</p>
+    <input type="hidden" name="actiune" value="opreste"><button type="submit">Oprește citirea</button>
+    {% else %}
+    <p>{{ canal }}: nu se citește</p>
+    <input type="hidden" name="actiune" value="aproba"><button type="submit">Aprobă canalul</button>
+    {% endif %}
+  </form>
+  {% endfor %}
+</section>
+
+<section class="card" aria-labelledby="mesaje">
+  <h2 id="mesaje">Mesaje{% if clasa %}: {{ etichete_clasa[clasa] }}{% endif %}</h2>
+  <p>{% for c, e in etichete_clasa.items() %}<a href="/crm/inbox?clasa={{ c }}">{{ e }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+  {% for m in mesaje %}
+  <article class="mesaj-inbox">
+    <p><strong>{{ etichete_clasa[m.clasa] }}</strong> · {{ m.canal }}, {{ "mesaj privat" if m.tip == "mesaj" else "comentariu" }} · {{ m.primit_la.strftime("%d.%m %H:%M") }} UTC · {{ m.stare }}</p>
+    <p>{{ m.text }}</p>
+  </article>
+  {% else %}
+  <p>Niciun mesaj.</p>
+  {% endfor %}
+</section>
+{% endblock %}

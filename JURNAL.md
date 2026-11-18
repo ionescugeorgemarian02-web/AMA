@@ -835,3 +835,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F12.6 — Generatorul de oferte (Opus)
 - Oferta D din audit + `finante.planuri`; aprobarea doar în panou; email tranzacțional la aprobare.
 - Verificat: `test_crm_oferte` (3), `test_crm`, `test_crm_email` (unit); lint, mypy.
+
+### F12.7 — Inboxul social (Opus)
+- Ușa de citire în executor (ca la metrici), clasificare D în ordinea prudenței; aprobarea canalului e a proprietarului.
+- Verificat: `test_crm_inbox` (unit 18, integrare 2), `check_efecte`; lint, mypy.

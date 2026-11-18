@@ -4,6 +4,7 @@ fiecare pas F12 nou își adaugă aici tabelele, ca testele mai vechi să poată
 from sqlalchemy import Engine, text
 
 TABELE_CRM = (
+    "crm_inbox_mesaje", "crm_inbox_canale",  # F12.7
     "crm_oferte",  # F12.6
     "crm_programari",  # F12.5
     "crm_calificari",  # F12.4

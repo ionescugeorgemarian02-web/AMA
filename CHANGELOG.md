@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.7 — Inboxul social
+- `app/crm/inbox.py` (canale aprobate, citire prin `app/operare/efecte/inbox.py`, clasificare pe reguli, jobul `crm.inbox`), `app/connectors/inbox` (SIMULAT), ecranul `/crm/inbox`, migrarea `0100`.
+
 ### F12.6 — Generatorul de oferte
 - `app/crm/oferte.py` (compunere din audit și planuri, verificări, aprobare/respingere), ecranul `/crm/oferte` și butonul de pe fișă, `site.audit.raport_pentru_lead`, migrarea `0099` (`crm_oferte`).
 

@@ -187,3 +187,32 @@ class Oferta(BazaCrm):
     decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     decis_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class CanalInbox(BazaCrm):
+    """Un canal social aprobat pentru citire (migrarea 0100)."""
+
+    __tablename__ = "crm_inbox_canale"
+    canal: Mapped[str] = mapped_column(Text, primary_key=True)
+    aprobat_de: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    aprobat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    activ: Mapped[bool] = mapped_column(Boolean, default=True)
+    citit_pana_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class MesajInbox(BazaCrm):
+    """Un mesaj sau un comentariu citit din inboxul social, clasificat (migrarea 0100)."""
+
+    __tablename__ = "crm_inbox_mesaje"
+    id: Mapped[uuid.UUID] = _id()
+    canal: Mapped[str] = mapped_column(Text)
+    id_extern: Mapped[str] = mapped_column(Text)
+    tip: Mapped[str] = mapped_column(Text)
+    fir: Mapped[str] = mapped_column(Text)
+    autor: Mapped[str] = mapped_column(Text)
+    text: Mapped[str] = mapped_column(Text)
+    primit_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+    clasa: Mapped[str] = mapped_column(Text)
+    motiv_clasa: Mapped[str] = mapped_column(Text, default="")
+    stare: Mapped[str] = mapped_column(Text, default="nou")
+    citit_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

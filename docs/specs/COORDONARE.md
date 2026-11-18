@@ -42,7 +42,8 @@ apoi F10 (ramura B).
 | F12.4 Calificare și scor | **închis** (A, împins), migrarea `0097` |
 | F12.5 Programări | **închis** (A, împins), migrarea `0098` |
 | F12.6 Generatorul de oferte | **închis** (A, împins), migrarea `0099` |
-| F12.7–F12.10 | A, în ordine (preluare 2026-11-18), migrările `0100`+ |
+| F12.7 Inboxul social | **închis** (A, împins), migrarea `0100` |
+| F12.8–F12.10 | A, în ordine (preluare 2026-11-18), migrările `0101`+ |
 
 ## Raport pentru sesiunea A (citește asta întâi)
 

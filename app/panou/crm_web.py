@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
 from app.conturi import DbSession, Rol, SesiuneCurenta, csrf_protect, require_role
-from app.crm import CrmRefuzat, calificare, oferte, registru
+from app.crm import CrmRefuzat, calificare, inbox, oferte, registru
 from app.crm import email as crm_email
 from app.panou.sabloane import pagina
 
@@ -34,6 +34,8 @@ MESAJE = {
     "oferta": "Oferta a fost pregătită și așteaptă aprobarea ta.",
     "aprobata": "Oferta a fost aprobată și trimisă.",
     "respinsa": "Oferta a fost respinsă.",
+    "canal": "Canalul a fost aprobat: mesajele lui se citesc de acum.",
+    "canal_oprit": "Canalul nu se mai citește.",
 }
 
 
@@ -287,3 +289,45 @@ async def decide_oferta(
     except CrmRefuzat as exc:
         return _oferte(request, u, db, status=422, eroare=_eroare(exc))
     return RedirectResponse(f"/crm/oferte?mesaj={mesaj}", status_code=303)
+
+
+# --- inboxul social (F12.7) ---------------------------------------------------------------------------------
+def _inbox(request: Request, u: SesiuneCurenta, db: Any, *, status: int = 200, eroare: str = "") -> Response:
+    clasa = request.query_params.get("clasa", "")
+    if clasa and clasa not in inbox.CLASE:
+        raise HTTPException(status_code=404, detail="Clasă necunoscută.")
+    return pagina(
+        request,
+        u,
+        "panou/crm_inbox.html",
+        tab="meniu",
+        status=status,
+        canale=inbox.canale(db),
+        canale_posibile=inbox.canale_posibile(),
+        mesaje=inbox.mesaje(db, clasa=clasa),
+        clasa=clasa,
+        etichete_clasa=inbox.ETICHETE_CLASA,
+        mesaj=MESAJE.get(request.query_params.get("mesaj", ""), ""),
+        eroare=eroare,
+    )
+
+
+@router.get("/inbox")
+def lista_inbox(request: Request, u: Proprietar, db: DbSession) -> Response:
+    return _inbox(request, u, db)
+
+
+@router.post("/inbox/canal", dependencies=[Depends(csrf_protect)])
+async def canal_inbox(request: Request, u: Proprietar, db: DbSession) -> Response:
+    f = await request.form()
+    canal, actiune = str(f.get("canal") or ""), str(f.get("actiune") or "aproba")
+    try:
+        if actiune == "opreste":
+            inbox.opreste_canal(db, canal, utilizator_id=u.utilizator_id)
+        else:
+            inbox.aproba_canal(db, canal, utilizator_id=u.utilizator_id)
+    except CrmRefuzat as exc:
+        return _inbox(request, u, db, status=422, eroare=_eroare(exc))
+    return RedirectResponse(
+        f"/crm/inbox?mesaj={'canal_oprit' if actiune == 'opreste' else 'canal'}", status_code=303
+    )
