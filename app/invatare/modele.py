@@ -120,6 +120,7 @@ class Promovare(BazaInvatare):
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     actualizat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     promovat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    test_ab_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))  # F14.4, migrarea 0081
     incheiat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
@@ -154,3 +155,38 @@ class ModelPredictiv(BazaInvatare):
     metrici: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     model: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     antrenat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ExperimentFormal(BazaInvatare):
+    """Un test A/B formal (F14.4, migrarea 0081). Ce s-a declarat înainte nu se mai schimbă."""
+
+    __tablename__ = "teste_ab"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    ipoteza: Mapped[str] = mapped_column(Text)
+    obiect: Mapped[str] = mapped_column(Text)
+    varianta_a: Mapped[str] = mapped_column(Text)
+    varianta_b: Mapped[str] = mapped_column(Text)
+    indicator: Mapped[str] = mapped_column(Text)
+    efect_minim: Mapped[float] = mapped_column(Float)
+    alfa: Mapped[float] = mapped_column(Float)
+    putere: Mapped[float] = mapped_column(Float)
+    abatere_estimata: Mapped[float] = mapped_column(Float)
+    n_pe_varianta: Mapped[int] = mapped_column(Integer)
+    durata_maxima_zile: Mapped[int] = mapped_column(Integer)
+    stare: Mapped[str] = mapped_column(Text, default="in_curs")
+    verdict: Mapped[str | None] = mapped_column(Text)
+    rezultat: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    declarat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    incheiat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ObservatieFormala(BazaInvatare):
+    __tablename__ = "teste_ab_observatii"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    test_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    varianta: Mapped[str] = mapped_column(Text)
+    cheie: Mapped[str] = mapped_column(Text)
+    valoare: Mapped[float] = mapped_column(Float)
+    la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F14.4 — Teste A/B formale
+- `app/invatare/teste_ab.py` (declarare cu mărimea eșantionului, eșantion fix, Welch, p, interval, jobul `invatare.teste_ab`), `teste_ab`, `teste_ab_observatii`, `promovari.test_ab_id` (migrarea `0081`); producția unei promovări se măsoară cu un test formal față de control.
+
 ### F14.3 — Predictorul de performanță
 - `app/invatare/predictiv.py` (gradient boosting cu cioturi, AUC, bootstrap pereche, pragul de date), `app/invatare/predictor.py` (șansa de succes pe client și canal, jobul săptămânal `invatare.predictor`), `modele_predictive` (migrarea `0080`).
 

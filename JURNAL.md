@@ -689,3 +689,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F14.3 — Predictorul de performanță.**
   - Construit: migrarea `0080`, `predictiv.py`, `predictor.py`. Referința „la întâmplare” = scor constant (AUC 0,5): o referință aleatoare reală făcea marja zgomotoasă.
   - Verificat: `test_invatare_predictor.py` (600 de postări simulate), `tests/unit/test_invatare_predictiv.py`, izolarea, migrările; ruff, mypy, gărzile.
+- **F14.4 — Teste A/B formale.**
+  - Construit: migrarea `0081`, `teste_ab.py`; promovarea (F14.2) își declară testul formal la intrarea în producție (abaterea din interiorul grupurilor la canar). Reparat: `app/invatare/__init__.py` nu importa `predictiv`/`predictor` (jobul F14.3 nu se înregistra în worker).
+  - Verificat: testele teste_ab (unit + integrare), promovarea, predictorul, izolarea, migrările; ruff, mypy, gărzile.

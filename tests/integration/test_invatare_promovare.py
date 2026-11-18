@@ -101,6 +101,7 @@ def test_un_candidat_trece_prin_toate_etapele_si_revenirea_functioneaza(
     with sesiune_agentie() as db:
         p = promovare.istoric(db, nume)[0]
         assert p.castig["concluzie"] == "castiga_b" and p.castig["medie_b"] > p.castig["medie_a"]
+        assert p.castig["test_ab"] == str(p.test_ab_id) and p.castig["p"] < 0.05  # testul formal (F14.4)
         assert [x["in"] for x in p.istoric] == ["umbra", "canar", "productie", "promovat"]
         assert promovare.ruteaza(db, nume, "y").folosit == nume  # promovarea s-a încheiat: versiunea activă
     # revenirea dintr-o atingere, după promovare: o versiune nouă cu textul campionului vechi

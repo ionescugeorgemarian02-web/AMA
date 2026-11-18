@@ -9,9 +9,10 @@ Etapele unui candidat ieșit din optimizator (`optimizari.stare = candidat`):
 2. **canar** — 10% din trafic pe candidat, 90% pe campion; aceeași gardă după `MINIM_CANAR` livrabile ale
    candidatului; o gardă picată = revenire automată.
 3. **productie** — candidatul devine versiunea activă în registru (90% din trafic); 10% rămân pe campionul
-   vechi (`nume@versiune`), grupul de control, până la `MINIM_CONTROL` livrabile în fiecare grup. Câștigul
-   real se măsoară față de control (testul Welch din registrul de experimente, F11.4): control mai bun
-   semnificativ → revenire automată; altfel `promovat` (100%, controlul se încheie) și câștigul rămâne scris.
+   vechi (`nume@versiune`), grupul de control. Câștigul real se măsoară cu un test A/B formal (F14.4),
+   declarat la intrarea în producție (ipoteza, efectul minim `EFECT_MINIM`, abaterea estimată din canar,
+   mărimea eșantionului): control mai bun semnificativ sau eșantion neatins la termen → revenire automată;
+   altfel `promovat` (100%, controlul se încheie) și verdictul rămâne scris (`castig`).
 4. **revenirea** dintr-o atingere (`revino`), din orice etapă și după promovare: dacă candidatul ajunsese
    activ, se creează o versiune nouă cu textul campionului vechi și se activează (registrul nu reactivează
    o versiune retrasă); altfel ciorna candidatului se retrage. Totul cu audit și urme.
@@ -36,7 +37,7 @@ from sqlalchemy.orm import Session
 from app import gateway
 from app.db import sesiune_agentie
 from app.ids import new_id
-from app.invatare import constitutie, experimente
+from app.invatare import constitutie, teste_ab
 from app.invatare.modele import ObservatiePromovare, Optimizare, Promovare
 from app.logging import get_logger
 from app.operare import audit, motor, urme
@@ -47,9 +48,9 @@ IN_CURS = ("umbra", "canar", "productie")
 PROCENT = {"umbra": 0, "canar": 10, "productie": 90, "promovat": 100}
 MINIM_UMBRA = 20  # livrabile reale în umbră (§11.5 pasul 6)
 MINIM_CANAR = 20  # livrabile ale candidatului la 10% [I]
-MINIM_CONTROL = 20  # livrabile în fiecare grup, la măsurarea față de control [I]
 TOLERANTA = 0.05  # cât poate fi candidatul sub campion la media scorului, în umbră și la canar [I]
-PRAG_CASTIG = 0.02  # diferența relativă minimă pentru „câștig” la măsurare [I]
+EFECT_MINIM = 0.02  # efectul minim de interes al testului formal, pe scorul livrabilului [I]
+ABATERE_MINIMA = 0.02  # abaterea estimată nu coboară sub atât (canarul are puține date) [I]
 
 
 class PromovareRefuzata(ValueError):
@@ -214,6 +215,10 @@ def observa(
                 scor=max(0.0, min(1.0, scor)), conform=conform)
         .on_conflict_do_nothing()
     )  # fmt: skip
+    if p.etapa == "productie" and p.test_ab_id is not None and not umbra:
+        teste_ab.observa(
+            db, p.test_ab_id, varianta="a" if grup == "campion" else "b", cheie=cheie, valoare=scor
+        )
 
 
 def _obs(db: Session, p: Promovare, grup: str) -> list[tuple[float, bool]]:
@@ -229,9 +234,25 @@ def _obs(db: Session, p: Promovare, grup: str) -> list[tuple[float, bool]]:
     ]
 
 
-def masoara(control: list[float], candidat: list[float]) -> tuple[str | None, dict[str, Any]]:
-    """Câștigul real față de control (a = control, b = candidat), cu regula registrului de experimente."""
-    return experimente.verdict(control, candidat, minim=MINIM_CONTROL, prag=PRAG_CASTIG, expirat=False)
+def _abatere(x: list[float]) -> float:
+    m = sum(x) / len(x)
+    return float((sum((v - m) ** 2 for v in x) / max(1, len(x) - 1)) ** 0.5)
+
+
+def _declara_testul(
+    db: Session, p: Promovare, camp: list[float], cand: list[float], acum: dt.datetime
+) -> None:
+    """Testul formal al producției: A = campionul vechi (control), B = candidatul; ipoteza, dinainte. Abaterea
+    estimată = abaterea din interiorul grupurilor la canar (combinată), cel puțin `ABATERE_MINIMA`."""
+    abatere = max(ABATERE_MINIMA, ((_abatere(camp) ** 2 + _abatere(cand) ** 2) / 2) ** 0.5)
+    t = teste_ab.declara(
+        db, obiect=f"prompt:{p.componenta}", varianta_a=f"{p.componenta}@{p.campion_versiune}",
+        varianta_b=f"{p.componenta}@{p.candidat_versiune}", indicator="scor_livrabil",
+        ipoteza=(f"Versiunea {p.candidat_versiune} a promptului {p.componenta} dă livrabile cu scor mai mare "
+                 f"decât campionul {p.campion_versiune}, măsurat față de grupul de control de 10%"),
+        efect_minim=EFECT_MINIM, abatere_estimata=round(abatere, 4), acum=acum,
+    )  # fmt: skip
+    p.test_ab_id = t.id
 
 
 def avanseaza(db: Session, promovare_id: uuid.UUID, *, acum: dt.datetime | None = None) -> Promovare:
@@ -256,15 +277,21 @@ def avanseaza(db: Session, promovare_id: uuid.UUID, *, acum: dt.datetime | None 
             _treci(db, p, "canar", "umbra trecută: candidatul nu e mai slab decât campionul", acum, **cifre)
         else:
             gateway.prompturi.activeaza(db, p.componenta, p.candidat_versiune)
+            _declara_testul(db, p, [x for x, _ in camp], [x for x, _ in cand], acum)
             _treci(db, p, "productie", "canarul trecut: candidatul devine activ, 10% rămân control", acum,
                    **cifre)  # fmt: skip
         return p
-    concluzie, cifre = masoara([s for s, _ in camp], [s for s, _ in cand])
-    if concluzie is None:
+    if p.test_ab_id is None:
         return p
-    p.castig = {"concluzie": concluzie, **cifre}
-    if concluzie == "castiga_a":
-        _revino(db, p, "grupul de control a fost mai bun: revenire automată", acum, cifre=cifre)
+    t = teste_ab.evalueaza(db, p.test_ab_id, acum=acum)
+    if t.verdict is None:
+        return p
+    concluzie, cifre = t.verdict, dict(t.rezultat)
+    p.castig = {"concluzie": concluzie, "test_ab": str(t.id), **cifre}
+    if concluzie in ("castiga_a", "neconcludent"):
+        motiv = ("grupul de control a fost mai bun" if concluzie == "castiga_a"
+                 else "câștigul nu s-a putut măsura la termen")  # fmt: skip
+        _revino(db, p, f"{motiv}: revenire automată", acum, cifre={"verdict": concluzie})
     else:
         p.promovat_la = acum
         eticheta = (
