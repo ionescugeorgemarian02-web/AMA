@@ -134,7 +134,10 @@ SCENARII: tuple[Scenariu, ...] = (
     Scenariu(
         "A14",
         "Restaurare pe un mediu curat",
-        (IN + "test_backup_restore.py::test_circuit_complet_backup_si_restaurare",),
+        (
+            IN + "test_backup_restore.py::test_circuit_complet_backup_si_restaurare",
+            A + "test_restaurare.py::test_exercitiul_de_restaurare_reface_platforma_in_tinta_de_timp",
+        ),
     ),
 )
 

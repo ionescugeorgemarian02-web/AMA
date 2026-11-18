@@ -22,3 +22,10 @@
 
 ## C. Dacă restaurarea de test eșuează
 Citește `eroare` din `ultima-restaurare-test.json`. „copie coruptă”: ia copia anterioară (`AMA_RESTORE_SNAPSHOT=<ID>`) și verifică destinația. „lipsește cheia”: restaurează `verificare.key`. Orice backup care nu trece testul se tratează ca inexistent până se repară.
+
+## D. Exercițiul de restaurare completă (trimestrial, F15.3)
+`scripts/exercitiu_restaurare.py --sursa-admin <URL superutilizator spre baza sursă> --sursa-app <URL rolul aplicației>
+--media <director media> [--config <director>]` face cap-coadă: backup criptat -> bază nouă și director media nou ->
+restaurare -> verificare (migrări, rânduri pe fiecare tabel, RLS, media, `/readyz`) și compară durata cu ținta de 4 h.
+Ieșirea e JSON (`trecut`, `durata_sec`, `etape`, `verificari`); cod 0 doar dacă trece. Pe staging: rulează-l din
+containerul aplicației, cu baza staging ca sursă; notează durata în jurnal.

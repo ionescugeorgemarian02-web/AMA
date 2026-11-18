@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F15.3 — Exercițiul de restaurare completă
+- `scripts/exercitiu_restaurare.py` (backup -> mediu curat -> restaurare -> verificare, cronometrat față de 4 h), `tests/avarie/test_restaurare.py` (scenariul A14), runbook-ul `restaurare.md` secțiunea D.
+
 ### F15.2 — Revizuire de securitate
 - Revizie pe alt model (Sonnet, doar citire), `docs/specs/F15.2-revizie.txt`. Reparate: plafonul de reclame la aprobări concurente (gardianul reaplicat sub încuietoare), încuietoarea pe efectele de sistem, SSRF pe pagina reclamei (`app/reclame/pagina.py`), oprirea pe cont la pagina căzută, antetele proxy doar din rețeaua `edge`, plățile sosite în altă ordine și deduplicarea atomică, parola la ștergerea datelor, credențialele proprietarului doar în worker. Colecția `tests/atacuri/`.
 
