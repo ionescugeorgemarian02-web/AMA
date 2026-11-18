@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F16.5 — Generator video extern
+- `app/media/video_extern.py` (adaptor oprit implicit, inserturi 3–6 s, drept comercial fără filigran, cost rezervat sub zăvor, plafon lunar pe client), migrarea `0107` (`video_generari`), setările `AMA_VIDEO_EXTERN_*`.
+
 ### F16.4 — Voce proprie antrenată
 - `app/media/voce_proprie.py` (acord, antrenare o dată, adaptorul TTS `proprie`, revocare care blochează narațiunile), migrarea `0106` (`voce_consimtaminte`, `voce_modele`, RLS); `voce.sintetizeaza` cu profil dat.
 

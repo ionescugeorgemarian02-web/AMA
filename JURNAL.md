@@ -873,3 +873,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F16.4 — Voce proprie (Opus)
 - Acordul în bază, legat de model și de licența fiecărei narațiuni (`consimtamant_id`), ca revocarea să le poată bloca. Prima rulare: `compune` rescrie `extra` → testul verifică motorul din `generare`.
 - Verificat: `test_media_voce_proprie` (2), `test_media_voce`, `test_garzi_db`; lint, mypy.
+
+### F16.5 — Generator video extern (Opus)
+- Bugetul în bază, rezervat înainte de apel (refuz fără apel peste plafon). Prima rulare: `jurnal_audit.rezultat` acceptă `refuzat`, nu `respins` → corectat.
+- Verificat: `test_media_video_extern` (4), `test_garzi_db`, `tests/atacuri tests/unit` (1951); lint, mypy. Observat (existent, nu de la F16): `pytest tests/unit` singur pică la colectare (import circular `app.analiza` → `app.site` → `app.panou` → `app.invatare` → `app.analiza`); suita completă trece fiindcă alte module se încarcă întâi. Propunere: importul din `app.invatare.alegere` mutat în funcție.
