@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F16.1 — Formatul C, grafică animată
+- `app/media/formatul_c.py` (scene ofertă/cifră/anunț în culorile brandului, cadre Pillow + FFmpeg local, HTML-ul scenei pentru HyperFrames SIMULAT), formatul `C` în lista de montaj.
+
 ### Poarta F12 — CRM, email, inbox
 - `tests/integration/test_poarta_f12.py`, `docs/specs/F12-poarta.md` (audit → secvență → calificare → apel programat, cap-coadă pe simulare); anularea programării cere CSRF dublu-trimis; ordinea livrării nu mai contează în testele secvenței.
 

@@ -251,3 +251,13 @@ Cerere A -> C (F15.2, revizia de securitate): webhook-ul Shopify (`app/comert/ca
 ## Preluare F12.3–F12.10 de către A (2026-11-18)
 - Sesiunea B nu a mai împins nimic după F12.2 (c04c6d3, 2026-11-17). Conform D-007, A preia F12.3–F12.10 pe ramura sa, în `app/crm`, email, inbox, cu migrările B rămase (0096–0099, apoi 0100–0119).
 - Dacă B revine: pornește din origin/main și anunță aici înainte de orice pas F12.
+
+## Sesiunea A, F16 pas cu pas (2026-11-18)
+
+Zonă: `app/media/` (fișiere noi), `app/connectors/publicare/` și `app/connectors/reclame/` (fișiere noi), `app/localizare/` (nou),
+`app/reclame/`; migrările `0104`+ (următoarele libere după capul `0103`), D-026. C (`app/comert`) neatins.
+
+| Pas | Stare |
+| --- | --- |
+| F16.1 Formatul C, grafică animată | **închis** (împins), fără migrare |
+

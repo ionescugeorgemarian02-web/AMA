@@ -431,3 +431,13 @@ Audit: fără vulnerabilități cunoscute. Sesiunea A verifică și integrează;
 - F15.4: revizuirea avocatului (§21.13) pe toate ciornele; datele firmei (F0.1); apoi scos `stare: ciorna` din fiecare fișier.
 - F15.5: pilotul real cu trei clienți (4 săptămâni), prețul de pilot la procesatorul real, timpul până la primul lot.
 - F15.6: bifarea integrală a listei 25.5 pe `/lansare/go-live` (staging 14/14, 28 de zile de backup verde, pilotul, avocatul, contabilul, două studii publicate); motorul de audit real (C7).
+
+## Faza F16 — Extensii, după lansare (sesiunea A, din 2026-11-18, D-026)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F16.1 Formatul C, grafică animată | verificat local (ffmpeg real, vocea SIMULATĂ): trei scene (ofertă, cifră, anunț) în culorile brandului devin video publicabil format C, G6 trece, pașaport fără „imagine generată”. **HyperFrames înlocuit de randarea locală Pillow + FFmpeg** | `tests/integration/test_media_format_c.py`, `tests/unit/test_media_format_c.py` |
+
+### De verificat la migrare (F16)
+- F16.1: HyperFrames pe VPS, comparat cu randarea locală pe aceleași scene; timpul de randare pe CPU-ul real; șabloane animate aprobate de client.
+

@@ -855,3 +855,10 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### Poarta F12 (Opus)
 - Test cap-coadă pe simulare. Prima rulare `make check`: 1 failed (`test_toate_rutele_care_schimba_starea_au_garda_csrf`: anularea programării fără CSRF) → am pus CSRF dublu-trimis pe buton; ordinea mesajelor din cutia simulată făcută robustă în poartă și în testul secvenței.
 - Rerulat: `make check` verde (lint, mypy, gărzi, 3321 passed). `make audit`: fără vulnerabilități. Deschis: lead real (resursele din „De verificat la migrare (F12)”).
+
+## 2026-11-18 — Sesiunea A: faza F16 (extensii), D-026
+
+### F16.1 — Formatul C (Opus)
+- Scene ca date, animație deterministă, randare locală; montajul, G6 și pașaportul refolosite. Prima rulare: licența `productie_proprie` cere `componente` → adăugate (șablon + identitate).
+- Verificat: `test_media_format_c` (unit 4, integrare 2); lint, mypy, gărzi.
+
