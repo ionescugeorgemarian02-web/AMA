@@ -33,7 +33,7 @@ from sqlalchemy.orm import Session
 
 from app import gateway, validare
 from app.db import sesiune_agentie
-from app.invatare.modele import Optimizare
+from app.invatare.modele import Optimizare, Promovare
 from app.logging import get_logger
 from app.operare import audit, motor, urme
 from app.operare.motor import Prioritate
@@ -327,13 +327,17 @@ def ruleaza_noaptea(acum: dt.datetime | None = None) -> int:
 
 
 def _ocupata(db: Session, componenta: str) -> bool:
+    """Un candidat încă nepornit sau o promovare în curs (F14.2): „o schimbare o dată”."""
+    nepornit = select(Optimizare.id).where(
+        Optimizare.componenta == componenta,
+        Optimizare.stare == "candidat",
+        ~select(Promovare.id).where(Promovare.optimizare_id == Optimizare.id).exists(),
+    )
+    in_curs = select(Promovare.id).where(
+        Promovare.componenta == componenta, Promovare.etapa.in_(("umbra", "canar", "productie"))
+    )
     return (
-        db.execute(
-            select(Optimizare.id)
-            .where(Optimizare.componenta == componenta, Optimizare.stare == "candidat")
-            .limit(1)
-        ).first()
-        is not None
+        db.execute(nepornit.limit(1)).first() is not None or db.execute(in_curs.limit(1)).first() is not None
     )
 
 

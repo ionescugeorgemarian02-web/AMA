@@ -682,3 +682,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: migrarea `0078`, `app/invatare/optimizator.py`, `app/invatare/prompturi.py`, `prompts/invatare.reflectie.v1.md`, setul de aur al hook-urilor; exporturi noi, doar prin adăugare: `gateway.criterii`, `gateway.prompturi.schema_din`, `validare.probleme_limba`. D-020.
   - Verificat: testele unitare și de integrare ale optimizatorului, `test_gateway_prompturi`, `test_migratii`, izolarea; ruff, mypy, gărzile.
   - Deschis: modelul și propunătorul reale (SIMULATE în teste); marja necalibrată.
+- **F14.2 — Umbră, canar, promovare, revenire.**
+  - Construit: migrarea `0079`, `app/invatare/promovare.py`; optimizatorul nu mai pornește pe o componentă cu promovare în curs sau cu candidat nepornit.
+  - Verificat: `tests/integration/test_invatare_promovare.py`, `test_invatare_optimizator.py`; ruff, mypy, gărzile.
+  - Deschis: `ruteaza`/`observa` nelegate în autorii din F6 (NECONECTAT).

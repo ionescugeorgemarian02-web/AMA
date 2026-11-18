@@ -100,3 +100,39 @@ class Optimizare(BazaInvatare):
     motiv: Mapped[str] = mapped_column(Text, default="")
     inceput_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     incheiat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Promovare(BazaInvatare):
+    """Drumul unui candidat al optimizatorului: umbră, canar, producție, promovare (F14.2, migrarea 0079)."""
+
+    __tablename__ = "promovari"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    optimizare_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    componenta: Mapped[str] = mapped_column(Text)
+    campion_versiune: Mapped[int] = mapped_column(Integer)
+    candidat_versiune: Mapped[int] = mapped_column(Integer)
+    revenire_versiune: Mapped[int | None] = mapped_column(Integer)
+    etapa: Mapped[str] = mapped_column(Text, default="umbra")
+    procent_candidat: Mapped[int] = mapped_column(Integer, default=0)
+    istoric: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    castig: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    actualizat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    promovat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    incheiat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ObservatiePromovare(BazaInvatare):
+    """Scorul unui livrabil produs de campion sau de candidat, pe o etapă (F14.2)."""
+
+    __tablename__ = "promovari_observatii"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    promovare_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    etapa: Mapped[str] = mapped_column(Text)
+    grup: Mapped[str] = mapped_column(Text)
+    umbra: Mapped[bool] = mapped_column(Boolean, default=False)
+    cheie: Mapped[str] = mapped_column(Text)
+    scor: Mapped[float] = mapped_column(Float)
+    conform: Mapped[bool] = mapped_column(Boolean)
+    la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

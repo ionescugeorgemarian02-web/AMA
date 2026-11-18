@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F14.2 — Umbră, canar, promovare, revenire
+- `app/invatare/promovare.py` (rutarea deterministă, umbra pe 20 de livrabile, canar 10%, producție 90% cu control 10%, câștigul măsurat față de control, revenirea dintr-o atingere și automată), jobul zilnic `invatare.promovari`, `promovari` și `promovari_observatii` (migrarea `0079`).
+
 ### F14.1 — Optimizatorul de prompturi
 - `app/invatare/optimizator.py` (set de aur, antrenare/test, scor compus calitate × conformitate, căutare reflexivă, candidat ca ciornă în registru, raport), promptul `invatare.reflectie`, setul `evaluare/optimizare/continut.hookuri.jsonl`, jobul nocturn `invatare.optimizator`, `optimizari` (migrarea `0078`). CI: `timeout-minutes` 45 la jobul `check`.
 

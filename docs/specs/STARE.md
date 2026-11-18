@@ -319,6 +319,8 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F14.1 Optimizatorul de prompturi | verificat local cu model și propunător SIMULATE: o rulare produce un candidat (ciornă în registru) care bate campionul pe setul de test cu marja 0,03, fără să piardă la conformitate; raport cu ce s-a schimbat și de ce; urme; jobul nocturn | `tests/integration/test_invatare_optimizator.py`, `tests/unit/test_invatare_optimizator.py` |
+| F14.2 Umbră, canar, promovare, revenire | verificat local pe livrabile SIMULATE (rutarea reală): umbra pe 20 de livrabile, canar ~10%, producție ~90% cu 10% control pe campionul vechi, promovare cu câștigul măsurat față de control; revenirea dintr-o atingere (versiune nouă cu textul vechi), revenire automată la gardă sau control mai bun; Constituția | `tests/integration/test_invatare_promovare.py` |
 
 ### De verificat la migrare (F14)
 - F14.1: optimizatorul pe modelele reale (profilul `strategie` pentru reflecție, cota rămasă înainte de resetare); calibrarea marjei și a mărimii seturilor de aur; seturi de aur pentru alte componente decât `continut.hookuri`.
+- F14.2: legarea `ruteaza`/`observa` în autorii din F6 (NECONECTAT) și scorul din verdictul validării; minimele de 20 și toleranța pe volum real.
