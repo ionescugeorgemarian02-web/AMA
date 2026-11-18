@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.10 — Asistentul de suport din portal
+- `app/portal/suport.py` + `/portal/suport` (răspunsuri D din livrabile, cont și exportul Shopify `comert.vanzari.pentru_crm`; escaladare), ecranul `/crm/suport`, migrarea `0103` (`portal_suport`, RLS pe tenant).
+
 ### F12.9 — Lista de conturi-țintă
 - `app/crm/conturi_tinta.py` (sursă publică SIMULATĂ, filtrul de date personale, mini-audit, argumente), ecranul `/crm/tinta`, migrarea `0102`.
 

@@ -1,0 +1,13 @@
+{% extends "panou/baza.html" %}
+{% block title %}Suport clienți · AMA{% endblock %}
+{% block pagina %}
+<h1>Întrebări de la clienți pentru tine</h1>
+<p class="slab"><a href="/crm">CRM</a> · Facturarea, reclamațiile și ce nu știe asistentul din portal ajung aici.</p>
+{% for i in intrebari %}
+<section class="card" aria-labelledby="s-{{ i.id }}">
+  <h2 id="s-{{ i.id }}">{{ i.categorie }} · {{ i.la.strftime("%d.%m %H:%M") }} UTC</h2>
+  <p>{{ i.intrebare }}</p>
+  <form method="post" action="/crm/suport/{{ i.id }}/preia"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Am preluat-o</button></form>
+</section>
+{% else %}<p>Nicio întrebare nu te așteaptă.</p>{% endfor %}
+{% endblock %}

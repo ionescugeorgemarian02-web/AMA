@@ -45,7 +45,10 @@ apoi F10 (ramura B).
 | F12.7 Inboxul social | **închis** (A, împins), migrarea `0100` |
 | F12.8 Răspunsuri și escaladare | **închis** (A, împins), migrarea `0101` |
 | F12.9 Lista de conturi-țintă | **închis** (A, împins), migrarea `0102` |
-| F12.10 | A (preluare 2026-11-18), migrările `0103`+ |
+| F12.10 Asistentul de suport | **închis** (A, împins), migrarea `0103` |
+| Poarta F12 | A |
+
+Cerere către C (din F12.10): un export `comert.magazine(tenant)` — lista magazinelor conectate ale unui client, ca asistentul din portal să nu ceară numele magazinului în întrebare.
 
 ## Raport pentru sesiunea A (citește asta întâi)
 

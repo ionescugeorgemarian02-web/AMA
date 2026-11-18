@@ -18,6 +18,7 @@ from app.conturi import DbSession, Rol, SesiuneCurenta, csrf_protect, require_ro
 from app.crm import CrmRefuzat, calificare, conturi_tinta, inbox, oferte, raspunsuri, registru
 from app.crm import email as crm_email
 from app.panou.sabloane import pagina
+from app.portal import suport
 
 router = APIRouter(prefix="/crm", tags=["crm"])
 Proprietar = Annotated[SesiuneCurenta, Depends(require_role(Rol.PROPRIETAR))]
@@ -400,3 +401,18 @@ def marcheaza_tinta(request: Request, cont_id: str, stare: str, u: Proprietar, d
     except CrmRefuzat as exc:
         return _tinta(request, u, db, lista=lista, status=422, eroare=_eroare(exc))
     return RedirectResponse(f"/crm/tinta?lista={lista}&mesaj=marcat", status_code=303)
+
+
+# --- escaladările din asistentul de suport al portalului (F12.10) -------------------------------------------
+@router.get("/suport")
+def lista_suport(request: Request, u: Proprietar, db: DbSession) -> Response:
+    return pagina(request, u, "panou/crm_suport.html", tab="meniu", intrebari=suport.escaladate(db))
+
+
+@router.post("/suport/{intrebare_id}/preia", dependencies=[Depends(csrf_protect)])
+def preia_suport(request: Request, intrebare_id: str, u: Proprietar, db: DbSession) -> Response:
+    try:
+        suport.preia(db, _id(intrebare_id))
+    except suport.IntrebareInvalida as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from None
+    return RedirectResponse("/crm/suport", status_code=303)

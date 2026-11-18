@@ -847,3 +847,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F12.9 — Lista de conturi-țintă (Opus)
 - Lista albă de câmpuri + detectorul gateway-ului + excluderea persoanelor fizice; mini-auditul refolosește motorul F7.2.
 - Verificat: `test_crm_conturi_tinta` (2); lint, mypy.
+
+### F12.10 — Asistentul de suport (Opus)
+- Răspunsuri pe sesiunea clientului; facturarea și reclamațiile câștigă și ajung la proprietar; C atins doar prin export.
+- Verificat: `test_portal_suport` (6); lint, mypy.

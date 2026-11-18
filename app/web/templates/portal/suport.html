@@ -1,0 +1,19 @@
+{% extends "portal/baza.html" %}
+{% block title %}Suport · AMA{% endblock %}
+{% block pagina %}
+<h1>Întreabă</h1>
+<p class="slab">{{ prezentare }}</p>
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+{% if raspuns %}<p class="mesaj" role="status">{{ raspuns.raspuns }}</p>{% endif %}
+<form method="post" action="/portal/suport">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label for="intrebare">Întrebarea ta</label>
+  <textarea id="intrebare" name="intrebare" maxlength="1000" required></textarea>
+  <button type="submit">Întreabă</button>
+</form>
+{% if istoric %}
+<section class="card" aria-labelledby="istoric"><h2 id="istoric">Ce ai întrebat</h2>
+{% for i in istoric %}<p><strong>{{ i.intrebare }}</strong><br>{{ i.raspuns }}</p>{% endfor %}
+</section>
+{% endif %}
+{% endblock %}
