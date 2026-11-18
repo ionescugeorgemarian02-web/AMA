@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F16.6 — Reclame pe TikTok
+- `app/connectors/reclame/tiktok.py` (citire cu paginare, stare cont, scriere idempotentă, clasificare pe `code`), platforma `tiktok` în reclame (plan, verificare, `rulepacks/reclame.toml`), migrarea `0108`.
+
 ### F16.5 — Generator video extern
 - `app/media/video_extern.py` (adaptor oprit implicit, inserturi 3–6 s, drept comercial fără filigran, cost rezervat sub zăvor, plafon lunar pe client), migrarea `0107` (`video_generari`), setările `AMA_VIDEO_EXTERN_*`.
 

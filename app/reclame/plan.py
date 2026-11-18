@@ -120,8 +120,8 @@ def verifica(plan: PlanMedia) -> list[str]:
     co = plan.criterii_oprire
     if co.cost_tinta_bani * co.multiplu_pierdere > plan.buget_lunar_bani:
         p.append("pragul de oprire la pierdere e mai mare decât tot bugetul: oprirea n-ar veni niciodată")
-    if plan.masurare.utm_source not in ("meta", "google"):
-        p.append("sursa UTM trebuie să fie platforma (meta sau google)")
+    if plan.masurare.utm_source not in ("meta", "google", "tiktok"):
+        p.append("sursa UTM trebuie să fie platforma (meta, google sau tiktok)")
     return p
 
 

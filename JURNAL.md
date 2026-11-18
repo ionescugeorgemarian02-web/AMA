@@ -877,3 +877,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F16.5 — Generator video extern (Opus)
 - Bugetul în bază, rezervat înainte de apel (refuz fără apel peste plafon). Prima rulare: `jurnal_audit.rezultat` acceptă `refuzat`, nu `respins` → corectat.
 - Verificat: `test_media_video_extern` (4), `test_garzi_db`, `tests/atacuri tests/unit` (1951); lint, mypy. Observat (existent, nu de la F16): `pytest tests/unit` singur pică la colectare (import circular `app.analiza` → `app.site` → `app.panou` → `app.invatare` → `app.analiza`); suita completă trece fiindcă alte module se încarcă întâi. Propunere: importul din `app.invatare.alegere` mutat în funcție.
+
+### F16.6 — Reclame pe TikTok (Opus)
+- Conector pe tiparul Meta (căutare după nume înainte de creare), prin aceeași ușă `reclama` și același gardian. Observat la test: gardianul judecă bugetul doar pe campaniile active → testul pornește campania întâi.
+- Verificat: `test_reclame_tiktok` (unit 5, integrare 1), `tests/atacuri tests/unit` + reclame + poarta F13: 1982 passed; lint, mypy, gărzi, audit.
