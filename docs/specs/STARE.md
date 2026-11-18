@@ -266,7 +266,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F11.6 Ecranul „Învățare” | verificat local, prin cereri HTTP: aprobi o lecție și anulezi o promovare din panou; refuzurile Constituției se văd pe ecran; înghețare; experimente; analistul doar citește. **Nu e verificat pe un telefon real; rulările optimizatorului și seturile de aur lipsesc (F14)** | `tests/integration/test_invatare_ecran.py` |
 | Poarta F11 | trecută pe date simulate: o lecție promovată și una retrasă, cu urmă completă | `tests/integration/test_poarta_f11.py`, `docs/specs/F11-poarta.md` |
 
-## Faza F12 — CRM, email, inbox (preluată de sesiunea B pe 2026-11-15)
+## Faza F12 — CRM, email, inbox (B: F12.1–F12.2; A: F12.3–F12.10 și poarta)
 
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
@@ -280,6 +280,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F12.8 Răspunsuri și escaladare | verificat pe inbox SIMULAT: critica de test ajunge la om (fără răspuns automat, cu variantă), mesajul vechi de 30 h nu pleacă; dezvăluirea AI, agent uman doar pentru om, un răspuns la comentariu, spam ascuns cu eșantion. **Fără Graph API real; registrul de fapte scurt [I]** | `tests/integration/test_crm_raspunsuri.py`, `tests/unit/test_crm_raspunsuri.py` |
 | F12.9 Lista de conturi-țintă | verificat pe sursă SIMULATĂ: lista „horeca-cluj” din panou are mini-audit și 3 argumente pe firmă; PFA-ul, profilul unui om, telefoanele și adresele nu intră; modulul nu poate trimite nimic. **Sursele publice reale și semnalele măsurate lipsesc** | `tests/integration/test_crm_conturi_tinta.py` |
 | F12.10 Asistentul de suport din portal | verificat local, prin HTTP: întrebarea despre clipul de pe Instagram primește starea și termenul corecte (fără datele altui client); facturarea, reclamația și ce nu știe ajung în `/crm/suport`; clienții Shopify eligibili doar prin exportul comerțului. **Fără model; magazinul se numește în întrebare** | `tests/integration/test_portal_suport.py` |
+| Poarta F12 | trecută pe simulare: un lead parcurge audit → confirmare → secvență (3 pași) → calificare și rezervare de pe telefon → apel programat cu invitația .ics, fără dublură, secvența oprită; `make check` verde (3321 passed). **Un lead real cere furnizor de email, domeniu autentificat și motorul de audit real** | `tests/integration/test_poarta_f12.py`, `docs/specs/F12-poarta.md` |
 
 ### De verificat la migrare (F12)
 - F12.3: furnizorul de email real (nivel gratuit), subdomeniul cu SPF/DKIM/DMARC; zilele pașilor și textele secvenței pe rezultate reale de deschidere și răspuns.

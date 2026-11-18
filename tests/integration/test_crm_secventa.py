@@ -66,7 +66,8 @@ def test_abonatul_de_test_primeste_secventa_si_dezabonarea_o_opreste(
     )
     asteapta(lambda: din_secventa(cutie, adresa) or None)
     assert secventa.ruleaza(pornita + dt.timedelta(days=5, minutes=1))["trimise"] == 1
-    [m1, m2] = asteapta(lambda: (lambda x: x if len(x) == 2 else None)(din_secventa(cutie, adresa)))
+    primite = asteapta(lambda: (lambda x: x if len(x) == 2 else None)(din_secventa(cutie, adresa)))
+    [m1, m2] = sorted(primite, key=lambda m: not m.subiect.startswith("Primele"))  # ordinea livrării variază
     assert m1.subiect.startswith("Primele trei lucruri") and "Cafeneaua Zorilor" in m1.subiect
     assert "List-Unsubscribe" in m2.antete and "Dezabonează-te" in m2.text
     assert inscriere(cid) == ("activa", 2, "")

@@ -7,6 +7,7 @@
 <h1>Anulezi apelul?</h1>
 <p>Apelul e programat {{ cand }} (ora României).</p>
 <form method="post" action="/site/programare/anulare/{{ jeton }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
   <button type="submit">Anulează apelul</button>
 </form>
 {% endif %}

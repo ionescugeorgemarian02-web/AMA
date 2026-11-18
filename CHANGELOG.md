@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F12 — CRM, email, inbox
+- `tests/integration/test_poarta_f12.py`, `docs/specs/F12-poarta.md` (audit → secvență → calificare → apel programat, cap-coadă pe simulare); anularea programării cere CSRF dublu-trimis; ordinea livrării nu mai contează în testele secvenței.
+
 ### F12.10 — Asistentul de suport din portal
 - `app/portal/suport.py` + `/portal/suport` (răspunsuri D din livrabile, cont și exportul Shopify `comert.vanzari.pentru_crm`; escaladare), ecranul `/crm/suport`, migrarea `0103` (`portal_suport`, RLS pe tenant).
 

@@ -83,14 +83,23 @@ def pagina_anulare(request: Request, jeton: str) -> HTMLResponse:
         if p is None:
             raise HTTPException(status_code=404, detail="Linkul nu este valid.")
         cand, stare = programari.eticheta(p.inceput), p.stare
-    return randeaza(
-        request, "site/programare_anulare.html", "programare", jeton=jeton, cand=cand, stare=stare
+    csrf = jeton_csrf_prelogin(request)
+    r = randeaza(
+        request,
+        "site/programare_anulare.html",
+        "programare",
+        jeton=jeton,
+        cand=cand,
+        stare=stare,
+        csrf_token=csrf,
     )
+    seteaza_csrf_prelogin(r, csrf)
+    return r
 
 
-@router.post("/anulare/{jeton}")
+@router.post("/anulare/{jeton}", dependencies=[Depends(csrf_prelogin)])
 def anuleaza(request: Request, jeton: str) -> HTMLResponse:
-    """Jetonul de 256 de biți din email e singura autentificare (ca la dezabonare), deci fără CSRF."""
+    """Jetonul de 256 de biți din email autentifică; butonul de pe pagină poartă și CSRF dublu-trimis."""
     with sesiune_agentie() as db:
         p = programari.anuleaza(db, jeton)
         if p is None:

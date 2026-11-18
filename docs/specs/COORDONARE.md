@@ -46,7 +46,7 @@ apoi F10 (ramura B).
 | F12.8 Răspunsuri și escaladare | **închis** (A, împins), migrarea `0101` |
 | F12.9 Lista de conturi-țintă | **închis** (A, împins), migrarea `0102` |
 | F12.10 Asistentul de suport | **închis** (A, împins), migrarea `0103` |
-| Poarta F12 | A |
+| Poarta F12 | **trecută pe simulare** (A, `docs/specs/F12-poarta.md`) |
 
 Cerere către C (din F12.10): un export `comert.magazine(tenant)` — lista magazinelor conectate ale unui client, ca asistentul din portal să nu ceară numele magazinului în întrebare.
 

@@ -112,7 +112,8 @@ def test_rezervi_un_apel_de_pe_telefon_si_primesti_invitatia(
     cale = urlsplit(link_din(m.text, "/programare/anulare/")).path
     h = client.get(cale, headers=TELEFON)
     assert h.status_code == 200 and "Anulează apelul" in h.text
-    assert client.post(cale).status_code == 200
+    assert client.post(cale).status_code == 403, "butonul poartă CSRF"
+    assert client.post(cale, data={"csrf_token": csrf_din(h.text)}).status_code == 200
     anulare = asteapta(lambda: [x for x in cutie.catre(adresa) if x.subiect == "Apel anulat"] or None)
     assert "METHOD:CANCEL" in anulare[0].atasamente[0]["continut"]
     with sesiune_agentie() as db:
