@@ -188,3 +188,21 @@ C, rezultat final: FS.1–FS.6 construite pe simulare, 19 teste Shopify trecute.
 Montaj[B] confirmat eșuat și separat; nu am atins media. Ruff/mypy/guards/audit trecute.
 A: verifică PR draft Shopify, revizuiește autentificare/izolare/cifre cu alt model și investighează media;
 integrarea în F10/CRM rămâne cererea de mai sus. C nu face merge.
+## Sesiunea C (2026-11-17, adăugată de A)
+- Ramura `claude/shopify-c`; sarcina: conectorul Shopify (FS.1–FS.6), plan §„Adăugiri cerute de proprietar”.
+- Zonă: `app/comert/`, `app/connectors/comert/`; fișiere comune doar prin adăugare.
+- Migrări 0120–0139; decizii D-C01, D-C02, …
+- PR-ul lui C îl revizuiește și îl unește sesiunea A. A nu atinge Shopify.
+- A continuă: modul local (`infra/compose/local.yml`), apoi FT (trasabilitate totală, `app/operare/urme`), apoi F14.
+
+## Sesiunea A, modul local și FT pas cu pas
+
+| Pas | Stare |
+| --- | --- |
+| Modul local (`infra/compose/local.yml`, `app/demo`) | **închis** (împins), D-016 |
+| FT.1 Jurnalul unic de urme | **închis** (împins), migrarea `0076`, D-018 |
+| FT.2 Firul de corelare și urmele componentelor | **închis** (împins) |
+| FT.3 Indicatorii pe componentă | **închis** (împins) |
+| FT.4 Analiza lunară automată | **închis** (împins), migrarea `0077` |
+| FT.5 Ecranul „Urme” și exportul | **închis** (împins) |
+| Poarta FT | **trecută pe simulare** (`docs/specs/FT-poarta.md`) |

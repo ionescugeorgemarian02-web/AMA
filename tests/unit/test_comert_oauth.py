@@ -1,6 +1,8 @@
+import datetime as dt
 import hashlib
 import hmac
 import uuid
+from urllib.parse import urlencode
 
 import httpx
 import pytest
@@ -19,13 +21,14 @@ def test_domenii():
 def test_callback_hmac():
     p = {"shop": "exemplu.myshopify.com", "state": "abc", "code": "cod"}
     secret = uuid.uuid4().hex
+    p["timestamp"] = str(int(dt.datetime.now(dt.UTC).timestamp()))
     p["hmac"] = hmac.new(
         secret.encode(), "&".join(f"{k}={p[k]}" for k in sorted(p)).encode(), hashlib.sha256
     ).hexdigest()
-    oauth.verifica_callback(p, secret)
+    oauth.verifica_callback(urlencode(p).encode(), secret)
     p["code"] = "altul"
     with pytest.raises(ValueError):
-        oauth.verifica_callback(p, secret)
+        oauth.verifica_callback(urlencode(p).encode(), secret)
 
 
 def test_schimb_http_local():
@@ -78,3 +81,29 @@ def test_vanzari_http_local():
     assert c.vanzari("comanda", uuid.uuid4().hex) == [{"id": "1"}]
     with pytest.raises(ValueError):
         c.vanzari("necunoscut", uuid.uuid4().hex)
+
+
+def test_callback_brut_expirat_unicode_si_duplicat():
+    secret = uuid.uuid4().hex
+
+    def semnat(timestamp):
+        mesaj = b"code=a%26b%3Dc&shop=x.myshopify.com&timestamp=" + str(timestamp).encode()
+        return mesaj + b"&hmac=" + hmac.new(secret.encode(), mesaj, hashlib.sha256).hexdigest().encode()
+
+    acum = int(dt.datetime.now(dt.UTC).timestamp())
+    assert oauth.verifica_callback(semnat(acum), secret)["code"] == "a&b=c"
+    for query in [
+        semnat(acum - 301),
+        semnat(acum + 60),
+        semnat(acum) + b"&code=x",
+        b"hmac=%C8%99&timestamp=0",
+    ]:
+        with pytest.raises(ValueError):
+            oauth.verifica_callback(query, secret)
+
+
+def test_webhook_semnatura_unicode():
+    from app.comert.catalog import verifica_webhook
+
+    with pytest.raises(ValueError):
+        verifica_webhook(b"{}", "ș", uuid.uuid4().hex)

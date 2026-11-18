@@ -32,8 +32,11 @@ def executa(
         s.stare = "in_curs"
     try:
         catalog.salveaza(tenant, shop, produse(token))
+        invalide = []
         for tip in ("comanda", "client"):
-            vanzari.importa(tenant, shop, tip, date(tip, token))
+            invalide.extend(vanzari.importa(tenant, shop, tip, date(tip, token)))
+        if invalide:
+            raise ValueError("Lot cu rânduri invalide")
     except Exception:
         with sesiune_tenant(tenant) as db:
             s = db.get(Sincronizare, (tenant, shop))

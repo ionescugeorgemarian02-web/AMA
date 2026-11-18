@@ -4,7 +4,7 @@ import hashlib
 import hmac
 import json
 import uuid
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 import httpx
 
@@ -56,10 +56,11 @@ def test_poarta_fs(client, fabrica_conturi, ceas):
     c = ShopifySimulat(httpx.MockTransport(raspunde))
     url = oauth.incepe(tenant, shop, "client-id", "https://ama.invalid/callback")
     p = {"shop": shop, "state": parse_qs(urlsplit(url).query)["state"][0], "code": "cod"}
+    p["timestamp"] = str(int(dt.datetime.now(dt.UTC).timestamp()))
     p["hmac"] = hmac.new(
         secret.encode(), "&".join(f"{k}={p[k]}" for k in sorted(p)).encode(), hashlib.sha256
     ).hexdigest()
-    oauth.termina(tenant, p, secret, lambda cod: c.schimba_cod(cod, "client-id", secret))
+    oauth.termina(tenant, urlencode(p).encode(), secret, lambda cod: c.schimba_cod(cod, "client-id", secret))
     executa(tenant, shop, c.catalog, c.vanzari)
     assert catalog.lista(tenant, shop)[0]["detalii"]["variante"][0]["sku"] == "SKU"
     assert len(vanzari.pentru_crm(tenant, shop)) == 1

@@ -721,3 +721,40 @@ Verificat exact:
 
 Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în F10/CRM de sesiunile proprii,
 și toate operațiile reale marcate „De verificat la migrare”. PR rămâne draft, fără merge din sesiunea C.
+- **Modul local (PC-ul proprietarului).**
+  - Construit: `infra/compose/local.yml` (build local, Postgres cu pgvector, migrate, app pe 127.0.0.1:8000, worker, volume), `infra/env/local.env.example` (parole generate de `make local-env`, o cheie LLM opțională), `app/demo/populare.py`, ținte `make local-*`, runbook, D-016.
+  - Verificat: `docker compose … config -q` (fără daemon în container), `check_pins` verde, `tests/unit/test_compose_local.py`, `tests/integration/test_populare_demo.py`.
+  - Rămas: pornirea reală cu Docker Desktop (NEVERIFICAT, fără daemon aici).
+- **FT.1 — Jurnalul unic de urme.**
+  - Construit: migrarea `0076` (tabelul `urme`, declanșatorul doar-adăugare, RLS, fără UPDATE/DELETE pentru `ama_app`), `app/operare/urme` (jurnal, rezumat, model), `AMA_URME_ACTIVE`, D-018.
+  - Verificat: testele unitare ale rezumatului, de integrare ale jurnalului (fir, cauză, cost, eșec, atomicitate, declanșator), de izolare; meta-testul RLS, migrările, garda contextului de agenție.
+- **FT.2 — Firul de corelare și urmele componentelor.**
+  - Construit: motor (`trimite`/`flux`), `evenimente.emite` (oglinda), gateway `_incheie`, `validare.cascada`, `creier.versiuni`, `ClientHttp.cere`, `aprobari.decide`, `reclame.propuneri`.
+  - Verificat: `tests/integration/test_urme_propagare.py`; regresie pe motor, gateway, efecte, validare, producție, Creier, publicare, reclame, aprobări, izolare și toate unitarele: verzi.
+- **FT.3 — Indicatorii pe componentă.**
+  - Construit: `urme.indicatori.calculeaza`; reparat lintul rămas din FT.2 (reclame, cascadă).
+  - Verificat: `tests/integration/test_urme_indicatori.py`; ruff, mypy verzi.
+- **FT.4 — Analiza lunară automată.**
+  - Construit: migrarea `0077`, `analiza.py`, `fluxuri.py` (cron 1 ale lunii), `MODULE_FLUXURI`, garda contextului de agenție.
+  - Verificat: `tests/integration/test_urme_analiza.py` (regresii, porți, motive, costuri, lanțuri, lanț întrerupt, regenerare), migrările, garda.
+- **FT.5 — Ecranul „Urme” și exportul.**
+  - Construit: `app/panou/urme_web.py`, șabloanele `panou/urme.html`, `panou/urme_fir.html`, ruta în `app/panou/__init__.py`, rândul din `meniu.html`.
+  - Verificat: `tests/integration/test_urme_ecran.py` (ecran, generare, fir, JSON, trei CSV-uri, erori 400, 403 pentru analist); toate unitarele verzi.
+- **Poarta FT — Trasabilitate totală.**
+  - Construit: poarta, `fluxuri_poarta_ft.py`, reparațiile găsite de `make check`: firul scăpat din `span`/`corelare_curenta` (toate urmele unei sesiuni pytest ajungeau pe un fir), `urme` în `PASTRATE_IMPLICIT` la ștergere, testul populării robust la baza comună.
+  - Verificat: `make check` complet: prima rulare 3138 passed, 10 failed (firul scăpat, ștergerea clientului, popularea); reparate, rulate împreună (verzi), apoi `make check` din nou: lint, tipuri, gărzi verzi; 3146 passed, 2 failed (poarta și popularea presupuneau o bază doar a lor). Reparate (analiza primește `tenant_id`, testul populării compară înainte/după) și rerulate după testele de validare și onboarding pe aceeași bază: verzi.
+
+## Sesiunea A — revizuire PR #12 (2026-11-18)
+- Îmbinat origin/main; conflictele comune rezolvate păstrând ambele contribuții.
+  0120 pornește din 0077, magazinul are UNIQUE(tenant_id,magazin).
+- Reparat importul valutar (lista SIX ISO 4217 2026-09-17 locală), rambursările,
+  rândurile invalide și creata_la timestamptz. Contractul simulat primește sume majore.
+- Reparat products/delete cu doar id; tombstone folosește ora recepției.
+- OAuth acceptă bytes query brut, verifică timestamp în intervalul 0–300 s;
+  comparațiile HMAC sunt bytes. Actualizat contractul testelor apelante.
+- Mapare coduri persistentă per tenant/magazin, consumată de panou.
+- Verificat: 25 teste Shopify passed (unit/isolation/integration/poarta FS),
+  Postgres 16 + pgvector în Docker; make guards, make lint și mypy (407 fișiere) verzi;
+  alembic heads: 0124 unic. Suita completă make check nu a fost rulată.
+- Consultat skill Shopify și documentația oficială webhook; helper-ele skillului
+  nu sunt instalate, nu s-au generat operații GraphQL. Integrarea rămâne simulată.

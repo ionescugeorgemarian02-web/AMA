@@ -12,10 +12,13 @@ Executorul (cel care rulează fluxurile) pornește doar în procesul `worker` (v
 
 import datetime as dt
 import functools
+import inspect
 import re
 import threading
 import time
-from collections.abc import Callable
+import uuid
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, ParamSpec, TypeVar
@@ -23,6 +26,7 @@ from typing import Any, ParamSpec, TypeVar
 from dbos import DBOS, DBOSClient, EnqueueOptions
 
 from app.config import get_settings
+from app.logging import correlation_id
 from app.operare.motor import argumente
 from app.operare.motor.cozi import (
     NUME_COADA,
@@ -33,6 +37,7 @@ from app.operare.motor.cozi import (
     definitii_standard,
 )
 from app.operare.motor.erori import EroareDefinitiva
+from app.operare.urme import jurnal as urme
 
 NUME_APLICATIE = "ama"
 RECUPERARI_IMPLICIT = 5  # de câte ori e reluat un flux care strică workerul înainte să ajungă la oameni
@@ -128,10 +133,14 @@ def flux(
     def decorator(fn: Callable[P, R]) -> Callable[P, R]:
         n = _nume(nume, fn)
 
+        primul = next(iter(inspect.signature(fn).parameters), None)
+
         @functools.wraps(fn)
         def interior(*args: P.args, **kwargs: P.kwargs) -> R:
             argumente.verifica(n, args, kwargs)
-            return fn(*args, **kwargs)
+            tenant = kwargs.get("tenant_id", args[0] if args and primul == "tenant_id" else None)
+            with _fir_job(n, tenant):
+                return fn(*args, **kwargs)
 
         invelit = DBOS.workflow(name=n, max_recovery_attempts=recuperari_max)(interior)
         setattr(invelit, ATRIBUT_NUME, n)
@@ -339,7 +348,44 @@ def trimite(
         if la.tzinfo is None:
             raise ValueError("`la` trebuie să aibă fus orar")
         optiuni["delay_seconds"] = max(0.0, (la - dt.datetime.now(dt.UTC)).total_seconds())
-    return client().enqueue(optiuni, *args, **kw).get_workflow_id()
+    job = client().enqueue(optiuni, *args, **kw).get_workflow_id()
+    # FT.2: firul și cauza curente trec la job (le citește `_fir_job` când jobul pornește).
+    urme.emite(
+        "motor",
+        f"trimis:{nume}",
+        rezultat="info",
+        obiect_tip="job",
+        obiect_id=job,
+        intrari={"coada": nume_coada, "cheie": cheie, "la": la},
+        tenant_id=_uuid_sau_nimic(args[0] if args else None),
+    )
+    return job
+
+
+def _uuid_sau_nimic(valoare: object) -> uuid.UUID | None:
+    try:
+        return valoare if isinstance(valoare, uuid.UUID) else uuid.UUID(str(valoare)) if valoare else None
+    except ValueError:
+        return None
+
+
+@contextmanager
+def _fir_job(nume: str, tenant: object) -> Iterator[None]:
+    """FT.2: jobul continuă firul celui care l-a pus în coadă (sau începe unul, cu id-ul lui); execuția
+    e o urmă `motor/flux:<nume>`, cauza urmelor din interior."""
+    job = DBOS.workflow_id or ""
+    if correlation_id.get():  # flux chemat direct dintr-un alt flux: același fir
+        fir, cauza = correlation_id.get(), urme.cauza_curenta.get()
+    else:
+        gasit = urme.fir_pentru_job(job) if job else None
+        fir, cauza = gasit if gasit else (job or None, None)
+    with urme.corelare(fir, tenant_id=_uuid_sau_nimic(tenant)):
+        jeton = urme.cauza_curenta.set(cauza)
+        try:
+            with urme.span("motor", f"flux:{nume}", obiect_tip="job", obiect_id=job or None):
+                yield
+        finally:
+            urme.cauza_curenta.reset(jeton)
 
 
 _coada_proba: Callable[[], str | None] | None = None

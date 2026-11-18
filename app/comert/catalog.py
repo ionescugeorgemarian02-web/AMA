@@ -19,8 +19,8 @@ from app.db import sesiune_tenant
 def verifica_webhook(corp: bytes, semnatura: str, secret: str) -> None:
     if len(corp) > 1_000_000:
         raise ValueError("Webhook prea mare")
-    calculat = base64.b64encode(hmac.new(secret.encode(), corp, hashlib.sha256).digest()).decode()
-    if not hmac.compare_digest(calculat, semnatura):
+    calculat = base64.b64encode(hmac.new(secret.encode(), corp, hashlib.sha256).digest())
+    if not hmac.compare_digest(calculat, semnatura.encode()):
         raise ValueError("HMAC Shopify invalid")
 
 
@@ -30,7 +30,11 @@ def salveaza(tenant: uuid.UUID, shop: str, produse: list[dict[str, Any]], *, ste
         if db.scalar(select(Magazin.id).where(Magazin.magazin == shop)) is None:
             raise ValueError("Magazin neasociat tenantului")
         for p in produse:
-            v = dt.datetime.fromisoformat(str(p["updated_at"]).replace("Z", "+00:00"))
+            v = (
+                dt.datetime.now(dt.UTC)
+                if sters
+                else dt.datetime.fromisoformat(str(p["updated_at"]).replace("Z", "+00:00"))
+            )
             if v.tzinfo is None:
                 raise ValueError("Versiune fără fus orar")
             q = insert(Produs).values(
@@ -81,5 +85,5 @@ def webhook(tenant: uuid.UUID, shop: str, topic: str, corp: bytes, semnatura: st
     if topic not in {"products/create", "products/update", "products/delete"}:
         raise ValueError("Topic nesuportat")
     p = json.loads(corp)
-    # SIMULAT: contractul local cere updated_at inclusiv la ștergere; nu inventăm timpul evenimentului.
+    # Ștergerea nu are versiune; ora recepției protejează tombstone-ul de actualizări vechi.
     salveaza(tenant, shop, [p], sters=topic == "products/delete")

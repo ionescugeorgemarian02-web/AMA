@@ -14,3 +14,6 @@ dist/
 .pgtest/
 .pgtest2/
 node_modules/
+
+# Modul local: parolele generate de `make local-env`
+infra/env/local.env

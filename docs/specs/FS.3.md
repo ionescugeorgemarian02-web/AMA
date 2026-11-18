@@ -9,3 +9,11 @@
 - **Module:** app/comert, conector comerț, migrare 0122, teste.
 - **Depinde:** FS.2. **Deblochează:** FS.4/5. **Revizuire:** da, sesiunea A.
 - **Întrebări:** niciuna; conectarea la CRM tenant viitor este API de citire, nu CRM-ul agenției.
+
+## Revizuire A — 2026-11-18
+Sumele și rambursările de import sunt exprimate în unități majore în contractul simulat
+(inclusiv câmpul istoric rambursat_bani), convertite exact după ISO 4217 în unități minore.
+Lista SIX 2026-09-17 este păstrată local în iso4217.json; monedele fără exponent sunt refuzate.
+Importul întoarce identificatorii rândurilor invalide și continuă lotul; sincronizarea
+marchează eroare parțială după procesarea loturilor. creata_la este și coloană timestamptz,
+validată cu fus orar și normalizată UTC.

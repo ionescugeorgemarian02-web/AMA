@@ -39,7 +39,12 @@ def ecran(request: Request, u: Cititor) -> Response:
             "stari": stari,
             "produse": {m.magazin: len(catalog.lista(u.tenant_id, m.magazin)) for m in magazine},
             "rapoarte": {
-                m.magazin: atribuire.raport_lunar(u.tenant_id, m.magazin, dt.datetime.now(dt.UTC).date(), {})
+                m.magazin: atribuire.raport_lunar(
+                    u.tenant_id,
+                    m.magazin,
+                    dt.datetime.now(dt.UTC).date(),
+                    {cod: (v[0], v[1]) for cod, v in m.coduri_reducere.items()},
+                )
                 for m in magazine
             },
         },

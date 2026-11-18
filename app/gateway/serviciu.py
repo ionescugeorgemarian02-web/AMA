@@ -43,7 +43,7 @@ from app.gateway.erori import Amanat, ApelRefuzat, FurnizoriIndisponibili, Iesir
 from app.gateway.iesire import Iesire, cheie_schema
 from app.ids import new_id
 from app.logging import correlation_id, get_logger
-from app.operare import motor
+from app.operare import motor, urme
 from app.operare.motor import Prioritate
 
 log = get_logger("app.gateway")
@@ -230,6 +230,29 @@ def _incheie(
         raspuns=_raspuns_mascat(ctx, rezultat), semnale=list(ctx.extra.get("semnale", [])) if ctx else [],
     )  # fmt: skip
     jurnal.scrie(intrare)
+    urme.emite(
+        "gateway",
+        f"apel:{componenta}"[:120],
+        tenant_id=tenant_id,
+        obiect_tip="apel_llm",
+        obiect_id=str(apel_id),
+        corelare_id=corelare,
+        rezultat={"refuzat": "respins"}.get(stare, stare),
+        cod=cod,
+        motiv="" if stare == "ok" else intrare.motiv_alegere,
+        cost=intrare.pret_umbra,
+        unitate_cost="usd_umbra",
+        durata_ms=intrare.durata_ms,
+        intrari={"profil": profil, "prompt": intrare.prompt_nume, "livrabil": livrabil_id},
+        iesiri={
+            "model": intrare.model,
+            "tokeni_intrare": intrare.tokeni_intrare,
+            "tokeni_iesire": intrare.tokeni_iesire,
+            "reparatii": intrare.reparatii,
+            "degradat": intrare.degradat,
+            "incercari": len(incercari),
+        },
+    )
     if livrabil_id is not None and any(i.rezultat != "cota" for i in incercari):
         # Apelul a ajuns la cel puțin un furnizor: se numără în bugetul livrabilului (inclusiv eșecurile).
         try:

@@ -14,7 +14,7 @@ def upgrade() -> None:
     op.execute("""CREATE TABLE comert_date (
         tenant_id uuid NOT NULL REFERENCES clienti(id), magazin text NOT NULL,
         tip text NOT NULL CHECK(tip IN ('comanda','client')), id_extern text NOT NULL,
-        date jsonb NOT NULL, email_criptat bytea, versiune timestamptz NOT NULL,
+        date jsonb NOT NULL, creata_la timestamptz, email_criptat bytea, versiune timestamptz NOT NULL,
         PRIMARY KEY(tenant_id,magazin,tip,id_extern)
     )""")
     activeaza_rls_tenant(op.execute, "comert_date")

@@ -1,0 +1,39 @@
+{% extends "panou/baza.html" %}
+{% block title %}Urme · {{ luna }} · AMA{% endblock %}
+{% block pagina %}
+<h1>Urme: trasabilitate totală</h1>
+<p class="slab">Luna {{ luna }} · {{ r.total_urme }} urme · {{ r.total_esecuri }} eșecuri{% if not salvat %} · <strong>calculat acum, nesalvat</strong>{% endif %}</p>
+{% if mesaj == "generat" %}<p role="status">Raportul lunii a fost generat.</p>{% endif %}
+<form method="get" action="/urme" class="card">
+  <label for="luna">Luna</label> <input id="luna" name="luna" type="month" value="{{ luna }}">
+  <button type="submit">Arată</button>
+  {% if luni %}<span class="slab">Rapoarte salvate: {% for l in luni %}<a href="/urme?luna={{ l }}">{{ l }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</span>{% endif %}
+</form>
+<form method="post" action="/urme/genereaza">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="luna" value="{{ luna }}">
+  <button type="submit">Generează raportul lunii</button>
+  <a href="/urme/export.json?luna={{ luna }}">JSON</a> · <a href="/urme/export.csv?luna={{ luna }}&amp;ce=esecuri">CSV eșecuri</a> ·
+  <a href="/urme/export.csv?luna={{ luna }}&amp;ce=indicatori">CSV indicatori</a> · <a href="/urme/export.csv?luna={{ luna }}&amp;ce=urme">CSV toate urmele</a>
+</form>
+<section class="card" aria-labelledby="indicatori">
+  <h2 id="indicatori">Indicatori pe componentă</h2>
+  <table>
+    <thead><tr><th scope="col">Componentă</th><th scope="col">Urme</th><th scope="col">Rata de eșec</th><th scope="col">p95</th><th scope="col">Cost</th></tr></thead>
+    <tbody>{% for i in r.indicatori %}<tr><th scope="row">{{ i.componenta }}</th><td>{{ i.total }}</td><td>{{ "%.0f"|format(i.rata_esec * 100) }}%</td><td>{{ i.durata_p95_ms|int if i.durata_p95_ms is not none else "–" }} ms</td><td>{% for u_, v in i.cost.items() %}{{ "%.4f"|format(v) }} {{ u_ }} {% endfor %}</td></tr>{% else %}<tr><td colspan="5">Nicio urmă în lună.</td></tr>{% endfor %}</tbody>
+  </table>
+</section>
+<section class="card" aria-labelledby="bine"><h2 id="bine">Ce a mers bine</h2>
+  <ul>{% for b in r.bine %}<li>{{ b.componenta }}: {{ b.motiv }}</li>{% else %}<li>Nimic de remarcat.</li>{% endfor %}</ul></section>
+<section class="card" aria-labelledby="prost"><h2 id="prost">Ce a mers prost</h2>
+  <ul>{% for p in r.prost %}<li>{{ p.componenta }}: {{ p.rele }} urme rele ({{ "%.0f"|format(p.rata_esec * 100) }}%){% if p.coduri %}; coduri: {% for c in p.coduri %}{{ c[0] }} ×{{ c[1] }} {% endfor %}{% endif %}</li>{% else %}<li>Niciun eșec.</li>{% endfor %}</ul></section>
+<section class="card" aria-labelledby="regresii"><h2 id="regresii">Regresii față de luna trecută</h2>
+  <ul>{% for g in r.regresii %}<li data-regresie="{{ g.componenta }}">{{ g.componenta }}, {{ g.indicator }}: {{ g.inainte }} → {{ g.acum }}</li>{% else %}<li>Nicio regresie.</li>{% endfor %}</ul></section>
+<section class="card" aria-labelledby="porti"><h2 id="porti">Porți picate și motive de respingere</h2>
+  <ul>{% for p in r.porti_picate %}<li>{{ p[0] }}/{{ p[1] }} · {{ p[2] }} · ×{{ p[3] }}</li>{% endfor %}
+  {% for m in r.motive_respingere %}<li>{{ m[0] }}/{{ m[1] }} · motiv: {{ m[2] or "nespus" }} · ×{{ m[3] }}</li>{% endfor %}
+  {% if not r.porti_picate and not r.motive_respingere %}<li>Nimic.</li>{% endif %}</ul></section>
+<section class="card" aria-labelledby="esecuri"><h2 id="esecuri">Eșecurile, până la sursă</h2>
+  <ol>{% for e in r.esecuri[:200] %}<li data-esec="{{ e.esec.id }}">{{ e.explicatie }} · <a href="/urme/fir/{{ e.fir }}">firul</a>{% if e.lant_intrerupt %} · lanț întrerupt{% endif %}</li>{% else %}<li>Niciun eșec.</li>{% endfor %}</ol>
+  {% if r.esecuri|length > 200 %}<p class="slab">Primele 200 din {{ r.total_esecuri }}; toate sunt în exportul CSV.</p>{% endif %}
+</section>
+{% endblock %}

@@ -197,6 +197,8 @@ class Settings(BaseSettings):
     # Consiliul (F13.7, docs/07 §7.6): plafonul lunar de dosare și modul de conectare (`manual` sau `api`).
     reclame_consiliu_plafon_lunar: int = Field(default=8, ge=0, le=100)
     reclame_consiliu_mod: str = "manual"
+    # Trasabilitatea totală (FT): jurnalul de urme; `false` oprește scrierea (diagnostic).
+    urme_active: bool = True
     # Doar în mediul `test`: module cu fluxuri de probă, încărcate de worker (separate prin virgulă).
     worker_module_test: str = ""
 

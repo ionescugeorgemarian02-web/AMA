@@ -34,6 +34,7 @@ from app.connectors.contract import (
     StarePostare,
     Token,
 )
+from app.operare import urme
 from app.operare.motor import EroareAutentificare, EroareDefinitiva, EroareTemporara
 
 
@@ -136,13 +137,23 @@ class ClientHttp:
         if token is not None:
             antete["Authorization"] = f"Bearer {token.acces}"
         url = cale if cale.startswith("http") else self.baza.rstrip("/") + "/" + cale.lstrip("/")
+        adresa = httpx.URL(url)
+        with urme.span("conector", f"{metoda} {adresa.host}{adresa.path}"[:120], obiect_tip="http") as s:
+            r = self._trimite(metoda, url, antete, kw)
+            s.iesiri = {"status": r.status_code}
+            s.rezultat, s.cod = _rezultat_http(r.status_code), str(r.status_code)
+            return self._dupa(metoda, url, r, clasifica_erori)
+
+    def _trimite(self, metoda: str, url: str, antete: dict[str, str], kw: dict[str, Any]) -> httpx.Response:
         try:
             with httpx.Client(transport=self.transport, timeout=self.timeout) as c:
-                r = c.request(metoda, url, headers=antete, **kw)
+                return c.request(metoda, url, headers=antete, **kw)
         except httpx.TimeoutException as exc:
             raise EroareTemporara(f"timeout: {type(exc).__name__}") from None
         except httpx.TransportError as exc:
             raise EroareTemporara(f"rețea: {type(exc).__name__}") from None
+
+    def _dupa(self, metoda: str, url: str, r: httpx.Response, clasifica_erori: bool) -> httpx.Response:
         self.antete = {k.lower(): v for k, v in r.headers.items()}
         if self.inregistrare is not None:
             self.inregistrare.append(
@@ -156,6 +167,15 @@ class ClientHttp:
         if clasifica_erori:
             self.clasificator(r)
         return r
+
+
+def _rezultat_http(status: int) -> str:
+    """FT.2: rezultatul urmei unei cereri HTTP: 2xx/3xx ok, 429 amânat, alt 4xx respins, 5xx eșec."""
+    if status < 400:
+        return "ok"
+    if status == 429:
+        return "amanat"
+    return "respins" if status < 500 else "esec"
 
 
 def token_sau_autentificare(depozit: DepozitTokenuri, tenant_id: uuid.UUID, canal: str) -> Token:

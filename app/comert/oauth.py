@@ -6,7 +6,7 @@ import hmac
 import re
 import uuid
 from collections.abc import Callable
-from urllib.parse import urlencode
+from urllib.parse import parse_qsl, urlencode
 
 from sqlalchemy import select
 
@@ -21,11 +21,24 @@ def domeniu(text: str) -> str:
     return text
 
 
-def verifica_callback(parametri: dict[str, str], secret: str) -> None:
-    mesaj = "&".join(f"{k}={v}" for k, v in sorted(parametri.items()) if k not in {"hmac", "signature"})
-    calculat = hmac.new(secret.encode(), mesaj.encode(), hashlib.sha256).hexdigest()
-    if not hmac.compare_digest(calculat, parametri.get("hmac", "")):
-        raise ValueError("Semnătură Shopify invalidă")
+def verifica_callback(query: bytes, secret: str) -> dict[str, str]:
+    if not isinstance(query, bytes):
+        raise ValueError("Este necesar query string-ul brut")
+    try:
+        parti = query.split(b"&")
+        parametri = dict(parse_qsl(query.decode("ascii"), strict_parsing=True))
+        if len(parametri) != len(parti):
+            raise ValueError("Parametri duplicați")
+        mesaj = b"&".join(sorted(p for p in parti if p.split(b"=", 1)[0] not in {b"hmac", b"signature"}))
+        calculat = hmac.new(secret.encode(), mesaj, hashlib.sha256).hexdigest().encode()
+        if not hmac.compare_digest(calculat, parametri.get("hmac", "").encode()):
+            raise ValueError("Semnătură Shopify invalidă")
+        timestamp = int(parametri["timestamp"])
+        if not 0 <= dt.datetime.now(dt.UTC).timestamp() - timestamp <= 300:
+            raise ValueError("Callback expirat")
+    except (UnicodeError, KeyError, OverflowError) as exc:
+        raise ValueError("Callback invalid") from exc
+    return parametri
 
 
 def aad(tenant: uuid.UUID, shop: str) -> bytes:
@@ -52,8 +65,8 @@ def incepe(tenant: uuid.UUID, shop: str, client_id: str, redirect: str) -> str:
     )
 
 
-def termina(tenant: uuid.UUID, parametri: dict[str, str], secret: str, schimb: Callable[[str], str]) -> None:
-    verifica_callback(parametri, secret)
+def termina(tenant: uuid.UUID, query: bytes, secret: str, schimb: Callable[[str], str]) -> None:
+    parametri = verifica_callback(query, secret)
     shop = domeniu(parametri["shop"])
     with sesiune_tenant(tenant) as db:
         m = db.scalar(select(Magazin).where(Magazin.magazin == shop).with_for_update())

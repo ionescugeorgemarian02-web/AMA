@@ -7,6 +7,6 @@
 <section><h2>{{ m.magazin }}</h2><p>{{ 'Conectat' if m.token_criptat else 'Neconectat' }}</p>
 <p>{{ stari.get(m.magazin, 'Nesincronizat') }}</p>
 <p>Produse active: {{ produse[m.magazin] }}</p>
-{% for r in rapoarte[m.magazin] %}<p>{{ r.campanie }} / {{ r.canal }}: {{ r.vanzari_nete_bani }} bani {{ r.moneda }}</p>{% endfor %}
+{% for r in rapoarte[m.magazin] %}<p>{{ r.campanie }} / {{ r.canal }}: {{ r.vanzari_nete_bani }} unități minore {{ r.moneda }}</p>{% endfor %}
 </section>{% else %}<p>Niciun magazin asociat clientului activ.</p>{% endfor %}
 </main></body></html>

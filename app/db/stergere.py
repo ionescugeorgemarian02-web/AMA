@@ -22,7 +22,8 @@ from sqlalchemy import Connection, create_engine, text
 
 from app.config import get_settings
 
-PASTRATE_IMPLICIT = frozenset({"jurnal_audit", "cereri_stergere", "clienti"})
+# `urme` (FT, D-018): trasabilitatea, doar adăugare, cu rezumate mascate; rămâne ca jurnalul de audit
+PASTRATE_IMPLICIT = frozenset({"jurnal_audit", "cereri_stergere", "clienti", "urme"})
 
 TABELE = """
 SELECT c.relname FROM pg_class c

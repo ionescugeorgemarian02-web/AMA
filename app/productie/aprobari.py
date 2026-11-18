@@ -26,7 +26,7 @@ from app.config import get_settings
 from app.conturi.roluri import Rol
 from app.conturi.servicii import are_aprobator_client
 from app.logging import get_logger
-from app.operare import audit, evenimente
+from app.operare import audit, evenimente, urme
 from app.operare.notificari import Nivel
 from app.productie import aprobari_baza, autonomie, reguli_aprobare
 from app.productie.anunturi import anunta
@@ -354,6 +354,19 @@ def decide(
         tenant_id=ap.tenant_id,
         utilizator_id=utilizator_id,
         date={"livrabil": str(livrabil.id), "versiune": ap.versiune},
+    )
+    urme.inregistreaza(
+        db,
+        "aprobare",
+        f"decizie:{hotarare.value}",
+        tenant_id=ap.tenant_id,
+        obiect_tip="livrabil",
+        obiect_id=str(livrabil.id),
+        actor=f"utilizator:{utilizator_id}",
+        motiv=motiv_standard or motiv,
+        rezultat="ok" if hotarare is Hotarare.APROBAT else "respins",
+        cod=motiv_standard or "",
+        intrari={"aprobare": ap.id, "versiune": ap.versiune, "decident": ap.decident},
     )
     for dupa in DUPA_DECIZIE:
         dupa(db, ap, livrabil, hotarare)

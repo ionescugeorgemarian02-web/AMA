@@ -16,7 +16,7 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.operare import audit, opriri
+from app.operare import audit, opriri, urme
 from app.operare.efecte import sistem
 from app.reclame import gardian, rezultate, verificare
 from app.reclame.modele import Anunt, Campanie, ContReclame, Propunere
@@ -149,6 +149,18 @@ def propune(
             p.verdict = {"permis": False, "motive": lipsuri, "cere_client": False}
     if not p.verdict.get("permis"):
         p.stare, p.decis_la = "refuzata", acum
+    urme.inregistreaza(
+        db,
+        "buget",
+        f"gardian:{tip}",
+        tenant_id=c.tenant_id,
+        obiect_tip="reclame_propunere",
+        obiect_id=str(p.id),
+        rezultat="ok" if p.verdict.get("permis") else "respins",
+        motiv="; ".join(p.verdict.get("motive") or []),
+        cod="" if p.verdict.get("permis") else "peste_plafon",
+        intrari={"sursa": sursa, "inainte": inainte, "dupa": dupa},
+    )
     audit.record(
         db,
         "reclame.propunere",
