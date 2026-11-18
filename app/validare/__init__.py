@@ -52,7 +52,7 @@ from app.validare.conversie import probleme_hook, propozitii
 from app.validare.depozit import pentru_ecran, rulari, ultima_rulare, verdicte, verdicte_rulare
 from app.validare.fluxuri import trimite
 from app.validare.intrare import Continut, Intrare, SituatieLivrabil, amprenta_text
-from app.validare.limba import corecteaza_sedila
+from app.validare.limba import corecteaza_sedila, probleme_limba
 from app.validare.modele import ContinutLivrabil, Rulare, VerdictSalvat
 from app.validare.registru import DefinitieValidator
 from app.validare.structura import probleme_structura
@@ -113,6 +113,7 @@ __all__ = [
     "intrebari",
     "pentru_ecran",
     "probleme_hook",
+    "probleme_limba",
     "probleme_structura",
     "propozitii",
     "registru",

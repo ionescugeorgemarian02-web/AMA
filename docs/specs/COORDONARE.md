@@ -206,3 +206,17 @@ integrarea în F10/CRM rămâne cererea de mai sus. C nu face merge.
 | FT.4 Analiza lunară automată | **închis** (împins), migrarea `0077` |
 | FT.5 Ecranul „Urme” și exportul | **închis** (împins) |
 | Poarta FT | **trecută pe simulare** (`docs/specs/FT-poarta.md`) |
+
+## Sesiunea A, F14 pas cu pas
+
+Zonă: `app/invatare/` (fișiere noi; `__init__.py` și `modele.py` doar prin adăugare), migrările `0078`–`0089`, D-020+.
+
+| Pas | Stare |
+| --- | --- |
+| F14.1 Optimizatorul de prompturi | **închis** (împins), migrarea `0078`, D-020 |
+| F14.2 Umbră, canar, promovare, revenire | **închis** (împins), migrarea `0079` |
+| F14.3 Predictorul de performanță | **închis** (împins), migrarea `0080` |
+| F14.4 Teste A/B formale | **închis** (împins), migrarea `0081` |
+| F14.5 Scorul de lead și riscul de plecare | **închis** (împins), fără migrare; citește `app.crm` (B) doar prin exporturile lui |
+| F14.6 Consolidarea nocturnă a memoriei | **închis** (împins), fără migrare |
+| Poarta F14 | **trecută pe simulare** (`docs/specs/F14-poarta.md`) |

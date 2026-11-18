@@ -4,6 +4,27 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F14 — Învățare, a doua treaptă
+- `tests/integration/test_poarta_f14.py`, `docs/specs/F14-poarta.md`; clientul intern al evaluărilor se creează într-o tranzacție proprie (consumul gateway-ului se scrie separat); verdictul testului formal spune câte observații a folosit (`n_folosit`); gărzile contextului de agenție cunosc modulele F14.
+
+### F14.6 — Consolidarea nocturnă a memoriei
+- `app/invatare/consolidare.py` (unirea lecțiilor duplicate, scoaterea din rotație după 90 de zile fără folosire, jobul nocturn `invatare.consolidare`). Fără migrare.
+
+### F14.5 — Scorul de lead și riscul de plecare, ca modele
+- `app/invatare/modele_client.py` (exemplele din CRM, regulile simple ca referință, modelul folosit doar dacă le bate, jobul săptămânal `invatare.modele_client`). Fără migrare.
+
+### F14.4 — Teste A/B formale
+- `app/invatare/teste_ab.py` (declarare cu mărimea eșantionului, eșantion fix, Welch, p, interval, jobul `invatare.teste_ab`), `teste_ab`, `teste_ab_observatii`, `promovari.test_ab_id` (migrarea `0081`); producția unei promovări se măsoară cu un test formal față de control.
+
+### F14.3 — Predictorul de performanță
+- `app/invatare/predictiv.py` (gradient boosting cu cioturi, AUC, bootstrap pereche, pragul de date), `app/invatare/predictor.py` (șansa de succes pe client și canal, jobul săptămânal `invatare.predictor`), `modele_predictive` (migrarea `0080`).
+
+### F14.2 — Umbră, canar, promovare, revenire
+- `app/invatare/promovare.py` (rutarea deterministă, umbra pe 20 de livrabile, canar 10%, producție 90% cu control 10%, câștigul măsurat față de control, revenirea dintr-o atingere și automată), jobul zilnic `invatare.promovari`, `promovari` și `promovari_observatii` (migrarea `0079`).
+
+### F14.1 — Optimizatorul de prompturi
+- `app/invatare/optimizator.py` (set de aur, antrenare/test, scor compus calitate × conformitate, căutare reflexivă, candidat ca ciornă în registru, raport), promptul `invatare.reflectie`, setul `evaluare/optimizare/continut.hookuri.jsonl`, jobul nocturn `invatare.optimizator`, `optimizari` (migrarea `0078`). CI: `timeout-minutes` 45 la jobul `check`.
+
 ### Poarta FT — Trasabilitate totală
 - `tests/integration/test_poarta_ft.py` (o lună simulată prin motor, conector HTTP, producție și poarta Creierului), `docs/specs/FT-poarta.md`; cauza probabilă include amânările (429); firul nu mai rămâne agățat în contextul firului de execuție; `urme` se păstrează la ștergerea unui client (D-018). Fără migrare.
 

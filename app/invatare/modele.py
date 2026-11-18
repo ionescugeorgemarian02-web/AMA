@@ -82,3 +82,111 @@ class Experiment(BazaInvatare):
     inceput_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     incheiat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+
+
+class Optimizare(BazaInvatare):
+    """O rulare a optimizatorului de prompturi (F14.1, migrarea 0078), la nivel de agenție."""
+
+    __tablename__ = "optimizari"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    componenta: Mapped[str] = mapped_column(Text)
+    campion_versiune: Mapped[int] = mapped_column(Integer)
+    candidat_versiune: Mapped[int | None] = mapped_column(Integer)
+    stare: Mapped[str] = mapped_column(Text, default="in_curs")
+    scor_campion: Mapped[float | None] = mapped_column(Float)
+    scor_candidat: Mapped[float | None] = mapped_column(Float)
+    marja: Mapped[float] = mapped_column(Float)
+    raport: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    inceput_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    incheiat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Promovare(BazaInvatare):
+    """Drumul unui candidat al optimizatorului: umbră, canar, producție, promovare (F14.2, migrarea 0079)."""
+
+    __tablename__ = "promovari"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    optimizare_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    componenta: Mapped[str] = mapped_column(Text)
+    campion_versiune: Mapped[int] = mapped_column(Integer)
+    candidat_versiune: Mapped[int] = mapped_column(Integer)
+    revenire_versiune: Mapped[int | None] = mapped_column(Integer)
+    etapa: Mapped[str] = mapped_column(Text, default="umbra")
+    procent_candidat: Mapped[int] = mapped_column(Integer, default=0)
+    istoric: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    castig: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    actualizat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    promovat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    test_ab_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))  # F14.4, migrarea 0081
+    incheiat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ObservatiePromovare(BazaInvatare):
+    """Scorul unui livrabil produs de campion sau de candidat, pe o etapă (F14.2)."""
+
+    __tablename__ = "promovari_observatii"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    promovare_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    etapa: Mapped[str] = mapped_column(Text)
+    grup: Mapped[str] = mapped_column(Text)
+    umbra: Mapped[bool] = mapped_column(Boolean, default=False)
+    cheie: Mapped[str] = mapped_column(Text)
+    scor: Mapped[float] = mapped_column(Float)
+    conform: Mapped[bool] = mapped_column(Boolean)
+    la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ModelPredictiv(BazaInvatare):
+    """O încercare de antrenare a unui model predictiv, doar peste pragul de date (F14.3, F14.5, migrarea
+    0080)."""
+
+    __tablename__ = "modele_predictive"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    tip: Mapped[str] = mapped_column(Text)
+    canal: Mapped[str] = mapped_column(Text, default="")
+    n_exemple: Mapped[int] = mapped_column(Integer)
+    prag: Mapped[int] = mapped_column(Integer)
+    stare: Mapped[str] = mapped_column(Text)
+    referinta: Mapped[str] = mapped_column(Text)
+    metrici: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    model: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    antrenat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ExperimentFormal(BazaInvatare):
+    """Un test A/B formal (F14.4, migrarea 0081). Ce s-a declarat înainte nu se mai schimbă."""
+
+    __tablename__ = "teste_ab"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    ipoteza: Mapped[str] = mapped_column(Text)
+    obiect: Mapped[str] = mapped_column(Text)
+    varianta_a: Mapped[str] = mapped_column(Text)
+    varianta_b: Mapped[str] = mapped_column(Text)
+    indicator: Mapped[str] = mapped_column(Text)
+    efect_minim: Mapped[float] = mapped_column(Float)
+    alfa: Mapped[float] = mapped_column(Float)
+    putere: Mapped[float] = mapped_column(Float)
+    abatere_estimata: Mapped[float] = mapped_column(Float)
+    n_pe_varianta: Mapped[int] = mapped_column(Integer)
+    durata_maxima_zile: Mapped[int] = mapped_column(Integer)
+    stare: Mapped[str] = mapped_column(Text, default="in_curs")
+    verdict: Mapped[str | None] = mapped_column(Text)
+    rezultat: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    declarat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    incheiat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ObservatieFormala(BazaInvatare):
+    __tablename__ = "teste_ab_observatii"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    test_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    varianta: Mapped[str] = mapped_column(Text)
+    cheie: Mapped[str] = mapped_column(Text)
+    valoare: Mapped[float] = mapped_column(Float)
+    la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

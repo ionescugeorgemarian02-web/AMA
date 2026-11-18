@@ -744,6 +744,34 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
   - Construit: poarta, `fluxuri_poarta_ft.py`, reparațiile găsite de `make check`: firul scăpat din `span`/`corelare_curenta` (toate urmele unei sesiuni pytest ajungeau pe un fir), `urme` în `PASTRATE_IMPLICIT` la ștergere, testul populării robust la baza comună.
   - Verificat: `make check` complet: prima rulare 3138 passed, 10 failed (firul scăpat, ștergerea clientului, popularea); reparate, rulate împreună (verzi), apoi `make check` din nou: lint, tipuri, gărzi verzi; 3146 passed, 2 failed (poarta și popularea presupuneau o bază doar a lor). Reparate (analiza primește `tenant_id`, testul populării compară înainte/după) și rerulate după testele de validare și onboarding pe aceeași bază: verzi.
 
+## Sesiunea A — F14 (Învățare, a doua treaptă), din 2026-11-18
+
+- **CI:** `timeout-minutes` al jobului `check` de la 30 la 45 (rularea ajunsese la 25 de minute).
+- **F14.1 — Optimizatorul de prompturi.**
+  - Construit: migrarea `0078`, `app/invatare/optimizator.py`, `app/invatare/prompturi.py`, `prompts/invatare.reflectie.v1.md`, setul de aur al hook-urilor; exporturi noi, doar prin adăugare: `gateway.criterii`, `gateway.prompturi.schema_din`, `validare.probleme_limba`. D-020.
+  - Verificat: testele unitare și de integrare ale optimizatorului, `test_gateway_prompturi`, `test_migratii`, izolarea; ruff, mypy, gărzile.
+  - Deschis: modelul și propunătorul reale (SIMULATE în teste); marja necalibrată.
+- **F14.2 — Umbră, canar, promovare, revenire.**
+  - Construit: migrarea `0079`, `app/invatare/promovare.py`; optimizatorul nu mai pornește pe o componentă cu promovare în curs sau cu candidat nepornit.
+  - Verificat: `tests/integration/test_invatare_promovare.py`, `test_invatare_optimizator.py`; ruff, mypy, gărzile.
+  - Deschis: `ruteaza`/`observa` nelegate în autorii din F6 (NECONECTAT).
+- **F14.3 — Predictorul de performanță.**
+  - Construit: migrarea `0080`, `predictiv.py`, `predictor.py`. Referința „la întâmplare” = scor constant (AUC 0,5): o referință aleatoare reală făcea marja zgomotoasă.
+  - Verificat: `test_invatare_predictor.py` (600 de postări simulate), `tests/unit/test_invatare_predictiv.py`, izolarea, migrările; ruff, mypy, gărzile.
+- **F14.4 — Teste A/B formale.**
+  - Construit: migrarea `0081`, `teste_ab.py`; promovarea (F14.2) își declară testul formal la intrarea în producție (abaterea din interiorul grupurilor la canar). Reparat: `app/invatare/__init__.py` nu importa `predictiv`/`predictor` (jobul F14.3 nu se înregistra în worker).
+  - Verificat: testele teste_ab (unit + integrare), promovarea, predictorul, izolarea, migrările; ruff, mypy, gărzile.
+- **F14.5 — Scorul de lead și riscul de plecare.**
+  - Construit: `modele_client.py` pe nucleul din F14.3; `predictiv.Exemplu.trasaturi` acceptă și categorii.
+  - Verificat: `test_invatare_modele_client.py` (CRM real sub prag, date simulate peste prag); ruff, mypy, gărzile.
+  - Observat (propunere, nu am atins): `import app.analiza` singur pică pe ciclul analiza → site → panou → invatare → analiza (și pe `main`); în suita completă nu se vede.
+- **F14.6 — Consolidarea nocturnă a memoriei.**
+  - Construit: `consolidare.py` (playbook-ul de performanță; Creierul de brand neatins, vezi spec).
+  - Verificat: `test_invatare_consolidare.py`; ruff, mypy, gărzile.
+- **Poarta F14 — Învățare, a doua treaptă.**
+  - Construit: `test_poarta_f14.py` (gateway real cu furnizor simulat prin HTTP, promptul real de reflecție, jobul promovărilor, testul formal, urmele), `F14-poarta.md`. Reparat: clientul intern al evaluărilor creat într-o tranzacție proprie (FK la consumul gateway-ului); `n_folosit` în verdictul testului formal; garda contextului de agenție (`test_garzi_db`) primește modulele F14 (picase din F14.1: commit-urile F14.1–F14.6 nu treceau singure testul acesta).
+  - Verificat: `make check` complet: rularea 1 — 3176 passed, 1 failed (garda contextului de agenție); rularea 2 — 3176 passed, 1 failed (poarta: canarul cu prea puține livrabile pe candidat, după galeată); reparat (400 de livrabile la canar), poarta de 3 ori verde, rularea 3 — lint, tipuri, gărzi verzi, 3177 passed.
+  - Deschis: `ruteaza`/`observa` nelegate în autorii din F6; date reale pentru F14.3/F14.5; istoricul fișelor de risc.
 ## Sesiunea A — revizuire PR #12 (2026-11-18)
 - Îmbinat origin/main; conflictele comune rezolvate păstrând ambele contribuții.
   0120 pornește din 0077, magazinul are UNIQUE(tenant_id,magazin).

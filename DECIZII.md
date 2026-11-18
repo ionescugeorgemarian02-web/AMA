@@ -169,3 +169,15 @@ comerțului; modificarea F10 este lăsată sesiunii proprietare a modulului (cer
 - **Completare (poarta FT):** la ștergerea unui client (`app/db/stergere.py`), `urme` se păstrează ca `jurnal_audit`
   (rezumate deja mascate; urma de final a jobului de ștergere se scrie oricum după ștergere). Un fir fără context
   explicit nu se mai lipește de firul de execuție: `span` își pune firul doar cât ține, apoi îl scoate.
+
+### D-020 (2026-11-18) — Învățarea, a doua treaptă (F14): optimizator propriu, promovare pe registrul de prompturi
+
+- **Context:** `docs/11` cere GEPA / MIPROv2 din DSPy, umbră, canar 10% → 90% cu grup de control de 10%, predicție cu
+  gradient boosting, teste A/B formale și consolidarea memoriei. Fără VPS, fără date reale și fără dependențe noi.
+- **Hotărâre (D-007):** optimizatorul e o căutare reflexivă proprie, prin gateway (fără DSPy): instrucțiunile propuse doar
+  se adaugă la mesajul de sistem; obiectivul = calitate × conformitate (validatorul G10). Rulările, promovările și
+  observațiile sunt la nivel de agenție (fără `tenant_id`, doar scorurile, fără conținut de client), seturile de aur
+  sunt date în repo. Promovarea folosește versiunile din registrul de prompturi (ciornă = candidat; activ = campion);
+  revenirea după promovare = o versiune nouă cu textul campionului vechi. Modelele predictive (F14.3, F14.5) sunt un
+  gradient boosting mic, scris în proiect, și rulează doar peste pragul de date; sub prag nu se antrenează nimic.
+- **Consecințe:** pe VPS se verifică marjele, pragurile și calitatea pe modele reale; DSPy rămâne o opțiune (ADR nou).
