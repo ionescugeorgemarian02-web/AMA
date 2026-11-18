@@ -199,3 +199,4 @@ Zonă: `app/invatare/` (fișiere noi; `__init__.py` și `modele.py` doar prin ad
 | F14.4 Teste A/B formale | **închis** (împins), migrarea `0081` |
 | F14.5 Scorul de lead și riscul de plecare | **închis** (împins), fără migrare; citește `app.crm` (B) doar prin exporturile lui |
 | F14.6 Consolidarea nocturnă a memoriei | **închis** (împins), fără migrare |
+| Poarta F14 | **trecută pe simulare** (`docs/specs/F14-poarta.md`) |

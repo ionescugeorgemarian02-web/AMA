@@ -80,7 +80,7 @@ def verdict(
         z, p = (0.0, 1.0) if dif == 0 else (math.copysign(math.inf, dif), 0.0)
     jum = NORMALA.inv_cdf(1 - alfa / 2) * eroare
     cifre |= {
-        "medie_a": round(ma, 4), "medie_b": round(mb, 4), "diferenta": round(dif, 4),
+        "n_folosit": n, "medie_a": round(ma, 4), "medie_b": round(mb, 4), "diferenta": round(dif, 4),
         "interval": [round(dif - jum, 4), round(dif + jum, 4)], "z": None if math.isinf(z) else round(z, 3),
         "p": round(p, 5), "alfa": alfa, "efect_minim": efect_minim, "atinge_efectul_minim": abs(dif) >=
     efect_minim,

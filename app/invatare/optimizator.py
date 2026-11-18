@@ -22,6 +22,7 @@ campionul pe setul de test.
 import datetime as dt
 import hashlib
 import json
+import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -177,6 +178,13 @@ def din_reflectie(campion: gateway.prompturi.Reperat, p: PropunereReflectie) -> 
 # --- apelurile, prin gateway
 
 
+def client_intern() -> uuid.UUID:
+    """Clientul intern al evaluărilor, creat (dacă lipsește) într-o tranzacție proprie: gateway-ul își scrie
+    consumul separat, deci clientul trebuie să existe deja în bază."""
+    with sesiune_agentie() as db:
+        return gateway.evaluare.client_intern(db)
+
+
 def executor_gateway(db: Session, referinta: str, ex: Exemplu) -> dict[str, Any] | None:
     p = gateway.prompturi.rezolva(db, referinta)
     if p is None:
@@ -184,7 +192,7 @@ def executor_gateway(db: Session, referinta: str, ex: Exemplu) -> dict[str, Any]
     try:
         r = gateway.apeleaza(
             db, prompt=referinta, variabile=ex.variabile, schema=gateway.prompturi.schema_din(p.schema_nume),
-            tenant_id=gateway.evaluare.client_intern(db), componenta=NUME, prioritate=Prioritate.P3,
+            tenant_id=client_intern(), componenta=NUME, prioritate=Prioritate.P3,
         )  # fmt: skip
     except gateway.IesireInvalida:
         return None
@@ -192,13 +200,17 @@ def executor_gateway(db: Session, referinta: str, ex: Exemplu) -> dict[str, Any]
 
 
 def propunator_gateway(
-    db: Session, campion: gateway.prompturi.Reperat, picate: list[dict[str, Any]]
+    db: Session,
+    campion: gateway.prompturi.Reperat,
+    picate: list[dict[str, Any]],
+    *,
+    prompt: str = PROMPT_REFLECTIE,
 ) -> list[Varianta]:
     r = gateway.apeleaza(
-        db, prompt=PROMPT_REFLECTIE, schema=PropunereReflectie,
+        db, prompt=prompt, schema=PropunereReflectie,
         variabile={"componenta": campion.nume, "sistem": campion.sistem, "sablon": campion.sablon,
                    "esecuri": json.dumps(picate[:MAX_ESECURI_IN_PROPUNERE], ensure_ascii=False)},
-        tenant_id=gateway.evaluare.client_intern(db), componenta=NUME, prioritate=Prioritate.P3,
+        tenant_id=client_intern(), componenta=NUME, prioritate=Prioritate.P3,
     )  # fmt: skip
     if not isinstance(r.iesire, PropunereReflectie):
         raise OptimizareRefuzata("propunătorul a întors altă schemă")

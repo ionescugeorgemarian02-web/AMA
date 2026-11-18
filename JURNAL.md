@@ -699,3 +699,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F14.6 — Consolidarea nocturnă a memoriei.**
   - Construit: `consolidare.py` (playbook-ul de performanță; Creierul de brand neatins, vezi spec).
   - Verificat: `test_invatare_consolidare.py`; ruff, mypy, gărzile.
+- **Poarta F14 — Învățare, a doua treaptă.**
+  - Construit: `test_poarta_f14.py` (gateway real cu furnizor simulat prin HTTP, promptul real de reflecție, jobul promovărilor, testul formal, urmele), `F14-poarta.md`. Reparat: clientul intern al evaluărilor creat într-o tranzacție proprie (FK la consumul gateway-ului); `n_folosit` în verdictul testului formal; garda contextului de agenție (`test_garzi_db`) primește modulele F14 (picase din F14.1: commit-urile F14.1–F14.6 nu treceau singure testul acesta).
+  - Verificat: `make check` complet: rularea 1 — 3176 passed, 1 failed (garda contextului de agenție); rularea 2 — 3176 passed, 1 failed (poarta: canarul cu prea puține livrabile pe candidat, după galeată); reparat (400 de livrabile la canar), poarta de 3 ori verde, rularea 3 — lint, tipuri, gărzi verzi, 3177 passed.
+  - Deschis: `ruteaza`/`observa` nelegate în autorii din F6; date reale pentru F14.3/F14.5; istoricul fișelor de risc.

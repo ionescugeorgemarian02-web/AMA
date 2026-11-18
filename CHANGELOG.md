@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F14 — Învățare, a doua treaptă
+- `tests/integration/test_poarta_f14.py`, `docs/specs/F14-poarta.md`; clientul intern al evaluărilor se creează într-o tranzacție proprie (consumul gateway-ului se scrie separat); verdictul testului formal spune câte observații a folosit (`n_folosit`); gărzile contextului de agenție cunosc modulele F14.
+
 ### F14.6 — Consolidarea nocturnă a memoriei
 - `app/invatare/consolidare.py` (unirea lecțiilor duplicate, scoaterea din rotație după 90 de zile fără folosire, jobul nocturn `invatare.consolidare`). Fără migrare.
 
