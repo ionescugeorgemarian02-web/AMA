@@ -260,4 +260,5 @@ Zonă: `app/media/` (fișiere noi), `app/connectors/publicare/` și `app/connect
 | Pas | Stare |
 | --- | --- |
 | F16.1 Formatul C, grafică animată | **închis** (împins), fără migrare |
+| F16.2 Pinterest, Google Business Profile, Threads | **închis** (împins), migrarea `0104` |
 

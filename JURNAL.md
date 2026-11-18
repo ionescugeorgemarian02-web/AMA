@@ -862,3 +862,6 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 - Scene ca date, animație deterministă, randare locală; montajul, G6 și pașaportul refolosite. Prima rulare: licența `productie_proprie` cere `componente` → adăugate (șablon + identitate).
 - Verificat: `test_media_format_c` (unit 4, integrare 2); lint, mypy, gărzi.
 
+### F16.2 — Canale noi (Opus)
+- Conectori pe tiparul F9 (ClientHttp, depozitul de tokenuri, clasificarea erorilor). Observat: fără rând în `aprobari_api`, `mod_efectiv` dă automat → migrarea `0104` le pune `in_test`.
+- Verificat: contract 45 (3 × 15), integrare 3; `tests/unit tests/contract tests/isolation` + publicare: 2328 passed; lint, mypy, gărzi.

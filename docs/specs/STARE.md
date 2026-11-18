@@ -437,7 +437,8 @@ Audit: fără vulnerabilități cunoscute. Sesiunea A verifică și integrează;
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F16.1 Formatul C, grafică animată | verificat local (ffmpeg real, vocea SIMULATĂ): trei scene (ofertă, cifră, anunț) în culorile brandului devin video publicabil format C, G6 trece, pașaport fără „imagine generată”. **HyperFrames înlocuit de randarea locală Pillow + FFmpeg** | `tests/integration/test_media_format_c.py`, `tests/unit/test_media_format_c.py` |
+| F16.2 Canale noi: Pinterest, Google Business Profile, Threads | verificat pe API-uri SIMULATE (HTTP local): cei trei conectori trec suita de contract F9.1; o postare aprobată pleacă prin executor o singură dată, cu link; clientul rămâne asistat până la aprobarea aplicației (migrarea `0104`). **Fără aplicații aprobate, fără etichetă AI pe aceste canale** | `tests/contract/test_conector_pinterest.py`, `..._google_business.py`, `..._threads.py`, `tests/integration/test_publicare_canale_f16.py` |
 
 ### De verificat la migrare (F16)
 - F16.1: HyperFrames pe VPS, comparat cu randarea locală pe aceleași scene; timpul de randare pe CPU-ul real; șabloane animate aprobate de client.
-
+- F16.2: aplicațiile aprobate (Pinterest Standard, Google Business Profile API, Threads `threads_content_publish`); forma reală a răspunsurilor, a limitelor și a schimbului de token Threads; plafonul zilnic GBP; eticheta AI pe cele trei canale.

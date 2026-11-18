@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F16.2 — Canale noi: Pinterest, Google Business Profile, Threads
+- `app/connectors/publicare/{pinterest,google_business,threads}.py` (contractul F9.1, SIMULATE), înregistrate în registru; migrarea `0104` (aprobările `in_test`); sloturi, domenii asistate, limite G1.
+
 ### F16.1 — Formatul C, grafică animată
 - `app/media/formatul_c.py` (scene ofertă/cifră/anunț în culorile brandului, cadre Pillow + FFmpeg local, HTML-ul scenei pentru HyperFrames SIMULAT), formatul `C` în lista de montaj.
 

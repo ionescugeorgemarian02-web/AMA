@@ -67,6 +67,12 @@ recomandat = 5
 maxim = 3000
 [limite.linkedin.hashtaguri_nr]
 recomandat = 5
+[limite.pinterest.text]
+maxim = 500
+[limite.google_business.text]
+maxim = 1500
+[limite.threads.text]
+maxim = 500
 [limite.youtube.titlu]
 maxim = 100
 recomandat = 70

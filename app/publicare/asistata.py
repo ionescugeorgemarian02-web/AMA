@@ -48,6 +48,9 @@ DOMENII: dict[str, tuple[str, ...]] = {
     "linkedin_pagina": ("linkedin.com", "lnkd.in"),
     "tiktok": ("tiktok.com",),
     "youtube": ("youtube.com", "youtu.be"),
+    "pinterest": ("pinterest.com", "pin.it"),  # F16.2
+    "google_business": ("google.com", "g.page", "maps.app.goo.gl"),
+    "threads": ("threads.net", "threads.com"),
 }
 ETICHETA_AI = "Conținut creat cu ajutorul AI"
 
