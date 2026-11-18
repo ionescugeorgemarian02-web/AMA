@@ -398,6 +398,8 @@ Audit: fără vulnerabilități cunoscute. Sesiunea A verifică și integrează;
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F15.1 Teste de avarie | verificat local: catalogul cu cele 14 scenarii din §25.3, `scripts/avarie.sh` -> 14/14 trecute (Postgres real, workeri reali, ffmpeg real; disc/memorie SIMULATE); nou: presiunea pe resurse (`app/operare/resurse.py`, jobul `operare.resurse`), directorul de lucru al randării curățat la reluare | `tests/avarie/`, `docs/specs/F15.1.md` |
+| F15.2 Revizuire de securitate | verificat local: revizor Sonnet doar-citire; 1 CRITIC + 8 MEDIU reparate, fiecare cu test în colecția de atacuri; izolarea trece; 6 MIC rămase ca propuneri | `tests/atacuri/`, `docs/specs/F15.2.md` |
 
 ### De verificat la migrare (F15)
 - F15.1: `scripts/avarie.sh` pe staging; repornirea reală a VPS-ului (Docker activat la pornire, serviciile revin, cozile reiau); măsurarea discului și a memoriei în container (cgroup v2); pragul de memorie pe profilul real.
+- F15.2: subrețeaua fixă `edge` pe VPS și IP-ul real al clientului în audit (FORWARDED_ALLOW_IPS); ștergerea unui client rulată de worker cu `AMA_DATABASE_OWNER_URL`; testul de intruziune extern.

@@ -14,6 +14,7 @@ Citirea cere `rapoarte.citeste`.
 import datetime as dt
 import uuid
 from typing import Annotated
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
@@ -91,7 +92,7 @@ def decide_plan(plan_id: str, actiune: str, u: Proprietar, db: DbSession) -> Res
     try:
         plan.decide(db, r.id, aprobat=actiune == "aproba", utilizator_id=u.utilizator_id)
     except plan.PlanRefuzat as exc:
-        return RedirectResponse(f"/reclame/cont/{cont_id}?eroare={str(exc)[:300]}", status_code=303)
+        return RedirectResponse(f"/reclame/cont/{cont_id}?eroare={quote(str(exc)[:300])}", status_code=303)
     return RedirectResponse(f"/reclame/cont/{cont_id}?mesaj=plan_{actiune}", status_code=303)
 
 
@@ -142,7 +143,7 @@ MESAJE_SCHIMBARI = {"activeaza": "activa", "pauza": "pauza"}
 
 
 def _inapoi(cont_id: uuid.UUID, mesaj: str = "", eroare: str = "") -> RedirectResponse:
-    q = f"eroare={eroare[:300]}" if eroare else f"mesaj={mesaj}"
+    q = f"eroare={quote(eroare[:300])}" if eroare else f"mesaj={quote(mesaj)}"
     return RedirectResponse(f"/reclame/cont/{cont_id}?{q}", status_code=303)
 
 
@@ -249,7 +250,7 @@ async def consiliu_importa(request: Request, dosar_id: str, u: Proprietar, db: D
     try:
         rec = consiliu.importa(db, did, text, utilizator_id=u.utilizator_id)
     except (consiliu.DosarRefuzat, propuneri.PropunereRefuzata) as exc:
-        return RedirectResponse(f"/reclame/consiliu/{did}?eroare={str(exc)[:300]}", status_code=303)
+        return RedirectResponse(f"/reclame/consiliu/{did}?eroare={quote(str(exc)[:300])}", status_code=303)
     return RedirectResponse(f"/reclame/cont/{rec.cont_id}?mesaj=decizie_consiliu", status_code=303)
 
 

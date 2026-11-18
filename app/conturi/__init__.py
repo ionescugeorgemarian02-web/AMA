@@ -25,6 +25,7 @@ from app.conturi.servicii import (
     creeaza_client,
     creeaza_utilizator,
     lista_clienti,
+    parola_corecta,
 )
 from app.conturi.sesiuni import SesiuneCurenta
 from app.conturi.web import router
@@ -56,6 +57,7 @@ __all__ = [
     "inregistreaza",
     "jeton_csrf_prelogin",
     "lista_clienti",
+    "parola_corecta",
     "poate",
     "require_permission",
     "require_role",

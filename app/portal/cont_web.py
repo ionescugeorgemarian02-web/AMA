@@ -6,7 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import RedirectResponse, Response
 
-from app import finante
+from app import conturi, finante
 from app.conturi import DbSession, Permisiune, SesiuneCurenta, csrf_protect, poate, require_role
 from app.conturi.roluri import ROLURI_CLIENT, Rol
 from app.finante import planuri
@@ -65,8 +65,14 @@ def export(u: Titular, db: DbSession) -> Response:
 
 @router.post("/date/sterge", dependencies=[Depends(csrf_protect)])
 def sterge(
-    request: Request, u: Titular, db: DbSession, confirmare: Annotated[str, Form(max_length=20)] = ""
+    request: Request,
+    u: Titular,
+    db: DbSession,
+    confirmare: Annotated[str, Form(max_length=20)] = "",
+    parola: Annotated[str, Form(max_length=128)] = "",
 ) -> Response:
+    if not conturi.parola_corecta(db, u.utilizator_id, parola):  # F15.2: reautentificare înainte de ștergere
+        return contul(request, u, db, mesaj="Cererea nu a fost înregistrată: parola nu este corectă.")
     try:
         date.cere_stergerea(db, tenant(u), utilizator_id=u.utilizator_id, confirmare=confirmare)
     except date.CerereInvalida as exc:

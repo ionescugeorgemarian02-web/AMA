@@ -69,3 +69,7 @@ volumes:
 networks:
   edge:
     name: ama-edge
+    # Subrețea fixă (F15.2): aplicația crede antetele X-Forwarded-* doar de aici (FORWARDED_ALLOW_IPS).
+    ipam:
+      config:
+        - subnet: 172.31.250.0/24

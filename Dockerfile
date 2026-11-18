@@ -38,5 +38,7 @@ USER 10001:10001
 EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=3s --start-period=20s --retries=3 \
     CMD ["python", "-c", "import sys,urllib.request as u; sys.exit(0 if u.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status == 200 else 1)"]
-# Rulează în spatele proxy-ului din rețeaua Docker; portul nu se publică pe gazdă.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips=*"]
+# Rulează în spatele proxy-ului din rețeaua Docker; portul nu se publică pe gazdă. Antetele X-Forwarded-* se
+# cred DOAR de la rețeaua proxy-ului (F15.2): FORWARDED_ALLOW_IPS vine din compose (subrețeaua `edge`).
+ENV FORWARDED_ALLOW_IPS=127.0.0.1
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]

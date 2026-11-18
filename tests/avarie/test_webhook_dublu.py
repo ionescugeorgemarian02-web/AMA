@@ -11,13 +11,19 @@ from sqlalchemy import func, select
 
 from app.connectors import plati
 from app.db import sesiune_agentie
-from app.finante.modele import Factura
+from app.finante.modele import Abonament, Factura
 from app.site import audit
 from tests.integration.conftest import csrf_din
-from tests.integration.test_facturare import EMAIL, abonamentul, procesator  # noqa: F401
+from tests.integration.test_facturare import procesator  # noqa: F401
 from tests.integration.utile_site import asteapta, cutie  # noqa: F401
 
 pytestmark = pytest.mark.db
+EMAIL = "webhook-dublu@zorilor.example"  # propriu: abonamentele din alte teste rămân în baza comună
+
+
+def abonamentul() -> Abonament:
+    with sesiune_agentie() as db:
+        return db.execute(select(Abonament).where(Abonament.email_facturare == EMAIL)).scalar_one()
 
 
 def _post(client: TestClient, ev: tuple[bytes, dict[str, str]]) -> str:
@@ -43,7 +49,7 @@ def test_webhookul_de_plata_repetat_se_aplica_o_singura_data(
         rezultate = list(ex.map(lambda _: _post(client, factura), range(4)))
     rezultate.append(_post(client, factura))
     assert rezultate.count("aplicat") == 1, rezultate
-    assert all(r in ("aplicat", "duplicat") or r.startswith("http_5") for r in rezultate), rezultate
+    assert sorted(set(rezultate)) == ["aplicat", "duplicat"], rezultate  # fără 500 la livrările paralele
     a = abonamentul()
     with sesiune_agentie() as db:
         n = db.execute(

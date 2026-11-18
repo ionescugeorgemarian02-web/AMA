@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F15.2 — Revizuire de securitate
+- Revizie pe alt model (Sonnet, doar citire), `docs/specs/F15.2-revizie.txt`. Reparate: plafonul de reclame la aprobări concurente (gardianul reaplicat sub încuietoare), încuietoarea pe efectele de sistem, SSRF pe pagina reclamei (`app/reclame/pagina.py`), oprirea pe cont la pagina căzută, antetele proxy doar din rețeaua `edge`, plățile sosite în altă ordine și deduplicarea atomică, parola la ștergerea datelor, credențialele proprietarului doar în worker. Colecția `tests/atacuri/`.
+
 ### F15.1 — Teste de avarie
 - `tests/avarie/` (catalogul scenariilor din docs/25 §25.3, raportul pe scenarii, teste noi: baza repornită, disc 85%, memorie la limită, randarea reluată, P0 pe culoare ocupate, webhook dublu, politica de repornire), `scripts/avarie.sh`. `app/operare/resurse.py` și jobul `operare.resurse` (la 5 minute); randarea amânată la disc plin / memorie la limită și cu director de lucru propriu, curățat la reluare. D-022.
 

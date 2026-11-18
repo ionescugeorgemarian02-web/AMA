@@ -228,3 +228,8 @@ Zonă: `tests/avarie/`, `tests/atacuri/`, `app/operare/` (fișiere noi), `app/la
 | Pas | Stare |
 | --- | --- |
 | F15.1 Teste de avarie | **închis** (împins), fără migrare |
+| F15.2 Revizuire de securitate | **închis** (împins); atins prin reparații: `app/reclame`, `app/finante/abonamente.py`, `app/operare/efecte/sistem.py`, `app/portal`, compose, `Dockerfile` |
+
+Cerere A -> C (F15.2, revizia de securitate): webhook-ul Shopify (`app/comert/catalog.py`) să deduplice pe
+`X-Shopify-Webhook-Id`, să lege magazinul de secret și să folosească timpul din payload la `products/delete`
+(MIC, latent: nicio rută legată). Nu am atins `app/comert/`.

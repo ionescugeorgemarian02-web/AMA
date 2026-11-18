@@ -46,11 +46,7 @@ def context_gardian(db: Session, cont: ContReclame, c: Campanie, acum: dt.dateti
     azi = acum.date()
     inceput_luna = azi.replace(day=1)
     luna_urmatoare = (inceput_luna + dt.timedelta(days=32)).replace(day=1)
-    suma = db.execute(
-        select(func.coalesce(func.sum(Campanie.buget_zilnic_bani), 0)).where(
-            Campanie.cont_id == cont.id, Campanie.stare == "activa", Campanie.id != c.id
-        )
-    ).scalar_one()
+    suma = _suma_efectiva(db, cont, c)
     automate = db.execute(
         select(func.count()).where(
             Propunere.cont_id == cont.id,
@@ -74,6 +70,28 @@ def context_gardian(db: Session, cont: ContReclame, c: Campanie, acum: dt.dateti
         reclame_oprite=opriri.este_oprit(db, opriri.Oprire.RECLAME),
         acum=acum,
     )
+
+
+def _suma_efectiva(db: Session, cont: ContReclame, c: Campanie) -> int:
+    """Bugetele zilnice ale celorlalte campanii ale contului, cum vor fi după ce se aplică și propunerile deja
+    aprobate (F15.2): mai multe propuneri aprobate, neaplicate încă, nu trec fiecare contra aceleiași baze."""
+    campanii = db.execute(select(Campanie).where(Campanie.cont_id == cont.id, Campanie.id != c.id)).scalars()
+    efectiv = {x.id: (x.stare == "activa", int(x.buget_zilnic_bani or 0)) for x in campanii}
+    aprobate = db.execute(
+        select(Propunere)
+        .where(Propunere.cont_id == cont.id, Propunere.stare == "aprobata", Propunere.campanie_id != c.id)
+        .order_by(Propunere.decis_la, Propunere.creat_la)
+    ).scalars()
+    for p in aprobate:
+        if p.campanie_id not in efectiv:
+            continue
+        activa, buget = efectiv[p.campanie_id]
+        if p.tip == "stare":
+            activa = p.dupa.get("stare") == "activa"
+        if p.tip in ("stare", "buget", "creeaza"):
+            buget = int(p.dupa.get("buget_zilnic_bani", buget) or 0)
+        efectiv[p.campanie_id] = (activa, buget)
+    return sum(b for activa, b in efectiv.values() if activa)
 
 
 def _verdict(db: Session, p: Propunere, cont: ContReclame, c: Campanie, acum: dt.datetime) -> dict[str, Any]:
@@ -219,11 +237,23 @@ def aproba(db: Session, propunere_id: uuid.UUID, *, utilizator_id: uuid.UUID | N
     p = db.get(Propunere, propunere_id)
     if p is None or p.stare != "propusa":
         raise PropunereRefuzata("propunerea nu mai așteaptă o decizie")
-    p.stare, p.decis_la = "aprobata", dt.datetime.now(dt.UTC)
-    p.decis_de = utilizator_id or p.decis_de
-    c, cont = db.get(Campanie, p.campanie_id), db.get(ContReclame, p.cont_id)
+    # F15.2: aprobările pe același cont se serializează, iar gardianul se reaplică acum, peste bugetele active
+    # și peste propunerile aprobate înainte (altfel două propuneri trec împreună de plafon).
+    cont = db.execute(
+        select(ContReclame).where(ContReclame.id == p.cont_id).with_for_update()
+    ).scalar_one_or_none()
+    db.refresh(p)
+    if p.stare != "propusa":
+        raise PropunereRefuzata("propunerea nu mai așteaptă o decizie")
+    c = db.get(Campanie, p.campanie_id)
     if c is None or cont is None:
         raise PropunereRefuzata("campania sau contul nu mai există")
+    v = _verdict(db, p, cont, c, dt.datetime.now(dt.UTC))
+    if not v.get("permis"):
+        p.verdict = v
+        raise PropunereRefuzata("gardianul refuză acum: " + "; ".join(v.get("motive", []))[:300])
+    p.stare, p.decis_la = "aprobata", dt.datetime.now(dt.UTC)
+    p.decis_de = utilizator_id or p.decis_de
     e = sistem.cere(
         db, "reclama", cheie=f"propunere:{p.id}", payload=_payload(db, p, c, cont), tenant_id=p.tenant_id
     )

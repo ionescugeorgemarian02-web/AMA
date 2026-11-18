@@ -793,3 +793,8 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 - Catalog pe cele 14 scenarii din §25.3: testele existente referite, cele lipsă scrise în `tests/avarie/`; `scripts/avarie.sh` scrie raportul pe scenarii.
 - Construit ce lipsea: presiunea pe disc/memorie (amânarea randărilor, curățarea parțialelor, alerta), directorul de lucru al randării.
 - Verificat: `scripts/avarie.sh` local -> 14/14 scenarii trecute; `make guards`, lint, `test_garzi_db`. Deschis: rularea pe staging (VPS).
+
+### F15.2 — Revizuire de securitate (Opus + revizor Sonnet)
+- Revizorul (Sonnet, `claude -p`, doar Read/Grep/Glob) a dat 1 CRITIC, 8 MEDIU, 9 MIC; am verificat fiecare în cod și am reparat CRITIC + MEDIU (+2 MIC), cu teste în `tests/atacuri/`.
+- Găsit în plus: workerul nu primea `AMA_DATABASE_OWNER_URL`, deci ștergerea unui client ar fi picat în producție.
+- Verificat: `tests/atacuri`, `tests/isolation`, reclame, facturare, portal, efecte: 244 + 5 trecute. Deschis: 6 MIC (propuneri în spec).

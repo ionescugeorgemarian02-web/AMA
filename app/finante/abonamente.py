@@ -25,6 +25,7 @@ from collections.abc import Callable
 from typing import Any
 
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
@@ -197,23 +198,39 @@ def trateaza_webhook(corp: bytes, antet: str) -> str:
     if not eid:
         raise EroareFacturare("eveniment fără id")
     with sesiune_agentie() as db:
-        if db.get(EvenimentPlata, eid) is not None:
+        # F15.2: o singură inserare atomică; livrarea paralelă a aceluiași eveniment așteaptă și iese duplicat
+        nou = db.execute(
+            pg_insert(EvenimentPlata)
+            .values(id_extern=eid, tip=tip, corp=ev)
+            .on_conflict_do_nothing()
+            .returning(EvenimentPlata.id_extern)
+        ).first()
+        if nou is None:
             return "duplicat"
-        rand = EvenimentPlata(id_extern=eid, tip=tip, corp=ev)
-        db.add(rand)
-        db.flush()
+        rand = db.get(EvenimentPlata, eid)
+        if rand is None:
+            raise EroareFacturare("evenimentul inserat nu se mai găsește")
         a = _abonament(db, ev)
         prima = a.id_extern is None
         a.id_extern = str(ev["abonament"])
         if tip == "abonament.activ":
             _reactiveaza(db, a)
-            a.perioada_pana_la = _data(ev["perioada_pana_la"])
+            # un eveniment vechi, sosit târziu, nu scurtează perioada plătită (F15.2)
+            a.perioada_pana_la = max(
+                a.perioada_pana_la or _data(ev["perioada_pana_la"]), _data(ev["perioada_pana_la"])
+            )
             if prima:
                 for f in _DUPA_ACTIVARE:
                     f(db, a)
         elif tip in ("factura.platita", "factura.esuata"):
             platita = tip == "factura.platita"
-            if db.execute(select(Factura.id).where(Factura.id_extern == str(ev["factura"]))).first() is None:
+            existenta = db.execute(
+                select(Factura).where(Factura.id_extern == str(ev["factura"]))
+            ).scalar_one_or_none()
+            if not platita and existenta is not None and existenta.stare == "platita":
+                rand.rezultat = "ignorat"  # F15.2: eșecul sosit după plata facturii nu face clientul restant
+                return "ignorat"
+            if existenta is None:
                 db.add(
                     Factura(
                         tenant_id=a.tenant_id,

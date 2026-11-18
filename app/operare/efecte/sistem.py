@@ -27,7 +27,7 @@ from app.ids import new_id
 from app.logging import get_logger
 from app.operare import audit, motor, opriri
 from app.operare.efecte.modele import EfectSistemRand
-from app.operare.efecte.servicii import EfectRefuzat, _fara_secrete
+from app.operare.efecte.servicii import EfectRefuzat, _fara_secrete, incuietoare
 
 log = get_logger("app.efecte.sistem")
 TIPURI = ("email", "plata")
@@ -108,7 +108,17 @@ def _suprimat(db: Session, payload: dict[str, Any]) -> bool:
 
 
 def incearca(efect_id: uuid.UUID) -> str:
-    """O încercare: `trimis`, `oprit`, `esuat`. Aruncă `EroareTemporara` (rezultatul se reîncearcă)."""
+    """O încercare: `trimis`, `oprit`, `esuat`. Aruncă `EroareTemporara` (rezultatul se reîncearcă).
+
+    F15.2: o singură încercare odată pe un efect (încuietoarea de sesiune din `servicii`), ținută și cât
+    lucrează conectorul: două joburi pe același efect nu trimit de două ori."""
+    with incuietoare(efect_id) as luata:
+        if not luata:
+            raise motor.EroareTemporara("altă încercare pe același efect este în curs")
+        return _incearca(efect_id)
+
+
+def _incearca(efect_id: uuid.UUID) -> str:
     with sesiune_agentie() as db:
         e = db.execute(
             select(EfectSistemRand).where(EfectSistemRand.id == efect_id).with_for_update()
