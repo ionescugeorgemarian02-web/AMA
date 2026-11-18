@@ -313,3 +313,12 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | FT.4 Analiza lunară automată | verificat local: regresiile față de luna trecută, porțile picate, motivele de respingere, costurile și lanțul fiecărui eșec până la sursă (cu cauza probabilă și lanțul întrerupt); jobul lunar programat. **Pragurile [I], necalibrate** | `tests/integration/test_urme_analiza.py` |
 | FT.5 Ecranul „Urme” și exportul | verificat local (HTTP): raportul lunii cu eșecurile explicate până la sursă, generarea (CSRF), firul, exporturile JSON și CSV (eșecuri, indicatori, urme); doar proprietarul. **Filtrul pe client în ecran: neconstruit** | `tests/integration/test_urme_ecran.py` |
 | Poarta FT | trecută pe simulare accelerată: 30 de zile prin motor, conector HTTP (platformă SIMULATĂ cu 500/429/400), producție și poarta Creierului; fiecare eșec are lanțul neîntrerupt până la sursă, cauza probabilă și explicația | `tests/integration/test_poarta_ft.py`, `docs/specs/FT-poarta.md` |
+
+## Faza F14 — Învățare, a doua treaptă (sesiunea A, din 2026-11-18)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F14.1 Optimizatorul de prompturi | verificat local cu model și propunător SIMULATE: o rulare produce un candidat (ciornă în registru) care bate campionul pe setul de test cu marja 0,03, fără să piardă la conformitate; raport cu ce s-a schimbat și de ce; urme; jobul nocturn | `tests/integration/test_invatare_optimizator.py`, `tests/unit/test_invatare_optimizator.py` |
+
+### De verificat la migrare (F14)
+- F14.1: optimizatorul pe modelele reale (profilul `strategie` pentru reflecție, cota rămasă înainte de resetare); calibrarea marjei și a mărimii seturilor de aur; seturi de aur pentru alte componente decât `continut.hookuri`.

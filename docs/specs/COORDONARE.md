@@ -187,3 +187,10 @@ Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py
 | FT.5 Ecranul „Urme” și exportul | **închis** (împins) |
 | Poarta FT | **trecută pe simulare** (`docs/specs/FT-poarta.md`) |
 
+## Sesiunea A, F14 pas cu pas
+
+Zonă: `app/invatare/` (fișiere noi; `__init__.py` și `modele.py` doar prin adăugare), migrările `0078`–`0089`, D-020+.
+
+| Pas | Stare |
+| --- | --- |
+| F14.1 Optimizatorul de prompturi | **închis** (împins), migrarea `0078`, D-020 |

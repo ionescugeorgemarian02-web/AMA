@@ -82,3 +82,21 @@ class Experiment(BazaInvatare):
     inceput_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     incheiat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     creat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+
+
+class Optimizare(BazaInvatare):
+    """O rulare a optimizatorului de prompturi (F14.1, migrarea 0078), la nivel de agenție."""
+
+    __tablename__ = "optimizari"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    componenta: Mapped[str] = mapped_column(Text)
+    campion_versiune: Mapped[int] = mapped_column(Integer)
+    candidat_versiune: Mapped[int | None] = mapped_column(Integer)
+    stare: Mapped[str] = mapped_column(Text, default="in_curs")
+    scor_campion: Mapped[float | None] = mapped_column(Float)
+    scor_candidat: Mapped[float | None] = mapped_column(Float)
+    marja: Mapped[float] = mapped_column(Float)
+    raport: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    inceput_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    incheiat_la: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

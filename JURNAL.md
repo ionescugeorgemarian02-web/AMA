@@ -674,3 +674,11 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **Poarta FT — Trasabilitate totală.**
   - Construit: poarta, `fluxuri_poarta_ft.py`, reparațiile găsite de `make check`: firul scăpat din `span`/`corelare_curenta` (toate urmele unei sesiuni pytest ajungeau pe un fir), `urme` în `PASTRATE_IMPLICIT` la ștergere, testul populării robust la baza comună.
   - Verificat: `make check` complet: prima rulare 3138 passed, 10 failed (firul scăpat, ștergerea clientului, popularea); reparate, rulate împreună (verzi), apoi `make check` din nou: lint, tipuri, gărzi verzi; 3146 passed, 2 failed (poarta și popularea presupuneau o bază doar a lor). Reparate (analiza primește `tenant_id`, testul populării compară înainte/după) și rerulate după testele de validare și onboarding pe aceeași bază: verzi.
+
+## Sesiunea A — F14 (Învățare, a doua treaptă), din 2026-11-18
+
+- **CI:** `timeout-minutes` al jobului `check` de la 30 la 45 (rularea ajunsese la 25 de minute).
+- **F14.1 — Optimizatorul de prompturi.**
+  - Construit: migrarea `0078`, `app/invatare/optimizator.py`, `app/invatare/prompturi.py`, `prompts/invatare.reflectie.v1.md`, setul de aur al hook-urilor; exporturi noi, doar prin adăugare: `gateway.criterii`, `gateway.prompturi.schema_din`, `validare.probleme_limba`. D-020.
+  - Verificat: testele unitare și de integrare ale optimizatorului, `test_gateway_prompturi`, `test_migratii`, izolarea; ruff, mypy, gărzile.
+  - Deschis: modelul și propunătorul reale (SIMULATE în teste); marja necalibrată.

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F14.1 — Optimizatorul de prompturi
+- `app/invatare/optimizator.py` (set de aur, antrenare/test, scor compus calitate × conformitate, căutare reflexivă, candidat ca ciornă în registru, raport), promptul `invatare.reflectie`, setul `evaluare/optimizare/continut.hookuri.jsonl`, jobul nocturn `invatare.optimizator`, `optimizari` (migrarea `0078`). CI: `timeout-minutes` 45 la jobul `check`.
+
 ### Poarta FT — Trasabilitate totală
 - `tests/integration/test_poarta_ft.py` (o lună simulată prin motor, conector HTTP, producție și poarta Creierului), `docs/specs/FT-poarta.md`; cauza probabilă include amânările (429); firul nu mai rămâne agățat în contextul firului de execuție; `urme` se păstrează la ștergerea unui client (D-018). Fără migrare.
 

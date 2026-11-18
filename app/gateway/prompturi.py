@@ -291,6 +291,11 @@ def _schema(cale: str) -> type[Iesire]:
     return obiect
 
 
+def schema_din(cale: str) -> type[Iesire]:
+    """Clasa de ieșire a unui prompt din registru (`schema_nume`), pentru cine apelează o versiune anume."""
+    return _schema(cale)
+
+
 def sincronizeaza(db: Session, director: Path, *, utilizator_id: uuid.UUID | None = None) -> list[str]:
     """Aduce fișierele din `director` în bază. Întoarce referințele create sau actualizate (ciorne).
 

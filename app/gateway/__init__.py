@@ -9,7 +9,7 @@ furnizorilor în afara acestui pachet. Puncte de extensie: interceptori înainte
 profiluri și lanțuri ca date, adaptoare noi pe tip de API (F3.5), scorurile modelelor (F3.6).
 """
 
-from app.gateway import bugete, evaluare, garda, inventar, jurnal, prompturi, registru, situatie
+from app.gateway import bugete, criterii, evaluare, garda, inventar, jurnal, prompturi, registru, situatie
 from app.gateway.amanare import cheie_reluare, reprogrameaza
 from app.gateway.apel import ContextApel, Rezultat
 from app.gateway.candidat import Candidat
@@ -73,6 +73,7 @@ __all__ = [
     "bugete",
     "cheie_configurata",
     "cheie_reluare",
+    "criterii",
     "detecteaza_date_personale",
     "dezactiveaza",
     "dimensiune_vectori",
