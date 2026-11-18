@@ -278,6 +278,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F12.6 Generatorul de oferte | verificat local, prin HTTP: oferta pornește din raportul de audit (motor SIMULAT) și din planuri, ajunge în `/crm/oferte` de aprobat; aprobată pleacă pe email, respinsă cere motiv; promisiunile garantate o blochează. **Fără PDF, fără acceptare automată** | `tests/integration/test_crm_oferte.py` |
 | F12.7 Inboxul social | verificat pe inbox SIMULAT: 17 mesaje de test ajung în cele 7 clase din 17.8; doar canalele aprobate din panou se citesc, o singură dată. **Fără conector Meta real; regulile necalibrate pe mesaje reale** | `tests/integration/test_crm_inbox.py`, `tests/unit/test_crm_inbox.py` |
 | F12.8 Răspunsuri și escaladare | verificat pe inbox SIMULAT: critica de test ajunge la om (fără răspuns automat, cu variantă), mesajul vechi de 30 h nu pleacă; dezvăluirea AI, agent uman doar pentru om, un răspuns la comentariu, spam ascuns cu eșantion. **Fără Graph API real; registrul de fapte scurt [I]** | `tests/integration/test_crm_raspunsuri.py`, `tests/unit/test_crm_raspunsuri.py` |
+| F12.9 Lista de conturi-țintă | verificat pe sursă SIMULATĂ: lista „horeca-cluj” din panou are mini-audit și 3 argumente pe firmă; PFA-ul, profilul unui om, telefoanele și adresele nu intră; modulul nu poate trimite nimic. **Sursele publice reale și semnalele măsurate lipsesc** | `tests/integration/test_crm_conturi_tinta.py` |
 
 ### De verificat la migrare (F12)
 - F12.3: furnizorul de email real (nivel gratuit), subdomeniul cu SPF/DKIM/DMARC; zilele pașilor și textele secvenței pe rezultate reale de deschidere și răspuns.
@@ -286,6 +287,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F12.6: prețurile planurilor (încă [I]) și maparea buget → pachet pe oferte reale; textul ofertei revizuit de proprietar.
 - F12.7: conectorul Graph API (aplicație aprobată de Meta, permisiuni de mesagerie și comentarii); precizia regulilor pe mesaje reale.
 - F12.8: eticheta HUMAN_AGENT și răspunsul privat la comentarii în Graph API real; registrul de fapte al agenției; timpul de răspuns măsurat.
+- F12.9: sursele publice reale (registrul firmelor, OpenStreetMap) și licențele lor; semnalele măsurate cu colectorul F4.
 
 ### De verificat la migrare (F11)
 - F11.1: pragurile Reflectorului (20 de postări pe lot, 3 pe grup, 25% diferență) pe date reale; efectul valorilor extreme asupra mediei lotului.

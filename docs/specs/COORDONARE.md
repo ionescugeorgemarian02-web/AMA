@@ -44,7 +44,8 @@ apoi F10 (ramura B).
 | F12.6 Generatorul de oferte | **închis** (A, împins), migrarea `0099` |
 | F12.7 Inboxul social | **închis** (A, împins), migrarea `0100` |
 | F12.8 Răspunsuri și escaladare | **închis** (A, împins), migrarea `0101` |
-| F12.9–F12.10 | A, în ordine (preluare 2026-11-18), migrările `0102`+ |
+| F12.9 Lista de conturi-țintă | **închis** (A, împins), migrarea `0102` |
+| F12.10 | A (preluare 2026-11-18), migrările `0103`+ |
 
 ## Raport pentru sesiunea A (citește asta întâi)
 

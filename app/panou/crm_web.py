@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
 from app.conturi import DbSession, Rol, SesiuneCurenta, csrf_protect, require_role
-from app.crm import CrmRefuzat, calificare, inbox, oferte, raspunsuri, registru
+from app.crm import CrmRefuzat, calificare, conturi_tinta, inbox, oferte, raspunsuri, registru
 from app.crm import email as crm_email
 from app.panou.sabloane import pagina
 
@@ -36,6 +36,8 @@ MESAJE = {
     "respinsa": "Oferta a fost respinsă.",
     "canal": "Canalul a fost aprobat: mesajele lui se citesc de acum.",
     "canal_oprit": "Canalul nu se mai citește.",
+    "lista": "Lista a fost construită.",
+    "marcat": "Am notat.",
     "trimis": "Răspunsul a plecat.",
     "blocat": "Răspunsul nu a plecat: fereastra de mesagerie a rețelei s-a închis.",
 }
@@ -348,3 +350,53 @@ async def raspunde_inbox(request: Request, mesaj_id: str, u: Proprietar, db: DbS
     except CrmRefuzat as exc:
         return _inbox(request, u, db, status=422, eroare=_eroare(exc))
     return RedirectResponse(f"/crm/inbox?mesaj={r.stare}", status_code=303)
+
+
+# --- conturile-țintă (F12.9) --------------------------------------------------------------------------------
+def _tinta(
+    request: Request, u: SesiuneCurenta, db: Any, *, lista: str = "", status: int = 200, eroare: str = ""
+) -> Response:
+    lista = lista or request.query_params.get("lista", "")
+    return pagina(
+        request,
+        u,
+        "panou/crm_tinta.html",
+        tab="meniu",
+        status=status,
+        liste=conturi_tinta.liste(db),
+        lista=lista,
+        firme=conturi_tinta.din_lista(db, lista) if lista else [],
+        semnale=conturi_tinta.SEMNALE,
+        mesaj=MESAJE.get(request.query_params.get("mesaj", ""), ""),
+        eroare=eroare,
+    )
+
+
+@router.get("/tinta")
+def lista_tinta(request: Request, u: Proprietar, db: DbSession) -> Response:
+    return _tinta(request, u, db)
+
+
+@router.post("/tinta", dependencies=[Depends(csrf_protect)])
+async def construieste_tinta(request: Request, u: Proprietar, db: DbSession) -> Response:
+    f = await request.form()
+    try:
+        lista, _ = conturi_tinta.construieste(
+            db,
+            nisa=str(f.get("nisa") or ""),
+            localitate=str(f.get("localitate") or ""),
+            utilizator_id=u.utilizator_id,
+        )
+    except CrmRefuzat as exc:
+        return _tinta(request, u, db, status=422, eroare=_eroare(exc))
+    return RedirectResponse(f"/crm/tinta?lista={lista}&mesaj=lista", status_code=303)
+
+
+@router.post("/tinta/{cont_id}/{stare}", dependencies=[Depends(csrf_protect)])
+def marcheaza_tinta(request: Request, cont_id: str, stare: str, u: Proprietar, db: DbSession) -> Response:
+    lista = request.query_params.get("lista", "")
+    try:
+        conturi_tinta.marcheaza(db, _id(cont_id), stare, utilizator_id=u.utilizator_id)
+    except CrmRefuzat as exc:
+        return _tinta(request, u, db, lista=lista, status=422, eroare=_eroare(exc))
+    return RedirectResponse(f"/crm/tinta?lista={lista}&mesaj=marcat", status_code=303)

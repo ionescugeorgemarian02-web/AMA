@@ -843,3 +843,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F12.8 — Răspunsuri și escaladare (Opus)
 - Regulă pură + ferestre pure; trimiterea prin efecte, cu reverificarea ferestrei în conector.
 - Verificat: `test_crm_raspunsuri` (unit 11, integrare 2), `test_crm_inbox`; lint, mypy.
+
+### F12.9 — Lista de conturi-țintă (Opus)
+- Lista albă de câmpuri + detectorul gateway-ului + excluderea persoanelor fizice; mini-auditul refolosește motorul F7.2.
+- Verificat: `test_crm_conturi_tinta` (2); lint, mypy.

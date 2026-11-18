@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.9 — Lista de conturi-țintă
+- `app/crm/conturi_tinta.py` (sursă publică SIMULATĂ, filtrul de date personale, mini-audit, argumente), ecranul `/crm/tinta`, migrarea `0102`.
+
 ### F12.8 — Răspunsuri și escaladare
 - `app/crm/raspunsuri.py` (tabelul 17.8, ferestrele, dezvăluirea AI, escaladarea, ascunderea doar a spamului), efectul de sistem `mesaj_social`, răspunsurile din `/crm/inbox`, migrarea `0101`.
 

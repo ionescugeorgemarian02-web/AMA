@@ -234,3 +234,23 @@ class RaspunsInbox(BazaCrm):
     eticheta_agent_uman: Mapped[bool] = mapped_column(Boolean, default=False)
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     trimis_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ContTinta(BazaCrm):
+    """O firmă dintr-o listă de conturi-țintă (migrarea 0102). Fără date personale."""
+
+    __tablename__ = "crm_conturi_tinta"
+    id: Mapped[uuid.UUID] = _id()
+    lista: Mapped[str] = mapped_column(Text)
+    nume: Mapped[str] = mapped_column(Text)
+    domeniu: Mapped[str] = mapped_column(Text)
+    nisa: Mapped[str] = mapped_column(Text)
+    localitate: Mapped[str] = mapped_column(Text)
+    site: Mapped[str] = mapped_column(Text)
+    pagini: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    semnale: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    mini_audit: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    argumente: Mapped[list[str]] = mapped_column(JSONB)
+    sursa: Mapped[str] = mapped_column(Text)
+    stare: Mapped[str] = mapped_column(Text, default="nou")
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
