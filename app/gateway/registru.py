@@ -13,8 +13,8 @@ folosită
 de client; nu ajunge în jurnale, audit, erori sau HTML (în panou apare doar „configurată / lipsește”).
 """
 
+import dataclasses
 import datetime as dt
-import os
 import re
 import uuid
 from typing import Any, Literal
@@ -22,6 +22,7 @@ from typing import Any, Literal
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.gateway import catalog, secrete
 from app.gateway.candidat import Candidat, din_randuri
 from app.gateway.erori import NuSePoateActiva
 from app.gateway.modele import Furnizor, ModelLlm, ProfilSarcina
@@ -49,18 +50,28 @@ def modele(db: Session, *, furnizor_id: uuid.UUID | None = None) -> list[ModelLl
     return list(db.execute(q).scalars())
 
 
-def candidati(db: Session) -> list[Candidat]:
+def candidati(db: Session, *, acum: dt.datetime | None = None) -> list[Candidat]:
     """Toate modelele din registru, ca date înghețate pentru rutare și limitatoare."""
     f = {x.id: x for x in db.execute(select(Furnizor)).scalars()}
-    return [din_randuri(f[m.furnizor_id], m) for m in db.execute(select(ModelLlm)).scalars()]
+    return [_din_pool(din_randuri(f[m.furnizor_id], m), acum) for m in db.execute(select(ModelLlm)).scalars()]
 
 
-def candidat(db: Session, model_id: uuid.UUID) -> Candidat | None:
+def candidat(db: Session, model_id: uuid.UUID, *, acum: dt.datetime | None = None) -> Candidat | None:
     m = db.get(ModelLlm, model_id)
     if m is None:
         return None
     f = db.get(Furnizor, m.furnizor_id)
-    return None if f is None else din_randuri(f, m)
+    return None if f is None else _din_pool(din_randuri(f, m), acum)
+
+
+def _din_pool(c: Candidat, acum: dt.datetime | None) -> Candidat:
+    """Ce adaugă catalogul G-pool: familia modelului și, pentru furnizorii care resetează cotele zilnice la
+    miezul nopții într-un fus orar (Gemini: Los Angeles), ora UTC a resetării de azi (ora de vară inclusă)."""
+    p = catalog.POOL.get(c.furnizor)
+    reset = c.reset_zi_ora
+    if p is not None and p.reset_fus != "UTC":
+        reset = catalog.ora_reset_utc(p.reset_fus, acum or dt.datetime.now(dt.UTC))
+    return secrete.completeaza(dataclasses.replace(c, familie=catalog.familie(c.cod), reset_zi_ora=reset))
 
 
 def profil(db: Session, nume: str) -> Profil | None:
@@ -87,21 +98,18 @@ def nume_profiluri(db: Session) -> list[str]:
 def citeste_cheie_env(nume_variabila: str) -> str | None:
     """Valoarea cheii dintr-o variabilă `AMA_CHEIE_*`; orice alt nume e refuzat (nu se citește mediul la
     întâmplare)."""
-    if not NUME_VARIABILA.match(nume_variabila):
-        return None
-    valoare = os.environ.get(nume_variabila, "").strip()
-    return valoare or None
+    return secrete.citeste_cheie_env(nume_variabila)
 
 
 def citeste_cheie(f: Furnizor) -> str | None:
-    """Valoarea cheii din mediu, sau `None` dacă lipsește. DOAR pentru client: nu se loghează, nu se "
-    "afișează."""
-    return citeste_cheie_env(f.cheie_env)
+    """Cheia de API: numele exact din catalogul G-pool (mediu, apoi seif), apoi numele vechi `cheie_env`.
+    DOAR pentru client: nu se loghează, nu se afișează."""
+    return secrete.cheie(f.cod, f.cheie_env)
 
 
 def cheie_configurata(f: Furnizor) -> bool:
-    """Serverul local nu cere cheie (rețea internă); ceilalți furnizori, da."""
-    return f.tip_api == "local" or citeste_cheie(f) is not None
+    """Serverul local nu cere cheie (rețea internă); ceilalți furnizori au nevoie de TOATE secretele lor."""
+    return f.tip_api == "local" or secrete.complet(f.cod, f.cheie_env)
 
 
 def poate_fi_activat(f: Furnizor) -> str | None:
@@ -114,7 +122,8 @@ def poate_fi_activat(f: Furnizor) -> str | None:
             else "Uzul comercial nu este verificat încă: confirmă termenii furnizorului în inventar."
         )
     if not cheie_configurata(f):
-        return f"Cheia lipsește: setează variabila {f.cheie_env} în mediul serverului, apoi activează."
+        lipsesc = ", ".join(secrete.lipsa(f.cod, f.cheie_env))
+        return f"Cheia lipsește: setează {lipsesc} în mediul serverului (sau în seif), apoi activează."
     return None
 
 

@@ -43,6 +43,7 @@ class Candidat:
     intrerupt_pana_la: dt.datetime | None = None  # întrerupătorul furnizorului (F3.4)
     tokeni_pe_secunda: float | None = None  # viteza măsurată (modele locale, F3.5)
     dimensiune_vector: int | None = None  # modelele de vectori (F3.5)
+    familie: str = ""  # familia modelului (G-pool, `catalog.familie`); gol = necunoscută, una proprie
 
     @property
     def fara_cheie(self) -> bool:

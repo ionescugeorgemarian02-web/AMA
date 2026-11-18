@@ -29,7 +29,18 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.gateway import ceas, client, cote, interceptori, limitator, registru, sanatate
+from app.gateway import (
+    catalog,
+    ceas,
+    client,
+    cote,
+    interceptori,
+    limitator,
+    registru,
+    sanatate,
+    sanatate_model,
+    secrete,
+)
 from app.gateway.candidat import Candidat
 from app.gateway.cote import estimeaza_tokeni
 from app.gateway.erori import (
@@ -84,6 +95,7 @@ class ContextApel:
     max_tokeni: int = 1024
     temperatura: float = 0.2
     alt_model_decat: str | None = None
+    alta_familie: bool = False  # G-pool: judecătorul nu e din familia autorului (`alt_model_decat`)
     accepta_provizoriu: bool = False
     date_confidentiale: bool = False
     coada: str | None = None  # coada jobului apelant (rutarea cere `greu` pentru modelul local)
@@ -280,7 +292,7 @@ def _parcurge(
         try:
             iesire = incearca_model(
                 c,
-                None if c.fara_cheie else registru.citeste_cheie_env(c.cheie_env),
+                None if c.fara_cheie else secrete.cheie(c.furnizor, c.cheie_env),
                 ctx.mesaje,
                 ctx.schema,
                 prioritate=ctx.prioritate,
@@ -313,8 +325,10 @@ def _parcurge(
             )
             continue
         except EroareFurnizor as exc:
+            sanatate_model.esec(c.cod, exc)
             _reactie_la_eroare(c, exc, esecuri, int((time.monotonic() - start) * 1000))
             continue
+        sanatate_model.succes(c.cod)
         durata = int((time.monotonic() - start) * 1000)
         esecuri.tokeni_intrare += iesire.tokeni_intrare
         esecuri.tokeni_iesire += iesire.tokeni_iesire
@@ -408,6 +422,13 @@ def _rezultat(
     )
 
 
+def _familie_autor(ctx: ContextApel, candidati: list[Candidat]) -> str | None:
+    if not ctx.alta_familie or ctx.alt_model_decat is None:
+        return None
+    autor = next((c for c in candidati if c.cod == ctx.alt_model_decat), None)
+    return (autor.familie if autor else catalog.familie(ctx.alt_model_decat)) or None
+
+
 def alege_si_ruleaza(ctx: ContextApel) -> Rezultat:
     """Rutarea propriu-zisă (fără interceptori și fără jurnal): vezi `ruleaza`."""
     db = ctx.db
@@ -417,7 +438,7 @@ def alege_si_ruleaza(ctx: ContextApel) -> Rezultat:
     if opriri.este_oprit(db, opriri.Oprire.CLIENT, tenant_id=ctx.tenant_id):
         raise ApelRefuzat("client_oprit", "clientul este oprit")
     acum = ceas.acum()
-    candidati = registru.candidati(db)
+    candidati = registru.candidati(db, acum=acum)
     cer = Cerinte(
         prioritate=ctx.prioritate,
         acum=acum,
@@ -427,16 +448,17 @@ def alege_si_ruleaza(ctx: ContextApel) -> Rezultat:
         coada=ctx.coada,
         model_fixat=ctx.model_fixat,
         chei_configurate=frozenset(
-            {
-                c.furnizor
-                for c in candidati
-                if c.fara_cheie or registru.citeste_cheie_env(c.cheie_env) is not None
-            }
+            {c.furnizor for c in candidati if c.fara_cheie or secrete.complet(c.furnizor, c.cheie_env)}
         ),
         sanatate={c.furnizor: StareSanatate(c.erori_consecutive, c.intrerupt_pana_la) for c in candidati},
+        familie_autor=_familie_autor(ctx, candidati),
+        modele_indisponibile=sanatate_model.indisponibile(acum),
+        tokeni_estimati=estimeaza_tokeni(sum(len(m.continut) for m in ctx.mesaje), ctx.max_tokeni),
     )
     sel = alege(profil, candidati, cer)
     esecuri = _Esecuri()
+    # cererea nu încape în contextul unor modele: se socotește ca „prea mare” pentru eroarea finală
+    esecuri.prea_mari += sum(1 for _, m in sel.excluse if m == Motiv.CONTEXT_MIC)
     ctx.extra["esecuri"] = esecuri  # pentru jurnal, și când apelul se termină cu eroare
     succes = _parcurge(ctx, sel.principal, esecuri)
     if succes is not None:

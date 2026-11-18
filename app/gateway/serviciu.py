@@ -79,6 +79,7 @@ def apeleaza(
     max_tokeni: int = 1024,
     temperatura: float = 0.2,
     alt_model_decat: str | None = None,
+    alta_familie: bool = False,
     accepta_provizoriu: bool = False,
     date_confidentiale: bool = False,
     mascheaza_cui: bool = False,
@@ -91,7 +92,8 @@ def apeleaza(
     - `prompt`: `nume` (versiunea activă) sau `nume@versiune`; `profil` implicit este cel al promptului;
     - `schema`: moștenește `Iesire` și trebuie să fie cea cu care a fost înregistrat promptul;
     - `livrabil_id`: apelul se contorizează în bugetul lui; cu bugetul epuizat apelul se refuză;
-    - `alt_model_decat`: `furnizor/identificator` al autorului (profilul „judecată”);
+    - `alt_model_decat`: `furnizor/identificator` al autorului (profilul „judecată”); cu `alta_familie`,
+      judecătorul e și dintr-o altă familie de modele decât autorul (G-pool, paza diversității);
     - `accepta_provizoriu`: profilul „consiliu” poate coborî la T3 marcat `provizoriu`;
     - `date_confidentiale`: furnizorii care antrenează pe date sau cu termeni necunoscuți nu primesc apelul
       (8.9);
@@ -134,7 +136,8 @@ def apeleaza(
             db=db, tenant_id=tenant_id, profil=profil or reperat.profil, mesaje=mesaje,
             schema=schema, componenta=componenta, prioritate=prioritate, livrabil_id=livrabil_id,
             max_tokeni=max_tokeni, temperatura=temperatura, alt_model_decat=alt_model_decat,
-            accepta_provizoriu=accepta_provizoriu, date_confidentiale=date_confidentiale,
+            alta_familie=alta_familie, accepta_provizoriu=accepta_provizoriu,
+            date_confidentiale=date_confidentiale,
             coada=motor.coada_curenta(), model_fixat=model,
             mascheaza_cui=mascheaza_cui, demasca=demasca, prompt_nume=reperat.nume,
             prompt_versiune=reperat.versiune,

@@ -127,7 +127,7 @@ def capacitate_profil(db: Session, profil: str, acum: dt.datetime) -> tuple[int 
     """Cererile și tokenii care mai încap azi în cotele modelelor din lanțul profilului (F3.11).
     Doar lanțul principal: degradarea la modelul local nu se numără (prudent). Un profil
     necunoscut sau fără niciun model utilizabil acum are capacitate 0. `None` = fără limită."""
-    from app.gateway import registru
+    from app.gateway import registru, secrete
     from app.gateway.intrerupator import StareSanatate
     from app.gateway.rutare import Cerinte, alege
 
@@ -139,7 +139,7 @@ def capacitate_profil(db: Session, profil: str, acum: dt.datetime) -> tuple[int 
         prioritate=Prioritate.P1,
         acum=acum,
         chei_configurate=frozenset(
-            {c.furnizor for c in candidati if c.fara_cheie or registru.citeste_cheie_env(c.cheie_env)}
+            {c.furnizor for c in candidati if c.fara_cheie or secrete.complet(c.furnizor, c.cheie_env)}
         ),
         sanatate={c.furnizor: StareSanatate(c.erori_consecutive, c.intrerupt_pana_la) for c in candidati},
     )  # fmt: skip

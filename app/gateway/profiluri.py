@@ -21,7 +21,9 @@ from dataclasses import dataclass
 from typing import Literal
 
 NUME_PROFIL = re.compile(r"^[a-z][a-z0-9_]{1,40}$")
-INTRARE_LANT = re.compile(r"^([a-z][a-z0-9_]{1,30}/\S{1,200}|nivel:(T1|T2|T3|T4|local))$")
+INTRARE_LANT = re.compile(
+    r"^([a-z][a-z0-9_]{1,30}/\S{1,200}|nivel:(T1|T2|T3|T4|local)|rezerva:[a-z][a-z0-9_]{1,40})$"
+)
 LaEpuizare = Literal["amana", "degradeaza", "amana_sau_provizoriu"]
 LA_EPUIZARE: tuple[str, ...] = ("amana", "degradeaza", "amana_sau_provizoriu")
 
