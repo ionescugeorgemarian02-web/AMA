@@ -885,3 +885,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### Poarta F16 (Opus)
 - Prima rulare `make check`: 1 failed (`test_fiecare_migrare_poate_fi_coborata_pe_rand`: re-urcarea `0104` lovea RLS-ul forțat pe `aprobari_api`) → `set_config('app.agency')` în migrare, ca în `0053`. Media F8 (yuvj420p, semnalat de C) a trecut.
 - Rerulat: `make check` verde (lint, mypy, gărzi, 3396 passed). `make audit`: fără vulnerabilități. Deschis: tot ce e în „De verificat la migrare (F16)”; white-label și al doilea server.
+
+### G-pool (Opus)
+- Portat din fabrica (citit, nu copiat): catalogul, cheile cu nume exacte și dezactivarea automată, seiful (Fernet, cheie din `AMA_MASTER_KEY`), sănătatea pe model, paza familiei, resetul pe fus orar, rezervele pe rol; cotele cu rezervare/decontare și preflight-ul TPM existau deja în F3.3 (limitatorul). Comanda `python -m app.gateway.verifica_furnizori` pentru primul test live.
+- Verificat: testele noi (unit + integrare) și suita gateway-ului; `make guards`, `make audit`, `make check` (vezi raportul sesiunii). Deschis: tot ce e în „De verificat la primul test live (G-pool)”.

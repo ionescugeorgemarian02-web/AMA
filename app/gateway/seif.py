@@ -1,4 +1,4 @@
-"""Seiful de secrete al gateway-ului (G-pool, D-030): cheile furnizorilor criptate (Fernet) în Postgres.
+"""Seiful de secrete al gateway-ului (G-pool, D-028): cheile furnizorilor criptate (Fernet) în Postgres.
 
 Portat din seiful fabricii și adaptat: cheia de criptare NU stă în bază, ci se derivă (HKDF, scop propriu) din
 `AMA_MASTER_KEY`; o copie a bazei fără fișierul de mediu nu scurge nicio cheie. Seiful primește doar numele

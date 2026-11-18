@@ -451,3 +451,12 @@ Audit: fără vulnerabilități cunoscute. Sesiunea A verifică și integrează;
 - F16.4: formularul de acord revizuit de avocat; ~2 ore înregistrate; antrenarea pe GPU închiriat; modelul ONNX pe CPU în spatele adaptorului; calitatea (ascultare, transcriere inversă).
 - F16.5: furnizorul video real, tariful și condițiile (copie la data contractului); plafonul pe pachet; inserturile în regizor (formatele A/B).
 - F16.6: aplicația TikTok for Business aprobată și contul agenției; codurile de eroare, bugetul minim și locația reale; creativele video; regulile de politică TikTok în `rulepacks/reclame.toml`.
+
+## G-pool — Modele gratuite din catalogul fabricii (sesiunea A, 2026-11-18, D-028)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| G-pool Catalog, secrete, seif, rutare cu familii | verificat local pe transport HTTP SIMULAT și Postgres real: furnizorul fără toate secretele e sărit, cheile cu nume exacte (mediu → seif → `AMA_CHEIE_*`), seiful criptat, rezervele pe rol cu familii alternate, judecătorul din altă familie, modelul 404 scos, cererea peste context netrimisă, `verifica_furnizori` doar la cei activi (migrarea `0109`). **Niciun furnizor nou contactat real** | `tests/unit/test_gateway_pool.py`, `tests/integration/test_gateway_pool.py`, `docs/specs/G-pool.md` |
+
+### De verificat la primul test live (G-pool)
+- `python -m app.gateway.verifica_furnizori --toate-modelele` cu cheile reale; modelele 404 scoase din catalog; limitele reale în registru; termenii fiecărui furnizor nou confirmați în inventar înainte de activare; resetul zilnic real al cotelor (Gemini, Los Angeles).

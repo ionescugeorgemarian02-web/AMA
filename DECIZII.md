@@ -217,3 +217,18 @@ comerțului; modificarea F10 este lăsată sesiunii proprietare a modulului (cer
 - **Consecințe:** tot ce ține de conturi, aprobări de aplicație, bani și calitatea reală trece în STARE „De verificat
   la migrare (F16)”.
 
+
+### D-028 (2026-11-18) — G-pool: catalogul de modele gratuite al fabricii, în gateway-ul AMA
+
+- **Context:** proprietarul vrea în AMA mecanismul de modele din proiectul „fabrica” (catalog de furnizori gratuiți,
+  chei cu nume exacte, cote, sănătate, diversitate, seif), fără să strice gateway-ul F3 (OpenRouter rămâne).
+- **Hotărâre (D-007):** catalogul e cod (`app/gateway/catalog.py`) și se seamănă în registrul din bază (migrarea
+  `0109`, furnizori noi `inactiv`, termeni neconfirmați); rutarea, cotele cu rezervare și întrerupătorul rămân cele din
+  F3, cu adăugiri: `rezerva:<profil>` (familii alternate), „altă familie decât autorul”, verificarea contextului,
+  sănătate pe model în proces, resetul zilnic pe fus orar. Cheile se citesc cu numele exacte din `PROVIDER_SECRETS`
+  (mediu, apoi seif, apoi vechiul `AMA_CHEIE_*`); un furnizor fără toate secretele e dezactivat automat.
+  **Schimbă decizia F3.1** („cheile nu stau în bază, nici criptate”): seiful `gateway_seif` e opțional, criptat cu o
+  cheie derivată din `AMA_MASTER_KEY` (care nu stă în bază), deci o copie a bazei singură nu scurge chei; mediul are
+  întâietate. FreeLLMAPI (agregator local `http://`) nu intră.
+- **Consecințe:** activarea rămâne a proprietarului (8.1); primul test live e `python -m app.gateway.verifica_furnizori`;
+  identificatorii și limitele din fabrica sunt `# NEVERIFICAT` până atunci.
