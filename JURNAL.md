@@ -696,3 +696,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `modele_client.py` pe nucleul din F14.3; `predictiv.Exemplu.trasaturi` acceptă și categorii.
   - Verificat: `test_invatare_modele_client.py` (CRM real sub prag, date simulate peste prag); ruff, mypy, gărzile.
   - Observat (propunere, nu am atins): `import app.analiza` singur pică pe ciclul analiza → site → panou → invatare → analiza (și pe `main`); în suita completă nu se vede.
+- **F14.6 — Consolidarea nocturnă a memoriei.**
+  - Construit: `consolidare.py` (playbook-ul de performanță; Creierul de brand neatins, vezi spec).
+  - Verificat: `test_invatare_consolidare.py`; ruff, mypy, gărzile.

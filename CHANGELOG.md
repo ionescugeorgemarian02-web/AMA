@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F14.6 — Consolidarea nocturnă a memoriei
+- `app/invatare/consolidare.py` (unirea lecțiilor duplicate, scoaterea din rotație după 90 de zile fără folosire, jobul nocturn `invatare.consolidare`). Fără migrare.
+
 ### F14.5 — Scorul de lead și riscul de plecare, ca modele
 - `app/invatare/modele_client.py` (exemplele din CRM, regulile simple ca referință, modelul folosit doar dacă le bate, jobul săptămânal `invatare.modele_client`). Fără migrare.
 

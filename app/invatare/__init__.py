@@ -9,10 +9,12 @@ invatare.promovare.porneste(db, optimizare_id)            # F14.2: umbră → ca
 invatare.predictor.ruleaza_client(db, tenant_id, "facebook")  # F14.3: doar peste pragul de date
 invatare.teste_ab.declara(db, ipoteza=…, …); invatare.teste_ab.evalueaza(db, test_id)  # F14.4
 invatare.modele_client.scor_lead(db, sursa, temei, note)  # F14.5: modelul doar dacă bate regulile
+invatare.consolidare.consolideaza(db, tenant_id)  # F14.6: fără dubluri, nefolositele ies din rotație
 """
 
 from app.invatare import (
     alegere,
+    consolidare,
     constitutie,
     curator,
     experimente,
@@ -50,6 +52,7 @@ __all__ = [
     "Optimizare",
     "Promovare",
     "alegere",
+    "consolidare",
     "constitutie",
     "curator",
     "experimente",
