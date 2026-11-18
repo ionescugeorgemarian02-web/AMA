@@ -652,3 +652,25 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md`; cele 5 fișiere ale reclamelor cu `sesiune_agentie` adăugate (cu justificare) în `CONTEXT_AGENTIE` din `tests/unit/test_garzi_db.py`.
   - Verificat: `make check` complet o dată: lint, tipuri, gărzi verzi; teste 3121 passed, 1 failed (garda contextului de agenție, reparată și rerulată împreună cu poarta și Consiliul: verzi). `make guards` și `make audit` (fără vulnerabilități) verzi.
   - **Faza F13 e închisă pe simulări.** Rămân la migrare: conturile reale Meta/Google Ads, campania reală cu bani reali, Consiliul real.
+- **Modul local (PC-ul proprietarului).**
+  - Construit: `infra/compose/local.yml` (build local, Postgres cu pgvector, migrate, app pe 127.0.0.1:8000, worker, volume), `infra/env/local.env.example` (parole generate de `make local-env`, o cheie LLM opțională), `app/demo/populare.py`, ținte `make local-*`, runbook, D-016.
+  - Verificat: `docker compose … config -q` (fără daemon în container), `check_pins` verde, `tests/unit/test_compose_local.py`, `tests/integration/test_populare_demo.py`.
+  - Rămas: pornirea reală cu Docker Desktop (NEVERIFICAT, fără daemon aici).
+- **FT.1 — Jurnalul unic de urme.**
+  - Construit: migrarea `0076` (tabelul `urme`, declanșatorul doar-adăugare, RLS, fără UPDATE/DELETE pentru `ama_app`), `app/operare/urme` (jurnal, rezumat, model), `AMA_URME_ACTIVE`, D-018.
+  - Verificat: testele unitare ale rezumatului, de integrare ale jurnalului (fir, cauză, cost, eșec, atomicitate, declanșator), de izolare; meta-testul RLS, migrările, garda contextului de agenție.
+- **FT.2 — Firul de corelare și urmele componentelor.**
+  - Construit: motor (`trimite`/`flux`), `evenimente.emite` (oglinda), gateway `_incheie`, `validare.cascada`, `creier.versiuni`, `ClientHttp.cere`, `aprobari.decide`, `reclame.propuneri`.
+  - Verificat: `tests/integration/test_urme_propagare.py`; regresie pe motor, gateway, efecte, validare, producție, Creier, publicare, reclame, aprobări, izolare și toate unitarele: verzi.
+- **FT.3 — Indicatorii pe componentă.**
+  - Construit: `urme.indicatori.calculeaza`; reparat lintul rămas din FT.2 (reclame, cascadă).
+  - Verificat: `tests/integration/test_urme_indicatori.py`; ruff, mypy verzi.
+- **FT.4 — Analiza lunară automată.**
+  - Construit: migrarea `0077`, `analiza.py`, `fluxuri.py` (cron 1 ale lunii), `MODULE_FLUXURI`, garda contextului de agenție.
+  - Verificat: `tests/integration/test_urme_analiza.py` (regresii, porți, motive, costuri, lanțuri, lanț întrerupt, regenerare), migrările, garda.
+- **FT.5 — Ecranul „Urme” și exportul.**
+  - Construit: `app/panou/urme_web.py`, șabloanele `panou/urme.html`, `panou/urme_fir.html`, ruta în `app/panou/__init__.py`, rândul din `meniu.html`.
+  - Verificat: `tests/integration/test_urme_ecran.py` (ecran, generare, fir, JSON, trei CSV-uri, erori 400, 403 pentru analist); toate unitarele verzi.
+- **Poarta FT — Trasabilitate totală.**
+  - Construit: poarta, `fluxuri_poarta_ft.py`, reparațiile găsite de `make check`: firul scăpat din `span`/`corelare_curenta` (toate urmele unei sesiuni pytest ajungeau pe un fir), `urme` în `PASTRATE_IMPLICIT` la ștergere, testul populării robust la baza comună.
+  - Verificat: `make check` complet: prima rulare 3138 passed, 10 failed (firul scăpat, ștergerea clientului, popularea); reparate, rulate împreună (verzi), apoi `make check` din nou: lint, tipuri, gărzi verzi; 3146 passed, 2 failed (poarta și popularea presupuneau o bază doar a lor). Reparate (analiza primește `tenant_id`, testul populării compară înainte/după) și rerulate după testele de validare și onboarding pe aceeași bază: verzi.

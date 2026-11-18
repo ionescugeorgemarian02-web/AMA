@@ -89,7 +89,10 @@ def test_export_complet_apoi_stergere_la_cerere(
     r = client.post("/portal/date/sterge", data={"csrf_token": csrf_din(h), "confirmare": "ȘTERGE"},
                     follow_redirects=False)  # fmt: skip
     assert r.status_code == 303
-    asteapta(lambda: set(randuri(admin_engine, t)) <= {"jurnal_audit", "cereri_stergere"} or None, secunde=30)
+    asteapta(
+        lambda: set(randuri(admin_engine, t)) <= {"jurnal_audit", "cereri_stergere", "urme"} or None,
+        secunde=30,
+    )
     with admin_engine.connect() as c:
         stare, rezultat = c.execute(text("SELECT stare, rezultat FROM cereri_stergere WHERE tenant_id = :t"),
                                     {"t": t}).one()  # fmt: skip

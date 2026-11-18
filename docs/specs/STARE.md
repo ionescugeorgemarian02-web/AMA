@@ -301,3 +301,15 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F13.9: împărțirea egală a bugetului pe variante la Meta (un set pe variantă) și pragul de 90% pe volume reale.
 - F13.10: campania reală de 14 zile (cont, card, buget mic) cu raportul dublu; marja pentru supralivrarea Meta.
 - F13.2: developer token-ul (nivel Explorer/Basic), MCC-ul agenției, versiunea Google Ads API, conturile reale.
+
+## Modul local și FT — Trasabilitate totală (sesiunea A, din 2026-11-17)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| Modul local | verificat: `docker compose config` valid, imaginea construită local (D-016), conectori simulați, popularea demo „Cafeneaua Zorilor” idempotentă pe Postgres real. **Pornirea cu Docker Desktop pe Windows/Mac: NEVERIFICATĂ** | `tests/unit/test_compose_local.py`, `tests/integration/test_populare_demo.py`, `docs/runbooks/rulare-locala.md` |
+| FT.1 Jurnalul unic de urme | verificat local (Postgres real): urme cu fir, cauză, cost, durată, rezultat; rolul aplicației nu modifică/șterge (și proprietarul e oprit de declanșator); clientul își vede doar urmele lui; secretele și datele personale nu ajung în clar | `tests/integration/test_urme_jurnal.py`, `tests/isolation/test_urme_rls.py`, `tests/unit/test_urme_rezumat.py` |
+| FT.2 Firul de corelare și urmele componentelor | verificat local (executor în proces): cerere → job → job-copil pe același fir, cu lanț cauzal; eșecul jobului-copil e urmă `esec` cu tipul erorii; evenimentele de domeniu, conectorul HTTP (200/429), gateway, porți, aprobări și gardianul lasă urme. **Clienții HTTP din afara `ClientHttp`: fără urme** | `tests/integration/test_urme_propagare.py` |
+| FT.3 Indicatorii pe componentă | verificat local: volum, rezultate, rata de eșec (fără `info`), cost pe unitate, p50/p95, coduri, filtrate pe lună și client, sub RLS | `tests/integration/test_urme_indicatori.py` |
+| FT.4 Analiza lunară automată | verificat local: regresiile față de luna trecută, porțile picate, motivele de respingere, costurile și lanțul fiecărui eșec până la sursă (cu cauza probabilă și lanțul întrerupt); jobul lunar programat. **Pragurile [I], necalibrate** | `tests/integration/test_urme_analiza.py` |
+| FT.5 Ecranul „Urme” și exportul | verificat local (HTTP): raportul lunii cu eșecurile explicate până la sursă, generarea (CSRF), firul, exporturile JSON și CSV (eșecuri, indicatori, urme); doar proprietarul. **Filtrul pe client în ecran: neconstruit** | `tests/integration/test_urme_ecran.py` |
+| Poarta FT | trecută pe simulare accelerată: 30 de zile prin motor, conector HTTP (platformă SIMULATĂ cu 500/429/400), producție și poarta Creierului; fiecare eșec are lanțul neîntrerupt până la sursă, cauza probabilă și explicația | `tests/integration/test_poarta_ft.py`, `docs/specs/FT-poarta.md` |

@@ -1,0 +1,103 @@
+# Modul local (PC-ul proprietarului, Docker Desktop pe Windows/WSL2 sau Mac). Runbook: docs/runbooks/rulare-locala.md
+#   make local-up | local-down | local-reset
+# Diferențe față de base.yml: imaginea se construiește aici din Dockerfile (fără registru), fără proxy Caddy,
+# aplicația pe http://localhost:8000 (doar 127.0.0.1), AMA_ENV=dev, toți conectorii externi simulați.
+# Imaginea aplicației nu are amprentă: e construită local din Dockerfile-ul fixat (excepția D-016 la check_pins:
+# numele vine din variabilă, `${AMA_IMAGE_LOCAL}`); imaginea Postgres rămâne fixată pe amprentă.
+
+x-build: &build
+  context: ../..
+  dockerfile: Dockerfile
+  args:
+    AMA_VERSION: local
+
+x-mediu: &mediu
+  AMA_ENV: dev
+  AMA_BASE_URL: http://localhost:8000
+  AMA_PUBLIC_URL: http://localhost:8000
+  AMA_SITE_URL: http://localhost:8000/site
+  AMA_PORTAL_URL: http://localhost:8000/portal
+  AMA_DATABASE_URL: postgresql+psycopg://ama_app:${AMA_APP_DB_PASSWORD:?}@postgres:5432/ama
+  AMA_SECRET_KEY: ${AMA_SECRET_KEY:?}
+  AMA_MASTER_KEY: ${AMA_MASTER_KEY:?}
+  AMA_MEDIA_DIR: /var/lib/ama/media
+  # SIMULAT: toți conectorii externi (plăți, email, audit, publicare, reclame) rulează pe simulatoarele din proces.
+  AMA_PLATI_PROCESATOR: simulat
+  AMA_EMAIL_FURNIZOR: simulat
+  AMA_AUDIT_MOTOR: simulat
+  AMA_PUBLICARE_CONECTORI: ""
+  AMA_RECLAME_CONECTORI: ""
+  # O singură cheie LLM, opțională (OpenRouter, modele gratuite). Goală = mod simulat: sarcinile cu model sunt
+  # refuzate vizibil de gateway („fără cheie”); restul platformei merge.
+  AMA_CHEIE_OPENROUTER: ${AMA_CHEIE_OPENROUTER:-}
+  UVICORN_WORKERS: "1"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16@sha256:0dd3149a06e4579a0d70d8fef9945636cd514005e7237deb27f9b67886f8dc4f
+    restart: unless-stopped
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?}
+      POSTGRES_DB: ama
+      AMA_OWNER_DB_PASSWORD: ${AMA_OWNER_DB_PASSWORD:?}
+      AMA_APP_DB_PASSWORD: ${AMA_APP_DB_PASSWORD:?}
+      AMA_BACKUP_DB_PASSWORD: ${AMA_BACKUP_DB_PASSWORD:?}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ama"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate:
+    build: *build
+    image: ${AMA_IMAGE_LOCAL:-ama-local:dev}
+    restart: "no"
+    command: ["sh", "-c", "alembic upgrade head && python -m app.operare.motor.migrare"]
+    environment:
+      AMA_ENV: dev
+      AMA_DATABASE_OWNER_URL: postgresql+psycopg://ama_owner:${AMA_OWNER_DB_PASSWORD:?}@postgres:5432/ama
+      AMA_DATABASE_URL: postgresql+psycopg://ama_owner:${AMA_OWNER_DB_PASSWORD:?}@postgres:5432/ama
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  app:
+    build: *build
+    image: ${AMA_IMAGE_LOCAL:-ama-local:dev}
+    restart: unless-stopped
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      <<: *mediu
+      AMA_DEMO_EMAIL: ${AMA_DEMO_EMAIL:-admin@local.test}
+      AMA_DEMO_PAROLA: ${AMA_DEMO_PAROLA:-}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - media:/var/lib/ama/media
+    depends_on:
+      postgres: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    build: *build
+    image: ${AMA_IMAGE_LOCAL:-ama-local:dev}
+    restart: unless-stopped
+    command: ["python", "-m", "app.worker"]
+    stop_grace_period: 40s
+    environment:
+      <<: *mediu
+      AMA_WORKER_ID: worker-local
+      AMA_WORKER_OPRIRE_SEC: "20"
+    volumes:
+      - media:/var/lib/ama/media
+    depends_on:
+      postgres: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+
+volumes:
+  pgdata: {}
+  media: {}

@@ -128,3 +128,30 @@ Hotărârile luate pe parcurs, în ordine cronologică. Deciziile de arhitectur�
   3.000 lei/lună, 80 lei pe campanie [I].
 - **Consecințe:** criteriile se verifică în CI; campania reală, cu bani reali, rămâne la „De verificat la migrare”, cu același raport
   dublu și aceeași verificare de plafoane (`raport.depasiri`).
+
+### D-016 (2026-11-17) — Modul local pe PC-ul proprietarului
+
+- **Context:** proprietarul vrea să încerce platforma pe calculatorul lui (Windows cu WSL2 sau Mac), înainte de VPS.
+- **Hotărâre (D-007):** `infra/compose/local.yml` construiește imaginea din `Dockerfile` (fără registru, fără Caddy),
+  publică aplicația doar pe `127.0.0.1:8000`, rulează cu `AMA_ENV=dev` și cu toți conectorii pe simulatoare. Imaginea
+  aplicației nu are amprentă (e construită local), deci numele ei vine dintr-o variabilă (`${AMA_IMAGE_LOCAL}`), excepție
+  admisă de `check_pins`; Postgres rămâne fixat pe amprentă. O singură cheie LLM opțională (OpenRouter); fără ea, mod simulat
+  (gateway-ul refuză vizibil sarcinile cu model). Datele demo: `python -m app.demo.populare` (idempotentă, refuzată în
+  staging/producție).
+- **Consecințe:** `make local-up / local-down / local-reset`, runbook `docs/runbooks/rulare-locala.md`.
+
+
+### D-018 (2026-11-17) — Trasabilitatea totală: un singur jurnal de urme, append-only
+
+- **Context:** proprietarul cere ca orice componentă (agenți, Creier, gateway, porți, validare, efecte, conectori, aprobări,
+  bugete) să lase o urmă cu cine/ce/de ce, cost, durată, rezultat și legătura cu fluxul-părinte, iar o analiză lunară să
+  explice fiecare eșec până la evenimentul-sursă.
+- **Hotărâre (D-007):** tabelul `urme` (migrarea `0076`), separat de `jurnal_audit`/`jurnal_evenimente` (care rămân):
+  fir = `correlation_id` (HTTP, job, `corelare`), cauză = urma-părinte din context (`span`). Doar adăugare (drepturi +
+  declanșator), RLS pe client. Scrierea nu strică niciodată acțiunea (punct de salvare sau tranzacție proprie, „cel mai bun
+  efort”). Fără FK spre `clienti`. Rezumate mascate (secrete, email, telefon, CNP, IBAN, card).
+- **Consecințe:** pașii FT.2–FT.5 leagă componentele, calculează indicatorii, analiza lunară și ecranul; retenția și
+  partiționarea pe VPS rămân de stabilit la migrare.
+- **Completare (poarta FT):** la ștergerea unui client (`app/db/stergere.py`), `urme` se păstrează ca `jurnal_audit`
+  (rezumate deja mascate; urma de final a jobului de ștergere se scrie oricum după ștergere). Un fir fără context
+  explicit nu se mai lipește de firul de execuție: `span` își pune firul doar cât ține, apoi îl scoate.

@@ -4,6 +4,27 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta FT — Trasabilitate totală
+- `tests/integration/test_poarta_ft.py` (o lună simulată prin motor, conector HTTP, producție și poarta Creierului), `docs/specs/FT-poarta.md`; cauza probabilă include amânările (429); firul nu mai rămâne agățat în contextul firului de execuție; `urme` se păstrează la ștergerea unui client (D-018). Fără migrare.
+
+### FT.5 — Ecranul „Urme” și exportul
+- `/urme` (raportul lunii, generarea, firul), exporturile `/urme/export.json` și `/urme/export.csv`, legătura din meniu (proprietar). Fără migrare.
+
+### FT.4 — Analiza lunară automată
+- `app/operare/urme/analiza.py` (bine/prost, regresii, costuri, porți picate, motive de respingere, lanțul fiecărui eșec până la sursă), `urme_rapoarte`, jobul lunar `urme.analiza_lunara`. Migrarea `0077`.
+
+### FT.3 — Indicatorii pe componentă
+- `app/operare/urme/indicatori.py`: volum, rezultate, rata de eșec, cost pe unitate, durate p50/p95, coduri frecvente, pe interval și client. Fără migrare.
+
+### FT.2 — Firul de corelare și urmele componentelor
+- firul trece din cerere în job și în joburile-copil (motor), urme pentru gateway, porțile cascadei și ale Creierului, conectori HTTP, aprobări, gardianul de buget, oglinda evenimentelor de domeniu. Fără migrare.
+
+### FT.1 — Jurnalul unic de urme
+- `app/operare/urme` (`emite`, `inregistreaza`, `span`, `corelare`, rezumatul fără secrete și date personale), tabelul `urme` doar cu adăugare, RLS, D-018. Migrarea `0076`.
+
+### Modul local
+- `infra/compose/local.yml`, `infra/env/local.env.example`, `make local-up/local-down/local-reset`, `app/demo` (popularea cu „Cafeneaua Zorilor”), runbook `docs/runbooks/rulare-locala.md`, D-016. Fără migrare.
+
 ### Poarta F13
 - `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md`; fișierele reclamelor intră în lista locurilor cu scop de agenție (`tests/unit/test_garzi_db.py`). Fără migrare.
 
