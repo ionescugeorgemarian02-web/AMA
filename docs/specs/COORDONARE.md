@@ -220,3 +220,11 @@ Zonă: `app/invatare/` (fișiere noi; `__init__.py` și `modele.py` doar prin ad
 | F14.5 Scorul de lead și riscul de plecare | **închis** (împins), fără migrare; citește `app.crm` (B) doar prin exporturile lui |
 | F14.6 Consolidarea nocturnă a memoriei | **închis** (împins), fără migrare |
 | Poarta F14 | **trecută pe simulare** (`docs/specs/F14-poarta.md`) |
+
+## Sesiunea A, F15 pas cu pas
+
+Zonă: `tests/avarie/`, `tests/atacuri/`, `app/operare/` (fișiere noi), `app/lansare/` (nou), `docs/juridic/`, migrările `0082`–`0089`, D-022+.
+
+| Pas | Stare |
+| --- | --- |
+| F15.1 Teste de avarie | **închis** (împins), fără migrare |

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F15.1 — Teste de avarie
+- `tests/avarie/` (catalogul scenariilor din docs/25 §25.3, raportul pe scenarii, teste noi: baza repornită, disc 85%, memorie la limită, randarea reluată, P0 pe culoare ocupate, webhook dublu, politica de repornire), `scripts/avarie.sh`. `app/operare/resurse.py` și jobul `operare.resurse` (la 5 minute); randarea amânată la disc plin / memorie la limită și cu director de lucru propriu, curățat la reluare. D-022.
+
 ### Poarta F14 — Învățare, a doua treaptă
 - `tests/integration/test_poarta_f14.py`, `docs/specs/F14-poarta.md`; clientul intern al evaluărilor se creează într-o tranzacție proprie (consumul gateway-ului se scrie separat); verdictul testului formal spune câte observații a folosit (`n_folosit`); gărzile contextului de agenție cunosc modulele F14.
 

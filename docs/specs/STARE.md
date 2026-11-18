@@ -392,3 +392,12 @@ Audit: fără vulnerabilități cunoscute. Sesiunea A verifică și integrează;
 - F14.4: efectul minim (0,02) și abaterea estimată din canar pe volume reale; un ecran pentru declararea testelor de client (azi doar API).
 - F14.5: un istoric lunar al fișelor de risc (fără el, `plecare` rămâne la 0 exemple); notele lead-ului doar dinaintea deciziei; pragurile 300 / 200 pe volume reale.
 - F14.6: rezumarea lecțiilor apropiate ca sens (cu modelul local); pragul de 90 de zile pe ritmul real de publicare.
+
+## Faza F15 — Întărire și lansare (sesiunea A, din 2026-11-18, D-022)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F15.1 Teste de avarie | verificat local: catalogul cu cele 14 scenarii din §25.3, `scripts/avarie.sh` -> 14/14 trecute (Postgres real, workeri reali, ffmpeg real; disc/memorie SIMULATE); nou: presiunea pe resurse (`app/operare/resurse.py`, jobul `operare.resurse`), directorul de lucru al randării curățat la reluare | `tests/avarie/`, `docs/specs/F15.1.md` |
+
+### De verificat la migrare (F15)
+- F15.1: `scripts/avarie.sh` pe staging; repornirea reală a VPS-ului (Docker activat la pornire, serviciile revin, cozile reiau); măsurarea discului și a memoriei în container (cgroup v2); pragul de memorie pe profilul real.

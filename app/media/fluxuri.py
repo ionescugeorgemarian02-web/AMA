@@ -5,12 +5,13 @@ Fluxul primește doar identificatori (clientul și randarea pregătită de `mont
 randare deja `gata` sau `respinsa` nu se mai randează.
 """
 
+import datetime as dt
 import uuid
 
 from app.db import sesiune_tenant
 from app.media import montaj
 from app.media.modele import Randare
-from app.operare import motor
+from app.operare import motor, resurse
 from app.operare.motor import Coada, Prioritate
 
 NUME = "media.randeaza"
@@ -24,6 +25,14 @@ def _randeaza(tenant_id: str, randare_id: str) -> str:
             return "inexistenta"
         if r.stare != "in_lucru":
             return r.stare
+        ok, motiv = resurse.permite_greu()
+        if not ok:  # F15.1: disc plin sau memorie la limită -> randarea nouă se amână, nu pornește
+            la = dt.datetime.now(dt.UTC) + resurse.AMANARE_GREU
+            motor.trimite(
+                randeaza, tenant_id, randare_id, coada=Coada.GREU, prioritate=Prioritate.P1,
+                cheie=f"randare:{randare_id}:amanata:{int(la.timestamp()) // 600}", la=la,
+            )  # fmt: skip
+            return f"amanata_{motiv}"
         return montaj.executa(db, r).stare
 
 

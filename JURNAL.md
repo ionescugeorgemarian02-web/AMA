@@ -786,3 +786,10 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
   alembic heads: 0124 unic. Suita completă make check nu a fost rulată.
 - Consultat skill Shopify și documentația oficială webhook; helper-ele skillului
   nu sunt instalate, nu s-au generat operații GraphQL. Integrarea rămâne simulată.
+
+## 2026-11-18 — Sesiunea A: faza F15 (întărire și lansare)
+
+### F15.1 — Teste de avarie (Opus)
+- Catalog pe cele 14 scenarii din §25.3: testele existente referite, cele lipsă scrise în `tests/avarie/`; `scripts/avarie.sh` scrie raportul pe scenarii.
+- Construit ce lipsea: presiunea pe disc/memorie (amânarea randărilor, curățarea parțialelor, alerta), directorul de lucru al randării.
+- Verificat: `scripts/avarie.sh` local -> 14/14 scenarii trecute; `make guards`, lint, `test_garzi_db`. Deschis: rularea pe staging (VPS).

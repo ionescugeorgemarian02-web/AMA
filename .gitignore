@@ -17,3 +17,4 @@ node_modules/
 
 # Modul local: parolele generate de `make local-env`
 infra/env/local.env
+avarie-raport/

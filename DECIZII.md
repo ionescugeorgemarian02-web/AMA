@@ -181,3 +181,15 @@ comerțului; modificarea F10 este lăsată sesiunii proprietare a modulului (cer
   revenirea după promovare = o versiune nouă cu textul campionului vechi. Modelele predictive (F14.3, F14.5) sunt un
   gradient boosting mic, scris în proiect, și rulează doar peste pragul de date; sub prag nu se antrenează nimic.
 - **Consecințe:** pe VPS se verifică marjele, pragurile și calitatea pe modele reale; DSPy rămâne o opțiune (ADR nou).
+
+### D-022 (2026-11-18) — Întărire și lansare (F15): avarie pe catalog, pilot din urme, juridic în ciornă
+
+- **Context:** F15 cere teste de avarie pe staging, revizuire de securitate, restaurare completă, juridic revizuit
+  de avocat, pilot cu trei clienți și lista 25.5 bifată. Nu există încă VPS, avocat, clienți-pilot reali sau bani.
+- **Hotărâre (D-007):** testele de avarie sunt un catalog pe scenariile din §25.3 (testele vechi referite, cele noi
+  în `tests/avarie/`) rulat de `scripts/avarie.sh` local sau pe staging; presiunea pe disc/memorie amână munca
+  grea, nu oprește servicii. Restaurarea e un script cap-coadă cronometrat față de ținta de 4 h. Juridicul e
+  ciornă marcată „necesită revizuirea avocatului”. Pilotul și indicatorii lui se calculează din urme și din
+  aprobări; lista 25.5 e un ecran care bifează singur ce se poate măsura, restul manual, cu audit.
+- **Consecințe:** tot ce cere resurse reale trece în STARE „De verificat la migrare”; nimic din F15 nu e „gata”
+  până nu rulează pe staging și nu e semnat de om (avocat, contabil, clienți).
