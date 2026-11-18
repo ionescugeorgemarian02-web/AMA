@@ -78,6 +78,17 @@ def acasa(request: Request) -> HTMLResponse:
     return randeaza(request, "site/pagina.html", "", acasa=True)
 
 
+@router.get("/studii-de-caz")
+def studii_de_caz(request: Request) -> HTMLResponse:
+    """F15.6: studiile de caz publicate cu acordul clienților, sub textul paginii."""
+    from app.lansare import studii
+
+    with sesiune_agentie() as db:
+        lista = [{"titlu": s.titlu, "situatie": s.situatie, "actiune": s.actiune, "rezultat": s.rezultat,
+                  "publicat_la": s.publicat_la} for s in studii.publicate(db)]  # fmt: skip
+    return randeaza(request, "site/studii.html", "studii-de-caz", studii=lista)
+
+
 @router.get("/blog")
 def lista_blog(request: Request) -> HTMLResponse:
     with sesiune_agentie() as db:

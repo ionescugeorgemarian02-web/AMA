@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F15.6 — Lansarea comercială
+- Lista de go-live din docs/25 §25.5 (`app/lansare/golive.py`, ecranul `/lansare/go-live`), calculată din bază, urme și fișiere unde se poate; studiile de caz (`app/lansare/studii.py`, șablonul `docs/sabloane/studiu-de-caz.md`, `/site/studii-de-caz`); rezultatul avariei pe staging (`app/lansare/cli.py`); urma zilnică `resurse / verifica`; migrarea `0083`.
+
 ### F15.5 — Pilotul cu trei clienți
 - `app/lansare/` (înscrierea la L1 cu preț de pilot, feedback săptămânal, aprobarea din prima și incidentele critice din urme, poarta, raportul săptămânal `lansare.pilot_saptamanal`), ecranul `/lansare/pilot`, migrarea `0082`.
 

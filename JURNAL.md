@@ -810,3 +810,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F15.5 — Pilotul (Opus)
 - Modul pilot nou (`app/lansare`), indicatorii calculați din urme (aprobările reale scriu deja `aprobare / decizie:*`).
 - Verificat: `test_lansare_pilot` (4), `test_lansare_rls`, `test_migratii`, `test_garzi_db`. Deschis: pilotul real.
+
+### F15.6 — Lansarea comercială (Opus)
+- Lista 25.5 ca date, cu reguli calculate (13/21) și bife manuale cu dovadă; studiile de caz pornesc din cifrele pilotului.
+- Verificat: `test_lansare_golive` (6), izolarea, `test_site`, `test_garzi_db`. Deschis: bifarea integrală (resurse reale).

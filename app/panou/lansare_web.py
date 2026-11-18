@@ -1,5 +1,7 @@
 """Ecranele lansării (F15.5 pilotul, F15.6 lista de go-live), doar pentru proprietar.
 
+- `/lansare/go-live`: lista din docs/25 §25.5, calculată unde se poate, bifabilă în rest (cu notă și audit);
+  studiile de caz (ciorna din cifrele pilotului, publicarea doar cu acordul clientului).
 - `/lansare/pilot`: clienții din pilot, cu indicatorii calculați din urme (aprobarea din prima, incidentele
   critice), feedback-ul săptămânal și starea porții; înscrierea, feedback-ul, incidentul, raportul (CSRF).
 """
@@ -7,6 +9,7 @@
 import datetime as dt
 import uuid
 from typing import Annotated
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
@@ -14,7 +17,7 @@ from sqlalchemy import select
 
 from app import conturi
 from app.conturi import DbSession, Rol, SesiuneCurenta, csrf_protect, require_role
-from app.lansare import PilotRaport, pilot
+from app.lansare import PilotRaport, golive, pilot, studii
 from app.panou.sabloane import pagina
 
 router = APIRouter(prefix="/lansare", tags=["lansare"])
@@ -68,7 +71,7 @@ def inscrie(
             db, _id(tenant_id), pret_lunar_bani=pret_lei * 100, utilizator_id=u.utilizator_id, rol=u.rol
         )
     except pilot.PilotInvalid as exc:
-        return RedirectResponse(f"/lansare/pilot?eroare={exc}", status_code=303)
+        return RedirectResponse(f"/lansare/pilot?eroare={quote(str(exc))}", status_code=303)
     return _inapoi("inscris")
 
 
@@ -86,7 +89,7 @@ def feedback(
         pilot.feedback(db, _id(tenant_id), zi=zi, satisfactie=satisfactie, minute_om=minute_om,
                        frictiuni=frictiuni, utilizator_id=u.utilizator_id)  # fmt: skip
     except pilot.PilotInvalid as exc:
-        return RedirectResponse(f"/lansare/pilot?eroare={exc}", status_code=303)
+        return RedirectResponse(f"/lansare/pilot?eroare={quote(str(exc))}", status_code=303)
     return _inapoi("feedback")
 
 
@@ -97,7 +100,7 @@ def incident(
     try:
         pilot.raporteaza_incident(db, _id(tenant_id), descriere=descriere, utilizator_id=u.utilizator_id)
     except pilot.PilotInvalid as exc:
-        return RedirectResponse(f"/lansare/pilot?eroare={exc}", status_code=303)
+        return RedirectResponse(f"/lansare/pilot?eroare={quote(str(exc))}", status_code=303)
     return _inapoi("incident")
 
 
@@ -105,3 +108,65 @@ def incident(
 def raport(u: Proprietar, db: DbSession) -> Response:
     pilot.raport_saptamanal(db, dt.datetime.now(dt.UTC).date())
     return _inapoi("raport")
+
+
+# --- F15.6: lista de go-live comercial (docs/25 §25.5) și studiile de caz
+
+
+@router.get("/go-live")
+def ecran_golive(
+    request: Request, u: Proprietar, db: DbSession, mesaj: str = "", eroare: str = ""
+) -> Response:
+    puncte = golive.evalueaza(db)
+    sectiuni: dict[str, list[dict[str, object]]] = {}
+    for p in puncte:
+        sectiuni.setdefault(str(p["sectiune"]), []).append(p)
+    nume = {c.id: c.nume for c in conturi.lista_clienti(db)}
+    return pagina(
+        request, u, "panou/lansare_golive.html", tab="meniu", sectiuni=sectiuni, rez=golive.rezumat(puncte),
+        studii=[(s, nume.get(s.tenant_id, "")) for s in studii.toate(db)],
+        clienti=sorted(nume.items(), key=lambda x: x[1]),
+        mesaj=mesaj, eroare=eroare,
+    )  # fmt: skip
+
+
+@router.post("/go-live/{cod}", dependencies=[Depends(csrf_protect)])
+def bifa(
+    u: Proprietar,
+    db: DbSession,
+    cod: str,
+    bifat: Annotated[str, Form()] = "",
+    nota: Annotated[str, Form(max_length=500)] = "",
+) -> Response:
+    try:
+        golive.bifeaza(db, cod, bifat == "da", nota=nota, utilizator_id=u.utilizator_id)
+    except golive.BifaRefuzata as exc:
+        return RedirectResponse(f"/lansare/go-live?eroare={quote(str(exc))}", status_code=303)
+    return RedirectResponse("/lansare/go-live?mesaj=bifa", status_code=303)
+
+
+@router.post("/studii", dependencies=[Depends(csrf_protect)])
+def studiu_nou(
+    u: Proprietar,
+    db: DbSession,
+    tenant_id: Annotated[str, Form()],
+    titlu: Annotated[str, Form(max_length=120)],
+    situatie: Annotated[str, Form(max_length=3000)] = "",
+    actiune: Annotated[str, Form(max_length=3000)] = "",
+) -> Response:
+    try:
+        studii.ciorna_din_pilot(db, _id(tenant_id), titlu=titlu, situatie=situatie, actiune=actiune)
+    except studii.StudiuInvalid as exc:
+        return RedirectResponse(f"/lansare/go-live?eroare={quote(str(exc))}", status_code=303)
+    return RedirectResponse("/lansare/go-live?mesaj=studiu", status_code=303)
+
+
+@router.post("/studii/{studiu_id}/publica", dependencies=[Depends(csrf_protect)])
+def studiu_publica(
+    u: Proprietar, db: DbSession, studiu_id: str, acord: Annotated[str, Form()] = ""
+) -> Response:
+    try:
+        studii.publica(db, _id(studiu_id), acord_client=acord == "da", utilizator_id=u.utilizator_id)
+    except studii.StudiuInvalid as exc:
+        return RedirectResponse(f"/lansare/go-live?eroare={quote(str(exc))}", status_code=303)
+    return RedirectResponse("/lansare/go-live?mesaj=publicat", status_code=303)

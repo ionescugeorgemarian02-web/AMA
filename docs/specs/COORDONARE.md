@@ -236,3 +236,4 @@ Cerere A -> C (F15.2, revizia de securitate): webhook-ul Shopify (`app/comert/ca
 | F15.3 Exercițiul de restaurare | **închis** (împins), fără migrare |
 | F15.4 Juridic (ciorne) | **închis** (împins); atins prin adăugare: `app/site/pagini.py` (LEGAL), `site/pagina.html`, `site.css`, `Dockerfile`, `.dockerignore` |
 | F15.5 Pilot | **închis** (împins), migrarea `0082`; atins prin adăugare: `app/panou/__init__.py`, `panou/meniu.html`, `app/worker.py`, `tests/unit/test_garzi_db.py` |
+| F15.6 Lansarea comercială | **închis** (împins), migrarea `0083`; atins prin adăugare: `app/site/web.py` (ruta studiilor), `app/operare/resurse_fluxuri.py`, `scripts/avarie.sh` |

@@ -402,6 +402,7 @@ Audit: fără vulnerabilități cunoscute. Sesiunea A verifică și integrează;
 | F15.3 Exercițiul de restaurare | verificat local (Postgres, age, rclone reale): backup -> bază și media noi -> restaurare -> migrări, rânduri pe fiecare tabel, RLS, media, `/readyz` = 200; cronometrat față de 4 h | `scripts/exercitiu_restaurare.py`, `tests/avarie/test_restaurare.py`, `docs/specs/F15.3.md` |
 | F15.4 Juridic | ciorne construite (contract, DPA, termeni, confidențialitate, cookie-uri) în `docs/juridic/`, publicate din aceleași fișiere și marcate „necesită revizuirea avocatului”; **nesemnate de avocat** | `docs/juridic/`, `tests/unit/test_juridic.py`, `docs/specs/F15.4.md` |
 | F15.5 Pilot | mecanismul verificat local (Postgres real, aprobări reale): L1, preț de pilot, feedback săptămânal, indicatorii din urme, poarta (4 săptămâni, 0 incidente, > 85%), raportul săptămânal și ecranul; **fără clienți-pilot reali** | `app/lansare/`, migrarea `0082`, `tests/integration/test_lansare_pilot.py`, `docs/specs/F15.5.md` |
+| F15.6 Lansarea comercială | construit și verificat local: lista 25.5 (21 de puncte, 13 calculate din bază/urme/fișiere), bifele manuale cu notă și audit, studiile de caz din cifrele pilotului (publicate doar cu acord), pagina publică a studiilor, T1 din `scripts/avarie.sh`; **lista nu e bifată integral** (cere staging, avocat, contabil, pilot real) | `app/lansare/golive.py`, migrarea `0083`, `tests/integration/test_lansare_golive.py`, `docs/specs/F15.6.md` |
 
 ### De verificat la migrare (F15)
 - F15.1: `scripts/avarie.sh` pe staging; repornirea reală a VPS-ului (Docker activat la pornire, serviciile revin, cozile reiau); măsurarea discului și a memoriei în container (cgroup v2); pragul de memorie pe profilul real.
@@ -409,3 +410,4 @@ Audit: fără vulnerabilități cunoscute. Sesiunea A verifică și integrează;
 - F15.3: exercițiul pe staging cu copia reală de la destinația externă și volumul real; un server nou ca mediu curat; durata notată față de 4 h.
 - F15.4: revizuirea avocatului (§21.13) pe toate ciornele; datele firmei (F0.1); apoi scos `stare: ciorna` din fiecare fișier.
 - F15.5: pilotul real cu trei clienți (4 săptămâni), prețul de pilot la procesatorul real, timpul până la primul lot.
+- F15.6: bifarea integrală a listei 25.5 pe `/lansare/go-live` (staging 14/14, 28 de zile de backup verde, pilotul, avocatul, contabilul, două studii publicate); motorul de audit real (C7).

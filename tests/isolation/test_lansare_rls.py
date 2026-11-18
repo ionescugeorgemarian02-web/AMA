@@ -38,3 +38,18 @@ def test_clientul_vede_doar_pilotul_lui_si_nu_scrie_pentru_altul(date: Date) -> 
         )
         s.execute(text("INSERT INTO pilot_feedback (id, tenant_id, saptamana, satisfactie) VALUES (gen_random_uuid(),"
                        " :t, date_trunc('week', current_date)::date + 7, 5)"), {"t": date.b})  # fmt: skip
+
+
+def test_studiile_de_caz_si_lista_de_go_live_sunt_izolate(date: Date) -> None:
+    with sesiune(ContextDb(agency=True)) as s:
+        for t, slug in ((date.a, "studiu-a"), (date.b, "studiu-b")):
+            s.execute(text("INSERT INTO studii_caz (id, tenant_id, slug, titlu, situatie, actiune, rezultat) VALUES "
+                           "(gen_random_uuid(), :t, :s, 'Titlu', 's', 'a', 'r') ON CONFLICT DO NOTHING"),
+                      {"t": t, "s": slug})  # fmt: skip
+        s.execute(
+            text("INSERT INTO verificari_lansare (cod, bifat) VALUES ('T5', true) ON CONFLICT DO NOTHING")
+        )
+    with sesiune(ContextDb(tenant_id=date.a, user_id=date.user_a)) as s:
+        assert {r[0] for r in s.execute(text("SELECT slug FROM studii_caz"))} == {"studiu-a"}
+        assert s.execute(text("SELECT count(*) FROM verificari_lansare")).scalar() == 0, "doar agenția"
+        assert s.execute(text("SELECT count(*) FROM rezultate_avarie")).scalar() == 0
