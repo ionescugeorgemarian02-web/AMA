@@ -4,7 +4,7 @@ import datetime as dt
 import uuid
 
 from sqlalchemy import Boolean, Date, DateTime, Integer, Text, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.ids import new_id
@@ -135,3 +135,18 @@ class InscriereSecventa(BazaCrm):
     urmatorul_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
     stare: Mapped[str] = mapped_column(Text, default="activa")
     motiv_oprire: Mapped[str] = mapped_column(Text, default="")
+
+
+class Calificare(BazaCrm):
+    """Răspunsurile de calificare, scorul și grupa unui lead (migrarea 0097). Doar cu adăugare."""
+
+    __tablename__ = "crm_calificari"
+    id: Mapped[uuid.UUID] = _id()
+    lead_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    raspunsuri: Mapped[dict[str, str]] = mapped_column(JSONB)
+    scor: Mapped[int] = mapped_column(Integer)
+    grupa: Mapped[str] = mapped_column(Text)
+    la_om: Mapped[bool] = mapped_column(Boolean, default=False)
+    motive: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    sursa: Mapped[str] = mapped_column(Text)
+    la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

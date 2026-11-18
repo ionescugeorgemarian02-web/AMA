@@ -156,6 +156,23 @@ def avanseaza(db: Session, acum: dt.datetime | None = None) -> dict[str, int]:
     return rezultat
 
 
+def opreste(db: Session, contact_id: uuid.UUID, motiv: str) -> bool:
+    """Oprește secvența unui contact (de exemplu, lead nepotrivit). Întoarce dacă era activă."""
+    s = db.execute(
+        select(InscriereSecventa)
+        .where(
+            InscriereSecventa.contact_id == contact_id,
+            InscriereSecventa.secventa == SECVENTA,
+            InscriereSecventa.stare == "activa",
+        )
+        .with_for_update()
+    ).scalar_one_or_none()
+    if s is None:
+        return False
+    _opreste(db, s, motiv)
+    return True
+
+
 def stare(db: Session, contact_id: uuid.UUID) -> InscriereSecventa | None:
     return db.execute(
         select(InscriereSecventa).where(

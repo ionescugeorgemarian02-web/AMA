@@ -15,6 +15,7 @@
     {% if firma.domeniu %}<dt>Site</dt><dd>{{ firma.domeniu }}</dd>{% endif %}
     <dt>Sursă</dt><dd>{{ etichete_sursa.get(lead.sursa, lead.sursa) }}</dd>
     <dt>Temeiul contactului</dt><dd>{{ etichete_temei.get(lead.temei, lead.temei) }}</dd>
+    {% if calificare %}<dt>Calificare</dt><dd>{{ etichete_grupa[calificare.grupa] }} (scor {{ calificare.scor }}/4){% if calificare.la_om %}, lead mare{% endif %}</dd>{% endif %}
   </dl>
 </section>
 

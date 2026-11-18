@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
 from app.conturi import DbSession, Rol, SesiuneCurenta, csrf_protect, require_role
-from app.crm import CrmRefuzat, registru
+from app.crm import CrmRefuzat, calificare, registru
 from app.crm import email as crm_email
 from app.panou.sabloane import pagina
 
@@ -86,6 +86,8 @@ def _fisa(
         mesaj=MESAJE.get(request.query_params.get("mesaj", ""), ""),
         eroare=eroare,
         maine=(dt.datetime.now(dt.UTC) + dt.timedelta(days=1)).date().isoformat(),
+        calificare=calificare.curenta(db, lead_id),
+        etichete_grupa=calificare.ETICHETE_GRUPA,
         **f,
         **_etichete(),
     )

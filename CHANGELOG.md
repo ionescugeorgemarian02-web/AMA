@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.4 — Calificare și scor
+- `app/crm/calificare.py` (4 întrebări, regula de scor, grupele, lead mare → om, urme), migrarea `0097` (`crm_calificari`, tipuri noi de activitate), grupa pe fișa din `/crm`.
+
 ### F12.3 — Secvența de după audit
 - `app/crm/secventa.py` (înscriere la confirmarea auditului, 4 pași prin `crm.email.trimite`, jobul orar `crm.secventa`, urme), migrarea `0096` (`crm_secvente`), `tests/integration/utile_crm.py` (ordinea comună de curățare).
 

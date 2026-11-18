@@ -39,7 +39,8 @@ apoi F10 (ramura B).
 | F12.1 CRM-ul minimal | **închis** (împins), migrarea `0094` |
 | F12.2 Email către abonați | **închis** (împins), migrarea `0095` |
 | F12.3 Secvența de după audit | **închis** (A, împins), migrarea `0096` |
-| F12.4–F12.10 | A, în ordine (preluare 2026-11-18) |
+| F12.4 Calificare și scor | **închis** (A, împins), migrarea `0097` |
+| F12.5–F12.10 | A, în ordine (preluare 2026-11-18) |
 
 ## Raport pentru sesiunea A (citește asta întâi)
 

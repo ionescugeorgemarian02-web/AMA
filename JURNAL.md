@@ -823,3 +823,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F12.3 — Secvența de după audit (Opus)
 - Înscriere din `site.audit.confirma`; pașii trec doar prin ușa unică de email; oprire definitivă vs. amânare.
 - Verificat: `test_crm_secventa` (2), `test_crm`, `test_crm_email`, `test_crm_rls`, `test_site_audit`, `test_garzi_db`; lint, mypy.
+
+### F12.4 — Calificare și scor (Opus)
+- Regula pură `puncteaza` + `califica` (etapă, sarcină, oprirea secvenței, notificare după commit).
+- Verificat: `test_crm_calificare` (unit 11, integrare 1), `test_crm`, `test_migratii`, `test_meta_rls`; lint, mypy.
