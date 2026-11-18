@@ -18,6 +18,7 @@ APROBARI = (("pinterest", "publicare"), ("google", "business"), ("meta", "thread
 
 
 def upgrade() -> None:
+    op.execute("SELECT set_config('app.agency', '1', true)")  # RLS e forțat și pentru proprietarul migrării
     for platforma, permisiune in APROBARI:
         op.execute(
             "INSERT INTO aprobari_api (platforma, permisiune, stare) "
@@ -26,6 +27,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    op.execute("SELECT set_config('app.agency', '1', true)")
     for platforma, permisiune in APROBARI:
         op.execute(
             f"DELETE FROM aprobari_api WHERE platforma = '{platforma}' AND permisiune = '{permisiune}'"

@@ -264,5 +264,6 @@ Zonă: `app/media/` (fișiere noi), `app/connectors/publicare/` și `app/connect
 | F16.4 Voce proprie antrenată | **închis** (împins), migrarea `0106` |
 | F16.5 Generator video extern | **închis** (împins), migrarea `0107` |
 | F16.6 Reclame pe TikTok | **închis** (împins), migrarea `0108`; atins: `rulepacks/reclame.toml` (canalul `tiktok_ads`) |
+| Poarta F16 | **trecută pe simulare** (`docs/specs/F16-poarta.md`), migrări finale `0104`–`0108` |
 | F16.3 Localizare în engleză | **închis** (împins), migrarea `0105`; atins prin adăugare: `app/panou/sabloane.py`, `base.html`, `portal/baza.html`, `portal/acasa.html`, `app/portal/web.py`, `app/validare/{structura,limba,intrare}.py`, `app/continut/{editor,scriere}.py` |
 

@@ -881,3 +881,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F16.6 — Reclame pe TikTok (Opus)
 - Conector pe tiparul Meta (căutare după nume înainte de creare), prin aceeași ușă `reclama` și același gardian. Observat la test: gardianul judecă bugetul doar pe campaniile active → testul pornește campania întâi.
 - Verificat: `test_reclame_tiktok` (unit 5, integrare 1), `tests/atacuri tests/unit` + reclame + poarta F13: 1982 passed; lint, mypy, gărzi, audit.
+
+### Poarta F16 (Opus)
+- Prima rulare `make check`: 1 failed (`test_fiecare_migrare_poate_fi_coborata_pe_rand`: re-urcarea `0104` lovea RLS-ul forțat pe `aprobari_api`) → `set_config('app.agency')` în migrare, ca în `0053`. Media F8 (yuvj420p, semnalat de C) a trecut.
+- Rerulat: `make check` verde (lint, mypy, gărzi, 3396 passed). `make audit`: fără vulnerabilități. Deschis: tot ce e în „De verificat la migrare (F16)”; white-label și al doilea server.

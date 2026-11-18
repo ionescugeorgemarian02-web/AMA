@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F16 — Extensii
+- `tests/integration/test_poarta_f16.py`, `docs/specs/F16-poarta.md` (cele șase extensii cap-coadă, pe simulare); migrarea `0104` setează contextul de agenție (RLS forțat) ca să urce din nou după coborâre.
+
 ### F16.6 — Reclame pe TikTok
 - `app/connectors/reclame/tiktok.py` (citire cu paginare, stare cont, scriere idempotentă, clasificare pe `code`), platforma `tiktok` în reclame (plan, verificare, `rulepacks/reclame.toml`), migrarea `0108`.
 
