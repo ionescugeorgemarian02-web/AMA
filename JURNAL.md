@@ -814,3 +814,6 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F15.6 — Lansarea comercială (Opus)
 - Lista 25.5 ca date, cu reguli calculate (13/21) și bife manuale cu dovadă; studiile de caz pornesc din cifrele pilotului.
 - Verificat: `test_lansare_golive` (6), izolarea, `test_site`, `test_garzi_db`. Deschis: bifarea integrală (resurse reale).
+
+### Poarta F15 (Opus)
+- Test cap-coadă pe simulare; `make check` complet: prima rulare 3252 passed, 1 failed (`test_watchdog` cu temporizare, trece singur: 20 passed); rerulat: `make check` verde, 3253 passed (lint, mypy, gărzi, teste).

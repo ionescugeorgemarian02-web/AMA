@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F15 — Întărire și lansare
+- `tests/integration/test_poarta_f15.py`, `docs/specs/F15-poarta.md` (cap-coadă pe simulare: avarie, restaurare, pilot, studii, lista 25.5).
+
 ### F15.6 — Lansarea comercială
 - Lista de go-live din docs/25 §25.5 (`app/lansare/golive.py`, ecranul `/lansare/go-live`), calculată din bază, urme și fișiere unde se poate; studiile de caz (`app/lansare/studii.py`, șablonul `docs/sabloane/studiu-de-caz.md`, `/site/studii-de-caz`); rezultatul avariei pe staging (`app/lansare/cli.py`); urma zilnică `resurse / verifica`; migrarea `0083`.
 
