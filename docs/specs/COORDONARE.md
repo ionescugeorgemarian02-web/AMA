@@ -238,3 +238,7 @@ Cerere A -> C (F15.2, revizia de securitate): webhook-ul Shopify (`app/comert/ca
 | F15.5 Pilot | **închis** (împins), migrarea `0082`; atins prin adăugare: `app/panou/__init__.py`, `panou/meniu.html`, `app/worker.py`, `tests/unit/test_garzi_db.py` |
 | F15.6 Lansarea comercială | **închis** (împins), migrarea `0083`; atins prin adăugare: `app/site/web.py` (ruta studiilor), `app/operare/resurse_fluxuri.py`, `scripts/avarie.sh` |
 | Poarta F15 | **trecută pe simulare** (`docs/specs/F15-poarta.md`) |
+
+## Preluare F12.3–F12.10 de către A (2026-11-18)
+- Sesiunea B nu a mai împins nimic după F12.2 (c04c6d3, 2026-11-17). Conform D-007, A preia F12.3–F12.10 pe ramura sa, în `app/crm`, email, inbox, cu migrările B rămase (0096–0099, apoi 0100–0119).
+- Dacă B revine: pornește din origin/main și anunță aici înainte de orice pas F12.
