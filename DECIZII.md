@@ -193,3 +193,14 @@ comerțului; modificarea F10 este lăsată sesiunii proprietare a modulului (cer
   aprobări; lista 25.5 e un ecran care bifează singur ce se poate măsura, restul manual, cu audit.
 - **Consecințe:** tot ce cere resurse reale trece în STARE „De verificat la migrare”; nimic din F15 nu e „gata”
   până nu rulează pe staging și nu e semnat de om (avocat, contabil, clienți).
+
+### D-024 (2026-11-18) — F12.3–F12.10: componente deterministe, canale simulate, totul prin ușile existente
+
+- **Context:** B s-a oprit după F12.2; A preia F12.3–F12.10 (COORDONARE). Nu există furnizor de email, conturi
+  sociale aprobate, calendar extern sau date reale de lead-uri.
+- **Hotărâre (D-007):** secvența, scorul, programările, oferta, clasificarea inboxului, regulile de răspuns și
+  asistentul de suport sunt componente **D** (ADR-05: implicit D), testabile fără model; un model se poate pune
+  în spatele acelorași funcții când există date. Emailul comercial trece doar prin `crm.email.trimite`, cel
+  tranzacțional prin efectele de sistem; mesajele sociale printr-un efect de sistem nou. Fiecare acțiune lasă
+  urmă. Canalele, calendarul și inboxurile sunt simulate.
+- **Consecințe:** pragurile și textele sunt [I]; tot ce cere resurse reale trece în STARE „De verificat la migrare (F12)”.

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.3 — Secvența de după audit
+- `app/crm/secventa.py` (înscriere la confirmarea auditului, 4 pași prin `crm.email.trimite`, jobul orar `crm.secventa`, urme), migrarea `0096` (`crm_secvente`), `tests/integration/utile_crm.py` (ordinea comună de curățare).
+
 ### Poarta F15 — Întărire și lansare
 - `tests/integration/test_poarta_f15.py`, `docs/specs/F15-poarta.md` (cap-coadă pe simulare: avarie, restaurare, pilot, studii, lista 25.5).
 

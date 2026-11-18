@@ -817,3 +817,9 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 
 ### Poarta F15 (Opus)
 - Test cap-coadă pe simulare; `make check` complet: prima rulare 3252 passed, 1 failed (`test_watchdog` cu temporizare, trece singur: 20 passed); rerulat: `make check` verde, 3253 passed (lint, mypy, gărzi, teste).
+
+## 2026-11-18 — Sesiunea A: F12.3–F12.10 (preluate de la B)
+
+### F12.3 — Secvența de după audit (Opus)
+- Înscriere din `site.audit.confirma`; pașii trec doar prin ușa unică de email; oprire definitivă vs. amânare.
+- Verificat: `test_crm_secventa` (2), `test_crm`, `test_crm_email`, `test_crm_rls`, `test_site_audit`, `test_garzi_db`; lint, mypy.

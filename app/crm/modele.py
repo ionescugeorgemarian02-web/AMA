@@ -3,7 +3,7 @@
 import datetime as dt
 import uuid
 
-from sqlalchemy import Boolean, Date, DateTime, Text, func
+from sqlalchemy import Boolean, Date, DateTime, Integer, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -120,3 +120,18 @@ class Trimitere(BazaCrm):
     campanie: Mapped[str] = mapped_column(Text)
     cheie: Mapped[str] = mapped_column(Text)
     la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class InscriereSecventa(BazaCrm):
+    """Un contact într-o secvență de emailuri (migrarea 0096)."""
+
+    __tablename__ = "crm_secvente"
+    id: Mapped[uuid.UUID] = _id()
+    contact_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    lead_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    secventa: Mapped[str] = mapped_column(Text)
+    pas: Mapped[int] = mapped_column(Integer, default=0)
+    pornita_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+    urmatorul_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    stare: Mapped[str] = mapped_column(Text, default="activa")
+    motiv_oprire: Mapped[str] = mapped_column(Text, default="")
