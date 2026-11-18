@@ -37,7 +37,7 @@ class Exemplu:
     """Un caz trecut: trăsăturile, eticheta (1 = succes / câștigat / a plecat), momentul și scorul regulii
     simple."""
 
-    trasaturi: dict[str, float]
+    trasaturi: dict[str, Any]  # numere sau categorii (texte)
     eticheta: int
     moment: dt.datetime
     scor_regula: float | None = None

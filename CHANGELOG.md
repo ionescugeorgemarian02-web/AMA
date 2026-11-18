@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F14.5 — Scorul de lead și riscul de plecare, ca modele
+- `app/invatare/modele_client.py` (exemplele din CRM, regulile simple ca referință, modelul folosit doar dacă le bate, jobul săptămânal `invatare.modele_client`). Fără migrare.
+
 ### F14.4 — Teste A/B formale
 - `app/invatare/teste_ab.py` (declarare cu mărimea eșantionului, eșantion fix, Welch, p, interval, jobul `invatare.teste_ab`), `teste_ab`, `teste_ab_observatii`, `promovari.test_ab_id` (migrarea `0081`); producția unei promovări se măsoară cu un test formal față de control.
 

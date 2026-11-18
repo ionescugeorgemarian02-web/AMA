@@ -8,6 +8,7 @@ invatare.optimizator.optimizeaza(db, "continut.hookuri")  # F14.1: candidat + ra
 invatare.promovare.porneste(db, optimizare_id)            # F14.2: umbră → canar → producție → promovat
 invatare.predictor.ruleaza_client(db, tenant_id, "facebook")  # F14.3: doar peste pragul de date
 invatare.teste_ab.declara(db, ipoteza=…, …); invatare.teste_ab.evalueaza(db, test_id)  # F14.4
+invatare.modele_client.scor_lead(db, sursa, temei, note)  # F14.5: modelul doar dacă bate regulile
 """
 
 from app.invatare import (
@@ -15,6 +16,7 @@ from app.invatare import (
     constitutie,
     curator,
     experimente,
+    modele_client,
     optimizator,
     predictiv,
     predictor,
@@ -51,6 +53,7 @@ __all__ = [
     "constitutie",
     "curator",
     "experimente",
+    "modele_client",
     "optimizator",
     "predictiv",
     "predictor",

@@ -197,3 +197,4 @@ Zonă: `app/invatare/` (fișiere noi; `__init__.py` și `modele.py` doar prin ad
 | F14.2 Umbră, canar, promovare, revenire | **închis** (împins), migrarea `0079` |
 | F14.3 Predictorul de performanță | **închis** (împins), migrarea `0080` |
 | F14.4 Teste A/B formale | **închis** (împins), migrarea `0081` |
+| F14.5 Scorul de lead și riscul de plecare | **închis** (împins), fără migrare; citește `app.crm` (B) doar prin exporturile lui |

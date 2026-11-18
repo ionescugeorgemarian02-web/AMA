@@ -692,3 +692,7 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
 - **F14.4 — Teste A/B formale.**
   - Construit: migrarea `0081`, `teste_ab.py`; promovarea (F14.2) își declară testul formal la intrarea în producție (abaterea din interiorul grupurilor la canar). Reparat: `app/invatare/__init__.py` nu importa `predictiv`/`predictor` (jobul F14.3 nu se înregistra în worker).
   - Verificat: testele teste_ab (unit + integrare), promovarea, predictorul, izolarea, migrările; ruff, mypy, gărzile.
+- **F14.5 — Scorul de lead și riscul de plecare.**
+  - Construit: `modele_client.py` pe nucleul din F14.3; `predictiv.Exemplu.trasaturi` acceptă și categorii.
+  - Verificat: `test_invatare_modele_client.py` (CRM real sub prag, date simulate peste prag); ruff, mypy, gărzile.
+  - Observat (propunere, nu am atins): `import app.analiza` singur pică pe ciclul analiza → site → panou → invatare → analiza (și pe `main`); în suita completă nu se vede.
