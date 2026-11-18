@@ -5,7 +5,7 @@ Format: o intrare pe pas, cea mai nouă sus.
 ## Nelansat
 
 ### G-pool — Modele gratuite din catalogul fabricii
-- `app/gateway/catalog.py` (13 furnizori, 47 de modele, familii, `PROVIDER_SECRETS`, `OPENAI_COMPATIBLE`), `secrete.py`, `seif.py` (tabelul `gateway_seif`), `sanatate_model.py`, `verifica_furnizori.py`; rutarea cu `rezerva:<profil>`, `alta_familie`, verificarea contextului; resetul Gemini pe fusul Los Angeles; migrarea `0109`; numele secretelor în `infra/env/*.example` și compose. D-028.
+- `app/gateway/catalog.py` (13 furnizori, 47 de modele, familii, numele exacte ale cheilor, adresele compatibile OpenAI), `secrete.py`, seiful (tabelul `gateway_seif`), `sanatate_model.py`, `verifica_furnizori.py`; rutarea cu `rezerva:<profil>`, `alta_familie`, verificarea contextului; resetul Gemini pe fusul Los Angeles; migrarea `0109`; numele secretelor în `infra/env/*.example` și compose. D-028.
 
 ### Poarta F16 — Extensii
 - `tests/integration/test_poarta_f16.py`, `docs/specs/F16-poarta.md` (cele șase extensii cap-coadă, pe simulare); migrarea `0104` setează contextul de agenție (RLS forțat) ca să urce din nou după coborâre.
