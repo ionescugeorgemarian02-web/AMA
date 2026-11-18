@@ -1,15 +1,21 @@
 {% extends "base.html" %}
 {% block body_attr %} class="cu-bara"{% endblock %}
 {% block shell %}
-<header class="antet-aplicatie"><a href="/portal">AMA · Portal</a></header>
+<header class="antet-aplicatie"><a href="/portal">{{ t("AMA · Portal") }}</a>
+  <form method="post" action="/portal/limba" class="limba">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>{{ t("Limba") }} <select name="limba">{% for cod, nume in limbi.items() %}<option value="{{ cod }}"{% if cod == limba %} selected{% endif %}>{{ nume }}</option>{% endfor %}</select></label>
+    <button type="submit">{{ t("Schimbă limba") }}</button>
+  </form>
+</header>
 <main id="continut">
   {% block pagina %}{% endblock %}
 </main>
-<nav class="bara-jos" aria-label="Navigare principală">
+<nav class="bara-jos" aria-label="{{ t('Navigare principală') }}">
   {% for cale, eticheta, pictograma, cheie in [("/portal", "Acasă", "⌂", "acasa"), ("/portal/aprobari", "Aprobări", "✓", "aprobari"), ("/portal/calendar", "Calendar", "▦", "calendar"), ("/portal/materiale", "Materiale", "▲", "materiale"), ("/portal/cont", "Cont", "☰", "cont")] %}
   <a href="{{ cale }}"{% if tab == cheie %} aria-current="page"{% endif %}>
     <span class="pictograma" aria-hidden="true">{{ pictograma }}</span>
-    <span>{{ eticheta }}</span>
+    <span>{{ t(eticheta) }}</span>
   </a>
   {% endfor %}
 </nav>

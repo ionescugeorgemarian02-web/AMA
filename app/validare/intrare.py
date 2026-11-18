@@ -48,6 +48,8 @@ class Continut:
         canal."""
         iesire = [("text", self.text)] if self.text.strip() else []
         for nume in sorted(self.campuri):
+            if nume == "limba":  # F16.3: eticheta limbii, nu text de validat
+                continue
             val = self.campuri[nume]
             if isinstance(val, str) and val.strip():
                 iesire.append((nume, val))

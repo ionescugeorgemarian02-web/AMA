@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F16.3 — Localizare în engleză
+- `app/localizare` (catalog, limba din cerere, `t` în șabloane), `POST /portal/limba`, portalul (meniu, Acasă) în engleză; `clienti.limba` (migrarea `0105`); instrucțiunea de limbă pentru autori; G1/G10 pe limba conținutului (`validare/limba_en.py`); editorul cu ghilimelele limbii.
+
 ### F16.2 — Canale noi: Pinterest, Google Business Profile, Threads
 - `app/connectors/publicare/{pinterest,google_business,threads}.py` (contractul F9.1, SIMULATE), înregistrate în registru; migrarea `0104` (aprobările `in_test`); sloturi, domenii asistate, limite G1.
 

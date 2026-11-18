@@ -1,0 +1,21 @@
+# Catalogul englez (F16.3): textul românesc din interfață -> textul afișat în engleză.
+# Cheile sunt exact textele din șabloane, cu diacritice. Ce lipsește se afișează în română.
+
+[interfata]
+"AMA · Portal" = "AMA · Portal"
+"Acasă" = "Home"
+"Aprobări" = "Approvals"
+"Calendar" = "Calendar"
+"Materiale" = "Materials"
+"Cont" = "Account"
+"Navigare principală" = "Main navigation"
+"Portal · AMA" = "Portal · AMA"
+"Bun venit," = "Welcome,"
+"Pornirea, pas cu pas" = "Getting started, step by step"
+"(în curând)" = "(coming soon)"
+"Limba" = "Language"
+"Schimbă limba" = "Change language"
+
+[continut]
+instructiune = """Language: write the entire text in English (en-GB), for the client's English-speaking audience.
+Do not mix in Romanian words; keep brand names, prices and facts exactly as given in the brief."""

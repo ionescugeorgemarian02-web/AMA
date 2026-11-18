@@ -261,4 +261,5 @@ Zonă: `app/media/` (fișiere noi), `app/connectors/publicare/` și `app/connect
 | --- | --- |
 | F16.1 Formatul C, grafică animată | **închis** (împins), fără migrare |
 | F16.2 Pinterest, Google Business Profile, Threads | **închis** (împins), migrarea `0104` |
+| F16.3 Localizare în engleză | **închis** (împins), migrarea `0105`; atins prin adăugare: `app/panou/sabloane.py`, `base.html`, `portal/baza.html`, `portal/acasa.html`, `app/portal/web.py`, `app/validare/{structura,limba,intrare}.py`, `app/continut/{editor,scriere}.py` |
 

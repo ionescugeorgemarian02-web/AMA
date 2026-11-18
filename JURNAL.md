@@ -865,3 +865,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F16.2 — Canale noi (Opus)
 - Conectori pe tiparul F9 (ClientHttp, depozitul de tokenuri, clasificarea erorilor). Observat: fără rând în `aprobari_api`, `mod_efectiv` dă automat → migrarea `0104` le pune `in_test`.
 - Verificat: contract 45 (3 × 15), integrare 3; `tests/unit tests/contract tests/isolation` + publicare: 2328 passed; lint, mypy, gărzi.
+
+### F16.3 — Localizare în engleză (Opus)
+- Catalog cu româna drept cheie (nu se ghicește traducerea). Limba conținutului pe client, citită de validatori prin `memo` (o dată pe rulare); `limba` exclusă din `Continut.texte()`.
+- Verificat: `test_localizare` (unit 6, integrare 2), unit + continut/validare/portal/panou/izolare/atacuri; lint, mypy, gărzi.

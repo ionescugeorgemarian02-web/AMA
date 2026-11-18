@@ -8,6 +8,7 @@ from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from app import localizare
 from app.conturi import SesiuneCurenta
 from app.conturi.roluri import Permisiune, Rol, poate
 
@@ -45,6 +46,7 @@ def _moment(t: datetime | None) -> str:
 
 
 templates.env.filters["moment"] = _moment
+templates.env.globals["t"] = localizare.t_jinja  # F16.3: `{{ t("text") }}` în limba paginii
 
 
 def pagina(
@@ -63,6 +65,8 @@ def pagina(
             "etichete_cerere": ETICHETE_CERERE,
             "este_proprietar": u.rol is Rol.PROPRIETAR,
             "poate_invatare": poate(u.rol, Permisiune.INVATARE_CITESTE),
+            "limba": localizare.din_cerere(request),
+            "limbi": localizare.LIMBI,
             **context,
         },
         status_code=status,
