@@ -262,3 +262,9 @@ def leaduri(db: Session, *, limita: int = 100) -> list[tuple[Lead, Audit | None]
         .limit(limita)
     ).all()
     return [(r[0], r[1]) for r in rows]
+
+
+def raport_pentru_lead(db: Session, lead_id: uuid.UUID) -> dict[str, Any] | None:
+    """Raportul de audit gata al unui lead din site (F12.6: oferta pornește din el). None dacă nu e gata."""
+    a = db.execute(select(Audit).where(Audit.lead_id == lead_id)).scalar_one_or_none()
+    return a.raport if a is not None and a.stare == "gata" else None

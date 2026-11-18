@@ -146,7 +146,7 @@ def califica(
     elif s.grupa == "nepotrivit":
         secventa.opreste(db, lead.contact_id, "nepotrivit")
     if s.la_om:
-        url = f"/crm/{lead.id}"
+        url = f"/crm/lead/{lead.id}"
         registru.dupa_commit(
             db,
             lambda: notificari.notifica(

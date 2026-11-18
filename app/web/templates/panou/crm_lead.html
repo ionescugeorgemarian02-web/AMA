@@ -19,6 +19,17 @@
   </dl>
 </section>
 
+{% if "oferta_trimisa" in tranzitii %}
+<section class="card" aria-labelledby="oferta">
+  <h2 id="oferta">Ofertă</h2>
+  <p class="slab">Oferta se scrie din auditul lead-ului și din pachete; ajunge în <a href="/crm/oferte">ofertele de aprobat</a>.</p>
+  <form method="post" action="/crm/lead/{{ lead.id }}/oferta">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Pregătește oferta</button>
+  </form>
+</section>
+{% endif %}
+
 {% if tranzitii %}
 <section class="card" aria-labelledby="etapa">
   <h2 id="etapa">Schimbă etapa</h2>

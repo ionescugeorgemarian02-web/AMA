@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
 from app.conturi import DbSession, Rol, SesiuneCurenta, csrf_protect, require_role
-from app.crm import CrmRefuzat, calificare, registru
+from app.crm import CrmRefuzat, calificare, oferte, registru
 from app.crm import email as crm_email
 from app.panou.sabloane import pagina
 
@@ -31,6 +31,9 @@ MESAJE = {
     "retras": "Consimțământul a fost retras.",
     "suprimat": "Adresa a fost pusă în lista de suprimare.",
     "regula": "Regula a fost salvată.",
+    "oferta": "Oferta a fost pregătită și așteaptă aprobarea ta.",
+    "aprobata": "Oferta a fost aprobată și trimisă.",
+    "respinsa": "Oferta a fost respinsă.",
 }
 
 
@@ -211,6 +214,8 @@ async def schimba(request: Request, lead_id: str, actiune: str, u: Proprietar, d
             if registru.fisa(db, lid) is None:
                 raise HTTPException(status_code=404, detail="Lead inexistent.")
             registru.creeaza_sarcina(db, lid, str(f.get("titlu") or ""), scadenta)
+        elif actiune == "oferta":
+            oferte.genereaza(db, lid)
         elif actiune == "retrage":
             date = registru.fisa(db, lid)
             if date is None:
@@ -241,3 +246,44 @@ def inchide_sarcina(request: Request, sarcina_id: str, u: Proprietar, db: DbSess
     except CrmRefuzat as exc:
         return _lista(request, u, db, status=422, eroare=_eroare(exc))
     return RedirectResponse("/crm?mesaj=facuta", status_code=303)
+
+
+# --- ofertele de aprobat (F12.6) ----------------------------------------------------------------------------
+def _oferte(request: Request, u: SesiuneCurenta, db: Any, *, status: int = 200, eroare: str = "") -> Response:
+    return pagina(
+        request,
+        u,
+        "panou/crm_oferte.html",
+        tab="meniu",
+        status=status,
+        oferte=oferte.de_aprobat(db),
+        text_oferta=oferte.text_oferta,
+        etichete_stare=oferte.ETICHETE_STARE,
+        mesaj=MESAJE.get(request.query_params.get("mesaj", ""), ""),
+        eroare=eroare,
+    )
+
+
+@router.get("/oferte")
+def lista_oferte(request: Request, u: Proprietar, db: DbSession) -> Response:
+    return _oferte(request, u, db)
+
+
+@router.post("/oferte/{oferta_id}/{decizie}", dependencies=[Depends(csrf_protect)])
+async def decide_oferta(
+    request: Request, oferta_id: str, decizie: str, u: Proprietar, db: DbSession
+) -> Response:
+    oid = _id(oferta_id)
+    f = await request.form()
+    try:
+        if decizie == "aproba":
+            oferte.aproba(db, oid, utilizator_id=u.utilizator_id)
+            mesaj = "aprobata"
+        elif decizie == "respinge":
+            oferte.respinge(db, oid, utilizator_id=u.utilizator_id, motiv=str(f.get("motiv") or ""))
+            mesaj = "respinsa"
+        else:
+            raise HTTPException(status_code=404, detail="Decizie necunoscută.")
+    except CrmRefuzat as exc:
+        return _oferte(request, u, db, status=422, eroare=_eroare(exc))
+    return RedirectResponse(f"/crm/oferte?mesaj={mesaj}", status_code=303)

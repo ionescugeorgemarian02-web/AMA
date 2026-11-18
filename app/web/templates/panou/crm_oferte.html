@@ -1,0 +1,29 @@
+{% extends "panou/baza.html" %}
+{% block title %}Oferte de aprobat · AMA{% endblock %}
+{% block pagina %}
+<h1>Oferte de aprobat</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/crm">CRM</a> · Ofertele se scriu din audit și din pachete. Nu pleacă nimic fără decizia ta.</p>
+{% for o, lead, firma in oferte %}
+<section class="card" aria-labelledby="o-{{ o.id }}">
+  <h2 id="o-{{ o.id }}"><a href="/crm/lead/{{ lead.id }}">{{ firma.nume }}</a>: {{ o.continut.pachet.nume }}, {{ o.pret_lunar }} lei/lună</h2>
+  <p>Stare: <strong>{{ etichete_stare[o.stare] }}</strong>{% if o.stare == "blocata" %} (verificările nu au trecut: {% for k, v in o.verificari.items() if not v and k != "trece" %}{{ k }} {% endfor %}){% endif %}</p>
+  <pre class="oferta">{{ text_oferta(o.continut) }}</pre>
+  {% if o.stare == "de_aprobat" %}
+  <form method="post" action="/crm/oferte/{{ o.id }}/aproba">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Aprobă și trimite</button>
+  </form>
+  <form method="post" action="/crm/oferte/{{ o.id }}/respinge">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="motiv-{{ o.id }}">Motivul respingerii</label>
+    <input id="motiv-{{ o.id }}" name="motiv" type="text" maxlength="500" required>
+    <button type="submit">Respinge</button>
+  </form>
+  {% endif %}
+</section>
+{% else %}
+<p>Nicio ofertă nu așteaptă decizia ta.</p>
+{% endfor %}
+{% endblock %}

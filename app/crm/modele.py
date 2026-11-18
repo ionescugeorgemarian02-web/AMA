@@ -2,6 +2,7 @@
 
 import datetime as dt
 import uuid
+from typing import Any
 
 from sqlalchemy import Boolean, Date, DateTime, Integer, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -168,3 +169,21 @@ class Programare(BazaCrm):
     reamintit_1h: Mapped[bool] = mapped_column(Boolean, default=False)
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     anulat_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Oferta(BazaCrm):
+    """O ofertă scrisă din audit și din pachete, în așteptarea aprobării (migrarea 0099)."""
+
+    __tablename__ = "crm_oferte"
+    id: Mapped[uuid.UUID] = _id()
+    lead_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    pachet: Mapped[str] = mapped_column(Text)
+    pret_lunar: Mapped[int] = mapped_column(Integer)
+    setup: Mapped[int] = mapped_column(Integer)
+    continut: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    verificari: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    stare: Mapped[str] = mapped_column(Text, default="de_aprobat")
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    decis_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))

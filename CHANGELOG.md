@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.6 — Generatorul de oferte
+- `app/crm/oferte.py` (compunere din audit și planuri, verificări, aprobare/respingere), ecranul `/crm/oferte` și butonul de pe fișă, `site.audit.raport_pentru_lead`, migrarea `0099` (`crm_oferte`).
+
 ### F12.5 — Programări
 - `app/crm/programari.py` (grila de sloturi, rezervarea, invitația .ics, reamintirile `crm.reamintiri`, anularea), `app/site/programare_web.py` + șabloanele `site/programare*.html`, migrarea `0098` (`crm_programari`), atașamente în conectorul de email.
 

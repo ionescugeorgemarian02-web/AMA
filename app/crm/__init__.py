@@ -2,8 +2,8 @@
 
 Secvența de după audit: `secventa`; scorul: `calificare`; emailul comercial: `email.trimite`."""
 
-from app.crm import calificare, programari, registru, secventa
-from app.crm.modele import Activitate, Consimtamant, Contact, Firma, LeadCrm, Sarcina
+from app.crm import calificare, oferte, programari, registru, secventa
+from app.crm.modele import Activitate, Consimtamant, Contact, Firma, LeadCrm, Oferta, Sarcina
 from app.crm.registru import CrmRefuzat
 
 __all__ = [
@@ -13,8 +13,10 @@ __all__ = [
     "CrmRefuzat",
     "Firma",
     "LeadCrm",
+    "Oferta",
     "Sarcina",
     "calificare",
+    "oferte",
     "programari",
     "registru",
     "secventa",
