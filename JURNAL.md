@@ -786,3 +786,34 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
   alembic heads: 0124 unic. Suita completă make check nu a fost rulată.
 - Consultat skill Shopify și documentația oficială webhook; helper-ele skillului
   nu sunt instalate, nu s-au generat operații GraphQL. Integrarea rămâne simulată.
+
+## 2026-11-18 — Sesiunea A: faza F15 (întărire și lansare)
+
+### F15.1 — Teste de avarie (Opus)
+- Catalog pe cele 14 scenarii din §25.3: testele existente referite, cele lipsă scrise în `tests/avarie/`; `scripts/avarie.sh` scrie raportul pe scenarii.
+- Construit ce lipsea: presiunea pe disc/memorie (amânarea randărilor, curățarea parțialelor, alerta), directorul de lucru al randării.
+- Verificat: `scripts/avarie.sh` local -> 14/14 scenarii trecute; `make guards`, lint, `test_garzi_db`. Deschis: rularea pe staging (VPS).
+
+### F15.2 — Revizuire de securitate (Opus + revizor Sonnet)
+- Revizorul (Sonnet, `claude -p`, doar Read/Grep/Glob) a dat 1 CRITIC, 8 MEDIU, 9 MIC; am verificat fiecare în cod și am reparat CRITIC + MEDIU (+2 MIC), cu teste în `tests/atacuri/`.
+- Găsit în plus: workerul nu primea `AMA_DATABASE_OWNER_URL`, deci ștergerea unui client ar fi picat în producție.
+- Verificat: `tests/atacuri`, `tests/isolation`, reclame, facturare, portal, efecte: 244 + 5 trecute. Deschis: 6 MIC (propuneri în spec).
+
+### F15.3 — Exercițiul de restaurare (Opus)
+- Script cap-coadă peste `ama_backup` (aceleași unelte ca producția); verificarea compară fiecare tabel, RLS, media și pornește aplicația pe baza restaurată.
+- Verificat: `tests/avarie/test_restaurare.py` 2 trecute pe Postgres local. Deschis: exercițiul pe staging cu date reale.
+
+### F15.4 — Juridic (Opus)
+- Ciorne după docs/21; paginile publice se generează din ele (o singură sursă), marcate până la avocat.
+- Verificat: `test_juridic`, `test_site_pagini`, `test_site`. Deschis: semnătura avocatului.
+
+### F15.5 — Pilotul (Opus)
+- Modul pilot nou (`app/lansare`), indicatorii calculați din urme (aprobările reale scriu deja `aprobare / decizie:*`).
+- Verificat: `test_lansare_pilot` (4), `test_lansare_rls`, `test_migratii`, `test_garzi_db`. Deschis: pilotul real.
+
+### F15.6 — Lansarea comercială (Opus)
+- Lista 25.5 ca date, cu reguli calculate (13/21) și bife manuale cu dovadă; studiile de caz pornesc din cifrele pilotului.
+- Verificat: `test_lansare_golive` (6), izolarea, `test_site`, `test_garzi_db`. Deschis: bifarea integrală (resurse reale).
+
+### Poarta F15 (Opus)
+- Test cap-coadă pe simulare; `make check` complet: prima rulare 3252 passed, 1 failed (`test_watchdog` cu temporizare, trece singur: 20 passed); rerulat: `make check` verde, 3253 passed (lint, mypy, gărzi, teste).

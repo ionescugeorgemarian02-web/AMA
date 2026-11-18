@@ -17,6 +17,8 @@ COPY migrations ./migrations
 COPY prompts ./prompts
 COPY rulepacks ./rulepacks
 COPY evaluare ./evaluare
+# Ciornele juridice din care se generează paginile /site/legal/... (F15.4)
+COPY docs/juridic ./docs/juridic
 
 # Etapa de rulare: fără uv, fără compilator, utilizator fără drepturi, sistem de fișiere compatibil cu read-only.
 FROM python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90 AS runtime
@@ -38,5 +40,7 @@ USER 10001:10001
 EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=3s --start-period=20s --retries=3 \
     CMD ["python", "-c", "import sys,urllib.request as u; sys.exit(0 if u.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status == 200 else 1)"]
-# Rulează în spatele proxy-ului din rețeaua Docker; portul nu se publică pe gazdă.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips=*"]
+# Rulează în spatele proxy-ului din rețeaua Docker; portul nu se publică pe gazdă. Antetele X-Forwarded-* se
+# cred DOAR de la rețeaua proxy-ului (F15.2): FORWARDED_ALLOW_IPS vine din compose (subrețeaua `edge`).
+ENV FORWARDED_ALLOW_IPS=127.0.0.1
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]

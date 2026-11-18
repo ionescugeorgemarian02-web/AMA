@@ -27,3 +27,6 @@ input[type=text],input[type=email],input[type=url],input[type=password],textarea
 .ok{background:#e8f5ec;color:#14532d;padding:.6rem .8rem;border-radius:8px}
 .mic{color:var(--s);font-size:.9rem}
 ul.articole{list-style:none;padding:0}ul.articole li{margin:0 0 1rem}
+
+/* F15.4: marcajul ciornelor juridice („necesită revizuirea avocatului”) */
+.ciorna { border-left: 4px solid #b45309; background: #fef3c7; color: #451a03; padding: .75rem 1rem; }

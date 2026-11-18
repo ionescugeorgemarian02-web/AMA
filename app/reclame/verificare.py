@@ -17,8 +17,7 @@ import unicodedata
 from collections.abc import Callable
 from typing import Any
 
-import httpx
-
+from app.reclame import pagina
 from app.validare import reguli
 
 CANALE = {"meta": "meta_ads", "google": "google_ads"}
@@ -27,11 +26,8 @@ MINIM_CUVANT = 5
 
 def _pagina(url: str) -> str | None:
     """Textul paginii de destinație, sau `None` dacă nu răspunde. # NEVERIFICAT: GET simplu, fără JS."""
-    try:
-        r = httpx.get(url, timeout=10.0, follow_redirects=True)
-    except httpx.HTTPError:
-        return None
-    return r.text if r.status_code < 400 else None
+    r = pagina.get_sigur(url)  # F15.2: fără SSRF (adrese interne, metadate cloud, redirecționări)
+    return r.text if r is not None and r.status_code < 400 else None
 
 
 CITESTE_PAGINA: Callable[[str], str | None] = _pagina

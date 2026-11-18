@@ -224,3 +224,9 @@ def aloca_operator(db: Session, utilizator_id: uuid.UUID, tenant_id: uuid.UUID, 
         tenant_id=tenant_id,
         utilizator_id=actor.utilizator_id,
     )
+
+
+def parola_corecta(db: Session, utilizator_id: uuid.UUID, parola: str) -> bool:
+    """Reautentificarea dinaintea unei acțiuni ireversibile (F15.2): parola curentă a utilizatorului."""
+    u = db.get(Utilizator, utilizator_id)
+    return u is not None and bool(parola) and parole.verifica(u.parola_hash, parola)

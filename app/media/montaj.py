@@ -8,7 +8,7 @@ lor) și rândul din `randari` cu timpul și memoria de vârf ale randării (F8.
 """
 
 import datetime as dt
-import tempfile
+import shutil
 import time
 import uuid
 from pathlib import Path
@@ -31,6 +31,7 @@ from app.media import (
     sunet,
 )
 from app.media.modele import Activ, Randare
+from app.operare import resurse
 
 
 def intrari(db: Session, lm: lista.ListaMontaj) -> randare.Intrari:
@@ -103,8 +104,13 @@ def executa(db: Session, r: Randare) -> Randare:
     """Randează o randare pregătită și înregistrează videoul, cu măsurătorile (F8.9)."""
     lm = lista.ListaMontaj.model_validate(r.lista)
     inceput, t0 = dt.datetime.now(dt.UTC), time.monotonic()
-    with ffmpeg.masurare() as rulari, tempfile.TemporaryDirectory() as tmp:
-        corp = _randeaza(db, r, lm, Path(tmp))
+    # F15.1: directorul de lucru e al randării; ce a rămas după o oprire forțată se șterge la reluare.
+    tmp = resurse.director_lucru(f"randare-{r.id}")
+    try:
+        with ffmpeg.masurare() as rulari:
+            corp = _randeaza(db, r, lm, tmp)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
     secunde = sum(x.secunde for x in rulari)
     r.masuratori = {
         **(r.masuratori or {}),

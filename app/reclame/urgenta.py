@@ -21,7 +21,6 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass
 
-import httpx
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -29,7 +28,7 @@ from app.db import sesiune_agentie
 from app.logging import get_logger
 from app.operare import motor, notificari, opriri
 from app.operare.efecte import reclame as usa_reclame
-from app.reclame import propuneri, rezultate
+from app.reclame import pagina, propuneri, rezultate
 from app.reclame.modele import Anunt, Campanie, ContReclame
 
 log = get_logger("app.reclame.urgenta")
@@ -48,11 +47,8 @@ class Anomalie:
 
 def _pagina_raspunde(url: str) -> bool:
     """# NEVERIFICAT: verificarea paginii de destinație e un GET simplu; pe VPS trece prin aceeași ieșire."""
-    try:
-        r = httpx.get(url, timeout=10.0, follow_redirects=True)
-    except httpx.HTTPError:
-        return False
-    return r.status_code < 500
+    r = pagina.get_sigur(url)  # F15.2: fără SSRF
+    return r is not None and r.status_code < 500
 
 
 VERIFICA_PAGINA: Callable[[str], bool] = _pagina_raspunde
@@ -132,6 +128,35 @@ def opreste_tot(motiv: str, acum: dt.datetime | None = None) -> int:
     return len(active)
 
 
+def opreste_cont(cont_id: uuid.UUID, motiv: str, acum: dt.datetime | None = None) -> int:
+    """Pauza campaniilor active ale unui singur cont (o problemă a clientului, nu a platformei), cu anunț."""
+    with sesiune_agentie() as db:
+        active = list(
+            db.execute(
+                select(Campanie).where(Campanie.cont_id == cont_id, Campanie.stare == "activa")
+            ).scalars()
+        )
+        for c in active:
+            p = propuneri.propune(
+                db,
+                c.id,
+                "stare",
+                {"stare": "pauza"},
+                motiv=f"Oprire pe cont: {motiv}",
+                sursa="urgenta",
+                acum=acum,
+            )
+            propuneri.aproba(db, p.id)
+    if active:
+        notificari.notifica(
+            notificari.Nivel.CRITIC,
+            "Reclamele unui client au fost oprite",
+            f"{len(active)} campanii puse pe pauză. Motiv: {motiv}. Repornirea e manuală.",
+            url="/reclame",
+        )
+    return len(active)
+
+
 def supravegheaza(acum: dt.datetime | None = None) -> list[Anomalie]:
     """Verifică toate conturile active; la prima anomalie oprește tot (o singură dată)."""
     acum = acum or dt.datetime.now(dt.UTC)
@@ -141,7 +166,7 @@ def supravegheaza(acum: dt.datetime | None = None) -> list[Anomalie]:
         conturi = [(c.id, c.tenant_id, c.platforma, c.cont_extern) for c in rezultate.conturi(db)]
         for c in rezultate.conturi(db):
             gasite.extend(semnale(db, c, acum))
-        pagini = {p for c in rezultate.conturi(db) for p in _pagini(db, c)}
+        pagini = {(p, c.id) for c in rezultate.conturi(db) for p in _pagini(db, c)}
     for cid, tenant, platforma, extern in conturi:
         if not usa_reclame.are_cititor(platforma):
             continue
@@ -155,13 +180,17 @@ def supravegheaza(acum: dt.datetime | None = None) -> list[Anomalie]:
             continue
         if not st.activ:
             gasite.append(Anomalie(cid, "cont", f"platforma semnalează o problemă pe cont: {st.motiv}"))
-    for pagina in sorted(pagini):
-        if not VERIFICA_PAGINA(pagina):
-            gasite.append(Anomalie(uuid.UUID(int=0), "pagina", f"pagina de destinație nu răspunde: {pagina}"))
+    # F15.2: pagina căzută a unui client oprește doar campaniile contului acelui client, nu pe ale tuturor
+    # (altfel orice client ar putea opri reclamele celorlalți cu o pagină care dă 5xx).
+    pe_cont: list[Anomalie] = []
+    for adresa, cid in sorted(pagini, key=str):
+        if not VERIFICA_PAGINA(adresa):
+            pe_cont.append(Anomalie(cid, "pagina", f"pagina de destinație nu răspunde: {adresa}"))
+            opreste_cont(cid, pe_cont[-1].text[:280], acum)
     if gasite:
         with sesiune_agentie() as db:
             deja = opriri.este_oprit(db, opriri.Oprire.RECLAME)
             are_active = db.execute(select(Campanie.id).where(Campanie.stare == "activa")).first() is not None
         if not deja or are_active:
             opreste_tot("; ".join(sorted({a.text for a in gasite}))[:280], acum)
-    return gasite
+    return gasite + pe_cont

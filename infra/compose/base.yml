@@ -29,6 +29,7 @@ x-app: &app
     AMA_TELEGRAM_WEBHOOK_SECRET: ${AMA_TELEGRAM_WEBHOOK_SECRET:-}
     AMA_MEDIA_DIR: /var/lib/ama/media
     UVICORN_WORKERS: ${UVICORN_WORKERS:-2}
+    FORWARDED_ALLOW_IPS: 172.31.250.0/24  # doar proxy-ul din rețeaua `edge` (edge.yml); F15.2
   volumes:
     - media:/var/lib/ama/media
   networks:
@@ -113,6 +114,8 @@ services:
       AMA_SECRET_KEY: ${AMA_SECRET_KEY:?}
       AMA_MASTER_KEY: ${AMA_MASTER_KEY:?}
       AMA_WORKER_ID: ${AMA_WORKER_ID:-worker-1}
+      # Doar workerul (nu și web-ul) execută ștergerea unui client ca proprietarul schemei (F7, docs/21); F15.2
+      AMA_DATABASE_OWNER_URL: postgresql+psycopg://ama_owner:${AMA_OWNER_DB_PASSWORD:?}@postgres:5432/ama
       AMA_WORKER_OPRIRE_SEC: "20"
       AMA_CULOARE_GREU: ${AMA_CULOARE_GREU:-2}
       # Alertele (push, Telegram) pleacă și din worker (F2.7).

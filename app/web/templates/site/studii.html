@@ -1,0 +1,12 @@
+{% extends "site/pagina.html" %}
+{% block dupa %}
+{% for s in studii %}
+<article class="studiu">
+  <h2>{{ s.titlu }}</h2>
+  <h3>Situația</h3><p>{{ s.situatie }}</p>
+  <h3>Ce am făcut</h3><p>{{ s.actiune }}</p>
+  <h3>Rezultatul (măsurat)</h3><p>{{ s.rezultat }}</p>
+  <p class="slab">Publicat cu acordul clientului, {{ s.publicat_la.strftime("%d.%m.%Y") }}.</p>
+</article>
+{% endfor %}
+{% endblock %}

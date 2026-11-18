@@ -103,6 +103,8 @@ CONTEXT_AGENTIE = {
     # lunară citește toate urmele
     "app/operare/urme/jurnal.py",
     "app/operare/urme/fluxuri.py",
+    "app/lansare/fluxuri.py",  # F15.5: raportul săptămânal al pilotului, pe toți clienții din pilot
+    "app/lansare/cli.py",  # F15.6: comanda care înregistrează rezultatul testelor de avarie (fără utilizator)
 }
 
 

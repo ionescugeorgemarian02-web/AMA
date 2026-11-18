@@ -4,6 +4,27 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F15 — Întărire și lansare
+- `tests/integration/test_poarta_f15.py`, `docs/specs/F15-poarta.md` (cap-coadă pe simulare: avarie, restaurare, pilot, studii, lista 25.5).
+
+### F15.6 — Lansarea comercială
+- Lista de go-live din docs/25 §25.5 (`app/lansare/golive.py`, ecranul `/lansare/go-live`), calculată din bază, urme și fișiere unde se poate; studiile de caz (`app/lansare/studii.py`, șablonul `docs/sabloane/studiu-de-caz.md`, `/site/studii-de-caz`); rezultatul avariei pe staging (`app/lansare/cli.py`); urma zilnică `resurse / verifica`; migrarea `0083`.
+
+### F15.5 — Pilotul cu trei clienți
+- `app/lansare/` (înscrierea la L1 cu preț de pilot, feedback săptămânal, aprobarea din prima și incidentele critice din urme, poarta, raportul săptămânal `lansare.pilot_saptamanal`), ecranul `/lansare/pilot`, migrarea `0082`.
+
+### F15.4 — Juridic (ciorne)
+- `docs/juridic/` (contract de servicii, acord de prelucrare, termeni, confidențialitate, cookie-uri), paginile `/site/legal/...` generate din ele cu marcajul „necesită revizuirea avocatului”, pagina nouă `/site/legal/contract`.
+
+### F15.3 — Exercițiul de restaurare completă
+- `scripts/exercitiu_restaurare.py` (backup -> mediu curat -> restaurare -> verificare, cronometrat față de 4 h), `tests/avarie/test_restaurare.py` (scenariul A14), runbook-ul `restaurare.md` secțiunea D.
+
+### F15.2 — Revizuire de securitate
+- Revizie pe alt model (Sonnet, doar citire), `docs/specs/F15.2-revizie.txt`. Reparate: plafonul de reclame la aprobări concurente (gardianul reaplicat sub încuietoare), încuietoarea pe efectele de sistem, SSRF pe pagina reclamei (`app/reclame/pagina.py`), oprirea pe cont la pagina căzută, antetele proxy doar din rețeaua `edge`, plățile sosite în altă ordine și deduplicarea atomică, parola la ștergerea datelor, credențialele proprietarului doar în worker. Colecția `tests/atacuri/`.
+
+### F15.1 — Teste de avarie
+- `tests/avarie/` (catalogul scenariilor din docs/25 §25.3, raportul pe scenarii, teste noi: baza repornită, disc 85%, memorie la limită, randarea reluată, P0 pe culoare ocupate, webhook dublu, politica de repornire), `scripts/avarie.sh`. `app/operare/resurse.py` și jobul `operare.resurse` (la 5 minute); randarea amânată la disc plin / memorie la limită și cu director de lucru propriu, curățat la reluare. D-022.
+
 ### Poarta F14 — Învățare, a doua treaptă
 - `tests/integration/test_poarta_f14.py`, `docs/specs/F14-poarta.md`; clientul intern al evaluărilor se creează într-o tranzacție proprie (consumul gateway-ului se scrie separat); verdictul testului formal spune câte observații a folosit (`n_folosit`); gărzile contextului de agenție cunosc modulele F14.
 

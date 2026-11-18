@@ -101,6 +101,9 @@ def activeaza(jeton: str, *, parola: str, nume_afisat: str) -> uuid.UUID:
         if inv is None:
             raise InvitatieInvalida("Linkul de activare nu este valid sau a expirat.")
         db.execute(select(Invitatie).where(Invitatie.id == inv.id).with_for_update())
+        db.refresh(inv)  # F15.2: starea de după încuietoare; două activări paralele -> una singură
+        if inv.folosita_la is not None:
+            raise InvitatieInvalida("Linkul de activare nu este valid sau a expirat.")
         u = creeaza_utilizator(
             db,
             email=inv.email,

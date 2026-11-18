@@ -220,3 +220,21 @@ Zonă: `app/invatare/` (fișiere noi; `__init__.py` și `modele.py` doar prin ad
 | F14.5 Scorul de lead și riscul de plecare | **închis** (împins), fără migrare; citește `app.crm` (B) doar prin exporturile lui |
 | F14.6 Consolidarea nocturnă a memoriei | **închis** (împins), fără migrare |
 | Poarta F14 | **trecută pe simulare** (`docs/specs/F14-poarta.md`) |
+
+## Sesiunea A, F15 pas cu pas
+
+Zonă: `tests/avarie/`, `tests/atacuri/`, `app/operare/` (fișiere noi), `app/lansare/` (nou), `docs/juridic/`, migrările `0082`–`0089`, D-022+.
+
+| Pas | Stare |
+| --- | --- |
+| F15.1 Teste de avarie | **închis** (împins), fără migrare |
+| F15.2 Revizuire de securitate | **închis** (împins); atins prin reparații: `app/reclame`, `app/finante/abonamente.py`, `app/operare/efecte/sistem.py`, `app/portal`, compose, `Dockerfile` |
+
+Cerere A -> C (F15.2, revizia de securitate): webhook-ul Shopify (`app/comert/catalog.py`) să deduplice pe
+`X-Shopify-Webhook-Id`, să lege magazinul de secret și să folosească timpul din payload la `products/delete`
+(MIC, latent: nicio rută legată). Nu am atins `app/comert/`.
+| F15.3 Exercițiul de restaurare | **închis** (împins), fără migrare |
+| F15.4 Juridic (ciorne) | **închis** (împins); atins prin adăugare: `app/site/pagini.py` (LEGAL), `site/pagina.html`, `site.css`, `Dockerfile`, `.dockerignore` |
+| F15.5 Pilot | **închis** (împins), migrarea `0082`; atins prin adăugare: `app/panou/__init__.py`, `panou/meniu.html`, `app/worker.py`, `tests/unit/test_garzi_db.py` |
+| F15.6 Lansarea comercială | **închis** (împins), migrarea `0083`; atins prin adăugare: `app/site/web.py` (ruta studiilor), `app/operare/resurse_fluxuri.py`, `scripts/avarie.sh` |
+| Poarta F15 | **trecută pe simulare** (`docs/specs/F15-poarta.md`) |

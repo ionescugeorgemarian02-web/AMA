@@ -1,0 +1,44 @@
+{% extends "panou/baza.html" %}
+{% block title %}Go-live · AMA{% endblock %}
+{% block pagina %}
+<h1>Lista de go-live comercial</h1>
+<p class="slab" data-gata="{{ 'da' if rez.gata else 'nu' }}"><strong>{{ rez.bifate }} / {{ rez.total }} bifate</strong> · {{ rez.automate }} se calculează singure · {{ "Gata de lansare." if rez.gata else "Vânzarea publică rămâne oprită până la bifarea tuturor." }}</p>
+{% if mesaj %}<p role="status">Salvat ({{ mesaj }}).</p>{% endif %}
+{% if eroare %}<p role="alert">{{ eroare }}</p>{% endif %}
+{% for sectiune, puncte in sectiuni.items() %}
+<section class="card" aria-labelledby="s-{{ loop.index }}">
+  <h2 id="s-{{ loop.index }}">{{ sectiune }}</h2>
+  <ul class="lista-golive">
+  {% for p in puncte %}
+    <li data-punct="{{ p.cod }}" data-bifat="{{ 'da' if p.bifat else 'nu' }}">
+      <span aria-hidden="true">{{ "☑" if p.bifat else "☐" }}</span> <strong>{{ p.cod }}</strong> {{ p.text }}
+      <br><span class="slab">{{ "calculat" if not p.se_bifeaza_manual else "manual" }}: {{ p.detaliu }}{% if p.nota %} · notă: {{ p.nota }}{% endif %}</span>
+      {% if p.se_bifeaza_manual %}
+      <form method="post" action="/lansare/go-live/{{ p.cod }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="bifat" value="{{ '' if p.manual else 'da' }}">
+        {% if not p.manual %}<label>Dovada <input name="nota" maxlength="500" required></label>{% endif %}
+        <button type="submit">{{ "Debifează" if p.manual else "Bifează" }}</button>
+      </form>
+      {% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+</section>
+{% endfor %}
+<section class="card" aria-labelledby="studii">
+  <h2 id="studii">Studii de caz</h2>
+  <ul>{% for s, client in studii %}<li data-studiu="{{ s.id }}">{{ s.titlu }} ({{ client }}) · {{ s.stare }} · {{ s.rezultat }}
+    {% if s.stare == "ciorna" %}<form method="post" action="/lansare/studii/{{ s.id }}/publica"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label><input type="checkbox" name="acord" value="da" required> Clientul și-a dat acordul scris</label> <button type="submit">Publică</button></form>{% endif %}
+  </li>{% else %}<li>Niciun studiu încă.</li>{% endfor %}</ul>
+  <form method="post" action="/lansare/studii">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Client <select name="tenant_id">{% for i, n in clienti %}<option value="{{ i }}">{{ n }}</option>{% endfor %}</select></label>
+    <label>Titlu <input name="titlu" maxlength="120" required></label>
+    <label>Situația <textarea name="situatie" maxlength="3000"></textarea></label>
+    <label>Ce am făcut <textarea name="actiune" maxlength="3000"></textarea></label>
+    <button type="submit">Studiu de caz nou (cifrele din pilot)</button>
+  </form>
+</section>
+{% endblock %}

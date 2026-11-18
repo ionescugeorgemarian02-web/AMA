@@ -6,6 +6,7 @@ spre auditul gratuit. Paginile dinamice (blogul, studiile de caz din platformă,
 conținutul în rute. Datele firmei sunt substituenți: NEVERIFICAT (F0.1, la migrare)."""
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from app.finante import planuri
 
@@ -243,43 +244,53 @@ PAGINI: tuple[Pagina, ...] = (
     Pagina("stare", "Starea serviciului", "Starea platformei AMA și incidentele.", eticheta_meniu="Stare"),
 )
 
+DIR_JURIDIC = Path(__file__).resolve().parents[2] / "docs" / "juridic"
+CIORNA = (
+    "Ciornă — necesită revizuirea avocatului. Textul nu este încă cel final și nu este consultanță juridică."
+)
+
+
+def din_juridic(fisier: str, cale: str) -> Pagina:
+    """O pagină legală din ciorna ei din `docs/juridic/` (F15.4): `# Titlu`, `descriere:`, `stare:`, apoi
+    secțiuni `## ...` cu paragrafe și liste `- ...`. `stare: ciorna` pune marcajul „necesită revizuirea
+    avocatului” pe pagină; după semnătura avocatului rândul se scoate din fișier."""
+    randuri = (DIR_JURIDIC / fisier).read_text(encoding="utf-8").splitlines()
+    titlu, meta = randuri[0].removeprefix("# ").strip(), {}
+    sectiuni: list[Sectiune] = []
+    curenta: dict[str, list[str]] | None = None
+    nume = ""
+
+    def inchide() -> None:
+        if curenta is not None:
+            sectiuni.append(Sectiune(nume, tuple(curenta["p"]), tuple(curenta["l"])))
+
+    for r in randuri[1:]:
+        r = r.strip()
+        if r.startswith("## "):
+            inchide()
+            nume, curenta = r[3:].strip(), {"p": [], "l": []}
+        elif curenta is None and ":" in r:
+            k, _, v = r.partition(":")
+            meta[k.strip()] = v.strip()
+        elif curenta is not None and r.startswith("- "):
+            curenta["l"].append(r[2:].strip())
+        elif curenta is not None and r:
+            curenta["p"].append(r)
+    inchide()
+    extra = {"ciorna": CIORNA} if meta.get("stare") == "ciorna" else {}
+    return Pagina(cale, titlu, meta.get("descriere", titlu), tuple(sectiuni), in_meniu=False, extra=extra)
+
+
+DOCUMENTE_JURIDICE: tuple[tuple[str, str], ...] = (
+    ("termeni.md", "legal/termeni"),
+    ("confidentialitate.md", "legal/confidentialitate"),
+    ("cookie-uri.md", "legal/cookie-uri"),
+    ("acord-prelucrare.md", "legal/acord-prelucrare"),
+    ("contract-servicii.md", "legal/contract"),
+)
+
 LEGAL: tuple[Pagina, ...] = (
-    Pagina(
-        "legal/termeni",
-        "Termeni și condiții",
-        "Termenii de folosire a serviciilor AMA.",
-        (Sectiune("Pe scurt", ("Textul final se redactează cu juristul (F0.6).",)),),
-        in_meniu=False,
-    ),
-    Pagina(
-        "legal/confidentialitate",
-        "Politica de confidențialitate",
-        "Ce date prelucrăm, de ce și cât timp.",
-        (Sectiune("Pe scurt", ("Prelucrăm doar datele necesare serviciului; nu vindem date.",)),),
-        in_meniu=False,
-    ),
-    Pagina(
-        "legal/cookie-uri",
-        "Politica de cookie-uri",
-        "Ce cookie-uri folosim și cum îți retragi acordul.",
-        (
-            Sectiune(
-                "Cookie-uri",
-                lista=(
-                    "Esențiale: sesiunea din portal și alegerea ta privind cookie-urile.",
-                    "Analiză (doar cu acord): numărăm vizitele pe pagină, fără identificatori, pe serverul nostru.",
-                ),
-            ),
-        ),
-        in_meniu=False,
-    ),
-    Pagina(
-        "legal/acord-prelucrare",
-        "Acord de prelucrare a datelor",
-        "Acordul de prelucrare (DPA) pentru clienți.",
-        (Sectiune("Pe scurt", ("Clientul este operator, AMA este persoană împuternicită.",)),),
-        in_meniu=False,
-    ),
+    *(din_juridic(f, c) for f, c in DOCUMENTE_JURIDICE),
     Pagina(
         "legal/stergere-date",
         "Instrucțiuni de ștergere a datelor",
@@ -297,6 +308,7 @@ LEGAL: tuple[Pagina, ...] = (
         in_meniu=False,
     ),
 )
+
 
 TOATE: dict[str, Pagina] = {p.cale: p for p in (*PAGINI, *LEGAL)}
 MENIU: tuple[Pagina, ...] = tuple(p for p in PAGINI if p.in_meniu and p.cale not in ("", "stare", "legal"))

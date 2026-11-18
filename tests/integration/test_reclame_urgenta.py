@@ -146,3 +146,6 @@ def test_celelalte_semnale_opresc_si_ele(
             assert p.stare == "esuata"
     else:
         assert stare(scalare) == "in_pauza"
+    if semnal == "pagina":  # F15.2: pagina unui client oprește doar contul lui, nu reclamele tuturor
+        with sesiune_agentie() as db:
+            assert not opriri.este_oprit(db, opriri.Oprire.RECLAME)

@@ -19,7 +19,7 @@ from app.conturi import Rol
 from app.db import sesiune_tenant
 from app.db.stergere import ordine
 from app.onboarding import sesiuni
-from tests.integration.conftest import Cont, csrf_din, login
+from tests.integration.conftest import PAROLA, Cont, csrf_din, login
 from tests.integration.utile_site import asteapta
 
 pytestmark = pytest.mark.db
@@ -86,8 +86,12 @@ def test_export_complet_apoi_stergere_la_cerere(
     h = client.get("/portal/cont").text
     r = client.post("/portal/date/sterge", data={"csrf_token": csrf_din(h), "confirmare": "da"})
     assert "nu a fost înregistrată" in r.text
-    r = client.post("/portal/date/sterge", data={"csrf_token": csrf_din(h), "confirmare": "ȘTERGE"},
-                    follow_redirects=False)  # fmt: skip
+    # F15.2: fără parola curentă (reautentificare) cererea nu se înregistrează, nici cu confirmarea corectă
+    r = client.post("/portal/date/sterge", data={"csrf_token": csrf_din(h), "confirmare": "ȘTERGE",
+                    "parola": "gresita-dar-lunga"})  # fmt: skip
+    assert "parola nu este corectă" in r.text
+    r = client.post("/portal/date/sterge", data={"csrf_token": csrf_din(h), "confirmare": "ȘTERGE",
+                    "parola": PAROLA}, follow_redirects=False)  # fmt: skip
     assert r.status_code == 303
     asteapta(
         lambda: set(randuri(admin_engine, t)) <= {"jurnal_audit", "cereri_stergere", "urme"} or None,
