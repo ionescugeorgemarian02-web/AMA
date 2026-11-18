@@ -20,11 +20,12 @@ from app.db import sesiune_agentie
 from app.operare import motor
 from tests.integration.conftest import Cont
 from tests.integration.test_site_audit import date as date_formular
+from tests.integration.utile_crm import TABELE_CRM
 from tests.integration.utile_panou import autentifica, csrf
 from tests.integration.utile_site import asteapta, cutie, link_din  # noqa: F401
 
 pytestmark = pytest.mark.db
-TABELE = ("crm_sarcini", "crm_activitati", "crm_leaduri", "crm_consimtamant", "crm_contacte", "crm_firme")
+TABELE = TABELE_CRM
 ACUM = dt.datetime.now(dt.UTC)
 
 

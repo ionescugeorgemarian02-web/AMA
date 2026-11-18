@@ -15,9 +15,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
 from app.conturi import DbSession, Rol, SesiuneCurenta, csrf_protect, require_role
-from app.crm import CrmRefuzat, registru
+from app.crm import CrmRefuzat, calificare, conturi_tinta, inbox, oferte, raspunsuri, registru
 from app.crm import email as crm_email
 from app.panou.sabloane import pagina
+from app.portal import suport
 
 router = APIRouter(prefix="/crm", tags=["crm"])
 Proprietar = Annotated[SesiuneCurenta, Depends(require_role(Rol.PROPRIETAR))]
@@ -31,6 +32,15 @@ MESAJE = {
     "retras": "Consimțământul a fost retras.",
     "suprimat": "Adresa a fost pusă în lista de suprimare.",
     "regula": "Regula a fost salvată.",
+    "oferta": "Oferta a fost pregătită și așteaptă aprobarea ta.",
+    "aprobata": "Oferta a fost aprobată și trimisă.",
+    "respinsa": "Oferta a fost respinsă.",
+    "canal": "Canalul a fost aprobat: mesajele lui se citesc de acum.",
+    "canal_oprit": "Canalul nu se mai citește.",
+    "lista": "Lista a fost construită.",
+    "marcat": "Am notat.",
+    "trimis": "Răspunsul a plecat.",
+    "blocat": "Răspunsul nu a plecat: fereastra de mesagerie a rețelei s-a închis.",
 }
 
 
@@ -86,6 +96,8 @@ def _fisa(
         mesaj=MESAJE.get(request.query_params.get("mesaj", ""), ""),
         eroare=eroare,
         maine=(dt.datetime.now(dt.UTC) + dt.timedelta(days=1)).date().isoformat(),
+        calificare=calificare.curenta(db, lead_id),
+        etichete_grupa=calificare.ETICHETE_GRUPA,
         **f,
         **_etichete(),
     )
@@ -209,6 +221,8 @@ async def schimba(request: Request, lead_id: str, actiune: str, u: Proprietar, d
             if registru.fisa(db, lid) is None:
                 raise HTTPException(status_code=404, detail="Lead inexistent.")
             registru.creeaza_sarcina(db, lid, str(f.get("titlu") or ""), scadenta)
+        elif actiune == "oferta":
+            oferte.genereaza(db, lid)
         elif actiune == "retrage":
             date = registru.fisa(db, lid)
             if date is None:
@@ -239,3 +253,166 @@ def inchide_sarcina(request: Request, sarcina_id: str, u: Proprietar, db: DbSess
     except CrmRefuzat as exc:
         return _lista(request, u, db, status=422, eroare=_eroare(exc))
     return RedirectResponse("/crm?mesaj=facuta", status_code=303)
+
+
+# --- ofertele de aprobat (F12.6) ----------------------------------------------------------------------------
+def _oferte(request: Request, u: SesiuneCurenta, db: Any, *, status: int = 200, eroare: str = "") -> Response:
+    return pagina(
+        request,
+        u,
+        "panou/crm_oferte.html",
+        tab="meniu",
+        status=status,
+        oferte=oferte.de_aprobat(db),
+        text_oferta=oferte.text_oferta,
+        etichete_stare=oferte.ETICHETE_STARE,
+        mesaj=MESAJE.get(request.query_params.get("mesaj", ""), ""),
+        eroare=eroare,
+    )
+
+
+@router.get("/oferte")
+def lista_oferte(request: Request, u: Proprietar, db: DbSession) -> Response:
+    return _oferte(request, u, db)
+
+
+@router.post("/oferte/{oferta_id}/{decizie}", dependencies=[Depends(csrf_protect)])
+async def decide_oferta(
+    request: Request, oferta_id: str, decizie: str, u: Proprietar, db: DbSession
+) -> Response:
+    oid = _id(oferta_id)
+    f = await request.form()
+    try:
+        if decizie == "aproba":
+            oferte.aproba(db, oid, utilizator_id=u.utilizator_id)
+            mesaj = "aprobata"
+        elif decizie == "respinge":
+            oferte.respinge(db, oid, utilizator_id=u.utilizator_id, motiv=str(f.get("motiv") or ""))
+            mesaj = "respinsa"
+        else:
+            raise HTTPException(status_code=404, detail="Decizie necunoscută.")
+    except CrmRefuzat as exc:
+        return _oferte(request, u, db, status=422, eroare=_eroare(exc))
+    return RedirectResponse(f"/crm/oferte?mesaj={mesaj}", status_code=303)
+
+
+# --- inboxul social (F12.7) ---------------------------------------------------------------------------------
+def _inbox(request: Request, u: SesiuneCurenta, db: Any, *, status: int = 200, eroare: str = "") -> Response:
+    clasa = request.query_params.get("clasa", "")
+    if clasa and clasa not in inbox.CLASE:
+        raise HTTPException(status_code=404, detail="Clasă necunoscută.")
+    return pagina(
+        request,
+        u,
+        "panou/crm_inbox.html",
+        tab="meniu",
+        status=status,
+        canale=inbox.canale(db),
+        canale_posibile=inbox.canale_posibile(),
+        mesaje=[(m, raspunsuri.propuneri(db, m.id)) for m in inbox.mesaje(db, clasa=clasa)],
+        clasa=clasa,
+        etichete_clasa=inbox.ETICHETE_CLASA,
+        mesaj=MESAJE.get(request.query_params.get("mesaj", ""), ""),
+        eroare=eroare,
+    )
+
+
+@router.get("/inbox")
+def lista_inbox(request: Request, u: Proprietar, db: DbSession) -> Response:
+    return _inbox(request, u, db)
+
+
+@router.post("/inbox/canal", dependencies=[Depends(csrf_protect)])
+async def canal_inbox(request: Request, u: Proprietar, db: DbSession) -> Response:
+    f = await request.form()
+    canal, actiune = str(f.get("canal") or ""), str(f.get("actiune") or "aproba")
+    try:
+        if actiune == "opreste":
+            inbox.opreste_canal(db, canal, utilizator_id=u.utilizator_id)
+        else:
+            inbox.aproba_canal(db, canal, utilizator_id=u.utilizator_id, nivel=str(f.get("nivel") or "L1"))
+    except CrmRefuzat as exc:
+        return _inbox(request, u, db, status=422, eroare=_eroare(exc))
+    return RedirectResponse(
+        f"/crm/inbox?mesaj={'canal_oprit' if actiune == 'opreste' else 'canal'}", status_code=303
+    )
+
+
+@router.post("/inbox/{mesaj_id}/raspunde", dependencies=[Depends(csrf_protect)])
+async def raspunde_inbox(request: Request, mesaj_id: str, u: Proprietar, db: DbSession) -> Response:
+    f = await request.form()
+    try:
+        if f.get("propunere"):
+            r = raspunsuri.aproba_propunerea(db, _id(str(f.get("propunere"))), utilizator_id=u.utilizator_id)
+        else:
+            r = raspunsuri.raspunde_om(
+                db, _id(mesaj_id), str(f.get("text") or ""), utilizator_id=u.utilizator_id
+            )
+    except CrmRefuzat as exc:
+        return _inbox(request, u, db, status=422, eroare=_eroare(exc))
+    return RedirectResponse(f"/crm/inbox?mesaj={r.stare}", status_code=303)
+
+
+# --- conturile-țintă (F12.9) --------------------------------------------------------------------------------
+def _tinta(
+    request: Request, u: SesiuneCurenta, db: Any, *, lista: str = "", status: int = 200, eroare: str = ""
+) -> Response:
+    lista = lista or request.query_params.get("lista", "")
+    return pagina(
+        request,
+        u,
+        "panou/crm_tinta.html",
+        tab="meniu",
+        status=status,
+        liste=conturi_tinta.liste(db),
+        lista=lista,
+        firme=conturi_tinta.din_lista(db, lista) if lista else [],
+        semnale=conturi_tinta.SEMNALE,
+        mesaj=MESAJE.get(request.query_params.get("mesaj", ""), ""),
+        eroare=eroare,
+    )
+
+
+@router.get("/tinta")
+def lista_tinta(request: Request, u: Proprietar, db: DbSession) -> Response:
+    return _tinta(request, u, db)
+
+
+@router.post("/tinta", dependencies=[Depends(csrf_protect)])
+async def construieste_tinta(request: Request, u: Proprietar, db: DbSession) -> Response:
+    f = await request.form()
+    try:
+        lista, _ = conturi_tinta.construieste(
+            db,
+            nisa=str(f.get("nisa") or ""),
+            localitate=str(f.get("localitate") or ""),
+            utilizator_id=u.utilizator_id,
+        )
+    except CrmRefuzat as exc:
+        return _tinta(request, u, db, status=422, eroare=_eroare(exc))
+    return RedirectResponse(f"/crm/tinta?lista={lista}&mesaj=lista", status_code=303)
+
+
+@router.post("/tinta/{cont_id}/{stare}", dependencies=[Depends(csrf_protect)])
+def marcheaza_tinta(request: Request, cont_id: str, stare: str, u: Proprietar, db: DbSession) -> Response:
+    lista = request.query_params.get("lista", "")
+    try:
+        conturi_tinta.marcheaza(db, _id(cont_id), stare, utilizator_id=u.utilizator_id)
+    except CrmRefuzat as exc:
+        return _tinta(request, u, db, lista=lista, status=422, eroare=_eroare(exc))
+    return RedirectResponse(f"/crm/tinta?lista={lista}&mesaj=marcat", status_code=303)
+
+
+# --- escaladările din asistentul de suport al portalului (F12.10) -------------------------------------------
+@router.get("/suport")
+def lista_suport(request: Request, u: Proprietar, db: DbSession) -> Response:
+    return pagina(request, u, "panou/crm_suport.html", tab="meniu", intrebari=suport.escaladate(db))
+
+
+@router.post("/suport/{intrebare_id}/preia", dependencies=[Depends(csrf_protect)])
+def preia_suport(request: Request, intrebare_id: str, u: Proprietar, db: DbSession) -> Response:
+    try:
+        suport.preia(db, _id(intrebare_id))
+    except suport.IntrebareInvalida as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from None
+    return RedirectResponse("/crm/suport", status_code=303)

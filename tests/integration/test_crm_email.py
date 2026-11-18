@@ -18,15 +18,13 @@ from app.crm import email, registru
 from app.db import sesiune_agentie
 from app.operare.efecte import sistem
 from tests.integration.conftest import Cont
+from tests.integration.utile_crm import TABELE_CRM
 from tests.integration.utile_panou import autentifica, csrf
 from tests.integration.utile_productie import om  # noqa: F401
 from tests.integration.utile_site import asteapta, cutie, link_din  # noqa: F401
 
 pytestmark = pytest.mark.db
-TABELE = (
-    "crm_trimiteri", "crm_suprimari", "crm_sarcini", "crm_activitati", "crm_leaduri", "crm_consimtamant",
-    "crm_contacte", "crm_firme",
-)  # fmt: skip
+TABELE = TABELE_CRM
 ADRESA = "ana@zorilor.example"
 
 

@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.crm import registru as crm
+from app.crm import secventa as crm_secventa
 from app.db import sesiune_agentie
 from app.ids import new_id
 from app.logging import get_logger
@@ -161,7 +162,7 @@ def confirma(db: Session, jeton: str) -> Lead | None:
         db, "lead.confirmat", sursa="site", obiect_tip="lead", obiect_id=lead.id, date={"sursa": lead.sursa}
     )
     # F12.1: lead-ul confirmat intră în CRM, cu sursă și temei (o singură dată: cheia e lead-ul din site)
-    crm.primeste(
+    lead_crm, _ = crm.primeste(
         db,
         email=lead.email,
         firma=lead.firma,
@@ -170,6 +171,8 @@ def confirma(db: Session, jeton: str) -> Lead | None:
         dovada="opt-in dublu confirmat din linkul primit pe email",
         lead_site_id=lead.id,
     )
+    # F12.3: secvența de după audit (o înscriere pe contact; fiecare pas trece prin `crm.email.trimite`)
+    crm_secventa.inscrie(db, lead_crm.contact_id, lead_id=lead_crm.id)
     lead_id = lead.id
 
     def dupa(_s: Session) -> None:
@@ -259,3 +262,9 @@ def leaduri(db: Session, *, limita: int = 100) -> list[tuple[Lead, Audit | None]
         .limit(limita)
     ).all()
     return [(r[0], r[1]) for r in rows]
+
+
+def raport_pentru_lead(db: Session, lead_id: uuid.UUID) -> dict[str, Any] | None:
+    """Raportul de audit gata al unui lead din site (F12.6: oferta pornește din el). None dacă nu e gata."""
+    a = db.execute(select(Audit).where(Audit.lead_id == lead_id)).scalar_one_or_none()
+    return a.raport if a is not None and a.stare == "gata" else None

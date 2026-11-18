@@ -18,6 +18,7 @@ from app.portal.lucru_web import router as router_lucru
 from app.portal.materiale_web import router as router_materiale
 from app.portal.prompter_web import router as router_prompter
 from app.portal.rapoarte_web import router as router_rapoarte
+from app.portal.suport_web import router as router_suport
 from app.portal.web import router
 
 
@@ -28,6 +29,7 @@ def inregistreaza(app: FastAPI) -> None:
     app.include_router(router_prompter)
     app.include_router(router_cont)
     app.include_router(router_rapoarte)
+    app.include_router(router_suport)
 
 
 def _invita_dupa_plata(db: Session, a: Abonament) -> None:

@@ -4,6 +4,33 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Poarta F12 — CRM, email, inbox
+- `tests/integration/test_poarta_f12.py`, `docs/specs/F12-poarta.md` (audit → secvență → calificare → apel programat, cap-coadă pe simulare); anularea programării cere CSRF dublu-trimis; ordinea livrării nu mai contează în testele secvenței.
+
+### F12.10 — Asistentul de suport din portal
+- `app/portal/suport.py` + `/portal/suport` (răspunsuri D din livrabile, cont și exportul Shopify `comert.vanzari.pentru_crm`; escaladare), ecranul `/crm/suport`, migrarea `0103` (`portal_suport`, RLS pe tenant).
+
+### F12.9 — Lista de conturi-țintă
+- `app/crm/conturi_tinta.py` (sursă publică SIMULATĂ, filtrul de date personale, mini-audit, argumente), ecranul `/crm/tinta`, migrarea `0102`.
+
+### F12.8 — Răspunsuri și escaladare
+- `app/crm/raspunsuri.py` (tabelul 17.8, ferestrele, dezvăluirea AI, escaladarea, ascunderea doar a spamului), efectul de sistem `mesaj_social`, răspunsurile din `/crm/inbox`, migrarea `0101`.
+
+### F12.7 — Inboxul social
+- `app/crm/inbox.py` (canale aprobate, citire prin `app/operare/efecte/inbox.py`, clasificare pe reguli, jobul `crm.inbox`), `app/connectors/inbox` (SIMULAT), ecranul `/crm/inbox`, migrarea `0100`.
+
+### F12.6 — Generatorul de oferte
+- `app/crm/oferte.py` (compunere din audit și planuri, verificări, aprobare/respingere), ecranul `/crm/oferte` și butonul de pe fișă, `site.audit.raport_pentru_lead`, migrarea `0099` (`crm_oferte`).
+
+### F12.5 — Programări
+- `app/crm/programari.py` (grila de sloturi, rezervarea, invitația .ics, reamintirile `crm.reamintiri`, anularea), `app/site/programare_web.py` + șabloanele `site/programare*.html`, migrarea `0098` (`crm_programari`), atașamente în conectorul de email.
+
+### F12.4 — Calificare și scor
+- `app/crm/calificare.py` (4 întrebări, regula de scor, grupele, lead mare → om, urme), migrarea `0097` (`crm_calificari`, tipuri noi de activitate), grupa pe fișa din `/crm`.
+
+### F12.3 — Secvența de după audit
+- `app/crm/secventa.py` (înscriere la confirmarea auditului, 4 pași prin `crm.email.trimite`, jobul orar `crm.secventa`, urme), migrarea `0096` (`crm_secvente`), `tests/integration/utile_crm.py` (ordinea comună de curățare).
+
 ### Poarta F15 — Întărire și lansare
 - `tests/integration/test_poarta_f15.py`, `docs/specs/F15-poarta.md` (cap-coadă pe simulare: avarie, restaurare, pilot, studii, lista 25.5).
 

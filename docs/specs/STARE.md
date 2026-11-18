@@ -266,12 +266,31 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F11.6 Ecranul „Învățare” | verificat local, prin cereri HTTP: aprobi o lecție și anulezi o promovare din panou; refuzurile Constituției se văd pe ecran; înghețare; experimente; analistul doar citește. **Nu e verificat pe un telefon real; rulările optimizatorului și seturile de aur lipsesc (F14)** | `tests/integration/test_invatare_ecran.py` |
 | Poarta F11 | trecută pe date simulate: o lecție promovată și una retrasă, cu urmă completă | `tests/integration/test_poarta_f11.py`, `docs/specs/F11-poarta.md` |
 
-## Faza F12 — CRM, email, inbox (preluată de sesiunea B pe 2026-11-15)
+## Faza F12 — CRM, email, inbox (B: F12.1–F12.2; A: F12.3–F12.10 și poarta)
 
 | Pas | Stare | Dovadă |
 | --- | --- | --- |
 | F12.1 CRM-ul minimal | verificat local: lead-ul confirmat din formular apare cu sursă și temei și nu se dublează; etape, istoricul consimțământului, unirea duplicatelor, sarcini de urmărire, export. **Doar CRM-ul agenției (nu cel vândut clienților); fără oportunități separate; fără ștergerea la 24 de luni** | `tests/integration/test_crm.py`, `tests/isolation/test_crm_rls.py`, `tests/unit/test_crm_registru.py` |
 | F12.2 Email către abonați | verificat pe cutia poștală SIMULATĂ: o adresă dezabonată nu mai primește nimic din nicio campanie (nici mesajul deja pus la coadă, nici după un nou acord); matricea pe țări, consimțământul, pragurile, limita zilnică. **Fără furnizor real, fără SPF/DKIM/DMARC, fără webhook de respingeri; regula pentru România neverificată de avocat** | `tests/integration/test_crm_email.py`, `tests/unit/test_crm_email.py` |
+| F12.3 Secvența de după audit | verificat pe cutia poștală SIMULATĂ: abonatul de test primește pașii, dezabonarea dintr-un clic oprește restul; lead avansat sau acord retras opresc, pragurile amână. **Zilele și textele [I], fără date de deschidere reale** | `tests/integration/test_crm_secventa.py` |
+| F12.4 Calificare și scor | verificat local: cinci lead-uri de test ajung în grupele corecte (de sunat azi, de hrănit, nepotrivit), lead-ul mare merge la om; recalificarea e un rând nou. **Pragurile [I], fără model statistic** | `tests/integration/test_crm_calificare.py`, `tests/unit/test_crm_calificare.py` |
+| F12.5 Programări | verificat local, prin HTTP cu agent de telefon: rezervarea din `/site/programare` creează lead-ul în „apel programat” și trimite invitația .ics pe cutia SIMULATĂ; slot dublu refuzat, reamintiri 24 h/1 h, anulare. **Fără calendar extern; .ics neverificat într-un client real; fără sărbători** | `tests/integration/test_crm_programari.py` |
+| F12.6 Generatorul de oferte | verificat local, prin HTTP: oferta pornește din raportul de audit (motor SIMULAT) și din planuri, ajunge în `/crm/oferte` de aprobat; aprobată pleacă pe email, respinsă cere motiv; promisiunile garantate o blochează. **Fără PDF, fără acceptare automată** | `tests/integration/test_crm_oferte.py` |
+| F12.7 Inboxul social | verificat pe inbox SIMULAT: 17 mesaje de test ajung în cele 7 clase din 17.8; doar canalele aprobate din panou se citesc, o singură dată. **Fără conector Meta real; regulile necalibrate pe mesaje reale** | `tests/integration/test_crm_inbox.py`, `tests/unit/test_crm_inbox.py` |
+| F12.8 Răspunsuri și escaladare | verificat pe inbox SIMULAT: critica de test ajunge la om (fără răspuns automat, cu variantă), mesajul vechi de 30 h nu pleacă; dezvăluirea AI, agent uman doar pentru om, un răspuns la comentariu, spam ascuns cu eșantion. **Fără Graph API real; registrul de fapte scurt [I]** | `tests/integration/test_crm_raspunsuri.py`, `tests/unit/test_crm_raspunsuri.py` |
+| F12.9 Lista de conturi-țintă | verificat pe sursă SIMULATĂ: lista „horeca-cluj” din panou are mini-audit și 3 argumente pe firmă; PFA-ul, profilul unui om, telefoanele și adresele nu intră; modulul nu poate trimite nimic. **Sursele publice reale și semnalele măsurate lipsesc** | `tests/integration/test_crm_conturi_tinta.py` |
+| F12.10 Asistentul de suport din portal | verificat local, prin HTTP: întrebarea despre clipul de pe Instagram primește starea și termenul corecte (fără datele altui client); facturarea, reclamația și ce nu știe ajung în `/crm/suport`; clienții Shopify eligibili doar prin exportul comerțului. **Fără model; magazinul se numește în întrebare** | `tests/integration/test_portal_suport.py` |
+| Poarta F12 | trecută pe simulare: un lead parcurge audit → confirmare → secvență (3 pași) → calificare și rezervare de pe telefon → apel programat cu invitația .ics, fără dublură, secvența oprită; `make check` verde (3321 passed). **Un lead real cere furnizor de email, domeniu autentificat și motorul de audit real** | `tests/integration/test_poarta_f12.py`, `docs/specs/F12-poarta.md` |
+
+### De verificat la migrare (F12)
+- F12.3: furnizorul de email real (nivel gratuit), subdomeniul cu SPF/DKIM/DMARC; zilele pașilor și textele secvenței pe rezultate reale de deschidere și răspuns.
+- F12.4: pragurile scorului (bugetul minim, lead-ul mare) pe lead-uri reale; modelul statistic după câteva sute de rezultate.
+- F12.5: invitația .ics deschisă în Gmail/Outlook/Apple; sincronizarea cu calendarul real al proprietarului (opțională); programul și sărbătorile legale.
+- F12.6: prețurile planurilor (încă [I]) și maparea buget → pachet pe oferte reale; textul ofertei revizuit de proprietar.
+- F12.7: conectorul Graph API (aplicație aprobată de Meta, permisiuni de mesagerie și comentarii); precizia regulilor pe mesaje reale.
+- F12.8: eticheta HUMAN_AGENT și răspunsul privat la comentarii în Graph API real; registrul de fapte al agenției; timpul de răspuns măsurat.
+- F12.9: sursele publice reale (registrul firmelor, OpenStreetMap) și licențele lor; semnalele măsurate cu colectorul F4.
+- F12.10: întrebările reale ale clienților-pilot (categorii ratate); exportul `comert.magazine(tenant)` cerut lui C.
 
 ### De verificat la migrare (F11)
 - F11.1: pragurile Reflectorului (20 de postări pe lot, 3 pe grup, 25% diferență) pe date reale; efectul valorilor extreme asupra mediei lotului.

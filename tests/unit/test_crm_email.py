@@ -9,7 +9,11 @@ from app.crm import email
 ACUM = dt.datetime(2026, 11, 15, 12, tzinfo=dt.UTC)
 # Fișierele care trimit emailuri TRANZACȚIONALE (confirmări, facturi, acces). Orice alt loc care cere un
 # email trebuie să treacă prin `app.crm.email.trimite`, singurul care verifică suprimarea și consimțământul.
-TRANZACTIONALE = {"app/site/audit.py", "app/finante/abonamente.py", "app/portal/cont.py"}
+TRANZACTIONALE = {
+    "app/site/audit.py", "app/finante/abonamente.py", "app/portal/cont.py",
+    "app/crm/programari.py",  # F12.5: invitația, reamintirile și anularea unui apel cerut de persoană
+    "app/crm/oferte.py",  # F12.6: oferta aprobată de om, cerută de lead în apel
+}  # fmt: skip
 EXECUTORUL = "app/operare/efecte/sistem.py"  # ușa însăși (exemplul din documentația ei)
 
 

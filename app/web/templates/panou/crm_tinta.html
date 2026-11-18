@@ -1,0 +1,30 @@
+{% extends "panou/baza.html" %}
+{% block title %}Conturi-țintă · AMA{% endblock %}
+{% block pagina %}
+<h1>Conturi-țintă</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/crm">CRM</a> · Firme, nu persoane, din surse publice. Platforma nu le scrie niciodată singură: le contactezi tu, personal, pe canalul potrivit.</p>
+<section class="card" aria-labelledby="noua">
+  <h2 id="noua">Listă nouă</h2>
+  <form method="post" action="/crm/tinta">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="nisa">Nișa</label><input id="nisa" name="nisa" type="text" required maxlength="60" placeholder="horeca">
+    <label for="localitate">Localitatea</label><input id="localitate" name="localitate" type="text" required maxlength="80">
+    <button type="submit">Construiește lista</button>
+  </form>
+  {% if liste %}<p>{% for l in liste %}<a href="/crm/tinta?lista={{ l }}">{{ l }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+</section>
+{% for f in firme %}
+<section class="card" aria-labelledby="f-{{ f.id }}">
+  <h2 id="f-{{ f.id }}">{{ f.nume }}</h2>
+  <p>{{ f.domeniu }} · {{ f.localitate }} · {{ f.stare }}{% for p in f.pagini %} · <a href="{{ p }}" rel="noopener noreferrer">{{ p }}</a>{% endfor %}</p>
+  {% if f.mini_audit.rezumat %}<p>{{ f.mini_audit.rezumat }}</p>{% endif %}
+  <ol>{% for a in f.argumente %}<li>{{ a }}</li>{% endfor %}</ol>
+  {% if f.stare == "nou" %}
+  <form method="post" action="/crm/tinta/{{ f.id }}/contactat?lista={{ lista }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Am contactat-o</button></form>
+  <form method="post" action="/crm/tinta/{{ f.id }}/respins?lista={{ lista }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Nu e potrivită</button></form>
+  {% endif %}
+</section>
+{% endfor %}
+{% endblock %}

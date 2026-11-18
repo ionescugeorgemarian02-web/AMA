@@ -19,11 +19,11 @@ import datetime as dt
 import re
 import unicodedata
 import uuid
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from typing import Any
 from urllib.parse import urlsplit
 
-from sqlalchemy import func, select, text
+from sqlalchemy import event, func, select, text
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -214,6 +214,25 @@ def _activitate(
     db: Session, lead_id: uuid.UUID, tip: str, mesaj: str, utilizator_id: uuid.UUID | None = None
 ) -> None:
     db.add(Activitate(lead_id=lead_id, tip=tip, text=mesaj[:1000], utilizator_id=utilizator_id))
+
+
+def adauga_activitate(
+    db: Session, lead_id: uuid.UUID, tip: str, mesaj: str, utilizator_id: uuid.UUID | None = None
+) -> None:
+    """O activitate pe lead, pentru pașii F12 de mai târziu (calificare, programare, ofertă, mesaj)."""
+    _activitate(db, lead_id, tip, mesaj, utilizator_id)
+
+
+def dupa_commit(db: Session, f: Callable[[], object]) -> None:
+    """Rulează `f` doar după ce tranzacția s-a salvat (notificări, porniri de joburi)."""
+
+    def _rulare(_s: Session) -> None:
+        try:
+            f()
+        except Exception as exc:  # cel mai bun efort: acțiunea s-a salvat deja
+            log.warning("acțiune după commit nereușită", extra={"tip_eroare": type(exc).__name__})
+
+    event.listen(db, "after_commit", _rulare, once=True)
 
 
 def primeste(

@@ -15,8 +15,20 @@
     {% if firma.domeniu %}<dt>Site</dt><dd>{{ firma.domeniu }}</dd>{% endif %}
     <dt>Sursă</dt><dd>{{ etichete_sursa.get(lead.sursa, lead.sursa) }}</dd>
     <dt>Temeiul contactului</dt><dd>{{ etichete_temei.get(lead.temei, lead.temei) }}</dd>
+    {% if calificare %}<dt>Calificare</dt><dd>{{ etichete_grupa[calificare.grupa] }} (scor {{ calificare.scor }}/4){% if calificare.la_om %}, lead mare{% endif %}</dd>{% endif %}
   </dl>
 </section>
+
+{% if "oferta_trimisa" in tranzitii %}
+<section class="card" aria-labelledby="oferta">
+  <h2 id="oferta">Ofertă</h2>
+  <p class="slab">Oferta se scrie din auditul lead-ului și din pachete; ajunge în <a href="/crm/oferte">ofertele de aprobat</a>.</p>
+  <form method="post" action="/crm/lead/{{ lead.id }}/oferta">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Pregătește oferta</button>
+  </form>
+</section>
+{% endif %}
 
 {% if tranzitii %}
 <section class="card" aria-labelledby="etapa">

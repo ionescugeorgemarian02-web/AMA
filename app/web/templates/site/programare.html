@@ -1,0 +1,44 @@
+{% extends "site/baza.html" %}
+{% block continut %}
+<h1>Programează un apel</h1>
+<p>Un apel de 20 de minute în care trecem prin auditul tău. Orele sunt ora României.</p>
+{% if eroare %}<p class="eroare" role="alert">{{ eroare }}</p>{% endif %}
+{% if not zile %}
+<p>Nu mai sunt intervale libere în următoarele două săptămâni. Scrie-ne și te sunăm noi.</p>
+{% else %}
+<form method="post" action="/site/programare">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <input type="hidden" name="t" value="{{ t }}">
+  <fieldset>
+    <legend>Alege intervalul</legend>
+    {% for zi, ore in zile.items() %}
+    <p><strong>{{ zi }}</strong></p>
+    {% for valoare, ora in ore %}
+    <label class="slot"><input type="radio" name="slot" value="{{ valoare }}" required> {{ ora }}</label>
+    {% endfor %}
+    {% endfor %}
+  </fieldset>
+  <label for="nume">Numele tău</label>
+  <input id="nume" name="nume" type="text" maxlength="200" autocomplete="name" value="{{ valori.nume if valori else '' }}">
+  <label for="firma">Numele firmei</label>
+  <input id="firma" name="firma" type="text" required maxlength="200" autocomplete="organization" value="{{ valori.firma if valori else '' }}">
+  <label for="email">Emailul tău (aici primești invitația)</label>
+  <input id="email" name="email" type="email" required maxlength="254" autocomplete="email" value="{{ valori.email if valori else '' }}">
+  <label for="telefon">Telefon (opțional)</label>
+  <input id="telefon" name="telefon" type="tel" maxlength="40" autocomplete="tel" inputmode="tel" value="{{ valori.telefon if valori else '' }}">
+  <fieldset>
+    <legend>Patru întrebări (opționale)</legend>
+    <p>{{ introducere }}</p>
+    {% for cheie, (intrebare, optiuni) in intrebari.items() %}
+    <label for="{{ cheie }}">{{ intrebare }}</label>
+    <select id="{{ cheie }}" name="{{ cheie }}">
+      <option value="">— aleg mai târziu —</option>
+      {% for v, text in optiuni.items() %}<option value="{{ v }}"{% if valori and valori[cheie] == v %} selected{% endif %}>{{ text }}</option>{% endfor %}
+    </select>
+    {% endfor %}
+  </fieldset>
+  <div class="camp-ascuns" aria-hidden="true"><label for="site_web2">Nu completa</label><input id="site_web2" name="site_web2" type="text" tabindex="-1" autocomplete="off"></div>
+  <button class="cta" type="submit">Rezervă apelul</button>
+</form>
+{% endif %}
+{% endblock %}

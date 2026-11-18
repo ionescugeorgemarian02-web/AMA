@@ -55,6 +55,10 @@ CONTEXT_AGENTIE = {
     "app/site/web.py",
     "app/site/audit.py",
     "app/crm/registru.py",  # jobul zilnic de igienă a CRM-ului (F12.1): date ale agenției, fără utilizator
+    "app/crm/secventa.py",  # jobul orar al secvenței de după audit (F12.3): date ale agenției, fără utilizator
+    "app/crm/programari.py",  # jobul reamintirilor (F12.5): date ale agenției, fără utilizator
+    "app/crm/inbox.py",  # jobul de citire a inboxului social (F12.7): canalele agenției, fără utilizator
+    "app/site/programare_web.py",  # pagina publică de programare (F12.5): păzită ca formularul de audit
     "app/site/audit_web.py",
     # Efectele de sistem (F7): jobul de trimitere rulează fără utilizator; emailul către un lead nu are client.
     "app/operare/efecte/sistem.py",

@@ -38,8 +38,17 @@ apoi F10 (ramura B).
 | Poarta F11 | **trecută pe simulări** (`docs/specs/F11-poarta.md`) |
 | F12.1 CRM-ul minimal | **închis** (împins), migrarea `0094` |
 | F12.2 Email către abonați | **închis** (împins), migrarea `0095` |
-| F12.3 Secvența de după audit | urmează (B) |
-| F12.4–F12.10 | nepornite; B le ia în ordine cât A e oprită |
+| F12.3 Secvența de după audit | **închis** (A, împins), migrarea `0096` |
+| F12.4 Calificare și scor | **închis** (A, împins), migrarea `0097` |
+| F12.5 Programări | **închis** (A, împins), migrarea `0098` |
+| F12.6 Generatorul de oferte | **închis** (A, împins), migrarea `0099` |
+| F12.7 Inboxul social | **închis** (A, împins), migrarea `0100` |
+| F12.8 Răspunsuri și escaladare | **închis** (A, împins), migrarea `0101` |
+| F12.9 Lista de conturi-țintă | **închis** (A, împins), migrarea `0102` |
+| F12.10 Asistentul de suport | **închis** (A, împins), migrarea `0103` |
+| Poarta F12 | **trecută pe simulare** (A, `docs/specs/F12-poarta.md`) |
+
+Cerere către C (din F12.10): un export `comert.magazine(tenant)` — lista magazinelor conectate ale unui client, ca asistentul din portal să nu ceară numele magazinului în întrebare.
 
 ## Raport pentru sesiunea A (citește asta întâi)
 
@@ -238,3 +247,7 @@ Cerere A -> C (F15.2, revizia de securitate): webhook-ul Shopify (`app/comert/ca
 | F15.5 Pilot | **închis** (împins), migrarea `0082`; atins prin adăugare: `app/panou/__init__.py`, `panou/meniu.html`, `app/worker.py`, `tests/unit/test_garzi_db.py` |
 | F15.6 Lansarea comercială | **închis** (împins), migrarea `0083`; atins prin adăugare: `app/site/web.py` (ruta studiilor), `app/operare/resurse_fluxuri.py`, `scripts/avarie.sh` |
 | Poarta F15 | **trecută pe simulare** (`docs/specs/F15-poarta.md`) |
+
+## Preluare F12.3–F12.10 de către A (2026-11-18)
+- Sesiunea B nu a mai împins nimic după F12.2 (c04c6d3, 2026-11-17). Conform D-007, A preia F12.3–F12.10 pe ramura sa, în `app/crm`, email, inbox, cu migrările B rămase (0096–0099, apoi 0100–0119).
+- Dacă B revine: pornește din origin/main și anunță aici înainte de orice pas F12.

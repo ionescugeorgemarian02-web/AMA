@@ -7,10 +7,11 @@ from sqlalchemy.exc import DBAPIError
 
 from app.crm import registru
 from app.db import ContextDb, sesiune
+from tests.integration.utile_crm import TABELE_CRM
 from tests.isolation.conftest import Date
 
 pytestmark = [pytest.mark.db, pytest.mark.isolation]
-TABELE = ("crm_sarcini", "crm_activitati", "crm_leaduri", "crm_consimtamant", "crm_contacte", "crm_firme")
+TABELE = TABELE_CRM
 
 
 @pytest.fixture(autouse=True)

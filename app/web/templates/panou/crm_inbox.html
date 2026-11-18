@@ -1,0 +1,61 @@
+{% extends "panou/baza.html" %}
+{% block title %}Inbox social · AMA{% endblock %}
+{% block pagina %}
+<h1>Inbox social</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab"><a href="/crm">CRM</a> · Se citesc doar canalele aprobate de tine. Criticile și subiectele sensibile ajung la tine; nimic nu se șterge.</p>
+
+<section class="card" aria-labelledby="canale">
+  <h2 id="canale">Canale</h2>
+  {% set aprobate = {} %}{% for c in canale %}{% set _ = aprobate.update({c.canal: c}) %}{% endfor %}
+  {% for canal in canale_posibile %}
+  <form method="post" action="/crm/inbox/canal">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="canal" value="{{ canal }}">
+    {% if canal in aprobate and aprobate[canal].activ %}
+    <p>{{ canal }}: <strong>se citește</strong>{% if aprobate[canal].citit_pana_la %} (până la {{ aprobate[canal].citit_pana_la.strftime("%d.%m %H:%M") }} UTC){% endif %}</p>
+    <input type="hidden" name="actiune" value="opreste"><button type="submit">Oprește citirea</button>
+    {% else %}
+    <p>{{ canal }}: nu se citește</p>
+    <input type="hidden" name="actiune" value="aproba">
+    <label for="nivel-{{ canal }}">Nivelul răspunsurilor</label>
+    <select id="nivel-{{ canal }}" name="nivel">
+      <option value="L1">L1: propune, eu aprob</option><option value="L2">L2: răspunde singur la ce e simplu</option><option value="L0">L0: doar citește</option>
+    </select>
+    <button type="submit">Aprobă canalul</button>
+    {% endif %}
+  </form>
+  {% endfor %}
+</section>
+
+<section class="card" aria-labelledby="mesaje">
+  <h2 id="mesaje">Mesaje{% if clasa %}: {{ etichete_clasa[clasa] }}{% endif %}</h2>
+  <p>{% for c, e in etichete_clasa.items() %}<a href="/crm/inbox?clasa={{ c }}">{{ e }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+  {% for m, raspunsuri in mesaje %}
+  <article class="mesaj-inbox">
+    <p><strong>{{ etichete_clasa[m.clasa] }}</strong> · {{ m.canal }}, {{ "mesaj privat" if m.tip == "mesaj" else "comentariu" }} · {{ m.primit_la.strftime("%d.%m %H:%M") }} UTC · {{ m.stare }}{% if m.de_verificat %} · <strong>de verificat (eșantion)</strong>{% endif %}</p>
+    <p>{{ m.text }}</p>
+    {% for r in raspunsuri %}
+    <p class="slab">{{ "Propunere" if r.stare == "propus" else r.stare }} ({{ "om" if r.autor == "om" else "sistem" }}{% if r.eticheta_agent_uman %}, agent uman{% endif %}): {{ r.text }}{% if r.motiv %} · {{ r.motiv }}{% endif %}</p>
+    {% if r.stare == "propus" and m.stare == "propus" %}
+    <form method="post" action="/crm/inbox/{{ m.id }}/raspunde">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="propunere" value="{{ r.id }}">
+      <button type="submit">Trimite propunerea</button>
+    </form>
+    {% endif %}
+    {% endfor %}
+    {% if m.stare in ("la_om", "propus") %}
+    <form method="post" action="/crm/inbox/{{ m.id }}/raspunde">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="r-{{ m.id }}">Răspunsul tău</label>
+      <textarea id="r-{{ m.id }}" name="text" maxlength="2000" required></textarea>
+      <button type="submit">Trimite</button>
+    </form>
+    {% endif %}
+  </article>
+  {% else %}
+  <p>Niciun mesaj.</p>
+  {% endfor %}
+</section>
+{% endblock %}
