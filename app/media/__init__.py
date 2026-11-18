@@ -37,6 +37,7 @@ from app.media import (
     transcriere,
     vizual,
     voce,
+    voce_proprie,
 )
 
 __all__ = [
@@ -65,4 +66,5 @@ __all__ = [
     "transcriere",
     "vizual",
     "voce",
+    "voce_proprie",
 ]

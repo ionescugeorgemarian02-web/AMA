@@ -869,3 +869,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F16.3 — Localizare în engleză (Opus)
 - Catalog cu româna drept cheie (nu se ghicește traducerea). Limba conținutului pe client, citită de validatori prin `memo` (o dată pe rulare); `limba` exclusă din `Continut.texte()`.
 - Verificat: `test_localizare` (unit 6, integrare 2), unit + continut/validare/portal/panou/izolare/atacuri; lint, mypy, gărzi.
+
+### F16.4 — Voce proprie (Opus)
+- Acordul în bază, legat de model și de licența fiecărei narațiuni (`consimtamant_id`), ca revocarea să le poată bloca. Prima rulare: `compune` rescrie `extra` → testul verifică motorul din `generare`.
+- Verificat: `test_media_voce_proprie` (2), `test_media_voce`, `test_garzi_db`; lint, mypy.

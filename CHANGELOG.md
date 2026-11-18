@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F16.4 — Voce proprie antrenată
+- `app/media/voce_proprie.py` (acord, antrenare o dată, adaptorul TTS `proprie`, revocare care blochează narațiunile), migrarea `0106` (`voce_consimtaminte`, `voce_modele`, RLS); `voce.sintetizeaza` cu profil dat.
+
 ### F16.3 — Localizare în engleză
 - `app/localizare` (catalog, limba din cerere, `t` în șabloane), `POST /portal/limba`, portalul (meniu, Acasă) în engleză; `clienti.limba` (migrarea `0105`); instrucțiunea de limbă pentru autori; G1/G10 pe limba conținutului (`validare/limba_en.py`); editorul cu ghilimelele limbii.
 
