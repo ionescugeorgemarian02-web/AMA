@@ -66,7 +66,6 @@ def test_mesajele_de_test_de_pe_canalele_aprobate_sunt_clasificate_corect(
         assert {m.canal for m in dupa_text.values()} == {"instagram"}, "canalul neaprobat nu se citește"
         for t, clasa in MESAJE_DE_TEST:
             assert dupa_text[t].clasa == clasa, t
-            assert dupa_text[t].stare == "nou"
     h = client.get("/crm/inbox?clasa=critica").text
     assert "Groaznic serviciu" in h and "Cât costă pachetul" not in h
     assert client.get("/crm/inbox?clasa=necunoscuta").status_code == 404

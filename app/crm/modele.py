@@ -197,6 +197,7 @@ class CanalInbox(BazaCrm):
     aprobat_de: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     aprobat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     activ: Mapped[bool] = mapped_column(Boolean, default=True)
+    nivel: Mapped[str] = mapped_column(Text, default="L1")  # migrarea 0101
     citit_pana_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
 
 
@@ -215,4 +216,21 @@ class MesajInbox(BazaCrm):
     clasa: Mapped[str] = mapped_column(Text)
     motiv_clasa: Mapped[str] = mapped_column(Text, default="")
     stare: Mapped[str] = mapped_column(Text, default="nou")
+    de_verificat: Mapped[bool] = mapped_column(Boolean, default=False)  # migrarea 0101
     citit_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class RaspunsInbox(BazaCrm):
+    """Un răspuns propus sau trimis în inboxul social (migrarea 0101)."""
+
+    __tablename__ = "crm_inbox_raspunsuri"
+    id: Mapped[uuid.UUID] = _id()
+    mesaj_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    text: Mapped[str] = mapped_column(Text)
+    autor: Mapped[str] = mapped_column(Text)
+    utilizator_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    stare: Mapped[str] = mapped_column(Text)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    eticheta_agent_uman: Mapped[bool] = mapped_column(Boolean, default=False)
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    trimis_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))

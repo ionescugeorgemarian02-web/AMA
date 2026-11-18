@@ -277,6 +277,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F12.5 Programări | verificat local, prin HTTP cu agent de telefon: rezervarea din `/site/programare` creează lead-ul în „apel programat” și trimite invitația .ics pe cutia SIMULATĂ; slot dublu refuzat, reamintiri 24 h/1 h, anulare. **Fără calendar extern; .ics neverificat într-un client real; fără sărbători** | `tests/integration/test_crm_programari.py` |
 | F12.6 Generatorul de oferte | verificat local, prin HTTP: oferta pornește din raportul de audit (motor SIMULAT) și din planuri, ajunge în `/crm/oferte` de aprobat; aprobată pleacă pe email, respinsă cere motiv; promisiunile garantate o blochează. **Fără PDF, fără acceptare automată** | `tests/integration/test_crm_oferte.py` |
 | F12.7 Inboxul social | verificat pe inbox SIMULAT: 17 mesaje de test ajung în cele 7 clase din 17.8; doar canalele aprobate din panou se citesc, o singură dată. **Fără conector Meta real; regulile necalibrate pe mesaje reale** | `tests/integration/test_crm_inbox.py`, `tests/unit/test_crm_inbox.py` |
+| F12.8 Răspunsuri și escaladare | verificat pe inbox SIMULAT: critica de test ajunge la om (fără răspuns automat, cu variantă), mesajul vechi de 30 h nu pleacă; dezvăluirea AI, agent uman doar pentru om, un răspuns la comentariu, spam ascuns cu eșantion. **Fără Graph API real; registrul de fapte scurt [I]** | `tests/integration/test_crm_raspunsuri.py`, `tests/unit/test_crm_raspunsuri.py` |
 
 ### De verificat la migrare (F12)
 - F12.3: furnizorul de email real (nivel gratuit), subdomeniul cu SPF/DKIM/DMARC; zilele pașilor și textele secvenței pe rezultate reale de deschidere și răspuns.
@@ -284,6 +285,7 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F12.5: invitația .ics deschisă în Gmail/Outlook/Apple; sincronizarea cu calendarul real al proprietarului (opțională); programul și sărbătorile legale.
 - F12.6: prețurile planurilor (încă [I]) și maparea buget → pachet pe oferte reale; textul ofertei revizuit de proprietar.
 - F12.7: conectorul Graph API (aplicație aprobată de Meta, permisiuni de mesagerie și comentarii); precizia regulilor pe mesaje reale.
+- F12.8: eticheta HUMAN_AGENT și răspunsul privat la comentarii în Graph API real; registrul de fapte al agenției; timpul de răspuns măsurat.
 
 ### De verificat la migrare (F11)
 - F11.1: pragurile Reflectorului (20 de postări pe lot, 3 pe grup, 25% diferență) pe date reale; efectul valorilor extreme asupra mediei lotului.

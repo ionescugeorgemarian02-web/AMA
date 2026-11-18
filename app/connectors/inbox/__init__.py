@@ -48,6 +48,9 @@ class InboxSimulat:
             return RezultatPlatforma(id_extern=f"sim-inbox-{len(self.trimise) - 1}")
         if not {"canal", "fir", "catre", "text"} <= set(p):
             raise EroareDefinitiva("răspuns incomplet")
+        expira = p.get("fereastra_pana_la")
+        if expira and dt.datetime.fromisoformat(str(expira)) < dt.datetime.now(dt.UTC):
+            raise EroareDefinitiva("fereastra de mesagerie s-a închis")  # ca platforma reală: refuz definitiv
         trimis = {k: str(p[k]) for k in ("canal", "fir", "catre", "text")}
         self.trimise.append(
             {"idem": efect.idem, "actiune": "raspunde", **trimis, "eticheta": str(p.get("eticheta", ""))}

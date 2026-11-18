@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.8 — Răspunsuri și escaladare
+- `app/crm/raspunsuri.py` (tabelul 17.8, ferestrele, dezvăluirea AI, escaladarea, ascunderea doar a spamului), efectul de sistem `mesaj_social`, răspunsurile din `/crm/inbox`, migrarea `0101`.
+
 ### F12.7 — Inboxul social
 - `app/crm/inbox.py` (canale aprobate, citire prin `app/operare/efecte/inbox.py`, clasificare pe reguli, jobul `crm.inbox`), `app/connectors/inbox` (SIMULAT), ecranul `/crm/inbox`, migrarea `0100`.
 

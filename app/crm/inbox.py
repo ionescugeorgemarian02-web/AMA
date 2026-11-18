@@ -159,16 +159,26 @@ def canale_posibile() -> tuple[str, ...]:
     return usa_inbox.canale()
 
 
-def aproba_canal(db: Session, canal: str, *, utilizator_id: uuid.UUID) -> None:
+def aproba_canal(db: Session, canal: str, *, utilizator_id: uuid.UUID, nivel: str = "L1") -> None:
+    """Aprobă citirea canalului, cu nivelul de autonomie al răspunsurilor (L0–L4; implicit L1: se propune)."""
     if canal not in usa_inbox.canale():
         raise CrmRefuzat("canal necunoscut sau fără cititor oficial")
+    if nivel not in ("L0", "L1", "L2", "L3", "L4"):
+        raise CrmRefuzat("nivel de autonomie necunoscut")
     db.execute(
         insert(CanalInbox)
-        .values(canal=canal, aprobat_de=utilizator_id, activ=True)
-        .on_conflict_do_update(index_elements=["canal"], set_={"activ": True, "aprobat_de": utilizator_id})
+        .values(canal=canal, aprobat_de=utilizator_id, activ=True, nivel=nivel)
+        .on_conflict_do_update(
+            index_elements=["canal"], set_={"activ": True, "aprobat_de": utilizator_id, "nivel": nivel}
+        )
     )
     audit.record(
-        db, "crm.inbox_canal_aprobat", obiect_tip="canal", obiect_id=canal, utilizator_id=utilizator_id
+        db,
+        "crm.inbox_canal_aprobat",
+        obiect_tip="canal",
+        obiect_id=canal,
+        utilizator_id=utilizator_id,
+        detalii={"nivel": nivel},
     )
     urme.inregistreaza(db, "crm", "inbox_canal_aprobat", obiect_tip="canal", obiect_id=canal)
 
@@ -236,8 +246,13 @@ def canale(db: Session) -> list[CanalInbox]:
 
 
 def ruleaza(acum: dt.datetime | None = None) -> dict[str, int]:
+    """Citește și apoi tratează mesajele noi (F12.8), în aceeași tranzacție."""
+    from app.crm import raspunsuri  # import târziu: răspunsurile folosesc clasele de aici
+
     with sesiune_agentie() as db:
-        return citeste(db, acum)
+        noi = citeste(db, acum)
+        raspunsuri.trateaza(db, acum)
+        return noi
 
 
 @motor.pas("crm.pas_inbox")

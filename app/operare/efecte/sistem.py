@@ -33,6 +33,8 @@ log = get_logger("app.efecte.sistem")
 TIPURI = ("email", "plata")
 # F13.4 (D-008): scrierile la platformele de reclame
 TIPURI += ("reclama",)  # type: ignore[assignment]
+# F12.8: răspunsurile și ascunderea în inboxul social al agenției
+TIPURI += ("mesaj_social",)  # type: ignore[assignment]
 
 
 def _conector(tip: str) -> Any:
@@ -53,6 +55,10 @@ def _conector(tip: str) -> Any:
             from app.connectors import reclame  # adaptoarele platformelor de reclame (F13.4)
 
             registru.inregistreaza_sistem(tip, reclame.EXECUTANT)
+        elif tip == "mesaj_social":
+            from app.connectors import inbox  # SIMULAT până la conectorul Graph API (F12.8)
+
+            registru.inregistreaza_sistem(tip, inbox.INBOX)
         return registru.conector_sistem(tip)
 
 
