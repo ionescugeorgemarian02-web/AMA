@@ -234,3 +234,4 @@ Cerere A -> C (F15.2, revizia de securitate): webhook-ul Shopify (`app/comert/ca
 `X-Shopify-Webhook-Id`, să lege magazinul de secret și să folosească timpul din payload la `products/delete`
 (MIC, latent: nicio rută legată). Nu am atins `app/comert/`.
 | F15.3 Exercițiul de restaurare | **închis** (împins), fără migrare |
+| F15.4 Juridic (ciorne) | **închis** (împins); atins prin adăugare: `app/site/pagini.py` (LEGAL), `site/pagina.html`, `site.css`, `Dockerfile`, `.dockerignore` |

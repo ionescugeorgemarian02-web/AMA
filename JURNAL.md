@@ -802,3 +802,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F15.3 — Exercițiul de restaurare (Opus)
 - Script cap-coadă peste `ama_backup` (aceleași unelte ca producția); verificarea compară fiecare tabel, RLS, media și pornește aplicația pe baza restaurată.
 - Verificat: `tests/avarie/test_restaurare.py` 2 trecute pe Postgres local. Deschis: exercițiul pe staging cu date reale.
+
+### F15.4 — Juridic (Opus)
+- Ciorne după docs/21; paginile publice se generează din ele (o singură sursă), marcate până la avocat.
+- Verificat: `test_juridic`, `test_site_pagini`, `test_site`. Deschis: semnătura avocatului.

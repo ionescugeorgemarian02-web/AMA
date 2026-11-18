@@ -4,7 +4,7 @@ from app.site import blog, pagini
 from app.site.web import _inapoi_sigur
 
 CERUTE = {"", "audit", "servicii", "preturi", "cum-lucram", "studii-de-caz", "blog", "despre", "transparenta-ai",
-          "legal", "stare", "legal/termeni", "legal/confidentialitate", "legal/cookie-uri", "legal/acord-prelucrare",
+          "legal", "stare", "legal/termeni", "legal/confidentialitate", "legal/cookie-uri", "legal/acord-prelucrare", "legal/contract",
           "legal/stergere-date"}  # fmt: skip
 
 

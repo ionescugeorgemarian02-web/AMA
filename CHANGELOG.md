@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F15.4 — Juridic (ciorne)
+- `docs/juridic/` (contract de servicii, acord de prelucrare, termeni, confidențialitate, cookie-uri), paginile `/site/legal/...` generate din ele cu marcajul „necesită revizuirea avocatului”, pagina nouă `/site/legal/contract`.
+
 ### F15.3 — Exercițiul de restaurare completă
 - `scripts/exercitiu_restaurare.py` (backup -> mediu curat -> restaurare -> verificare, cronometrat față de 4 h), `tests/avarie/test_restaurare.py` (scenariul A14), runbook-ul `restaurare.md` secțiunea D.
 

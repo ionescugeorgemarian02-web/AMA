@@ -400,8 +400,10 @@ Audit: fără vulnerabilități cunoscute. Sesiunea A verifică și integrează;
 | F15.1 Teste de avarie | verificat local: catalogul cu cele 14 scenarii din §25.3, `scripts/avarie.sh` -> 14/14 trecute (Postgres real, workeri reali, ffmpeg real; disc/memorie SIMULATE); nou: presiunea pe resurse (`app/operare/resurse.py`, jobul `operare.resurse`), directorul de lucru al randării curățat la reluare | `tests/avarie/`, `docs/specs/F15.1.md` |
 | F15.2 Revizuire de securitate | verificat local: revizor Sonnet doar-citire; 1 CRITIC + 8 MEDIU reparate, fiecare cu test în colecția de atacuri; izolarea trece; 6 MIC rămase ca propuneri | `tests/atacuri/`, `docs/specs/F15.2.md` |
 | F15.3 Exercițiul de restaurare | verificat local (Postgres, age, rclone reale): backup -> bază și media noi -> restaurare -> migrări, rânduri pe fiecare tabel, RLS, media, `/readyz` = 200; cronometrat față de 4 h | `scripts/exercitiu_restaurare.py`, `tests/avarie/test_restaurare.py`, `docs/specs/F15.3.md` |
+| F15.4 Juridic | ciorne construite (contract, DPA, termeni, confidențialitate, cookie-uri) în `docs/juridic/`, publicate din aceleași fișiere și marcate „necesită revizuirea avocatului”; **nesemnate de avocat** | `docs/juridic/`, `tests/unit/test_juridic.py`, `docs/specs/F15.4.md` |
 
 ### De verificat la migrare (F15)
 - F15.1: `scripts/avarie.sh` pe staging; repornirea reală a VPS-ului (Docker activat la pornire, serviciile revin, cozile reiau); măsurarea discului și a memoriei în container (cgroup v2); pragul de memorie pe profilul real.
 - F15.2: subrețeaua fixă `edge` pe VPS și IP-ul real al clientului în audit (FORWARDED_ALLOW_IPS); ștergerea unui client rulată de worker cu `AMA_DATABASE_OWNER_URL`; testul de intruziune extern.
 - F15.3: exercițiul pe staging cu copia reală de la destinația externă și volumul real; un server nou ca mediu curat; durata notată față de 4 h.
+- F15.4: revizuirea avocatului (§21.13) pe toate ciornele; datele firmei (F0.1); apoi scos `stare: ciorna` din fiecare fișier.

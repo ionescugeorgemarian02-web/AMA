@@ -89,3 +89,12 @@ def test_blogul_harta_site_ului_si_robots(client: TestClient) -> None:
     assert "/site/blog/cum-alege-o-cafenea-mica-un-canal</loc>" in x.text
     assert "Sitemap: http://localhost:8000/site/sitemap.xml" in client.get("/site/robots.txt").text
     assert "funcționează normal" in client.get("/site/stare").text
+
+
+def test_paginile_legale_publice_sunt_ciornele_marcate_pentru_avocat(client: TestClient) -> None:
+    """F15.4: fiecare document juridic e publicat și poartă marcajul până la revizuirea avocatului."""
+    index = client.get("/site/legal").text
+    for cale in ("termeni", "confidentialitate", "cookie-uri", "acord-prelucrare", "contract"):
+        assert f"/site/legal/{cale}" in index, cale
+        r = client.get(f"/site/legal/{cale}")
+        assert r.status_code == 200 and "necesită revizuirea avocatului" in r.text, cale
