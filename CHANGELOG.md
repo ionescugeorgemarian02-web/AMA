@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F12.5 — Programări
+- `app/crm/programari.py` (grila de sloturi, rezervarea, invitația .ics, reamintirile `crm.reamintiri`, anularea), `app/site/programare_web.py` + șabloanele `site/programare*.html`, migrarea `0098` (`crm_programari`), atașamente în conectorul de email.
+
 ### F12.4 — Calificare și scor
 - `app/crm/calificare.py` (4 întrebări, regula de scor, grupele, lead mare → om, urme), migrarea `0097` (`crm_calificari`, tipuri noi de activitate), grupa pe fișa din `/crm`.
 

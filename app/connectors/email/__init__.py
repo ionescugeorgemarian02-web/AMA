@@ -19,6 +19,8 @@ class Mesaj:
     text: str
     idem: str
     antete: dict[str, str] = field(default_factory=dict)
+    # F12.5: atașamente text (invitația de calendar .ics): {"nume", "tip", "continut"}
+    atasamente: list[dict[str, str]] = field(default_factory=list)
 
 
 @dataclass
@@ -39,7 +41,12 @@ class CutiePostalaSimulata:
             self.esueaza -= 1
             raise ConnectionError("furnizorul de email nu răspunde (simulat)")
         antete = {str(k): str(v) for k, v in dict(p.get("antete") or {}).items()}
-        self.mesaje.append(Mesaj(str(p["catre"]), str(p["subiect"]), str(p["text"]), efect.idem, antete))
+        atasamente = [
+            {k: str(a.get(k, "")) for k in ("nume", "tip", "continut")} for a in p.get("atasamente") or []
+        ]
+        self.mesaje.append(
+            Mesaj(str(p["catre"]), str(p["subiect"]), str(p["text"]), efect.idem, antete, atasamente)
+        )
         return RezultatPlatforma(id_extern=f"sim-{len(self.mesaje) - 1}")
 
     def catre(self, adresa: str) -> list[Mesaj]:

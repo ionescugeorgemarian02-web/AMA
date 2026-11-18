@@ -274,10 +274,12 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | F12.2 Email către abonați | verificat pe cutia poștală SIMULATĂ: o adresă dezabonată nu mai primește nimic din nicio campanie (nici mesajul deja pus la coadă, nici după un nou acord); matricea pe țări, consimțământul, pragurile, limita zilnică. **Fără furnizor real, fără SPF/DKIM/DMARC, fără webhook de respingeri; regula pentru România neverificată de avocat** | `tests/integration/test_crm_email.py`, `tests/unit/test_crm_email.py` |
 | F12.3 Secvența de după audit | verificat pe cutia poștală SIMULATĂ: abonatul de test primește pașii, dezabonarea dintr-un clic oprește restul; lead avansat sau acord retras opresc, pragurile amână. **Zilele și textele [I], fără date de deschidere reale** | `tests/integration/test_crm_secventa.py` |
 | F12.4 Calificare și scor | verificat local: cinci lead-uri de test ajung în grupele corecte (de sunat azi, de hrănit, nepotrivit), lead-ul mare merge la om; recalificarea e un rând nou. **Pragurile [I], fără model statistic** | `tests/integration/test_crm_calificare.py`, `tests/unit/test_crm_calificare.py` |
+| F12.5 Programări | verificat local, prin HTTP cu agent de telefon: rezervarea din `/site/programare` creează lead-ul în „apel programat” și trimite invitația .ics pe cutia SIMULATĂ; slot dublu refuzat, reamintiri 24 h/1 h, anulare. **Fără calendar extern; .ics neverificat într-un client real; fără sărbători** | `tests/integration/test_crm_programari.py` |
 
 ### De verificat la migrare (F12)
 - F12.3: furnizorul de email real (nivel gratuit), subdomeniul cu SPF/DKIM/DMARC; zilele pașilor și textele secvenței pe rezultate reale de deschidere și răspuns.
 - F12.4: pragurile scorului (bugetul minim, lead-ul mare) pe lead-uri reale; modelul statistic după câteva sute de rezultate.
+- F12.5: invitația .ics deschisă în Gmail/Outlook/Apple; sincronizarea cu calendarul real al proprietarului (opțională); programul și sărbătorile legale.
 
 ### De verificat la migrare (F11)
 - F11.1: pragurile Reflectorului (20 de postări pe lot, 3 pe grup, 25% diferență) pe date reale; efectul valorilor extreme asupra mediei lotului.

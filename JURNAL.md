@@ -827,3 +827,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F12.4 — Calificare și scor (Opus)
 - Regula pură `puncteaza` + `califica` (etapă, sarcină, oprirea secvenței, notificare după commit).
 - Verificat: `test_crm_calificare` (unit 11, integrare 1), `test_crm`, `test_migratii`, `test_meta_rls`; lint, mypy.
+
+### F12.5 — Programări (Opus)
+- Rezervarea publică (cu întrebările F12.4 opționale), emailuri tranzacționale cu .ics; unicitatea slotului în bază.
+- Verificat: `test_crm_programari` (2), `test_crm_email` (unit), `test_garzi_db`; lint, mypy.

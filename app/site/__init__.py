@@ -12,6 +12,7 @@ from app.site.audit_web import router as router_audit
 from app.site.captare_web import router as router_captare
 from app.site.dezabonare_web import router as router_dezabonare
 from app.site.inscriere_web import router as router_inscriere
+from app.site.programare_web import router as router_programare
 from app.site.web import router
 
 
@@ -20,6 +21,7 @@ def inregistreaza(app: FastAPI) -> None:
     app.include_router(router_inscriere)
     app.include_router(router_captare)
     app.include_router(router_dezabonare)
+    app.include_router(router_programare)
     app.include_router(router)
 
 

@@ -150,3 +150,21 @@ class Calificare(BazaCrm):
     motive: Mapped[list[str]] = mapped_column(JSONB, default=list)
     sursa: Mapped[str] = mapped_column(Text)
     la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Programare(BazaCrm):
+    """Un apel rezervat (migrarea 0098)."""
+
+    __tablename__ = "crm_programari"
+    id: Mapped[uuid.UUID] = _id()
+    lead_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    contact_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    tip: Mapped[str] = mapped_column(Text)
+    inceput: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+    sfarsit: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+    stare: Mapped[str] = mapped_column(Text, default="confirmata")
+    jeton_hash: Mapped[str] = mapped_column(Text)
+    reamintit_24h: Mapped[bool] = mapped_column(Boolean, default=False)
+    reamintit_1h: Mapped[bool] = mapped_column(Boolean, default=False)
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    anulat_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
