@@ -256,7 +256,8 @@ MODELE_POOL: tuple[ModelPool, ...] = (
     ModelPool("llm7", "codestral-latest", Familie.MISTRAL, "T2", 10),
     ModelPool("sealion", "aisingapore/Nemotron-SEA-LION-v4.8-120B-A12B", Familie.NEMOTRON, "T3", 3),
     ModelPool("sealion", "aisingapore/Llama-SEA-LION-v3-70B-IT", Familie.LLAMA, "T2", 3),
-    ModelPool("sealion", "aisingapore/Qwen-SEA-LION-v4-32B-IT", Familie.QWEN, "T2", 2),  # pragma: allowlist secret
+    # pragma: allowlist nextline secret
+    ModelPool("sealion", "aisingapore/Qwen-SEA-LION-v4-32B-IT", Familie.QWEN, "T2", 2),
     ModelPool("sealion", "aisingapore/Gemma-SEA-LION-v4-27B-IT", Familie.GEMMA, "T2", 2),
     ModelPool("sambanova", "Meta-Llama-3.3-70B-Instruct", Familie.LLAMA, "T2", 20, 20),
     ModelPool("zai", "glm-4.5-flash", Familie.GLM, "T2", 10),

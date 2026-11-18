@@ -30,6 +30,22 @@ x-mediu: &mediu
   # O singură cheie LLM, opțională (OpenRouter, modele gratuite). Goală = mod simulat: sarcinile cu model sunt
   # refuzate vizibil de gateway („fără cheie”); restul platformei merge.
   AMA_CHEIE_OPENROUTER: ${AMA_CHEIE_OPENROUTER:-}
+  # Furnizorii de modele G-pool (docs/specs/G-pool.md): goale = furnizor dezactivat automat.
+  OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+  GROQ_API_KEY: ${GROQ_API_KEY:-}
+  GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+  CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
+  CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-}
+  NVIDIA_NIM_API_KEY: ${NVIDIA_NIM_API_KEY:-}
+  NVIDIA_NIM_BASE_URL: ${NVIDIA_NIM_BASE_URL:-}
+  NVIDIA_NIM_API_KEY_B: ${NVIDIA_NIM_API_KEY_B:-}
+  SAMBANOVA_API_KEY: ${SAMBANOVA_API_KEY:-}
+  MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+  KILO_API_KEY: ${KILO_API_KEY:-}
+  LLM7_API_KEY: ${LLM7_API_KEY:-}
+  ZAI_API_KEY: ${ZAI_API_KEY:-}
+  OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+  SEALION_API_KEY: ${SEALION_API_KEY:-}
   UVICORN_WORKERS: "1"
 
 services:
