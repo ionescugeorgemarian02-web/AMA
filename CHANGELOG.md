@@ -437,3 +437,38 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ### F0.2 — Repo și reguli
 - `AGENTS.md`, `DECIZII.md`, structura de directoare, documentul de arhitectură împărțit pe secțiuni în `docs/`, cele 16 ADR-uri, șablonul de cerere de integrare, CI.
+
+## 2026-11-17 — FS.1 (sesiunea C)
+
+- Autorizare Shopify simulată prin HTTP local, stare unică expirabilă, HMAC callback și token AES-GCM legat de tenant/magazin.
+- Migrare 0120 din 0075, RLS forțat; teste de izolare și criptare.
+
+## 2026-11-17 — FS.2 (sesiunea C)
+
+- Catalog Shopify minimal tenant, upsert fără dubluri, ignorarea versiunilor vechi și ștergere logică.
+- HMAC webhook verificat pe corpul brut; contract HTTP local paginat, fără trafic real. Migrare 0121.
+
+## 2026-11-17 — FS.3 (sesiunea C)
+
+- Import local comenzi și clienți Shopify, versiuni monotone, email criptat și consimțământ explicit pentru CRM tenant.
+- Migrare 0122 cu RLS; nicio scriere în CRM-ul agenției.
+
+## 2026-11-17 — FS.4 (sesiunea C)
+
+- API raport lunar vânzări atribuite UTM/cod, net după anulări/rambursări, fără conversii valutare.
+
+## 2026-11-17 — FS.5 (sesiunea C)
+
+- Ecran Shopify în meniu, izolat pe tenant activ, cifre lunare și stare sincronizare.
+- Sincronizator cu token decriptat la citire și cititori injectați; păstrează ultima reușită după eroare. Migrare 0123.
+
+## 2026-11-17 — FS.6 (sesiunea C)
+
+- Poarta Shopify cap-coadă pe HTTP local, 19 teste proprii trecute; catalog completat cu câmpuri comerciale, migrare 0124.
+- make check unic: 3132 passed, 4 failed (media), 1 skipped; rezultatul și operațiile reale rămase în STARE.
+
+### Revizuire PR #12 — 2026-11-18
+- Shopify: import Decimal cu exponenți ISO 4217 și continuare după rânduri invalide,
+  creata_la timestamptz, magazin unic per tenant, ștergere webhook doar cu id.
+- OAuth pe query brut, HMAC comparat în bytes și expirare callback la 5 minute.
+- Panoul folosește maparea persistentă a codurilor de reducere per magazin.

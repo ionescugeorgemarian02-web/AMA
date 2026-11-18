@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="ro"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Magazin Shopify · AMA</title>
+<body><nav><a href="/meniu">Meniu AMA</a></nav><main><h1>Magazin Shopify</h1>
+<p>Mod simulat</p>
+{% for m in magazine %}
+<section><h2>{{ m.magazin }}</h2><p>{{ 'Conectat' if m.token_criptat else 'Neconectat' }}</p>
+<p>{{ stari.get(m.magazin, 'Nesincronizat') }}</p>
+<p>Produse active: {{ produse[m.magazin] }}</p>
+{% for r in rapoarte[m.magazin] %}<p>{{ r.campanie }} / {{ r.canal }}: {{ r.vanzari_nete_bani }} unități minore {{ r.moneda }}</p>{% endfor %}
+</section>{% else %}<p>Niciun magazin asociat clientului activ.</p>{% endfor %}
+</main></body></html>

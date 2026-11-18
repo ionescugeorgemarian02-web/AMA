@@ -168,6 +168,26 @@ Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py
 `app/config.py` (`reclame_conectori`, `google_ads_*`), `app/operare/efecte/sistem.py` (tipul `reclama`, oprirea
 `reclame`; **atenție B:** migrarea `0072` pune `CHECK (tip IN ('email','plata','reclama'))` pe `efecte_sistem`), `app/worker.py`, `app/panou/__init__.py`, `panou/meniu.html`.
 
+## Sesiunea C — Shopify (2026-11-17)
+
+Ramură `claude/shopify-c`, din `origin/main`; doar `app/comert/`, `app/connectors/comert/`,
+testele și specificațiile proprii. Migrări rezervate `0120`–`0139`, prima `0120` din `0075`.
+Decizii D-C01 etc. FS.1 în lucru; FS.2–FS.6 urmează. Fișiere comune doar prin adăugare.
+Integrarea PR draft o face sesiunea A, după revizuire; C nu unește în main.
+
+Cerere C → B/A: raportul lunar F10 poate consuma `app.comert.atribuire.raport_lunar(tenant, magazin, luna, coduri)`.
+Nu am modificat modulul analizei, fiind în afara zonei C. CRM-ul tenantului poate consuma `vanzari.pentru_crm`,
+cu reverificare a consimțământului înainte de fiecare trimitere; nu se importă în CRM-ul agenției.
+
+C: FS.1–FS.5 împinse separat; FS.6 poarta locală 19 passed, make check complet în curs.
+Migrări finale 0120–0124, cap unic 0124. Catalog completat cu câmpuri comerciale la poartă.
+Shopify este exclusiv simulat, fără rute publice și fără trafic real; detalii exacte în STARE.
+
+C, rezultat final: FS.1–FS.6 construite pe simulare, 19 teste Shopify trecute. Singura rulare make check:
+3132 passed, 4 failed, 1 skipped; toate cele 4 eșecuri sunt media (G6.format yuvj420p în poarta F8).
+Montaj[B] confirmat eșuat și separat; nu am atins media. Ruff/mypy/guards/audit trecute.
+A: verifică PR draft Shopify, revizuiește autentificare/izolare/cifre cu alt model și investighează media;
+integrarea în F10/CRM rămâne cererea de mai sus. C nu face merge.
 ## Sesiunea C (2026-11-17, adăugată de A)
 - Ramura `claude/shopify-c`; sarcina: conectorul Shopify (FS.1–FS.6), plan §„Adăugiri cerute de proprietar”.
 - Zonă: `app/comert/`, `app/connectors/comert/`; fișiere comune doar prin adăugare.
@@ -186,4 +206,3 @@ Atins de A în fișiere comune, doar prin adăugare: `app/connectors/contract.py
 | FT.4 Analiza lunară automată | **închis** (împins), migrarea `0077` |
 | FT.5 Ecranul „Urme” și exportul | **închis** (împins) |
 | Poarta FT | **trecută pe simulare** (`docs/specs/FT-poarta.md`) |
-
