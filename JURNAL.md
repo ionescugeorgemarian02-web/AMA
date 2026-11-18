@@ -652,6 +652,75 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `tests/integration/test_poarta_f13.py`, `docs/specs/F13-poarta.md`; cele 5 fișiere ale reclamelor cu `sesiune_agentie` adăugate (cu justificare) în `CONTEXT_AGENTIE` din `tests/unit/test_garzi_db.py`.
   - Verificat: `make check` complet o dată: lint, tipuri, gărzi verzi; teste 3121 passed, 1 failed (garda contextului de agenție, reparată și rerulată împreună cu poarta și Consiliul: verzi). `make guards` și `make audit` (fără vulnerabilități) verzi.
   - **Faza F13 e închisă pe simulări.** Rămân la migrare: conturile reale Meta/Google Ads, campania reală cu bani reali, Consiliul real.
+
+## 2026-11-17 — C, FS.1
+
+Specificație și teste înaintea implementării. OAuth simulat, consum stare înainte de HTTP, protecție la
+răspuns întârziat, AES-GCM cu AAD tenant/magazin. Migrare 0120 din capul main 0075.
+Verificat: pytest OAuth unit + izolare + meta RLS: 14 passed (Postgres 16/pgvector, Docker local);
+pytest unit OAuth + gărzi DB: 11 passed; mypy module noi și ruff: succes;
+make guards: succes; make audit: No known vulnerabilities found. Prima încercare DB a sărit 6 teste
+(port ocupat de containerul care tocmai pornise); rerularea explicită pe container: toate 14 trecute.
+API real și revizuire de alt model: rămân pentru migrare, respectiv sesiunea A înainte de integrare.
+
+## 2026-11-17 — C, FS.2
+
+Fetch/merge origin/main înainte de pas (deja actualizat), citite ultimele note A/B.
+Specificație și acceptare scrise înaintea implementării. Catalog minimal ID/titlu cu RLS,
+webhook HMAC SHA256 base64, tombstone și versiuni UTC, paginare locală limitată.
+Verificat: 3 passed OAuth/catalog DB, 10 passed unit conector; ruff și mypy module noi: succes;
+make guards: succes; make audit: No known vulnerabilities found. API real și catalogul comercial complet
+(câmpuri de preț/variante/imagini) rămân deschise și declarate în STARE; FS.2 acoperă nucleul minimal.
+
+## 2026-11-17 — C, FS.3
+
+Fetch/merge main înainte de pas: deja actualizat. Specificație/test înainte de cod.
+Comenzi în bani întregi, fără PII în JSON, email AES-GCM, consimțământ explicit și retragere.
+Verificat: 4 passed izolare OAuth/catalog/vânzări; 11 passed unit HTTP local; mypy/ruff module: succes;
+make guards: succes; make audit: No known vulnerabilities found. CRM tenant expus ca API de citire;
+trimiterea de email și integrarea în alt CRM nu sunt executate. Restricții reale în STARE.
+
+## 2026-11-17 — C, FS.4
+
+Fetch/merge origin/main: deja actualizat. Spec și test înainte de cod. Atribuire deterministă D-C02;
+comenzile cer created_at, nu folosesc data actualizării pentru luna vânzării.
+Verificat: 2 passed calcul/import DB; ruff/mypy: succes; make guards: succes;
+make audit: No known vulnerabilities found. Consumatorul F10 solicitat în COORDONARE; nu am ieșit din zonă.
+
+## 2026-11-17 — C, FS.5
+
+Fetch/merge main: deja actualizat. Spec și acceptare înainte de cod.
+Ecran /comert autentificat cu permisiune rapoarte, tenant din sesiune, Jinja autoescape;
+nici tokenul, nici emailurile nu ajung în contextul șablonului. Stare persistentă succes/eroare/ultima reușită.
+Verificat: 2 passed panou/import, 1 passed succes/eroare sincronizare; ruff/mypy: succes;
+make guards: succes; make audit: No known vulnerabilities found. Avertisment existent FastAPI/httpx deprecated.
+În fișierele comune app/panou/__init__.py și meniu sunt exclusiv rânduri adăugate.
+
+## 2026-11-17 — C, FS.6, poarta Shopify
+
+Fetch/merge origin/main înainte de pas: deja actualizat. Specificația și testul porții scrise înainte de cod.
+Poarta trece OAuth semnat, token criptat folosit prin antet, paginare HTTP locală, catalog cu variante,
+webhook repetat, acord/retragere CRM, raport lunar atribuit și ecran autentificat fără secrete.
+Catalogul minimal FS.2 completat cu descriere/handle/imagini/variante, migrare 0124. Surse oficiale Shopify
+consultate pentru OAuth/HMAC; nu s-au generat operații GraphQL și helper-ele skillului nu există local.
+Corectată pregătirea testului de stare greșită, ca semnătura să fie validă și refuzul să testeze chiar starea.
+
+Verificat exact:
+- 19 passed în toate testele Shopify (Postgres 16 + pgvector, fără pytest concurent).
+- make check complet o singură dată: lint, mypy (397 fișiere), guards trecute;
+  **3132 passed, 4 failed, 1 skipped**, 27 warnings, 811,50 s.
+- Cele 4 eșecuri: test_media_capacitate::test_zece_video_pe_culoarele_grele_cu_textul_in_mers,
+  test_media_montaj::test_un_video_vertical_complet_iese_din_lista[B],
+  test_media_provenienta::test_fiecare_fisier_final_are_pasaport_si_eticheta,
+  test_poarta_f8::test_poarta_f8_zece_video_consecutive_trec_controlul_fara_interventie.
+  Randările sunt respinse; poarta F8 arată G6.format yuvj420p. Nu am modificat media.
+- Rerulare țintită justificată de eșecuri: montaj[B] eșuează și izolat; 19 teste Shopify trec din nou,
+  total 1 failed, 19 passed în 7,71 s. Nu s-a repetat make check complet.
+- make audit: No known vulnerabilities found; alembic heads: 0124 unic.
+- Fișiere comune: zero rânduri existente șterse/modificate față de origin/main.
+
+Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în F10/CRM de sesiunile proprii,
+și toate operațiile reale marcate „De verificat la migrare”. PR rămâne draft, fără merge din sesiunea C.
 - **Modul local (PC-ul proprietarului).**
   - Construit: `infra/compose/local.yml` (build local, Postgres cu pgvector, migrate, app pe 127.0.0.1:8000, worker, volume), `infra/env/local.env.example` (parole generate de `make local-env`, o cheie LLM opțională), `app/demo/populare.py`, ținte `make local-*`, runbook, D-016.
   - Verificat: `docker compose … config -q` (fără daemon în container), `check_pins` verde, `tests/unit/test_compose_local.py`, `tests/integration/test_populare_demo.py`.
@@ -703,3 +772,17 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: `test_poarta_f14.py` (gateway real cu furnizor simulat prin HTTP, promptul real de reflecție, jobul promovărilor, testul formal, urmele), `F14-poarta.md`. Reparat: clientul intern al evaluărilor creat într-o tranzacție proprie (FK la consumul gateway-ului); `n_folosit` în verdictul testului formal; garda contextului de agenție (`test_garzi_db`) primește modulele F14 (picase din F14.1: commit-urile F14.1–F14.6 nu treceau singure testul acesta).
   - Verificat: `make check` complet: rularea 1 — 3176 passed, 1 failed (garda contextului de agenție); rularea 2 — 3176 passed, 1 failed (poarta: canarul cu prea puține livrabile pe candidat, după galeată); reparat (400 de livrabile la canar), poarta de 3 ori verde, rularea 3 — lint, tipuri, gărzi verzi, 3177 passed.
   - Deschis: `ruteaza`/`observa` nelegate în autorii din F6; date reale pentru F14.3/F14.5; istoricul fișelor de risc.
+## Sesiunea A — revizuire PR #12 (2026-11-18)
+- Îmbinat origin/main; conflictele comune rezolvate păstrând ambele contribuții.
+  0120 pornește din 0077, magazinul are UNIQUE(tenant_id,magazin).
+- Reparat importul valutar (lista SIX ISO 4217 2026-09-17 locală), rambursările,
+  rândurile invalide și creata_la timestamptz. Contractul simulat primește sume majore.
+- Reparat products/delete cu doar id; tombstone folosește ora recepției.
+- OAuth acceptă bytes query brut, verifică timestamp în intervalul 0–300 s;
+  comparațiile HMAC sunt bytes. Actualizat contractul testelor apelante.
+- Mapare coduri persistentă per tenant/magazin, consumată de panou.
+- Verificat: 25 teste Shopify passed (unit/isolation/integration/poarta FS),
+  Postgres 16 + pgvector în Docker; make guards, make lint și mypy (407 fișiere) verzi;
+  alembic heads: 0124 unic. Suita completă make check nu a fost rulată.
+- Consultat skill Shopify și documentația oficială webhook; helper-ele skillului
+  nu sunt instalate, nu s-au generat operații GraphQL. Integrarea rămâne simulată.

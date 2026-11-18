@@ -302,6 +302,65 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 - F13.10: campania reală de 14 zile (cont, card, buget mic) cu raportul dublu; marja pentru supralivrarea Meta.
 - F13.2: developer token-ul (nivel Explorer/Basic), MCC-ul agenției, versiunea Google Ads API, conturile reale.
 
+## Shopify — sesiunea C, 2026-11-17
+
+FS.1 în verificare; FS.2–FS.6 nepornite. API exclusiv simulat, fără magazin real.
+
+### De verificat la migrare — Shopify
+
+Instalarea aplicației pe magazin real, permisiunile read_products/read_orders/read_customers,
+accesul la datele protejate ale clienților, canonicalizarea HMAC a callbackului real, schimbul codului,
+revocarea/dezinstalarea, ciclul de viață al tokenului și rotația cheii. Nu sunt validate prin simulare.
+
+FS.1: închis pe simulare; 14 teste OAuth/RLS trecute pe Postgres 16 cu pgvector.
+
+FS.2: catalog persistent cu HMAC pe corp brut, upsert și tombstone, versiuni monotone;
+3 teste DB și 10 teste unitare trecute, guards/audit verzi. Contract HTTP local paginat.
+De verificat la migrare: înregistrarea webhook-urilor, payload-ul ștergerii (contractul local cere updated_at),
+paginarea Admin GraphQL, câmpurile comerciale complete și cote/reîncercări. Catalogul actual expune ID și titlu.
+
+FS.3: comenzi și clienți persistenți pe tenant, email criptat, eligibilitate CRM doar cu acord explicit;
+4 teste DB și 11 unitare trecute; guards, audit, mypy și ruff verzi. API HTTP local, fără CRM agenție.
+De verificat la migrare: protected customer data, actualizări și retrageri reale, istoric comenzi peste 60 zile,
+monede fără două zecimale (contractul local acceptă numai sume exact reprezentabile în sutimi).
+
+FS.4: calcul lunar UTC, UTM/cod explicit, net după anulări/rambursări, separat pe monedă.
+2 teste calcul/import trecute, ruff/mypy/guards/audit verzi. API public pentru raport lunar;
+integrarea în F10 cerută în COORDONARE, în afara zonei C.
+
+FS.5: /comert pentru tenant activ, starea sincronizării și cifre lunare pe monede;
+2 teste panou/import și 1 succes/eroare sincronizare trecute. Ruff/mypy/guards/audit verzi.
+Sincronizatorul acceptă cititori injectați locali; loturile sunt separate, eroarea declară explicit date parțiale.
+
+### Actualizare FS.6 — Shopify, sesiunea C
+
+Poarta locală: 19 teste Shopify trecute, inclusiv OAuth→HTTP simulat→catalog→webhook→consimțământ→raport→panou.
+Catalogul include acum descriere, handle, imagini și variante (ID/SKU/preț/stoc), prin migrarea 0124;
+limitarea catalogului minimal din nota FS.2 este astfel înlăturată.
+Migrări 0120–0124, cap unic 0124; prima pornește din main 0075. Fără dependențe noi.
+
+### De verificat la migrare — completare Shopify FS.6
+
+Contractul HTTP local este normalizat (`/catalog`, `/date/comanda`, `/date/client`), nu pretinde că reproduce
+endpoint-uri Admin API. Sunt necesare adaptorul Admin GraphQL real cu paginare/cote/backoff, configurarea
+și înregistrarea webhook-urilor HTTPS (inclusiv GDPR și uninstall), validarea scopurilor efectiv acordate,
+tokenuri expirabile/refresh și rotație. Nu există rute publice OAuth/webhook în modul simulat; funcțiile
+se invocă din contractul local. Webhook-ul de ștergere simulat cere updated_at, spre deosebire de unele
+livrări reale. Maparea monedelor cu alt număr de zecimale se verifică înainte de activare.
+CRM-ul tenantului este API de eligibilitate, fără trimitere email. Consimțământul se reverifică la folosire;
+suprimările F12 ale agenției nu se transferă între tenanți. Integrarea API-ului în raportul lunar F10 și
+CRM-ul tenantului viitor rămâne cerere către A/B în COORDONARE, fără schimbări făcute de C în acele module.
+Revizuirea de alt model pentru OAuth, RLS și cifre rămâne pentru sesiunea A înainte de integrare.
+
+### Rezultatul final FS.6 (2026-11-17)
+
+FS.1–FS.6 implementate și verificate pe simulare; poarta Shopify și testele aferente: 19 passed.
+`make check` complet, rulat o singură dată: **3132 passed, 4 failed, 1 skipped**, 811,50 s.
+Lint, mypy și guards trecute. Eșecuri în media: test_media_capacitate, test_media_montaj[B],
+test_media_provenienta și test_poarta_f8. Poarta F8 raportează G6.format: `yuvj420p`.
+Rerulare țintită: același montaj[B] eșuează izolat; toate cele 19 teste Shopify trec din nou.
+Modulul media nu a fost modificat, fiind în afara zonei C. `make check` nu este declarat verde.
+Audit: fără vulnerabilități cunoscute. Sesiunea A verifică și integrează; C nu unește PR-ul.
 ## Modul local și FT — Trasabilitate totală (sesiunea A, din 2026-11-17)
 
 | Pas | Stare | Dovadă |

@@ -14,7 +14,7 @@ from alembic import op
 from app.db.rls import activeaza_rls
 
 revision = "0078"
-down_revision = "0077"
+down_revision = "0124"
 branch_labels = None
 depends_on = None
 
