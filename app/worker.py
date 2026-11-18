@@ -50,6 +50,7 @@ MODULE_FLUXURI: tuple[str, ...] = (
     "app.reclame.fluxuri",  # F13: citirea rezultatelor de reclame, gardianul, oprirea de urgență
     "app.operare.urme.fluxuri",  # FT.4: analiza lunară a urmelor (1 ale lunii)
     "app.operare.resurse_fluxuri",  # F15.1: discul la 85% și memoria la limită (la 5 minute)
+    "app.lansare.fluxuri",  # F15.5: raportul săptămânal al pilotului (luni)
 )
 
 

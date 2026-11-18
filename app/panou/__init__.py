@@ -20,6 +20,7 @@ from app.panou.creier_web import router as router_creier
 from app.panou.crm_web import router as router_crm
 from app.panou.gateway_web import router as router_gateway
 from app.panou.invatare_web import router as router_invatare
+from app.panou.lansare_web import router as router_lansare
 from app.panou.leaduri_web import router as router_leaduri
 from app.panou.motor_web import router as router_motor
 from app.panou.onboarding_web import router as router_onboarding
@@ -70,6 +71,7 @@ def inregistreaza(app: FastAPI) -> None:
     app.include_router(router_reclame)
     app.include_router(router_comert)
     app.include_router(router_urme)
+    app.include_router(router_lansare)  # F15.5–F15.6: pilotul și lista de go-live
 
 
 __all__ = ["STATIC", "inregistreaza"]

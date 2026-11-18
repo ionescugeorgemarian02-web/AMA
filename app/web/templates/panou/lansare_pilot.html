@@ -1,0 +1,44 @@
+{% extends "panou/baza.html" %}
+{% block title %}Pilot · AMA{% endblock %}
+{% block pagina %}
+<h1>Pilotul cu trei clienți</h1>
+<p class="slab">Toți la L1, la prețul de pilot. Poarta: patru săptămâni fără incident critic, cu aprobarea din prima peste {{ "%.0f"|format(prag * 100) }}% (calculate din urme).</p>
+{% if mesaj %}<p role="status">Salvat ({{ mesaj }}).</p>{% endif %}
+{% if eroare %}<p role="alert">{{ eroare }}</p>{% endif %}
+{% for r in randuri %}
+<section class="card" aria-labelledby="pilot-{{ loop.index }}" data-pilot="{{ r.p.tenant_id }}">
+  <h2 id="pilot-{{ loop.index }}">{{ r.nume }}</h2>
+  <p>Din {{ r.p.inceput }} · {{ r.p.saptamani }} săptămâni · {{ "%.2f"|format(r.p.pret_lunar_bani / 100) }} lei / lună · {{ r.p.stare }}</p>
+  <p data-poarta="{{ 'trece' if r.poarta.trece else 'nu' }}"><strong>Poarta: {{ "trece" if r.poarta.trece else "nu trece încă" }}</strong>{% if r.poarta.motive %} — {{ r.poarta.motive|join("; ") }}{% endif %}</p>
+  <ul>
+    <li>Aprobare din prima: {{ "%.0f"|format(r.poarta.rata_aprobare_din_prima * 100) ~ "%" if r.poarta.rata_aprobare_din_prima is not none else "nemăsurată" }} ({{ r.poarta.aprobate_din_prima }} din {{ r.poarta.decise }})</li>
+    <li>Incidente critice: {{ r.poarta.incidente_critice }}</li>
+    <li>Minute de om: {{ r.poarta.minute_om }} · satisfacția medie: {{ r.poarta.satisfactie if r.poarta.satisfactie is not none else "–" }}</li>
+  </ul>
+  {% if r.rapoarte %}<table><thead><tr><th scope="col">Săptămâna</th><th scope="col">Din prima</th><th scope="col">Incidente</th><th scope="col">Feedback</th></tr></thead>
+  <tbody>{% for x in r.rapoarte %}<tr><th scope="row">{{ x.saptamana }}</th><td>{{ "%.0f"|format(x.rata_aprobare_din_prima * 100) ~ "%" if x.rata_aprobare_din_prima is not none else "–" }}</td><td>{{ x.incidente_critice }}</td><td>{{ "lipsă" if x.feedback_lipsa else "da" }}</td></tr>{% endfor %}</tbody></table>{% endif %}
+  <form method="post" action="/lansare/pilot/{{ r.p.tenant_id }}/feedback">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Ziua întâlnirii <input type="date" name="zi" value="{{ azi }}" required></label>
+    <label>Satisfacția (1–5) <input type="number" name="satisfactie" min="1" max="5" required></label>
+    <label>Minute de om <input type="number" name="minute_om" min="0" max="10000" value="0"></label>
+    <label>Fricțiuni <textarea name="frictiuni" maxlength="4000"></textarea></label>
+    <button type="submit">Salvează feedback-ul săptămânii</button>
+  </form>
+  <form method="post" action="/lansare/pilot/{{ r.p.tenant_id }}/incident">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Incident critic <input name="descriere" maxlength="300" required></label>
+    <button type="submit">Raportează incidentul</button>
+  </form>
+</section>
+{% else %}<p>Niciun client în pilot.</p>{% endfor %}
+{% if candidati and randuri|length < 3 %}
+<form method="post" action="/lansare/pilot/inscrie" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Client <select name="tenant_id">{% for i, n in candidati %}<option value="{{ i }}">{{ n }}</option>{% endfor %}</select></label>
+  <label>Preț de pilot (lei / lună) <input type="number" name="pret_lei" min="0" max="100000" required></label>
+  <button type="submit">Înscrie în pilot (toate acțiunile la L1)</button>
+</form>
+{% endif %}
+<form method="post" action="/lansare/pilot/raport"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Generează raportul săptămânii acum</button></form>
+{% endblock %}

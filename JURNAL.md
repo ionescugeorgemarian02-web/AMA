@@ -806,3 +806,7 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### F15.4 — Juridic (Opus)
 - Ciorne după docs/21; paginile publice se generează din ele (o singură sursă), marcate până la avocat.
 - Verificat: `test_juridic`, `test_site_pagini`, `test_site`. Deschis: semnătura avocatului.
+
+### F15.5 — Pilotul (Opus)
+- Modul pilot nou (`app/lansare`), indicatorii calculați din urme (aprobările reale scriu deja `aprobare / decizie:*`).
+- Verificat: `test_lansare_pilot` (4), `test_lansare_rls`, `test_migratii`, `test_garzi_db`. Deschis: pilotul real.

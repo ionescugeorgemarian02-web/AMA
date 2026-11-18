@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F15.5 — Pilotul cu trei clienți
+- `app/lansare/` (înscrierea la L1 cu preț de pilot, feedback săptămânal, aprobarea din prima și incidentele critice din urme, poarta, raportul săptămânal `lansare.pilot_saptamanal`), ecranul `/lansare/pilot`, migrarea `0082`.
+
 ### F15.4 — Juridic (ciorne)
 - `docs/juridic/` (contract de servicii, acord de prelucrare, termeni, confidențialitate, cookie-uri), paginile `/site/legal/...` generate din ele cu marcajul „necesită revizuirea avocatului”, pagina nouă `/site/legal/contract`.
 
