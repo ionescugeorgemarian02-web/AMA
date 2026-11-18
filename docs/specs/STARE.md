@@ -431,3 +431,32 @@ Audit: fără vulnerabilități cunoscute. Sesiunea A verifică și integrează;
 - F15.4: revizuirea avocatului (§21.13) pe toate ciornele; datele firmei (F0.1); apoi scos `stare: ciorna` din fiecare fișier.
 - F15.5: pilotul real cu trei clienți (4 săptămâni), prețul de pilot la procesatorul real, timpul până la primul lot.
 - F15.6: bifarea integrală a listei 25.5 pe `/lansare/go-live` (staging 14/14, 28 de zile de backup verde, pilotul, avocatul, contabilul, două studii publicate); motorul de audit real (C7).
+
+## Faza F16 — Extensii, după lansare (sesiunea A, din 2026-11-18, D-026)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| F16.1 Formatul C, grafică animată | verificat local (ffmpeg real, vocea SIMULATĂ): trei scene (ofertă, cifră, anunț) în culorile brandului devin video publicabil format C, G6 trece, pașaport fără „imagine generată”. **HyperFrames înlocuit de randarea locală Pillow + FFmpeg** | `tests/integration/test_media_format_c.py`, `tests/unit/test_media_format_c.py` |
+| F16.2 Canale noi: Pinterest, Google Business Profile, Threads | verificat pe API-uri SIMULATE (HTTP local): cei trei conectori trec suita de contract F9.1; o postare aprobată pleacă prin executor o singură dată, cu link; clientul rămâne asistat până la aprobarea aplicației (migrarea `0104`). **Fără aplicații aprobate, fără etichetă AI pe aceste canale** | `tests/contract/test_conector_pinterest.py`, `..._google_business.py`, `..._threads.py`, `tests/integration/test_publicare_canale_f16.py` |
+| F16.3 Localizare în engleză | verificat local (HTTP, Postgres real): portalul trece în engleză după alegerea limbii (CSRF), catalogul acoperă toate textele marcate; clientul `en` primește instrucțiunea de limbă, textul românesc pică G1, cel englez trece G1/G10 (migrarea `0105`). **Tradus doar meniul, antetul și Acasă; restul regulilor (G8, ton, juridic) rămân românești** | `tests/integration/test_localizare.py`, `tests/unit/test_localizare.py` |
+| F16.4 Voce proprie antrenată | verificat local (Postgres real): fără acord scris nu se antrenează și nu se sintetizează; antrenarea o dată, peste pragul de minute; narațiunea poartă acordul și e etichetată AI; scopul din afara acordului refuzat; revocarea retrage modelul și blochează narațiunile (migrarea `0106`). **Antrenarea și TTS-ul SIMULATE** | `tests/integration/test_media_voce_proprie.py` |
+| F16.5 Generator video extern | verificat local (Postgres real, ffmpeg real): oprit fără buget; insert de 3–6 s cu costul rezervat înainte de apel, licență `generat` și etichetă AI; peste plafonul lunar refuz fără apel; apelul eșuat nu consumă; filigranul e refuzat (migrarea `0107`). **Furnizorul SIMULAT; inserturile nu sunt încă legate în regizor** | `tests/integration/test_media_video_extern.py` |
+| F16.6 Reclame pe TikTok | verificat pe API SIMULAT (HTTP local, Postgres real): campaniile din plan apar oprite la TikTok; pornirea trece prin gardian și executor; bugetul peste plafon e refuzat și nu ajunge la platformă; raportul zilnic intră în totaluri (migrarea `0108`). **Fără aplicație aprobată; creativul video și codurile de eroare neverificate** | `tests/integration/test_reclame_tiktok.py`, `tests/unit/test_reclame_tiktok.py` |
+| Poarta F16 | trecută pe simulare: client în engleză validat pe engleză, voce proprie cu acord, video format C (G6), insert generat în plafon (al doilea refuzat), oferta pe Pinterest/GBP/Threads prin executor, campania TikTok pornită doar prin gardian, urmele FT; `make check` verde (3396 passed). **White-label și al doilea server: în afara porții** | `tests/integration/test_poarta_f16.py`, `docs/specs/F16-poarta.md` |
+
+### De verificat la migrare (F16)
+- F16.1: HyperFrames pe VPS, comparat cu randarea locală pe aceleași scene; timpul de randare pe CPU-ul real; șabloane animate aprobate de client.
+- F16.2: aplicațiile aprobate (Pinterest Standard, Google Business Profile API, Threads `threads_content_publish`); forma reală a răspunsurilor, a limitelor și a schimbului de token Threads; plafonul zilnic GBP; eticheta AI pe cele trei canale.
+- F16.3: traducerea celorlalte ecrane (vorbitor nativ); G8, ton și juridic pe engleză; judecătorul V3 cu rubrică englezească; scripturile video (E2) și vocea în engleză.
+- F16.4: formularul de acord revizuit de avocat; ~2 ore înregistrate; antrenarea pe GPU închiriat; modelul ONNX pe CPU în spatele adaptorului; calitatea (ascultare, transcriere inversă).
+- F16.5: furnizorul video real, tariful și condițiile (copie la data contractului); plafonul pe pachet; inserturile în regizor (formatele A/B).
+- F16.6: aplicația TikTok for Business aprobată și contul agenției; codurile de eroare, bugetul minim și locația reale; creativele video; regulile de politică TikTok în `rulepacks/reclame.toml`.
+
+## G-pool — Modele gratuite din catalogul fabricii (sesiunea A, 2026-11-18, D-028)
+
+| Pas | Stare | Dovadă |
+| --- | --- | --- |
+| G-pool Catalog, secrete, seif, rutare cu familii | verificat local pe transport HTTP SIMULAT și Postgres real: furnizorul fără toate secretele e sărit, cheile cu nume exacte (mediu → seif → `AMA_CHEIE_*`), seiful criptat, rezervele pe rol cu familii alternate, judecătorul din altă familie, modelul 404 scos, cererea peste context netrimisă, `verifica_furnizori` doar la cei activi (migrarea `0109`). **Niciun furnizor nou contactat real** | `tests/unit/test_gateway_pool.py`, `tests/integration/test_gateway_pool.py`, `docs/specs/G-pool.md` |
+
+### De verificat la primul test live (G-pool)
+- `python -m app.gateway.verifica_furnizori --toate-modelele` cu cheile reale; modelele 404 scoase din catalog; limitele reale în registru; termenii fiecărui furnizor nou confirmați în inventar înainte de activare; resetul zilnic real al cotelor (Gemini, Los Angeles).

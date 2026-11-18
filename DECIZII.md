@@ -204,3 +204,31 @@ comerțului; modificarea F10 este lăsată sesiunii proprietare a modulului (cer
   tranzacțional prin efectele de sistem; mesajele sociale printr-un efect de sistem nou. Fiecare acțiune lasă
   urmă. Canalele, calendarul și inboxurile sunt simulate.
 - **Consecințe:** pragurile și textele sunt [I]; tot ce cere resurse reale trece în STARE „De verificat la migrare (F12)”.
+
+### D-026 (2026-11-18) — F16, extensii: totul pe simulare, prin ușile existente
+
+- **Context:** F16 (`docs/23` §23.19) cere servicii fără cont sau buget acum: HyperFrames, API-urile Pinterest,
+  Google Business Profile, Threads și TikTok Marketing, o voce antrenată, un generator video plătit.
+- **Hotărâre (D-007):** formatul C se randează local (Pillow + FFmpeg), cu HTML-ul scenei păstrat drept contract
+  pentru HyperFrames; canalele și reclamele noi sunt conectori ca cei existenți (aceeași suită de contract, platforme
+  simulate prin HTTP local, doar prin executorul de efecte); a doua limbă este engleza (interfață, conținut și reguli
+  de validare pe limbă); vocea proprie și generatorul video sunt adaptoare simulate, cu consimțământ, buget și plafon
+  în bază. Migrările F16 sunt `0104`+ (următoarele libere după cap); white-label și al doilea server rămân în afara pasului.
+- **Consecințe:** tot ce ține de conturi, aprobări de aplicație, bani și calitatea reală trece în STARE „De verificat
+  la migrare (F16)”.
+
+
+### D-028 (2026-11-18) — G-pool: catalogul de modele gratuite al fabricii, în gateway-ul AMA
+
+- **Context:** proprietarul vrea în AMA mecanismul de modele din proiectul „fabrica” (catalog de furnizori gratuiți,
+  chei cu nume exacte, cote, sănătate, diversitate, seif), fără să strice gateway-ul F3 (OpenRouter rămâne).
+- **Hotărâre (D-007):** catalogul e cod (`app/gateway/catalog.py`) și se seamănă în registrul din bază (migrarea
+  `0109`, furnizori noi `inactiv`, termeni neconfirmați); rutarea, cotele cu rezervare și întrerupătorul rămân cele din
+  F3, cu adăugiri: `rezerva:<profil>` (familii alternate), „altă familie decât autorul”, verificarea contextului,
+  sănătate pe model în proces, resetul zilnic pe fus orar. Cheile se citesc cu numele exacte din `PROVIDER_SECRETS`
+  (mediu, apoi seif, apoi vechiul `AMA_CHEIE_*`); un furnizor fără toate secretele e dezactivat automat.
+  **Schimbă decizia F3.1** („cheile nu stau în bază, nici criptate”): seiful `gateway_seif` e opțional, criptat cu o
+  cheie derivată din `AMA_MASTER_KEY` (care nu stă în bază), deci o copie a bazei singură nu scurge chei; mediul are
+  întâietate. FreeLLMAPI (agregator local `http://`) nu intră.
+- **Consecințe:** activarea rămâne a proprietarului (8.1); primul test live e `python -m app.gateway.verifica_furnizori`;
+  identificatorii și limitele din fabrica sunt `# NEVERIFICAT` până atunci.

@@ -19,6 +19,7 @@ from app.media import (
     control,
     ffmpeg,
     fluxuri,
+    formatul_c,
     formatul_e,
     furnizori,
     licente,
@@ -34,8 +35,10 @@ from app.media import (
     sunet,
     tendinte,
     transcriere,
+    video_extern,
     vizual,
     voce,
+    voce_proprie,
 )
 
 __all__ = [
@@ -46,6 +49,7 @@ __all__ = [
     "control",
     "ffmpeg",
     "fluxuri",
+    "formatul_c",
     "formatul_e",
     "furnizori",
     "licente",
@@ -61,6 +65,8 @@ __all__ = [
     "sunet",
     "tendinte",
     "transcriere",
+    "video_extern",
     "vizual",
     "voce",
+    "voce_proprie",
 ]

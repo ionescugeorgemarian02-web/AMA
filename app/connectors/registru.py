@@ -37,6 +37,9 @@ FABRICI: dict[str, str] = {
     "linkedin_pagina": "app.connectors.publicare.linkedin:ConectorLinkedin.pagina_din_setari",
     "tiktok": "app.connectors.publicare.tiktok:ConectorTiktok",
     "blog": "app.connectors.publicare.blog:ConectorBlog",
+    "pinterest": "app.connectors.publicare.pinterest:ConectorPinterest",
+    "google_business": "app.connectors.publicare.google_business:ConectorGoogleBusiness",
+    "threads": "app.connectors.publicare.threads:ConectorThreads",
 }
 
 

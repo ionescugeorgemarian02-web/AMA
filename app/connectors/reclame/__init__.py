@@ -14,6 +14,7 @@ from app.connectors.contract import CititorReclame, EfectSistem, RezultatPlatfor
 FABRICI: dict[str, str] = {
     "meta": "app.connectors.reclame.meta:ContMeta",
     "google": "app.connectors.reclame.google:ContGoogle",
+    "tiktok": "app.connectors.reclame.tiktok:ContTiktok",  # F16.6
 }
 _cititori: dict[str, CititorReclame] = {}
 

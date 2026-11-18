@@ -855,3 +855,37 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### Poarta F12 (Opus)
 - Test cap-coadă pe simulare. Prima rulare `make check`: 1 failed (`test_toate_rutele_care_schimba_starea_au_garda_csrf`: anularea programării fără CSRF) → am pus CSRF dublu-trimis pe buton; ordinea mesajelor din cutia simulată făcută robustă în poartă și în testul secvenței.
 - Rerulat: `make check` verde (lint, mypy, gărzi, 3321 passed). `make audit`: fără vulnerabilități. Deschis: lead real (resursele din „De verificat la migrare (F12)”).
+
+## 2026-11-18 — Sesiunea A: faza F16 (extensii), D-026
+
+### F16.1 — Formatul C (Opus)
+- Scene ca date, animație deterministă, randare locală; montajul, G6 și pașaportul refolosite. Prima rulare: licența `productie_proprie` cere `componente` → adăugate (șablon + identitate).
+- Verificat: `test_media_format_c` (unit 4, integrare 2); lint, mypy, gărzi.
+
+### F16.2 — Canale noi (Opus)
+- Conectori pe tiparul F9 (ClientHttp, depozitul de tokenuri, clasificarea erorilor). Observat: fără rând în `aprobari_api`, `mod_efectiv` dă automat → migrarea `0104` le pune `in_test`.
+- Verificat: contract 45 (3 × 15), integrare 3; `tests/unit tests/contract tests/isolation` + publicare: 2328 passed; lint, mypy, gărzi.
+
+### F16.3 — Localizare în engleză (Opus)
+- Catalog cu româna drept cheie (nu se ghicește traducerea). Limba conținutului pe client, citită de validatori prin `memo` (o dată pe rulare); `limba` exclusă din `Continut.texte()`.
+- Verificat: `test_localizare` (unit 6, integrare 2), unit + continut/validare/portal/panou/izolare/atacuri; lint, mypy, gărzi.
+
+### F16.4 — Voce proprie (Opus)
+- Acordul în bază, legat de model și de licența fiecărei narațiuni (`consimtamant_id`), ca revocarea să le poată bloca. Prima rulare: `compune` rescrie `extra` → testul verifică motorul din `generare`.
+- Verificat: `test_media_voce_proprie` (2), `test_media_voce`, `test_garzi_db`; lint, mypy.
+
+### F16.5 — Generator video extern (Opus)
+- Bugetul în bază, rezervat înainte de apel (refuz fără apel peste plafon). Prima rulare: `jurnal_audit.rezultat` acceptă `refuzat`, nu `respins` → corectat.
+- Verificat: `test_media_video_extern` (4), `test_garzi_db`, `tests/atacuri tests/unit` (1951); lint, mypy. Observat (existent, nu de la F16): `pytest tests/unit` singur pică la colectare (import circular `app.analiza` → `app.site` → `app.panou` → `app.invatare` → `app.analiza`); suita completă trece fiindcă alte module se încarcă întâi. Propunere: importul din `app.invatare.alegere` mutat în funcție.
+
+### F16.6 — Reclame pe TikTok (Opus)
+- Conector pe tiparul Meta (căutare după nume înainte de creare), prin aceeași ușă `reclama` și același gardian. Observat la test: gardianul judecă bugetul doar pe campaniile active → testul pornește campania întâi.
+- Verificat: `test_reclame_tiktok` (unit 5, integrare 1), `tests/atacuri tests/unit` + reclame + poarta F13: 1982 passed; lint, mypy, gărzi, audit.
+
+### Poarta F16 (Opus)
+- Prima rulare `make check`: 1 failed (`test_fiecare_migrare_poate_fi_coborata_pe_rand`: re-urcarea `0104` lovea RLS-ul forțat pe `aprobari_api`) → `set_config('app.agency')` în migrare, ca în `0053`. Media F8 (yuvj420p, semnalat de C) a trecut.
+- Rerulat: `make check` verde (lint, mypy, gărzi, 3396 passed). `make audit`: fără vulnerabilități. Deschis: tot ce e în „De verificat la migrare (F16)”; white-label și al doilea server.
+
+### G-pool (Opus)
+- Portat din fabrica (citit, nu copiat): catalogul, cheile cu nume exacte și dezactivarea automată, seiful (Fernet, cheie din `AMA_MASTER_KEY`), sănătatea pe model, paza familiei, resetul pe fus orar, rezervele pe rol; cotele cu rezervare/decontare și preflight-ul TPM existau deja în F3.3 (limitatorul). Comanda `python -m app.gateway.verifica_furnizori` pentru primul test live.
+- Verificat: testele noi (unit + integrare) și suita gateway-ului; `make guards`, `make audit`, `make check` (vezi raportul sesiunii). Deschis: tot ce e în „De verificat la primul test live (G-pool)”.

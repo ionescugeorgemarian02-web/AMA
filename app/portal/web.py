@@ -10,7 +10,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
-from app import onboarding
+from app import localizare, onboarding
+from app.config import get_settings
 from app.conturi import (
     DateInvalide,
     DbSession,
@@ -95,6 +96,19 @@ def activeaza(
         seteaza_csrf_prelogin(r, j)
         return r
     return RedirectResponse("/conturi/login?activat=1", status_code=303)
+
+
+# --- limba interfeței (F16.3) ------------------------------------------------------------------------------
+
+
+@router.post("/limba", dependencies=[Depends(csrf_protect)])
+def schimba_limba(u: Client, limba: Annotated[str, Form()]) -> Response:
+    r = RedirectResponse("/portal", status_code=303)
+    r.set_cookie(
+        localizare.COOKIE, localizare.normalizeaza(limba), max_age=365 * 86400, path="/", samesite="lax",
+        httponly=True, secure=get_settings().cookie_secure,
+    )  # fmt: skip
+    return r
 
 
 # --- Acasă ---------------------------------------------------------------------------------------------

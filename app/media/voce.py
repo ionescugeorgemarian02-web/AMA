@@ -182,6 +182,10 @@ def seteaza_motor(m: MotorVoce | None) -> None:
 def motor_pentru(p: ProfilVoce) -> MotorVoce:
     if _motor_fortat is not None:
         return _motor_fortat
+    if p.motor == "proprie":  # F16.4: vocea proprie antrenată, prin adaptorul ei
+        from app.media.voce_proprie import MotorVoceProprieSimulat
+
+        return MotorVoceProprieSimulat()
     return MotorPiper() if p.motor == "piper" else MotorVoceSimulat()
 
 
@@ -236,10 +240,12 @@ def sintetizeaza(
     profil_cod: str | None = None,
     gresit: dict[str, str] | None = None,
     descriere: str = "narațiune",
+    profil_dat: ProfilVoce | None = None,
+    licenta_extra: dict[str, Any] | None = None,
 ) -> Naratiune:
     """Sintetizează frazele (deja normalizate) și salvează narațiunea în biblioteca de active, cu licența
     vocii."""
-    p = profil(profil_cod)
+    p = profil_dat or profil(profil_cod)
     m = motor_pentru(p)
     texte = [f.strip() for f in fraze if f.strip()]
     bucati = [m.sintetizeaza(t, p, gresit=gresit) for t in texte]
@@ -252,7 +258,7 @@ def sintetizeaza(
         sursa="voce_sintetizata",
         utilizator_id=None,
         descriere=descriere,
-        licenta=licenta_activ(p),
+        licenta={**licenta_activ(p), **(licenta_extra or {})},
         generare={"motor": p.motor, "model": p.model, "fraze": len(texte)},
     )
     return Naratiune(a, fr, round(wav.durata, 3), wav)

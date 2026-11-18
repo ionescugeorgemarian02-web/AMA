@@ -251,3 +251,20 @@ Cerere A -> C (F15.2, revizia de securitate): webhook-ul Shopify (`app/comert/ca
 ## Preluare F12.3–F12.10 de către A (2026-11-18)
 - Sesiunea B nu a mai împins nimic după F12.2 (c04c6d3, 2026-11-17). Conform D-007, A preia F12.3–F12.10 pe ramura sa, în `app/crm`, email, inbox, cu migrările B rămase (0096–0099, apoi 0100–0119).
 - Dacă B revine: pornește din origin/main și anunță aici înainte de orice pas F12.
+
+## Sesiunea A, F16 pas cu pas (2026-11-18)
+
+Zonă: `app/media/` (fișiere noi), `app/connectors/publicare/` și `app/connectors/reclame/` (fișiere noi), `app/localizare/` (nou),
+`app/reclame/`; migrările `0104`+ (următoarele libere după capul `0103`), D-026. C (`app/comert`) neatins.
+
+| Pas | Stare |
+| --- | --- |
+| F16.1 Formatul C, grafică animată | **închis** (împins), fără migrare |
+| F16.2 Pinterest, Google Business Profile, Threads | **închis** (împins), migrarea `0104` |
+| F16.4 Voce proprie antrenată | **închis** (împins), migrarea `0106` |
+| F16.5 Generator video extern | **închis** (împins), migrarea `0107` |
+| F16.6 Reclame pe TikTok | **închis** (împins), migrarea `0108`; atins: `rulepacks/reclame.toml` (canalul `tiktok_ads`) |
+| Poarta F16 | **trecută pe simulare** (`docs/specs/F16-poarta.md`), migrări finale `0104`–`0108` |
+| G-pool Modele gratuite din fabrica | **închis** (împins), migrarea `0109`, D-028; atins prin adăugare: `app/gateway/{apel,rutare,registru,candidat,profiluri,serviciu,situatie,__init__}.py`, `tests/furnizor_fals.py` (cuvântul `404`), `tests/unit/test_garzi_db.py` (seiful în contextul de agenție), `infra/compose/{base,local}.yml`, `infra/env/*.example` |
+| F16.3 Localizare în engleză | **închis** (împins), migrarea `0105`; atins prin adăugare: `app/panou/sabloane.py`, `base.html`, `portal/baza.html`, `portal/acasa.html`, `app/portal/web.py`, `app/validare/{structura,limba,intrare}.py`, `app/continut/{editor,scriere}.py` |
+

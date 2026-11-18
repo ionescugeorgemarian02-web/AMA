@@ -91,7 +91,7 @@ class FurnizorFals:
             return self._vectori(inreg, cuvant, cerere)
         if cuvant == "timeout":
             raise httpx.ReadTimeout("timeout simulat", request=cerere)
-        if cuvant in ("429", "5xx", "401", "400"):
+        if cuvant in ("429", "5xx", "401", "400", "404"):
             return self._eroare(api, cuvant)
         if cuvant == "continut_blocat":
             return httpx.Response(
@@ -211,6 +211,10 @@ class FurnizorFals:
         )
 
     def _eroare(self, api: str, cuvant: str) -> httpx.Response:
+        if cuvant == "404":  # modelul nu (mai) există la furnizor (G-pool, sănătatea pe model)
+            return httpx.Response(
+                404, json={"error": {"message": "model not found", "code": "model_not_found"}}
+            )
         if cuvant == "429":
             if api == "openai":
                 antete = {"retry-after": "7"}

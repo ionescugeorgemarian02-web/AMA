@@ -109,7 +109,7 @@ def _probleme_lungimi(canal: str, continut: Continut) -> list[Problema]:
     return probleme
 
 
-def _probleme_limba(continut: Continut) -> list[Problema]:
+def _probleme_limba(continut: Continut, limba: str = "ro") -> list[Problema]:
     probleme = []
     corp = continut.text
     if len(corp.strip()) < incarca("structura")["generale"]["text_minim"] and not _goala(corp):
@@ -118,20 +118,36 @@ def _probleme_limba(continut: Continut) -> list[Problema]:
                 "G1.text_prea_scurt", corp.strip(), "Textul este prea scurt pentru un livrabil; dezvoltă-l."
             )
         )
-    limba = text_ro.detecteaza_limba(corp)
-    if limba.cod in ("en", "strain", "necunoscuta"):
+    if limba == "en":  # F16.3: clientul publică în engleză
+        return probleme + _probleme_engleza(corp)
+    detectata = text_ro.detecteaza_limba(corp)
+    if detectata.cod in ("en", "strain", "necunoscuta"):
         ce = {"en": "în engleză", "strain": "într-o limbă străină"}.get(
-            limba.cod, "într-o limbă care nu pare română"
+            detectata.cod, "într-o limbă care nu pare română"
         )
         probleme.append(
             Problema(
                 "G1.limba",
                 corp.strip()[:80],
                 f"Textul pare scris {ce}; rescrie-l direct în limba română.",
-                detalii=f"cod={limba.cod}; cuvinte funcționale românești {limba.raport_ro:.2f}",
+                detalii=f"cod={detectata.cod}; cuvinte funcționale românești {detectata.raport_ro:.2f}",
             )
         )
     return probleme
+
+
+def _probleme_engleza(corp: str) -> list[Problema]:
+    d = text_ro.detecteaza_limba(corp)
+    if d.cod in ("en", "prea_scurt"):
+        return []
+    return [
+        Problema(
+            "G1.limba",
+            corp.strip()[:80],
+            "Clientul publică în engleză, iar textul nu pare scris în engleză; rescrie-l direct în engleză.",
+            detalii=f"cod={d.cod}; cuvinte funcționale englezești {d.raport_en:.2f}",
+        )
+    ]
 
 
 def _probleme_linkuri(continut: Continut) -> list[Problema]:
@@ -171,12 +187,12 @@ def _probleme_linkuri(continut: Continut) -> list[Problema]:
     return probleme
 
 
-def probleme_structura(tip: str, canal: str, continut: Continut) -> list[Problema]:
+def probleme_structura(tip: str, canal: str, continut: Continut, limba: str = "ro") -> list[Problema]:
     """Toate problemele de structură ale unui conținut (nucleu pur)."""
     return [
         *_probleme_campuri(tip, continut),
         *_probleme_lungimi(canal, continut),
-        *_probleme_limba(continut),
+        *_probleme_limba(continut, limba),
         *_probleme_linkuri(continut),
     ]
 
@@ -192,7 +208,11 @@ def probleme_structura(tip: str, canal: str, continut: Continut) -> list[Problem
     )
 )
 def g1(intrare: Intrare) -> Verdict:
-    probleme = probleme_structura(intrare.livrabil.tip, intrare.livrabil.canal, intrare.continut)
+    from app.validare.limba_en import limba_intrare
+
+    probleme = probleme_structura(
+        intrare.livrabil.tip, intrare.livrabil.canal, intrare.continut, limba_intrare(intrare)
+    )
     tip_cunoscut = intrare.livrabil.tip in incarca("structura")["tipuri"]
     return verdict_din_probleme(
         COD,

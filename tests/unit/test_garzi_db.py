@@ -34,6 +34,7 @@ CONTEXT_AGENTIE = {
     "app/gateway/fluxuri.py",
     "app/gateway/jurnal.py",  # curățarea zilnică a conținutului expirat, pentru toți clienții
     "app/gateway/masurare.py",  # viteza modelelor locale se scrie în registru (comandă, F3.5)
+    "app/gateway/seif.py",  # G-pool: seiful cheilor furnizorilor (tabel al agenției, comandă și citire în proces)
     # Planificatorul de capacitate (F3.11) citește livrabilele tuturor clienților și le amână; scrie planul zilei.
     "app/planificare/capacitate.py",
     "app/creier/extragere.py",

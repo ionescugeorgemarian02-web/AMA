@@ -20,7 +20,7 @@ from typing import Any
 from app.reclame import pagina
 from app.validare import reguli
 
-CANALE = {"meta": "meta_ads", "google": "google_ads"}
+CANALE = {"meta": "meta_ads", "google": "google_ads", "tiktok": "tiktok_ads"}
 MINIM_CUVANT = 5
 
 

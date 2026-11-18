@@ -48,6 +48,9 @@ SLOTURI_IMPLICITE: dict[str, list[str]] = {
     "youtube": ["17:00"],
     "tiktok": ["19:30"],
     "blog": ["10:00"],
+    "pinterest": ["20:30"],  # F16.2
+    "google_business": ["09:00"],
+    "threads": ["12:30"],
 }
 
 

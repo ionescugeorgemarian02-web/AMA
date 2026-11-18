@@ -23,8 +23,8 @@ from app.operare.efecte import reclame as usa_reclame
 from app.reclame.modele import ContReclame, RezultatReclame
 
 log = get_logger("app.reclame.rezultate")
-PLATFORME = ("meta", "google")
-ETICHETE_PLATFORME = {"meta": "Meta (Facebook și Instagram)", "google": "Google Ads"}
+PLATFORME = ("meta", "google", "tiktok")
+ETICHETE_PLATFORME = {"meta": "Meta (Facebook și Instagram)", "google": "Google Ads", "tiktok": "TikTok Ads"}
 ZILE_RECITITE = 3
 ZILE_PRIMA_CITIRE = 30
 

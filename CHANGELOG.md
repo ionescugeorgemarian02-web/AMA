@@ -4,6 +4,30 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### G-pool — Modele gratuite din catalogul fabricii
+- `app/gateway/catalog.py` (13 furnizori, 47 de modele, familii, numele exacte ale cheilor, adresele compatibile OpenAI), `secrete.py`, seiful (tabelul `gateway_seif`), `sanatate_model.py`, `verifica_furnizori.py`; rutarea cu `rezerva:<profil>`, `alta_familie`, verificarea contextului; resetul Gemini pe fusul Los Angeles; migrarea `0109`; numele secretelor în `infra/env/*.example` și compose. D-028.
+
+### Poarta F16 — Extensii
+- `tests/integration/test_poarta_f16.py`, `docs/specs/F16-poarta.md` (cele șase extensii cap-coadă, pe simulare); migrarea `0104` setează contextul de agenție (RLS forțat) ca să urce din nou după coborâre.
+
+### F16.6 — Reclame pe TikTok
+- `app/connectors/reclame/tiktok.py` (citire cu paginare, stare cont, scriere idempotentă, clasificare pe `code`), platforma `tiktok` în reclame (plan, verificare, `rulepacks/reclame.toml`), migrarea `0108`.
+
+### F16.5 — Generator video extern
+- `app/media/video_extern.py` (adaptor oprit implicit, inserturi 3–6 s, drept comercial fără filigran, cost rezervat sub zăvor, plafon lunar pe client), migrarea `0107` (`video_generari`), setările `AMA_VIDEO_EXTERN_*`.
+
+### F16.4 — Voce proprie antrenată
+- `app/media/voce_proprie.py` (acord, antrenare o dată, adaptorul TTS `proprie`, revocare care blochează narațiunile), migrarea `0106` (`voce_consimtaminte`, `voce_modele`, RLS); `voce.sintetizeaza` cu profil dat.
+
+### F16.3 — Localizare în engleză
+- `app/localizare` (catalog, limba din cerere, `t` în șabloane), `POST /portal/limba`, portalul (meniu, Acasă) în engleză; `clienti.limba` (migrarea `0105`); instrucțiunea de limbă pentru autori; G1/G10 pe limba conținutului (`validare/limba_en.py`); editorul cu ghilimelele limbii.
+
+### F16.2 — Canale noi: Pinterest, Google Business Profile, Threads
+- `app/connectors/publicare/{pinterest,google_business,threads}.py` (contractul F9.1, SIMULATE), înregistrate în registru; migrarea `0104` (aprobările `in_test`); sloturi, domenii asistate, limite G1.
+
+### F16.1 — Formatul C, grafică animată
+- `app/media/formatul_c.py` (scene ofertă/cifră/anunț în culorile brandului, cadre Pillow + FFmpeg local, HTML-ul scenei pentru HyperFrames SIMULAT), formatul `C` în lista de montaj.
+
 ### Poarta F12 — CRM, email, inbox
 - `tests/integration/test_poarta_f12.py`, `docs/specs/F12-poarta.md` (audit → secvență → calificare → apel programat, cap-coadă pe simulare); anularea programării cere CSRF dublu-trimis; ordinea livrării nu mai contează în testele secvenței.
 

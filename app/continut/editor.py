@@ -42,12 +42,13 @@ def _amprenta_fapte(text: str) -> list[tuple[str, str]]:
     return [(a.tip, a.fragment.lower()) for a in validare.extrage_afirmatii(text)]
 
 
-def editeaza(text: str) -> str:
-    """Textul editat; neschimbat dacă editarea ar atinge vreo afirmație verificabilă."""
-    g = _date()["ghilimele"]
+def editeaza(text: str, limba: str = "ro") -> str:
+    """Textul editat; neschimbat dacă editarea ar atinge vreo afirmație verificabilă. În engleză (F16.3):
+    ghilimelele “…” și fără șabloanele de clișee românești."""
+    g = _date()["ghilimele"] if limba == "ro" else {"deschise": "“", "inchise": "”"}
     nou = validare.corecteaza_sedila(text)
     nou = GHILIMELE.sub(lambda m: f"{g['deschise']}{m.group(1)}{g['inchise']}", nou)
-    nou = _fara_sabloane(nou)
+    nou = _fara_sabloane(nou) if limba == "ro" else nou
     nou = "\n".join(SPATII.sub(" ", linie).strip() for linie in nou.split("\n")).strip()
     if _amprenta_fapte(nou) != _amprenta_fapte(validare.corecteaza_sedila(text)):
         return validare.corecteaza_sedila(text).strip()

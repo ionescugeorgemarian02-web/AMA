@@ -10,7 +10,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-FORMATE = ("A", "B", "E")
+FORMATE = ("A", "B", "C", "E")
 CADRU = 1 / 30
 TOLERANTA_VOCE = 0.05  # [I] secunde între durata listei și vocea + coada
 COADA_MAX = 1.5  # [I] secunde după ultimul cuvânt (apelul la acțiune rămâne pe ecran)
@@ -64,7 +64,7 @@ class Coperta(Model):
 
 class ListaMontaj(Model):
     versiune: int = 1
-    format: Literal["A", "B", "E"]
+    format: Literal["A", "B", "C", "E"]
     canal: str = "tiktok"
     latime: int = 1080
     inaltime: int = 1920
@@ -107,7 +107,7 @@ def probleme(lista: ListaMontaj, active: dict[uuid.UUID, InfoActiv]) -> list[str
             continue
         if not info.licentiat:
             out.append(f"scena {i}: activul {s.activ_id} nu are licență înregistrată")
-        asteptat = {"A": ("video",), "B": ("foto",), "E": ("video", "foto")}[lista.format]
+        asteptat = {"A": ("video",), "B": ("foto",), "C": ("video",), "E": ("video", "foto")}[lista.format]
         if info.categorie not in asteptat:
             out.append(f"scena {i}: formatul {lista.format} nu folosește {info.categorie}")
         lunga = info.durata is not None and s.sursa_de_la + (s.sfarsit - s.inceput) > info.durata + eps

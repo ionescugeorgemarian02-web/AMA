@@ -171,6 +171,10 @@ def probleme_limba(text: str) -> list[Problema]:
     )
 )
 def g10_reguli(intrare: Intrare) -> Verdict:
+    from app.validare import limba_en  # F16.3: regulile pe limba conținutului
+
+    if limba_en.limba_intrare(intrare) == "en":
+        return verdict_din_probleme(COD, VERSIUNE, Treapta.V1, limba_en.probleme_limba_en(intrare.text))
     return verdict_din_probleme(COD, VERSIUNE, Treapta.V1, probleme_limba(intrare.text))
 
 

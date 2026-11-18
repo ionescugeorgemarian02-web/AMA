@@ -29,7 +29,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import creier, gateway, productie, validare
+from app import creier, gateway, localizare, productie, validare
 from app.continut import brief, editor, prompturi
 from app.continut.modele import VariantaHook
 from app.ids import new_id
@@ -171,6 +171,9 @@ def inregistreaza_adaos_context(f: Callable[[Session, productie.Livrabil], str])
         ADAOSURI_CONTEXT.append(f)
 
 
+inregistreaza_adaos_context(localizare.adaos_context)  # F16.3: instrucțiunea de limbă pentru alt client
+
+
 def exemple_text(db: Session, lv: productie.Livrabil) -> str:
     """Exemplele aprobate și respinse pentru același tip și canal (F6.7), urmate de adaosurile înregistrate
     (lecțiile de playbook, F11.2); șir gol dacă nu există nimic."""
@@ -230,7 +233,8 @@ def hook_ales(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> str:
 
 
 def _scrie_postarea(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> validare.ContinutNou:
-    hook = editor.editeaza(hook_ales(db, lv, b))
+    limba = localizare.limba_client(db, lv.tenant_id)  # F16.3
+    hook = editor.editeaza(hook_ales(db, lv, b), limba)
     r = gateway.apeleaza(
         db,
         prompt="continut.postare@1",
@@ -249,13 +253,13 @@ def _scrie_postarea(db: Session, lv: productie.Livrabil, b: dict[str, object]) -
     )
     if not isinstance(r.iesire, PostareScrisa):
         raise TypeError("ieșirea nu respectă schema promptului")
-    text = editor.editeaza(r.iesire.text)
+    text = editor.editeaza(r.iesire.text, limba)
     if not text.startswith(hook):
         text = f"{hook}\n\n{text}"
     hashtaguri = [h.lstrip("#").strip() for h in r.iesire.hashtaguri if h.strip("# ")]
     return validare.ContinutNou(
         text=text,
-        campuri={"hook": hook, "hashtaguri": hashtaguri},
+        campuri={"hook": hook, "hashtaguri": hashtaguri, **({"limba": limba} if limba != "ro" else {})},
         autor=COMPONENTA_POSTARE,
         model_autor=r.model,
     )

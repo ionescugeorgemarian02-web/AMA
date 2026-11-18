@@ -1,8 +1,8 @@
 pachet = "reclame"
 tip = "platforma"
-titlu = "Reclame plătite (Meta Ads și Google Ads)"
+titlu = "Reclame plătite (Meta Ads, Google Ads și TikTok Ads)"
 versiune = 1
-canale = ["meta_ads", "google_ads"]
+canale = ["meta_ads", "google_ads", "tiktok_ads"]
 
 [[reguli]]
 id = "reclame-atribute-personale"

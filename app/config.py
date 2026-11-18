@@ -188,6 +188,15 @@ class Settings(BaseSettings):
     linkedin_versiune: str = "202510"
     tiktok_client_key: str = ""
     tiktok_client_secret: SecretStr = Field(default=SecretStr(""))
+    # Canalele F16.2 (NEVERIFICAT: aplicațiile aprobate, la migrare; D-026).
+    pinterest_client_id: str = ""
+    pinterest_client_secret: SecretStr = Field(default=SecretStr(""))
+    threads_app_id: str = ""
+    threads_app_secret: SecretStr = Field(default=SecretStr(""))
+    # Generatorul video extern (F16.5): oprit până există buget; plafonul lunar pe client, tariful [I].
+    video_extern_activ: bool = False
+    video_extern_plafon_lunar_bani: int = Field(default=0, ge=0)
+    video_extern_cost_secunda_bani: int = Field(default=50, ge=0)
     # Reclamele plătite (F13): platformele cu conector real activ (de ex. „meta,google”; gol = niciunul).
     # NEVERIFICAT: conturile și accesul real (App Review Meta, nivelul Google Ads), la migrare.
     reclame_conectori: str = ""
