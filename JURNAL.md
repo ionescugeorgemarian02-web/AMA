@@ -686,3 +686,6 @@ Diferența față de `CHANGELOG.md`: acolo stă ce s-a schimbat în produs; aici
   - Construit: migrarea `0079`, `app/invatare/promovare.py`; optimizatorul nu mai pornește pe o componentă cu promovare în curs sau cu candidat nepornit.
   - Verificat: `tests/integration/test_invatare_promovare.py`, `test_invatare_optimizator.py`; ruff, mypy, gărzile.
   - Deschis: `ruteaza`/`observa` nelegate în autorii din F6 (NECONECTAT).
+- **F14.3 — Predictorul de performanță.**
+  - Construit: migrarea `0080`, `predictiv.py`, `predictor.py`. Referința „la întâmplare” = scor constant (AUC 0,5): o referință aleatoare reală făcea marja zgomotoasă.
+  - Verificat: `test_invatare_predictor.py` (600 de postări simulate), `tests/unit/test_invatare_predictiv.py`, izolarea, migrările; ruff, mypy, gărzile.

@@ -136,3 +136,21 @@ class ObservatiePromovare(BazaInvatare):
     scor: Mapped[float] = mapped_column(Float)
     conform: Mapped[bool] = mapped_column(Boolean)
     la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ModelPredictiv(BazaInvatare):
+    """O încercare de antrenare a unui model predictiv, doar peste pragul de date (F14.3, F14.5, migrarea
+    0080)."""
+
+    __tablename__ = "modele_predictive"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    tip: Mapped[str] = mapped_column(Text)
+    canal: Mapped[str] = mapped_column(Text, default="")
+    n_exemple: Mapped[int] = mapped_column(Integer)
+    prag: Mapped[int] = mapped_column(Integer)
+    stare: Mapped[str] = mapped_column(Text)
+    referinta: Mapped[str] = mapped_column(Text)
+    metrici: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    model: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    antrenat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

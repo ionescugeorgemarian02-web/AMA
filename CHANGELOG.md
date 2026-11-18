@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F14.3 — Predictorul de performanță
+- `app/invatare/predictiv.py` (gradient boosting cu cioturi, AUC, bootstrap pereche, pragul de date), `app/invatare/predictor.py` (șansa de succes pe client și canal, jobul săptămânal `invatare.predictor`), `modele_predictive` (migrarea `0080`).
+
 ### F14.2 — Umbră, canar, promovare, revenire
 - `app/invatare/promovare.py` (rutarea deterministă, umbra pe 20 de livrabile, canar 10%, producție 90% cu control 10%, câștigul măsurat față de control, revenirea dintr-o atingere și automată), jobul zilnic `invatare.promovari`, `promovari` și `promovari_observatii` (migrarea `0079`).
 

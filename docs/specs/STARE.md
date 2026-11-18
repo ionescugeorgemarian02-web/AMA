@@ -320,7 +320,9 @@ Actualizat la fiecare pas închis. „Verificat” înseamnă: testele de accept
 | --- | --- | --- |
 | F14.1 Optimizatorul de prompturi | verificat local cu model și propunător SIMULATE: o rulare produce un candidat (ciornă în registru) care bate campionul pe setul de test cu marja 0,03, fără să piardă la conformitate; raport cu ce s-a schimbat și de ce; urme; jobul nocturn | `tests/integration/test_invatare_optimizator.py`, `tests/unit/test_invatare_optimizator.py` |
 | F14.2 Umbră, canar, promovare, revenire | verificat local pe livrabile SIMULATE (rutarea reală): umbra pe 20 de livrabile, canar ~10%, producție ~90% cu 10% control pe campionul vechi, promovare cu câștigul măsurat față de control; revenirea dintr-o atingere (versiune nouă cu textul vechi), revenire automată la gardă sau control mai bun; Constituția | `tests/integration/test_invatare_promovare.py` |
+| F14.3 Predictorul de performanță | verificat local pe date trecute SIMULATE: sub pragul de 500 de publicări pe canal nu se antrenează nimic; peste prag, AUC-ul pe testul din urmă bate alegerea la întâmplare cu marja măsurată (marginea de jos a intervalului bootstrap > 0,05); fără semnal, modelul nu se folosește; izolare pe client | `tests/integration/test_invatare_predictor.py`, `tests/unit/test_invatare_predictiv.py` |
 
 ### De verificat la migrare (F14)
 - F14.1: optimizatorul pe modelele reale (profilul `strategie` pentru reflecție, cota rămasă înainte de resetare); calibrarea marjei și a mărimii seturilor de aur; seturi de aur pentru alte componente decât `continut.hookuri`.
 - F14.2: legarea `ruteaza`/`observa` în autorii din F6 (NECONECTAT) și scorul din verdictul validării; minimele de 20 și toleranța pe volum real.
+- F14.3: pragul (500 pe canal) și marja (0,05) pe date reale; trăsăturile de text (lungime, hook) dacă AUC-ul rămâne mic; legarea `sansa` în planificare.

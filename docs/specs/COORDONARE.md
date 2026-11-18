@@ -195,3 +195,4 @@ Zonă: `app/invatare/` (fișiere noi; `__init__.py` și `modele.py` doar prin ad
 | --- | --- |
 | F14.1 Optimizatorul de prompturi | **închis** (împins), migrarea `0078`, D-020 |
 | F14.2 Umbră, canar, promovare, revenire | **închis** (împins), migrarea `0079` |
+| F14.3 Predictorul de performanță | **închis** (împins), migrarea `0080` |
