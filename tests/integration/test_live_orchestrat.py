@@ -117,9 +117,8 @@ def test_live_postari_facebook_si_video_in_romana(
             (iesire / "script_video.json").write_text(json.dumps(sc, ensure_ascii=False, indent=1))
             fr = [normalizare.normalizeaza(f) for f in regizor.fraze_din_script(sc)]
             nv = transcriere.naratiune_verificata(db, tenant, fr)
-            mat = [furnizori.genereaza_imagine(db, tenant, f"cafea, cadru {i}", samanta=i) for i in range(4)]
-            mat += [
-                furnizori.aduce_stock(db, tenant, r) for r in furnizori.cauta_stock("cafea", tip="video", n=2)
+            mat = [
+                furnizori.aduce_stock(db, tenant, r) for r in furnizori.cauta_stock("cafea", tip="video", n=5)
             ]
             muzica = furnizori.aduce_muzica(db, tenant, "calm", 40.0)
             lm = regizor.regizeaza(db, tenant, fraze=fr, naratiune=nv, materiale=mat, format="A",
