@@ -4,7 +4,7 @@ Pornește doar cu `AMA_PUNTE_DIR` setat. Fundația brandului FICTIV „Cafeneaua
 briefuri) vine din lanțul de test (modelul FALS). Sarcinile de creație — deschiderile (E1), postările Facebook (E4) și
 reparațiile lor, scriptul video (E2) și regizorul — trec prin gateway la puntea orchestratorului, unde le scrie un agent.
 Reale: gateway-ul, cascada de validare, vocea în română (espeak-ng + MBROLA ro1), alinierea subtitrărilor pe semnal,
-montajul FFmpeg ca job durabil, controlul G6 pe fișier, coperta G5, pașaportul G11. Simulate: stock-ul vizual, muzica.
+montajul FFmpeg ca job durabil, controlul G6 pe fișier, coperta G5, pașaportul G11. Imaginile: clipuri animate în identitatea brandului (Chromium). Muzica: compusă local.
 
     AMA_PUNTE_DIR=/cale AMA_TEST_PLAFON_SEC=7200 uv run pytest tests/integration/test_live_orchestrat.py -o faulthandler_timeout=0
 """
@@ -24,6 +24,7 @@ from app.config import get_settings
 from app.continut import pipeline
 from app.db import sesiune_tenant
 from app.media import (
+    animatie,
     compozitor,
     control,
     fluxuri,
@@ -40,6 +41,7 @@ from app.media import (
     voce,
 )  # fmt: skip
 from app.media.modele import Activ, Randare
+from app.media.muzica_locala import MuzicaLocala
 from app.operare import motor
 from app.productie import Stare
 from tests.integration.lant_continut import cu_briefuri
@@ -52,6 +54,7 @@ pytestmark = [
     pytest.mark.db,
     pytest.mark.skipif(not DIR, reason="testul live cere AMA_PUNTE_DIR"),
     pytest.mark.skipif(not voce.MotorEspeak.disponibil(), reason="espeak-ng / mbrola-ro1 lipsesc"),
+    pytest.mark.skipif(not animatie.disponibil(), reason="node / Playwright lipsesc"),
 ]
 SARCINI = (
     "Propune deschideri pentru materialul",
@@ -84,6 +87,7 @@ def test_live_postari_facebook_si_video_in_romana(
     for s in SARCINI:
         modele.handlere[s] = punte.handler(s)
     voce.seteaza_motor(voce.MotorEspeak())
+    furnizori.seteaza_muzica(MuzicaLocala())
     try:
         with sesiune_tenant(tenant) as db:
             intrari = list(continut.calendar.intrari(db, cal))
@@ -117,9 +121,12 @@ def test_live_postari_facebook_si_video_in_romana(
             (iesire / "script_video.json").write_text(json.dumps(sc, ensure_ascii=False, indent=1))
             fr = [normalizare.normalizeaza(f) for f in regizor.fraze_din_script(sc)]
             nv = transcriere.naratiune_verificata(db, tenant, fr)
-            mat = [
-                furnizori.aduce_stock(db, tenant, r) for r in furnizori.cauta_stock("cafea", tip="video", n=5)
-            ]
+            # fără furnizor de filmări: câte un clip animat în identitatea brandului pe fiecare bătaie
+            durata = nv.naratiune.durata + regizor.COADA
+            intervale = regizor.momente_batai(fr, nv.aliniere, durata)
+            mat = animatie.clipuri_script(
+                db, tenant, sc, [b - a for a, b in intervale], eticheta="Cafeneaua Zorilor"
+            )
             muzica = furnizori.aduce_muzica(db, tenant, "calm", 40.0)
             lm = regizor.regizeaza(db, tenant, fraze=fr, naratiune=nv, materiale=mat, format="A",
                                    canal="facebook", muzica=muzica)  # fmt: skip
@@ -154,4 +161,5 @@ def test_live_postari_facebook_si_video_in_romana(
         assert r.stare == "gata", r.control
     finally:
         voce.seteaza_motor(None)
+        furnizori.seteaza_muzica(None)
         punte.inchide()
