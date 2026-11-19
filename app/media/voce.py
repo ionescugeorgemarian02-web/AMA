@@ -170,6 +170,36 @@ class MotorPiper:
             return audio.citeste(iesire.read_bytes())
 
 
+class MotorEspeak:
+    """Motor local, fără rețea și fără model descărcat: `espeak-ng` cu vocea MBROLA `mb-ro1` (română,
+    pachetele `espeak-ng mbrola mbrola-ro1`). Real, mai puțin natural decât Piper (rezerva lui).
+    Fișierul nu are bucata `amaw`: transcriptorul aliniază forțat cuvintele pe semnal."""
+
+    VOCE = "mb-ro1"
+    VITEZA = 150  # cuvinte pe minut; ~2,5 cuvinte/s, ritmul unei reclame calme
+
+    @staticmethod
+    def disponibil() -> bool:
+        return shutil.which("espeak-ng") is not None and Path("/usr/share/mbrola/ro1").exists()
+
+    def sintetizeaza(
+        self, text: str, profil: ProfilVoce, *, gresit: dict[str, str] | None = None
+    ) -> audio.Wav:
+        binar = shutil.which("espeak-ng")
+        if not binar:
+            raise RuntimeError("espeak-ng nu este instalat")
+        with tempfile.TemporaryDirectory() as d:
+            iesire = Path(d) / "f.wav"
+            subprocess.run(
+                [binar, "-v", self.VOCE, "-s", str(self.VITEZA), "-w", str(iesire), "--stdin"],
+                input=text.encode(),
+                check=True,
+                capture_output=True,
+                timeout=120,
+            )
+            return audio.citeste(iesire.read_bytes())
+
+
 _motor_fortat: MotorVoce | None = None
 
 
@@ -186,6 +216,8 @@ def motor_pentru(p: ProfilVoce) -> MotorVoce:
         from app.media.voce_proprie import MotorVoceProprieSimulat
 
         return MotorVoceProprieSimulat()
+    if p.motor == "espeak":
+        return MotorEspeak()
     return MotorPiper() if p.motor == "piper" else MotorVoceSimulat()
 
 
