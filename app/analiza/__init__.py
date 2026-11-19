@@ -6,8 +6,11 @@ analiza.colector.colecteaza()                       # jobul `analiza.colector`, 
 analiza.colector.ale_livrabilului(db, livrabil_id)  # citirile pe intervale ale unei postări
 """
 
-from app.analiza import colector, etichete, raport_lunar, retentie, sanatate, trafic
-from app.analiza.modele import CurbaRetentie, EtichetePostare, MetriciPostare
+# Ordinea contează: `app.invatare` (importat de colector / raport) cere `EtichetePostare` și `etichete`
+# din pachetul încă parțial inițializat.
+from app.analiza.modele import CurbaRetentie, EtichetePostare, MetriciPostare  # isort: skip
+from app.analiza import etichete  # isort: skip
+from app.analiza import colector, raport_lunar, retentie, sanatate, trafic  # isort: skip
 
 __all__ = [
     "CurbaRetentie",

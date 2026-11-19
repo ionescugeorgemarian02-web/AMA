@@ -8,6 +8,7 @@ termină cu vocea plus o coadă scurtă. O alegere invalidă (bătaie lipsă, ma
 determinist, prin rotație, și se notează.
 """
 
+import math
 import uuid
 from pathlib import Path
 from typing import Any, Literal
@@ -117,8 +118,10 @@ def construieste(
     alegeri: list[AlegereScena],
     coperta: str = "",
     muzica: Activ | None = None,
+    durate: dict[uuid.UUID, float] | None = None,
 ) -> lista.ListaMontaj:
-    """Nucleul determinist: alegerile + momentele vocii -> lista de montaj."""
+    """Nucleul determinist: alegerile + momentele vocii -> lista de montaj. `durate` (video): o bătaie
+    mai lungă decât clipul ales se împarte în bucăți egale, pe clipurile următoare care o acoperă."""
     durata = round(naratiune.naratiune.durata + COADA, 3)
     intervale = momente_batai(fraze, naratiune.aliniere, durata)
     scene = []
@@ -126,7 +129,10 @@ def construieste(
         m = materiale[s.material]
         # formatul B e „imagini în mișcare”: o fotografie nu stă niciodată pe loc (altfel G6 o vede înghețată)
         miscare = (s.miscare if s.miscare != "static" else "zoom_in") if m.categorie == "foto" else "static"
-        scene.append(lista.Scena(activ_id=m.id, inceput=a, sfarsit=b, miscare=miscare, bataie=s.bataie))
+        for activ, x, y in _bucati(m, a, b, materiale, durate or {}):
+            scene.append(
+                lista.Scena(activ_id=activ.id, inceput=x, sfarsit=y, miscare=miscare, bataie=s.bataie)
+            )
     return lista.ListaMontaj(
         format=format,
         canal=canal,
@@ -137,6 +143,29 @@ def construieste(
         texte=texte(fraze, naratiune.aliniere),
         coperta=lista.Coperta(text=(coperta or fraze[0])[:60]),
     )
+
+
+def _bucati(
+    m: Activ, a: float, b: float, materiale: list[Activ], durate: dict[uuid.UUID, float]
+) -> list[tuple[Activ, float, float]]:
+    """Scena [a, b] pe clipul `m`; dacă clipul e mai scurt, n bucăți egale, fiecare pe un clip destul de lung
+    (întâi `m`, apoi celelalte video, prin rotație)."""
+    d = durate.get(m.id)
+    if m.categorie != "video" or d is None or b - a <= d + lista.CADRU:
+        return [(m, a, b)]
+    n = math.ceil((b - a) / d)
+    pas = (b - a) / n
+    start = materiale.index(m)
+    rotatie = [materiale[(start + k) % len(materiale)] for k in range(len(materiale))]
+    potrivite = [x for x in rotatie if x.categorie == "video" and durate.get(x.id, 0.0) + lista.CADRU >= pas]
+    if not potrivite:
+        return [(m, a, b)]  # validarea listei o va respinge, cu motivul exact
+    out = []
+    for k in range(n):
+        x = a + k * pas
+        y = b if k == n - 1 else round(a + (k + 1) * pas, 3)
+        out.append((potrivite[k % len(potrivite)], round(x, 3), y))
+    return out
 
 
 class ListaInvalida(ValueError):
@@ -161,6 +190,9 @@ def regizeaza(
     folosibile = [m for m in materiale if not licente.probleme(m.licenta)]
     if not folosibile:
         raise ListaInvalida(["niciun material cu licență"])
+    durate = {
+        m.id: d for m in folosibile if (d := info_activ(m).durata) is not None and m.categorie == "video"
+    }
     continut.prompturi.asigura()
     r = gateway.apeleaza(
         db,
@@ -175,7 +207,9 @@ def regizeaza(
             "format": format,
             "batai": "\n".join(f"{i}. {f}" for i, f in enumerate(fraze)),
             "materiale": "\n".join(
-                f"{i}: {m.descriere or m.nume_original}" for i, m in enumerate(folosibile)
+                f"{i}: {m.descriere or m.nume_original}"
+                + (f" ({durate[m.id]:.1f} s)" if m.id in durate else "")
+                for i, m in enumerate(folosibile)
             ),
         },
     )
@@ -185,7 +219,7 @@ def regizeaza(
     if note:
         log.warning("regizorul a primit alegeri invalide", extra={"note": note[:5]})
     lm = construieste(format=format, canal=canal, fraze=fraze, naratiune=naratiune, materiale=folosibile,
-                      alegeri=alegeri, coperta=r.iesire.coperta, muzica=muzica)  # fmt: skip
+                      alegeri=alegeri, coperta=r.iesire.coperta, muzica=muzica, durate=durate)  # fmt: skip
     ids = {s.activ_id for s in lm.scene} | {lm.voce.activ_id} | ({lm.muzica.activ_id} if lm.muzica else set())
     p = lista.probleme(lm, info_active(db, ids))
     if p:
