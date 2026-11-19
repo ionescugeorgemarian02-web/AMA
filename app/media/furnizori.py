@@ -27,6 +27,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.media import biblioteca, ffmpeg
 from app.media.modele import Activ
 
@@ -255,13 +256,30 @@ class MuzicaSimulata:
         }
 
 
-_muzica: BibliotecaMuzica = MuzicaSimulata()
+_muzica: BibliotecaMuzica | None = None
+
+
+def seteaza_muzica(b: BibliotecaMuzica | None) -> None:
+    """`None` = implicitul: compoziția locală (`muzica_locala`), iar în teste piesa simulată (rapidă)."""
+    global _muzica
+    _muzica = b
+
+
+def _biblioteca_muzica() -> BibliotecaMuzica:
+    if _muzica is not None:
+        return _muzica
+    if get_settings().env == "test":
+        return MuzicaSimulata()
+    from app.media.muzica_locala import MuzicaLocala
+
+    return MuzicaLocala()
 
 
 def aduce_muzica(db: Session, tenant_id: uuid.UUID, stare: str = "calm", durata: float = 20.0) -> Activ:
-    corp, lic = _muzica.piesa(stare, durata)
+    biblioteca_muzica = _biblioteca_muzica()
+    corp, lic = biblioteca_muzica.piesa(stare, durata)
     return biblioteca.incarca(
         db, tenant_id, corp, nume_original=f"{lic['identificator']}.wav", sursa="muzica", utilizator_id=None,
         descriere=f"muzică {stare}",
-        licenta={"tip": "muzica", "statut": "verificata", "furnizor": _muzica.nume, **lic},
+        licenta={"tip": "muzica", "statut": "verificata", "furnizor": biblioteca_muzica.nume, **lic},
     )  # fmt: skip
