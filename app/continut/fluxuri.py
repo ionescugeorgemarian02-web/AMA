@@ -154,7 +154,24 @@ NUME_PRODUCTIE = "continut.produ"
 def _pas_productie(tenant_id: str, livrabil_id: str) -> str:
     """Starea după un pas din lanț, `amanat:<moment ISO>` sau `refuzat:<motiv>`."""
     try:
-        return pipeline.pas(uuid.UUID(tenant_id), uuid.UUID(livrabil_id))
+        tid, lid = uuid.UUID(tenant_id), uuid.UUID(livrabil_id)
+        stare = pipeline.pas(tid, lid)
+        if stare == productie.Stare.ASTEAPTA_APROBARE.value:
+            from app.media import fluxuri as media_fluxuri
+
+            with sesiune_tenant(tid) as db:
+                lv = productie.citeste(db, lid)
+                if lv and lv.tip == "script_video_scurt":
+                    motor.trimite_atomic(
+                        db,
+                        media_fluxuri.produce_script,
+                        tenant_id,
+                        livrabil_id,
+                        str(lv.versiune),
+                        cheie=f"video:{lid}:v{lv.versiune}",
+                        coada=motor.Coada.GREU,
+                    )
+        return stare
     except gateway.Amanat as amanat:
         return f"amanat:{amanat.pana_la.isoformat()}"
     except gateway.EroareGateway as exc:

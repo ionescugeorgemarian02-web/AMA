@@ -52,6 +52,14 @@ class ProfilVoce:
 
 
 PROFILURI: dict[str, ProfilVoce] = {
+    "ro-espeak-nativ": ProfilVoce(
+        "ro-espeak-nativ",
+        "espeak",
+        "ro",
+        LicentaVoce(
+            "verificata", "generat_intern", "eSpeak NG", "Sinteză formantică nativă eSpeak NG (vocea ro)"
+        ),
+    ),
     "ro-simulat": ProfilVoce(
         "ro-simulat",
         "simulat",
@@ -191,7 +199,16 @@ class MotorEspeak:
         with tempfile.TemporaryDirectory() as d:
             iesire = Path(d) / "f.wav"
             subprocess.run(
-                [binar, "-v", self.VOCE, "-s", str(self.VITEZA), "-w", str(iesire), "--stdin"],
+                [
+                    binar,
+                    "-v",
+                    "ro" if profil.cod == "ro-espeak-nativ" else self.VOCE,
+                    "-s",
+                    str(self.VITEZA),
+                    "-w",
+                    str(iesire),
+                    "--stdin",
+                ],
                 input=text.encode(),
                 check=True,
                 capture_output=True,

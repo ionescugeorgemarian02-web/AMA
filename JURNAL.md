@@ -901,3 +901,9 @@ Bază de lucru `625d5a6`, ramură `codex/agentie-pilot`. Modificările acestei r
 - Atribuire: importul comenzii păstrează utm_content. În portal și în pilot sunt disponibile comenzile importate și volumul măsurat. Pentru servicii operatorul poate introduce totalul zilnic confirmat din exportul clientului, pe livrabil. Migrare `0141`.
 - SEO: import CSV cu pagină și produs, interogări ordonate după impresii și poziție. Comandă: `uv run python -m app.seo export.csv --produs "Produs" --pagina "/pagina"`.
 - Verificări inițiale: cele 40 de teste focalizate pe brief, ofertă, calendar, SEO, obiective, reclame, dosare și raport au trecut. Verificările finale se documentează mai jos. Nu s-au lansat reclame, publicări sau plăți.
+
+### Completări și dovezi
+
+Codex a conectat producția unui scenariu validat la pregătirea montajului pe coada media. Fluxul folosește voce românească eSpeak NG, activele licențiate ale clientului și, în lipsa lor, animații. Comparația „fină / medie” are două mostre la aceeași scară. Operatorul și clientul pot deschide exportul versiunii în ecranul de aprobare. Pilotul exportă câte un exemplu din fiecare format ales în calendar, inclusiv MP4 când există un slot video. Linkurile reclamelor noi identifică anunțul prin UUID.
+
+Verificări locale: Ruff, mypy și gărzile au trecut. Testul strategului de reclame a trecut după corectarea simulatorului Meta, care omitea evenimentul când observase explicit zero. Testele scenariilor video au trecut pe PostgreSQL. Rularea locală integrală a fost întreruptă după erori în testele de recuperare a workerului și timeout-uri DBOS. Un test din grupul watchdog a trecut la reluare izolată. Pentru starea CI la commitul final, verifică PR #20. Pilotul cu facturare Anthropic și publicarea pe canale reale nu au fost executate.

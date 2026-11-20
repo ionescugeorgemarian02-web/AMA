@@ -15,7 +15,7 @@ import re
 import unicodedata
 import uuid
 from typing import Literal
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
@@ -89,8 +89,9 @@ def link_cu_utm(plan: PlanMedia, continut: str = "") -> str:
     q = {"utm_source": m.utm_source, "utm_medium": m.utm_medium, "utm_campaign": m.utm_campaign}
     if continut:
         q["utm_content"] = slug(continut)
-    sep = "&" if urlsplit(plan.pagina_destinatie).query else "?"
-    return plan.pagina_destinatie + sep + urlencode(q)
+    url = urlsplit(plan.pagina_destinatie)
+    pastrati = [(k, v) for k, v in parse_qsl(url.query, keep_blank_values=True) if k not in q]
+    return url._replace(query=urlencode([*pastrati, *q.items()])).geturl()
 
 
 def verifica(plan: PlanMedia) -> list[str]:

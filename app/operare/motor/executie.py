@@ -307,7 +307,9 @@ def inchide_client() -> None:
             _client = None
 
 
-def trimite_atomic(db: Session, fluxul: Callable[..., Any], *args: str, cheie: str) -> None:
+def trimite_atomic(
+    db: Session, fluxul: Callable[..., Any], *args: str, cheie: str, coada: Coada = Coada.IO
+) -> None:
     """Înregistrează fluxul în aceeași tranzacție PostgreSQL ca decizia care îl pornește."""
     nume = nume_flux(fluxul)
     argumente.verifica(nume, args, {})
@@ -322,7 +324,7 @@ def trimite_atomic(db: Session, fluxul: Callable[..., Any], *args: str, cheie: s
         ),
         {
             "nume": nume,
-            "coada": Coada.IO.value,
+            "coada": coada.value,
             "args": json.dumps(args),
             "cheie": cheie,
             "versiune": s.motor_versiune,

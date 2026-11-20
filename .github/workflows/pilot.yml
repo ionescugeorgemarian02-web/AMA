@@ -28,6 +28,13 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
       - run: uv sync --locked
+      - name: Instrumente de randare
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends espeak-ng ffmpeg fonts-dejavu-core
+          npm install --prefix "$RUNNER_TEMP/ama-media" playwright@1.56.1
+          "$RUNNER_TEMP/ama-media/node_modules/.bin/playwright" install --with-deps chromium
+          echo "AMA_PLAYWRIGHT=$RUNNER_TEMP/ama-media/node_modules/playwright" >> "$GITHUB_ENV"
       - name: Campanie din dosar client
         run: uv run pytest -q tests/integration/test_pilot_claude.py
         env:

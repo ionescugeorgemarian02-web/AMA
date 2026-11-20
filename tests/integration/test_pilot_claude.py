@@ -4,6 +4,7 @@
 import datetime as dt
 import json
 import os
+import shutil
 import uuid
 from pathlib import Path
 
@@ -13,8 +14,9 @@ from sqlalchemy import Engine, select, text
 from app import cercetare, continut, creier, validare
 from app.continut import pipeline
 from app.db import sesiune_tenant
-from app.media import compozitor, sabloane
+from app.media import compozitor, fluxuri, montaj, regizor, sabloane
 from app.onboarding import citate, completare, ghid, piata, public, strategie
+from app.operare import motor
 from tests.gateway_utile import FabricaModele
 from tests.integration.test_onboarding_interviu import interviu_complet
 from tests.integration.utile_productie import fabrica_clienti, om, tenant  # noqa: F401
@@ -29,6 +31,7 @@ def test_campanie(
     om: uuid.UUID,
     fabrica_modele: FabricaModele,
     admin_engine: Engine,
+    executor: None,
 ) -> None:
     caz = os.environ["AMA_PILOT_CAZ"]
     dosar = CAZURI[caz]
@@ -41,7 +44,7 @@ def test_campanie(
     raport = {
         "executate": [],
         "simulate": ["date client", "aprobările umane"],
-        "omise": ["publicare externă", "judecător independent", "atribuire comercială live", "video"],
+        "omise": ["publicare externă", "judecător independent", "atribuire comercială live"],
     }
 
     def etapa(nume: str) -> None:
@@ -120,18 +123,39 @@ def test_campanie(
         cal = continut.calendar.propune(db, tenant_id=tenant, utilizator_id=om, inceput=dt.date.today())
         salveaza("calendar.json", cal.propunere)
         continut.calendar.aproba(db, cal.id, utilizator_id=om)
-        slot = next(i for i in continut.calendar.intrari(db, cal.id) if i.tip == "postare")
-        lid = slot.livrabil_id
-        assert lid
+        alese = {}
+        for slot in continut.calendar.intrari(db, cal.id):
+            alese.setdefault(slot.tip, slot.livrabil_id)
+        assert alese
     etapa("calendar")
-    stare = pipeline.produ(tenant, lid)
-    assert stare == "asteapta_aprobare", stare
-    with sesiune_tenant(tenant, om) as db:
-        c = validare.continut.citeste(db, lid)
-        (iesire / "postare.txt").write_text(c.text)
-        cop = next(s for s in sabloane.asigura_sabloane(db, tenant, dosar.marca) if s.tip == "coperta_video")
-        _, imagine = compozitor.creeaza(
-            db, tenant, cop, {"titlu": str(c.campuri.get("hook") or dosar.produs)[:60]}
-        )
-        (iesire / "coperta.png").write_bytes(imagine.png)
-    etapa("producție, validare deterministă, export postare și copertă")
+    for tip, lid in alese.items():
+        assert lid
+        stare = pipeline.produ(tenant, lid)
+        assert stare == "asteapta_aprobare", stare
+        with sesiune_tenant(tenant, om) as db:
+            c = validare.continut.citeste(db, lid)
+            (iesire / f"{tip}.txt").write_text(c.text)
+            cop = next(
+                s for s in sabloane.asigura_sabloane(db, tenant, dosar.marca) if s.tip == "coperta_video"
+            )
+            _, imagine = compozitor.creeaza(db, tenant, cop, {"titlu": dosar.produs})
+            (iesire / f"coperta-{tip}.png").write_bytes(imagine.png)
+            versiune = c.versiune
+        if tip == "script_video_scurt":
+            job = motor.trimite(
+                fluxuri.produce_script,
+                str(tenant),
+                str(lid),
+                str(versiune),
+                coada=motor.Coada.GREU,
+                cheie=f"pilot-video:{lid}",
+            )
+            assert motor.asteapta_flux(job, timeout_sec=1800).stare == motor.StareJob.TERMINAT
+            with sesiune_tenant(tenant, om) as db:
+                activ = montaj.video_verificat(db, tenant, lid, versiune)
+                assert activ, "Exportul video nu a trecut G6."
+                shutil.copyfile(regizor.cale(activ), iesire / "video.mp4")
+        etapa(f"validare și export {tip}")
+    if "script_video_scurt" not in alese:
+        raport["omise"].append("video: calendarul nu conține acest format")
+        salveaza("raport.json", raport)

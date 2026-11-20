@@ -11,3 +11,10 @@ def test_dosarele_sustin_onboardingul_din_informatii_brute() -> None:
         assert piata.MIN_CONCURENTI <= len(dosar.concurenti) <= piata.MAX_CONCURENTI
         assert dosar.pret in dosar.raspunsuri["preturi"]
         assert dosar.produs in dosar.raspunsuri["preturi"]
+
+
+def test_comparatia_macinaturii_foloseste_indicatia_din_scenariu() -> None:
+    from app.media.animatie import comparatie_macinare
+
+    assert comparatie_macinare("Cum alegi?", "Compară măcinătura fină și medie.")
+    assert not comparatie_macinare("Programează revizia", "Mecanicul verifică frânele.")

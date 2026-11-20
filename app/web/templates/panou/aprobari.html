@@ -21,6 +21,7 @@
   <div class="previzualizare" aria-label="Previzualizare pe {{ c.livrabil.canal }}">
     <p class="slab">{{ c.livrabil.canal }}</p>
     {% for k in ('titlu', 'subiect', 'preantet') %}{% if c.campuri.get(k) %}<p><strong>{{ c.campuri[k] }}</strong></p>{% endif %}{% endfor %}
+  {% if c.livrabil.tip == "script_video_scurt" %}<a href="/aprobari-media/{{ a.id }}/video">Deschide exportul acestei versiuni</a>{% endif %}
     <p class="text-canal">{{ c.text }}</p>
     {% if c.campuri.get('cta') %}<p><span class="buton secundar">{{ c.campuri['cta'] }}</span></p>{% endif %}
   </div>

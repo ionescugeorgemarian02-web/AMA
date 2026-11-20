@@ -37,6 +37,17 @@ const cuvinte = esc(c.titlu).split(/\s+/).map((w, i) =>
   `<span class="w" style="animation-delay:${(0.35 + i * 0.09).toFixed(2)}s">${w}</span>`).join(" ");
 const marime = c.titlu.length > 48 ? 92 : c.titlu.length > 28 ? 112 : 136;
 
+function mostra(label, diametru, numar) {
+  const granule = Array.from({length: numar}, () => {
+    const marime = diametru * (0.7 + rnd() * 0.5);
+    return `<i style="left:${rnd()*96}%;top:${rnd()*92}%;width:${marime}px;height:${marime}px;transform:rotate(${rnd()*180}deg)"></i>`;
+  }).join("");
+  return `<figure><div>${granule}</div><figcaption>${label}</figcaption></figure>`;
+}
+const ilustratie = c.comparatie_macinare
+  ? `<div class="mostre">${mostra("Fină",6,900)}${mostra("Medie",16,140)}</div>`
+  : `<div class="ins"><div>${icon}</div></div>`;
+
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face{font-family:M;font-weight:800;src:url(${font("montserrat-latin-ext-800-normal.woff2")})}
 @font-face{font-family:M;font-weight:800;src:url(${font("montserrat-latin-800-normal.woff2")});unicode-range:U+0000-00FF}
@@ -53,6 +64,7 @@ body{font-family:M,sans-serif;color:${k.text};background:linear-gradient(${unghi
 .cont{position:absolute;left:8%;right:8%;top:${Math.round(c.inaltime * 0.12)}px;height:${Math.round(c.inaltime * 0.55)}px;display:flex;flex-direction:column;justify-content:center;align-items:${iconStanga ? "flex-start" : "center"};text-align:${iconStanga ? "left" : "center"}}
 .eti{font-weight:600;font-size:34px;letter-spacing:.32em;text-transform:uppercase;color:${k.accent};opacity:0;animation:apare .6s .1s ease-out forwards}
 .ins{width:300px;height:300px;border-radius:50%;background:${k.accent};display:flex;align-items:center;justify-content:center;margin:56px 0;box-shadow:0 30px 80px rgba(0,0,0,.35),inset 0 0 0 10px rgba(255,255,255,.12);transform:scale(0);animation:pop .7s .15s cubic-bezier(.2,1.6,.4,1) forwards,pluteste 3.2s .9s ease-in-out infinite alternate}
+.mostre{display:flex;gap:30px;margin:48px auto}.mostre figure{width:310px;text-align:center;font-size:42px}.mostre figure div{height:180px;background:#d2b797;position:relative;overflow:hidden}.mostre i{position:absolute;background:#442d20;border-radius:40%}.mostre figcaption{margin-top:10px}
 .ins div{width:56%;height:56%}
 @keyframes pop{to{transform:scale(1)}}
 @keyframes pluteste{from{translate:0 0}to{translate:0 -18px}}
@@ -63,7 +75,7 @@ h1{font-weight:800;font-size:${marime}px;line-height:1.08;letter-spacing:-.01em;
 @keyframes creste{to{width:${iconStanga ? 320 : 260}px}}
 @keyframes apare{to{opacity:1}}
 </style></head><body><div class="bg"></div>${particule}<div class="vin"></div>
-<div class="cont"><div class="eti">${esc(c.eticheta)}</div><div class="ins"><div>${icon}</div></div><h1>${cuvinte}</h1><div class="bara"></div></div>
+<div class="cont"><div class="eti">${esc(c.eticheta)}</div>${ilustratie}<h1>${cuvinte}</h1><div class="bara"></div></div>
 </body></html>`;
 
 const b = await chromium.launch();

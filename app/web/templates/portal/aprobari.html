@@ -16,6 +16,7 @@
 {% for ap, lv, c in cereri %}
 <section class="card" aria-labelledby="a-{{ ap.id }}">
   <h2 id="a-{{ ap.id }}">{{ lv.canal }} · {{ lv.tip }} <span class="insigna atentie">până la {{ ap.termen_la|moment }}</span></h2>
+  {% if lv.tip == "script_video_scurt" %}<a href="/aprobari-media/{{ ap.id }}/video">Deschide exportul acestei versiuni</a>{% endif %}
   <div class="previzualizare"><p class="text-lung">{{ c.text }}</p>
   {% if c.campuri.hashtaguri %}<p class="slab">{% for h in c.campuri.hashtaguri %}#{{ h }} {% endfor %}</p>{% endif %}</div>
   {% if poate_aproba %}

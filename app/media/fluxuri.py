@@ -82,3 +82,61 @@ def trimite_format_e(tenant_id: uuid.UUID, activ_id: uuid.UUID, livrabil_id: uui
         format_e, str(tenant_id), str(activ_id), str(livrabil_id), coada=Coada.GREU, prioritate=Prioritate.P1,
         cheie=f"format_e:{activ_id}",
     )  # fmt: skip
+
+
+@motor.pas(nume="media.script_pregateste", reincercari=1)
+def pregateste_script(tenant_id: str, livrabil_id: str, versiune: str) -> str:
+    from sqlalchemy import select
+
+    from app import productie, validare
+    from app.media import animatie, biblioteca, licente, normalizare, regizor, transcriere
+
+    tid, lid = uuid.UUID(tenant_id), uuid.UUID(livrabil_id)
+    with sesiune_tenant(tid) as db:
+        lv = productie.blocheaza(db, lid)
+        if lv.versiune != int(versiune):
+            return ""
+        deja = db.scalar(
+            select(Randare.id)
+            .where(
+                Randare.tenant_id == tid,
+                Randare.livrabil_id == lid,
+                Randare.calitate == "final",
+                Randare.masuratori["versiune_continut"].as_integer() == lv.versiune,
+            )
+            .order_by(Randare.creat_la)
+            .limit(1)
+        )
+        if deja:
+            return str(deja)
+        script = validare.continut.citeste(db, lid, lv.versiune).campuri
+        fraze = [normalizare.normalizeaza(f) for f in regizor.fraze_din_script(script)]
+        voce = transcriere.naratiune_verificata(db, tid, fraze, profil_cod="ro-espeak-nativ")
+        active = [
+            a
+            for a in biblioteca.ale_clientului(db, tid)
+            if a.categorie in ("foto", "video")
+            and a.sursa not in ("montaj", "compozitor", "animatie")
+            and not licente.probleme(a.licenta)
+        ]
+        if not active:
+            intervale = regizor.momente_batai(fraze, voce.aliniere, voce.naratiune.durata + regizor.COADA)
+            active = animatie.clipuri_script(db, tid, script, [b - a for a, b in intervale])
+        lm = regizor.regizeaza(
+            db,
+            tid,
+            fraze=fraze,
+            script=script,
+            naratiune=voce,
+            materiale=active,
+            format="B" if all(a.categorie == "foto" for a in active) else "A",
+            canal=lv.canal,
+            livrabil_id=lid,
+        )
+        return str(montaj.pregateste(db, tid, lm, livrabil_id=lid).id)
+
+
+@motor.flux("media.script", timp_maxim_sec=2400)
+def produce_script(tenant_id: str, livrabil_id: str, versiune: str) -> str:
+    rid = pregateste_script(tenant_id, livrabil_id, versiune)
+    return _randeaza(tenant_id, rid) if rid else "versiune_inlocuita"

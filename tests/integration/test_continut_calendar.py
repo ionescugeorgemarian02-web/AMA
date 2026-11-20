@@ -13,9 +13,9 @@ from app import continut, creier, productie
 from app.conturi import Rol
 from app.db import sesiune_tenant
 from app.operare import motor
-from tests.continut_utile import calendar_valid, model_calendar
+from tests.continut_utile import calendar_valid, model_brief, model_calendar, model_postari
 from tests.integration.conftest import Cont
-from tests.integration.lant_continut import pana_la_strategie
+from tests.integration.lant_continut import fara_cereri_ramase, pana_la_strategie  # noqa: F401
 from tests.integration.utile_panou import autentifica, csrf
 from tests.integration.utile_productie import fabrica_clienti, om, tenant  # noqa: F401
 from tests.onboarding_utile import ModelFals, model_fals, modele, prompt_complet  # noqa: F401
@@ -83,12 +83,17 @@ def test_fara_strategie_aprobata_nu_se_propune_si_un_calendar_invalid_e_refuzat(
             continut.calendar.propune(db, tenant_id=uuid.uuid4(), utilizator_id=None, inceput=INCEPUT)
 
 
+@pytest.mark.usefixtures("fara_cereri_ramase")
 def test_ecranul_calendar_aproba_si_respinge(
     client: TestClient, fabrica_conturi: Callable[..., Cont], ceas: dict[str, float],
     tenant: uuid.UUID, om: uuid.UUID, modele: ModelFals, executor: None,
 ) -> None:  # fmt: skip
     pana_la_strategie(tenant, om, modele)
-    model_calendar(modele)
+    model_calendar(
+        modele, calendar_valid(formate=[{"canal": "facebook", "tip": "postare", "pe_saptamana": 1}])
+    )
+    model_brief(modele)
+    model_postari(modele)
     propune(tenant, om, f"cal:{tenant}:a")
     propune(tenant, om, f"cal:{tenant}:b")
     cont = fabrica_conturi(Rol.PROPRIETAR, cu_totp=True)
@@ -115,8 +120,11 @@ def test_ecranul_calendar_aproba_si_respinge(
     )
     assert r.status_code == 303
     html = client.get(f"/calendar/{tenant}?mesaj=aprobat").text
-    assert (
-        "sloturile au devenit livrabile" in html
-        and "Prea multe postări despre preț" in html
-        and "Planificat" in html
-    )
+    assert "sloturile au devenit livrabile" in html and "Prea multe postări despre preț" in html
+
+    with sesiune_tenant(tenant) as db:
+        ids = [i.livrabil_id for i in continut.calendar.intrari(db, b.id)]
+    for lid in ids:
+        assert motor.asteapta_flux(f"produ:{lid}", timeout_sec=60).stare == motor.StareJob.TERMINAT
+    with sesiune_tenant(tenant) as db:
+        assert all(productie.citeste(db, lid).stare == "asteapta_aprobare" for lid in ids)
