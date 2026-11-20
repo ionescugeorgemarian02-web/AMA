@@ -89,14 +89,27 @@ def aliasuri_fapte(p: str) -> list[str]:
     return re.findall(r"^\[(F\d+)\] ", bucata, re.M)
 
 
+FARA_FILMARI = "Clientul NU are nicio filmare proprie."
+
+
+def concept_din_stock(dovada: str = "", **suprascrie: Any) -> dict[str, Any]:
+    """# SIMULAT: conceptul bun realizabil fără material propriu: cadrul 2 (prăjirea) e acțiune generică de stock."""
+    c = concept_zorilor(dovada)
+    c["cadre"][1] = {**c["cadre"][1], "context": "o prăjitorie de cafea",
+                     "interogari": ["coffee beans roasting drum", "coffee roaster machine beans"]}  # fmt: skip
+    c["material_propriu"] = []
+    c.update(suprascrie)
+    return c
+
+
 def idei_fals(c: CerereInregistrata) -> str:
-    """Cinci concepte (variații ale celui bun), cu dovada pe primul fapt aprobat."""
+    """Cinci concepte (variații ale celui bun), cu dovada pe primul fapt aprobat. Realizabile cu inventarul din
+    prompt: fără filmări proprii, prăjirea vine din stock generic (nicio cerere de filmare)."""
     p = prompt_complet(c)
     dovada = next(iter(aliasuri_fapte(p)), "")
     n = int(m.group(1)) if (m := re.search(r"Întoarce `concepte`: (\d+)", p)) else 5
-    return raspuns_json(
-        concepte=[concept_zorilor(dovada, titlu=f"Prima cafea de sâmbătă {i}") for i in range(1, n + 1)]
-    )
+    fel = concept_din_stock if FARA_FILMARI in p else concept_zorilor
+    return raspuns_json(concepte=[fel(dovada, titlu=f"Prima cafea de sâmbătă {i}") for i in range(1, n + 1)])
 
 
 def critica_idee_fals(c: CerereInregistrata) -> str:

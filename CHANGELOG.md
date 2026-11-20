@@ -4,6 +4,11 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F-idee — ideea ține cont de inventarul real al clientului
+- `continut.idei@2` și `continut.critica_idee@2` primesc inventarul (`idei.inventar`: fotografiile și filmările proprii din portal/client, cu subiectele, plus stock-ul generic): conceptul e realizabil cu ce există acum; cel mult un cadru propriu `de_filmat`; stock-ul nu numește clientul. Critica notează fezabilitatea după inventar.
+- `probleme_concept(..., inventar=)`: peste 1 cadru propriu fără material (20% din cadre) → „nerealizabil cu inventarul actual”; cadrul de stock care numește clientul pică. `alege` preferă conceptele realizabile; dacă niciunul, alege cel mai bun și deschide cereri de filmare (`media.cereri.cere_filmare`, versiunea 0, scena = cadrul).
+- `tests/date/idei/spita.json` scos: se reînregistrează prin punte cu prompturile noi.
+
 ### F-idee — corecții după prima rulare reală prin punte
 - `idei.alege`: fezabilitatea sub 3 elimină; cadrele de stock obiectate de critic (`cadre_obiectate`) și cele care cer continuitate de personaj/loc sau reacții jucate pică `probleme_concept`; varianta îmbunătățită de critic e candidat cu notele conceptului-sursă. Pe datele rulării Spița, video-ul alege varianta îmbunătățită a conceptului 5 („Bicicleta scoasă de pe balcon”), nu conceptul 2.
 - Imaginea de feed: titlul vine din conceptul ales (`brief.titlu_imagine`, ≤ 7 cuvinte), nu din hook; `foto_dominanta` și `detaliu_explicat` nu mai crapă pe text lung (mărimi descrescătoare → bandă → scurtare la cuvinte întregi, cu `nota`).

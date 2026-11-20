@@ -15,7 +15,8 @@ trei surse, în ordinea:
 
 `AMA_IDEE_INREGISTRARE` mută fișierul înregistrării (implicit `tests/date/idei/spita.json`). Stock: `AMA_STOCK`
 (`commons` în CI); fără rețea (ex. 403), `StockSimulat`, marcat „stock simulat” în raport; în CI (`CI` setat) stock-ul
-trebuie să fie real. Cadrele de material propriu (fără interogări) primesc o imagine procedurală, marcată în raport.
+trebuie să fie real. Cadrele de material propriu (fără interogări) primesc o imagine procedurală, marcată în raport;
+ideea vede inventarul (clientul nu are filmări proprii), iar cadrele proprii de filmat apar ca cereri de filmare.
 
     AMA_IDEE_DIR=/tmp/idee AMA_PUNTE_DIR=/tmp/punte AMA_PUNTE_AUTOR="generator: … / critic: …" \\
       AMA_TEST_PLAFON_SEC=7200 uv run pytest tests/integration/test_idee_spita.py -o faulthandler_timeout=0
@@ -43,6 +44,7 @@ from app.db import sesiune_tenant
 from app.ids import new_id
 from app.media import (
     biblioteca,
+    cereri,
     compozitor,
     control,
     ffmpeg,
@@ -434,8 +436,15 @@ def test_idee_concept_stock_video_si_feed_pentru_spita(
             critica[tip] = [{k: r[k] for k in ("runda", "nr", "sursa", "note", "scor", "obiectii", "probleme",
                              "model_critic", "autoevaluare")} for r in rows]  # fmt: skip
             ales = next(r for r in rows if r["ales"])
+            with sesiune_tenant(t) as db:
+                filmari = [
+                    c.cerere for c in cereri.deschise(db, t, lid) if c.versiune == cereri.VERSIUNE_IDEE
+                ]
             alese[tip] = {"concept": ales["concept"], "motiv": ales["motiv"], "sursa": ales["sursa"],
-                          "scor": ales["scor"], "model_autor": ales["model_autor"]}  # fmt: skip
+                          "scor": ales["scor"], "model_autor": ales["model_autor"],
+                          "cereri_filmare": filmari}  # fmt: skip
+            # clientul nu are filmări proprii: fiecare cadru propriu al conceptului ales se cere filmat
+            assert len(filmari) == len(ales["concept"]["de_filmat"]), (filmari, ales["motiv"])
         _json("idei.json", ideile)
         _json("critica.json", critica)
         _json("concept_ales.json", alese)

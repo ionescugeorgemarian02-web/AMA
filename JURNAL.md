@@ -980,3 +980,10 @@ A și B au trecut (2 passed).
 - Făcut: `idei.alege` ține cont de critică (fezabilitate eliminatorie, cadre de stock obiectate → probleme, regula continuității/reacțiilor jucate pe stock, varianta îmbunătățită candidat); „trece” și „îi arată (cuiva)” contează ca acțiune. Titlul imaginii de feed din concept (`brief.titlu_imagine`), compozitorul scurtează la cuvinte întregi în loc de `TextPreaLung`. Șters `tests/date/idei/spita.json` parțial (necomis).
 - Verificat: pe răspunsurile reale (generator/critic 001) alegerea video devine varianta îmbunătățită a conceptului 5; postarea merge, ca înainte, la rescriere. `tests/unit`, `test_continut_idei`, `test_editorial_spita`, `test_media_sabloane`, `test_media_verdict_editorial`, ruff, mypy, `make guards`.
 - Deschis: înregistrarea `tests/date/idei/spita.json` se reface prin punte (proprietarul).
+
+### F-idee — inventarul în ideație (Claude Opus 5.5, subagent)
+- Problema din demonstrația Spița: conceptul ales avea 4 din 5 cadre `material_propriu`, iar clientul nu are nicio filmare proprie → video din înlocuitori procedurali.
+- Făcut: inventarul în contextul ideii și al criticii (prompturi v2), regula „nerealizabil cu inventarul actual” în validare, alegerea preferă conceptele realizabile, cererile de filmare pentru cadrele proprii ale conceptului ales; modelul fals propune din stock când clientul nu are filmări.
+- Verificat: `tests/unit` (2046 trecute), `test_continut_idei`, `test_editorial_spita`, `test_idee_spita` (`AMA_IDEE_FALS=1`), testele de integrare ale lanțului de conținut, ruff, mypy, `make guards`. `test_poarta_f6` a picat o dată pe timeout de pool (DBOS), trecut la reluare, la fel de lent ca pe baza neschimbată (~120 s).
+- Deschis: `tests/date/idei/spita.json` șters; jobul CI `idee` (redare) pică până la reînregistrarea prin punte.
+

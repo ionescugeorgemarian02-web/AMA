@@ -1,12 +1,12 @@
 """Etapa de idee a unui livrabil (F-idee, D-032), înaintea briefului: momentul real → critica → validarea →
 alegerea.
 
-1. **Propunerea** (`propune`, promptul `continut.idei@1`, profilul `creatie`): din slotul de calendar,
+1. **Propunerea** (`propune`, promptul `continut.idei@2`, profilul `creatie`): din slotul de calendar,
    publicul, oferta și faptele pachetului de context, autorul propune 5 concepte. Fiecare pornește de la un
    moment real din viața publicului (loc, timp, acțiune), are o singură idee (`mesaj_unic`), o dovadă
    (aliasul unui fapt aprobat) și 4–7 cadre observabile (subiect concret + acțiune vizibilă + context, cu
    interogări de stock în engleză), plus cadrele care cer material propriu al clientului.
-2. **Critica** (`critica`, `continut.critica_idee@1`): note 1–5 pe șase criterii fixe, obiecții concrete și o
+2. **Critica** (`critica`, `continut.critica_idee@2`): note 1–5 pe șase criterii fixe, obiecții concrete și o
    variantă îmbunătățită a celui mai bun concept. Criticul e alt model decât autorul când lanțul profilului
    are unul; altfel același model, iar rezultatul se marchează `autoevaluare`.
 3. **Validarea deterministă** (`probleme_concept`): substantiv concret și verb de acțiune pe fiecare cadru,
@@ -45,8 +45,8 @@ from app.operare import audit, urme
 from app.operare.motor import Prioritate
 from app.productie import Stare
 
-PROMPT_IDEI = "continut.idei@1"
-PROMPT_CRITICA = "continut.critica_idee@1"
+PROMPT_IDEI = "continut.idei@2"
+PROMPT_CRITICA = "continut.critica_idee@2"
 PROFIL = "creatie"
 NUMAR_CONCEPTE = 5
 CRITERII = ("specificitate", "realism", "relevanta", "fezabilitate", "noutate", "onestitate")
@@ -54,6 +54,17 @@ ELIMINATORII = ("realism", "onestitate", "fezabilitate")
 NOTA_MINIMA_ELIMINATORIE = 3
 PRAG_MISCARE_VIDEO = 0.6
 ANTERIOARE = 8  # câte concepte alese anterior primește autorul (noutatea)
+# inventarul: materialul propriu existent al clientului (fotografii și filmări încărcate de el)
+ROLURI_PROPRII = ("fotografie", "filmare")
+SURSE_PROPRII = ("client", "portal")
+MAX_DE_FILMAT = 1  # cadre de material propriu fără material existent, de filmat (cel mult 20% din cadre)
+PRAG_DE_FILMAT = 0.2
+NEREALIZABIL = "nerealizabil cu inventarul actual"
+STOCK_GENERIC = (
+    "Stock real există pentru acțiunile generice ale domeniului (de exemplu, la un service de biciclete: "
+    "un biciclist pe stradă, lanțul sau roata în mișcare, frâna care prinde discul). Stock-ul NU este "
+    "clientul: aceste cadre se arată fără a numi clientul sau atelierul lui în imagine."
+)
 
 
 # --- modelele ---
@@ -79,6 +90,9 @@ class Concept(BaseModel):
     de_ce_acum: str = Field(min_length=5, max_length=300)
     cadre: list[Cadru] = Field(min_length=4, max_length=7)
     material_propriu: list[int] = Field(default_factory=list, description="Numerele cadrelor (de la 1)")
+    de_filmat: list[int] = Field(
+        default_factory=list, description="Cadrele de material propriu pe care clientul nu le are încă"
+    )
 
 
 class PropunereIdei(gateway.Iesire):
@@ -246,6 +260,73 @@ def cadre_obiectate(obiectii: list[str]) -> dict[int, str]:
     return out
 
 
+@dataclass(frozen=True)
+class Inventar:
+    """Materialul propriu existent al clientului: activele cu rol `fotografie`/`filmare` încărcate de el
+    (sursa `client`/`portal`), cu subiectul lor, plus numele clientului (stock-ul nu are voie să-l
+    numească)."""
+
+    client: str = ""
+    active: tuple[tuple[str, str], ...] = ()  # (rol, subiect)
+
+    @property
+    def fotografii(self) -> int:
+        return sum(1 for r, _ in self.active if r == "fotografie")
+
+    @property
+    def filmari(self) -> int:
+        return sum(1 for r, _ in self.active if r == "filmare")
+
+    def acopera(self, c: Cadru) -> bool:
+        """Are clientul deja un activ cu subiectul cadrului? La video cere o filmare; la foto, oricare."""
+        dorite = {w[:4] for w in _norm(c.subiect) if len(w) >= 4 and not _contine([w], ABSTRACTE)}
+        roluri = ("filmare",) if c.tip == "video" else ROLURI_PROPRII
+        return any(
+            rol in roluri and dorite & {w[:4] for w in _norm(subiect) if len(w) >= 4}
+            for rol, subiect in self.active
+        )
+
+    def text(self) -> str:
+        subiecte = sorted({s for _, s in self.active if s.strip()})
+        return (
+            f"Material propriu existent al clientului: {self.fotografii} fotografii și {self.filmari} filmări"
+            + (f", cu subiectele: {'; '.join(subiecte)}." if subiecte else ".")
+            + ("\nClientul NU are nicio filmare proprie." if not self.filmari else "")
+            + f"\n{STOCK_GENERIC}"
+        )
+
+
+def fara_material(concept: Concept, inventar: Inventar) -> list[int]:
+    """Cadrele de material propriu (și cele marcate de filmat) pentru care clientul nu are încă material."""
+    nr = sorted({*concept.material_propriu, *concept.de_filmat})
+    return [
+        i
+        for i in nr
+        if 1 <= i <= len(concept.cadre)
+        and concept.cadre[i - 1].tip != "text"
+        and not inventar.acopera(concept.cadre[i - 1])
+    ]
+
+
+def limita_de_filmat(concept: Concept) -> int:
+    return max(MAX_DE_FILMAT, int(PRAG_DE_FILMAT * len(concept.cadre)))
+
+
+def _numeste_clientul(c: Cadru, client: str) -> bool:
+    """Numele clientului în cadru: expresia întreagă sau un cuvânt al numelui scris cu majusculă în interiorul
+    textului („mecanicul Spița”, „în atelierul Spița”)."""
+    if not client.strip():
+        return False
+    campuri = (c.subiect, c.actiune, c.context)
+    nume = _text_norm(client)
+    if any(nume and f" {nume} " in f" {_text_norm(t)} " for t in campuri):
+        return True
+    cuvinte = [w for w in re.findall(r"\w+", client) if len(w) >= 3]
+    return any(
+        re.search(rf"(?<=\s){re.escape(w[:1].upper() + w[1:])}\b", t) for w in cuvinte for t in campuri
+    )
+
+
 def _alias(dovada: str) -> str:
     m = re.match(r"\s*\[?(F\d+)\]?", dovada)
     return m.group(1) if m else ""
@@ -257,10 +338,14 @@ def probleme_concept(
     *,
     video: bool = False,
     obiectii: list[str] | None = None,
+    inventar: Inventar | None = None,
 ) -> list[str]:
     """Nucleu pur: ce face conceptul nefilmabil, static, vag sau necinstit. Listă goală = trece.
     `obiectii`: obiecțiile criticului pe acest concept; un cadru de stock obiectat pentru fezabilitate sau
-    onestitate (`cadre_obiectate`) e o problemă: se scoate, se filmează la client sau conceptul se rescrie."""
+    onestitate (`cadre_obiectate`) e o problemă: se scoate, se filmează la client sau conceptul se rescrie.
+    `inventar`: materialul propriu existent; mai mult de `limita_de_filmat` cadre de material propriu fără
+    material e problema `NEREALIZABIL` (pe care `alege` o tratează separat), iar un cadru de stock care
+    numește clientul e necinstit."""
     out: list[str] = []
     imagini = [(i, c) for i, c in enumerate(concept.cadre, start=1) if c.tip != "text"]
     for i, c in imagini:
@@ -328,6 +413,21 @@ def probleme_concept(
     for i, _c in stock:
         if i in obiectate and i not in semnalate:
             out.append(f"cadrul {i} obiectat de critic: {obiectate[i]}")
+    if inventar is not None:
+        for i, c in stock:
+            if _numeste_clientul(c, inventar.client):
+                out.append(
+                    f"cadrul {i} e stock, dar numește clientul („{inventar.client}”): stock-ul nu e "
+                    "clientul; arată acțiunea generic sau marchează cadrul ca material propriu"
+                )
+        lipsa = fara_material(concept, inventar)
+        if len(lipsa) > limita_de_filmat(concept):
+            out.append(
+                f"{NEREALIZABIL}: cadrele {', '.join(map(str, lipsa))} cer material propriu pe care "
+                f"clientul nu îl are ({inventar.fotografii} fotografii, {inventar.filmari} filmări proprii); "
+                f"cel mult {limita_de_filmat(concept)} se filmează, restul se arată cu stock generic, "
+                "fără a numi clientul"
+            )
     return out
 
 
@@ -355,8 +455,14 @@ class Evaluat:
         return f"eliminat la {', '.join(slabe)} (sub {NOTA_MINIMA_ELIMINATORIE})" if slabe else ""
 
     @property
+    def realizabil(self) -> bool:
+        """Se poate face cu inventarul actual (cel mult un cadru propriu de filmat)."""
+        return not any(p.startswith(NEREALIZABIL) for p in self.probleme)
+
+    @property
     def bun(self) -> bool:
-        return not self.eliminat and not self.probleme
+        """Trece critica și validarea; nerealizabilitatea cu inventarul nu elimină (`alege` o ia la urmă)."""
+        return not self.eliminat and not [p for p in self.probleme if not p.startswith(NEREALIZABIL)]
 
 
 @dataclass
@@ -364,6 +470,7 @@ class Alegere:
     evaluate: list[Evaluat]
     ales: Evaluat | None
     motiv: str
+    de_filmat: list[int] = field(default_factory=list)  # cadrele conceptului ales care se cer filmate
 
     @property
     def de_rescris(self) -> Evaluat | None:
@@ -380,6 +487,7 @@ def alege(
     *,
     video: bool = False,
     sursa: Literal["propus", "rescris"] = "propus",
+    inventar: Inventar | None = None,
 ) -> Alegere:
     """Scorul criticii (suma notelor; realismul, onestitatea și fezabilitatea sub 3 elimină) plus validarea
     deterministă, care include obiecțiile criticului pe cadre de stock anume (`cadre_obiectate`).
@@ -387,7 +495,11 @@ def alege(
     Varianta îmbunătățită de critic e candidat ca oricare altul, dacă trece `probleme_concept`. Scorul ei
     estimat sunt notele conceptului din care vine (criticul a scris-o rezolvând exact obiecțiile acelea, deci
     obiecțiile nu i se mai aplică); la scor egal întrece orice concept propus, iar un concept propus cu scor
-    mai mare care pică validarea (de pildă pe cadrele obiectate) nu o mai blochează. Determinist."""
+    mai mare care pică validarea (de pildă pe cadrele obiectate) nu o mai blochează.
+
+    Cu `inventar`, conceptele realizabile acum (cadrele proprii fără material ≤ `limita_de_filmat`) au
+    întâietate; dacă niciunul nu e, se alege cel mai bun, iar cadrele lui proprii fără material se cer
+    filmate (`de_filmat`, din care `pregateste` deschide cererile de material). Determinist."""
     note = {e.nr: e for e in critica_.evaluari}
     evaluate: list[Evaluat] = []
     for nr, c in enumerate(propunere.concepte, start=1):
@@ -399,7 +511,7 @@ def alege(
                 c,
                 e.note() if e else {},
                 list(e.obiectii) if e else [],
-                probleme_concept(c, fapte, video=video, obiectii=e.obiectii if e else []),
+                probleme_concept(c, fapte, video=video, obiectii=e.obiectii if e else [], inventar=inventar),
             )
         )
     if critica_.imbunatatit is not None and critica_.nr_imbunatatit in note:
@@ -411,18 +523,27 @@ def alege(
                 critica_.imbunatatit,
                 e.note(),
                 list(e.obiectii),
-                probleme_concept(critica_.imbunatatit, fapte, video=video),
+                probleme_concept(critica_.imbunatatit, fapte, video=video, inventar=inventar),
             )
         )
     buni = sorted(
-        (e for e in evaluate if e.bun), key=lambda e: (-(e.scor or 0), e.sursa != "imbunatatit", e.nr)
+        (e for e in evaluate if e.bun),
+        key=lambda e: (not e.realizabil, -(e.scor or 0), e.sursa != "imbunatatit", e.nr),
     )
     if buni:
         a = buni[0]
         eticheta = (
             "varianta îmbunătățită de critic a conceptului" if a.sursa == "imbunatatit" else "conceptul"
         )
-        return Alegere(evaluate, a, f"{eticheta} {a.nr}: scor {a.scor}/{5 * len(CRITERII)}, validare trecută")
+        motiv = f"{eticheta} {a.nr}: scor {a.scor}/{5 * len(CRITERII)}, validare trecută"
+        de_filmat = fara_material(a.concept, inventar) if inventar is not None else []
+        if not a.realizabil:
+            motiv += (
+                f"; niciun concept {NEREALIZABIL}: se cere filmarea cadrelor {', '.join(map(str, de_filmat))}"
+            )
+        elif de_filmat:
+            motiv += f"; de filmat: cadrul {', '.join(map(str, de_filmat))}"
+        return Alegere(evaluate, a, motiv, de_filmat)
     return Alegere(evaluate, None, "niciun concept nu a trecut critica și validarea")
 
 
@@ -456,6 +577,7 @@ class _Intrare:
     slot: Any
     fapte: dict[str, dict[str, Any]]
     context: str
+    inventar: Inventar = field(default_factory=Inventar)
 
     @property
     def video(self) -> bool:
@@ -468,7 +590,30 @@ def _intrare(db: Session, livrabil_id: uuid.UUID, utilizator_id: uuid.UUID | Non
     if slot is None:
         raise creier.RegulaCreier("livrabilul nu vine dintr-un calendar")
     pachet = brief.pachet_livrabil(db, lv, slot, utilizator_id=utilizator_id)
-    return _Intrare(lv, slot, brief.fapte_disponibile(pachet), context.ca_text(pachet))
+    return _Intrare(
+        lv, slot, brief.fapte_disponibile(pachet), context.ca_text(pachet), inventar(db, lv.tenant_id)
+    )
+
+
+def inventar(db: Session, tenant_id: uuid.UUID) -> Inventar:
+    """Fotografiile și filmările proprii ale clientului (încărcate de el), cu subiectul, și numele lui."""
+    from app.conturi.modele import Client
+    from app.media.modele import Activ
+
+    rows = db.execute(
+        select(Activ.rol_vizual, Activ.subiect, Activ.descriere)
+        .where(
+            Activ.tenant_id == tenant_id,
+            Activ.rol_vizual.in_(ROLURI_PROPRII),
+            Activ.sursa.in_(SURSE_PROPRII),
+        )
+        .order_by(Activ.creat_la, Activ.id)
+    ).all()
+    client = db.get(Client, tenant_id)
+    return Inventar(
+        client.nume if client is not None else "",
+        tuple((str(r), (s or d or "").strip()) for r, s, d in rows),
+    )
 
 
 def propune(
@@ -516,6 +661,7 @@ def propune(
             "fapte": _text_fapte(x.fapte),
             "context": x.context,
             "anterioare": _anterioare(db, x.lv.id),
+            "inventar": x.inventar.text(),
             "obiectii": obiectii,
         },
     )
@@ -565,6 +711,7 @@ def critica(
                 "fapte": _text_fapte(x.fapte),
                 "context": x.context,
                 "anterioare": _anterioare(db, x.lv.id),
+                "inventar": x.inventar.text(),
                 "concepte": _text_concepte(propunere.concepte),
             },
         )
@@ -595,8 +742,31 @@ def concepte(db: Session, livrabil_id: uuid.UUID) -> list[IdeeConcept]:
     )
 
 
-def _cu_dovada(c: Concept, fapte: dict[str, dict[str, Any]]) -> dict[str, Any]:
-    return {**c.model_dump(mode="json"), "dovada_text": fapte.get(_alias(c.dovada), {}).get("text", "")}
+def _cu_dovada(c: Concept, x: _Intrare) -> dict[str, Any]:
+    """Conceptul salvat: dovada rezolvată la text și `de_filmat` calculat din inventar (nu cel declarat)."""
+    return {
+        **c.model_dump(mode="json"),
+        "dovada_text": x.fapte.get(_alias(c.dovada), {}).get("text", ""),
+        "de_filmat": fara_material(c, x.inventar),
+    }
+
+
+def _cere_filmare(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID, concept: dict[str, Any]) -> int:
+    """Deschide câte o cerere de material pentru fiecare cadru `de_filmat` al conceptului ales."""
+    from app.media import cereri
+
+    cadre = [
+        (nr, str(c["subiect"]), cerere_filmare(c))
+        for nr in concept.get("de_filmat") or []
+        if 1 <= nr <= len(concept.get("cadre") or []) and (c := concept["cadre"][nr - 1])
+    ]
+    return cereri.cere_filmare(db, tenant_id, livrabil_id, cadre) if cadre else 0
+
+
+def cerere_filmare(c: dict[str, Any]) -> str:
+    unde = f" ({c['context']})" if c.get("context") else ""
+    fel = "o filmare verticală de 5–10 secunde" if c.get("tip") == "video" else "o fotografie verticală"
+    return f"Filmează la client {fel}: {c['subiect']} — {c['actiune']}{unde}. Încarc-o în portal."
 
 
 def _salveaza(
@@ -611,7 +781,7 @@ def _salveaza(
             runda=runda,
             nr=e.nr,
             sursa=e.sursa,
-            concept=_cu_dovada(e.concept, x.fapte),
+            concept=_cu_dovada(e.concept, x),
             note=e.note,
             scor=e.scor,
             obiectii=e.obiectii,
@@ -648,7 +818,7 @@ def pregateste(
     x = _intrare(db, livrabil_id, utilizator_id)
     propunere, autor = propune(db, livrabil_id, intrare=x)
     cr, critic, autoev = critica(db, livrabil_id, propunere, autor=autor, intrare=x)
-    a = alege(propunere, cr, x.fapte, video=x.video)
+    a = alege(propunere, cr, x.fapte, video=x.video, inventar=x.inventar)
     rand = _salveaza(db, x, 1, a, autor=autor, critic=critic, autoevaluare=autoev)
     runde = 1
     if rand is None and (tinta := a.de_rescris) is not None:
@@ -659,7 +829,12 @@ def pregateste(
         )
         cr2, critic2, autoev2 = critica(db, livrabil_id, rescris, autor=autor2, intrare=x)
         a = alege(
-            rescris, cr2.model_copy(update={"imbunatatit": None}), x.fapte, video=x.video, sursa="rescris"
+            rescris,
+            cr2.model_copy(update={"imbunatatit": None}),
+            x.fapte,
+            video=x.video,
+            sursa="rescris",
+            inventar=x.inventar,
         )
         if a.ales is not None:
             a.motiv = f"rescris cu obiecțiile conceptului {tinta.nr}: {a.motiv}"
@@ -670,7 +845,10 @@ def pregateste(
         "autoevaluare": autoev,
         "ales": str(rand.id) if rand else None,
         "motiv": a.motiv,
+        "de_filmat": a.de_filmat,
     }
+    if rand is not None:
+        detalii["cereri_filmare"] = _cere_filmare(db, x.lv.tenant_id, x.lv.id, rand.concept)
     audit.record(
         db,
         "continut.idee_aleasa" if rand else "continut.idee_la_om",
@@ -705,6 +883,7 @@ def alege_manual(db: Session, idee_id: uuid.UUID, *, utilizator_id: uuid.UUID) -
         raise creier.RegulaCreier("livrabilul are deja un concept ales")
     rand.ales, rand.decis_de, rand.motiv = True, utilizator_id, "ales de om"
     db.flush()
+    _cere_filmare(db, rand.tenant_id, rand.livrabil_id, rand.concept)
     audit.record(
         db,
         "continut.idee_aleasa",

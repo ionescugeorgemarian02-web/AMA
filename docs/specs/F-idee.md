@@ -26,6 +26,12 @@ oferta și fapte, modelul propune **5 concepte**. Fiecare concept are:
 - `material_propriu`: cadrele care trebuie să arate atelierul sau oamenii reali ai clientului (stock-ul nu poate
   pretinde că este clientul).
 
+**Inventarul** (`idei.inventar`, de la `continut.idei@2` / `continut.critica_idee@2`): câte fotografii și filmări
+proprii are clientul (active `fotografie`/`filmare` cu sursa `client`/`portal`) și pe ce subiecte, plus faptul că stock-ul
+real acoperă acțiunile generice. Conceptul e realizabil CU CE EXISTĂ ACUM: cadrele `material_propriu` doar dacă materialul
+există, altfel cel mult un cadru `de_filmat` (livrabilul cere filmarea, `cereri_material`, versiunea 0). Stock-ul nu numește
+clientul în imagine.
+
 **2. Critica** (`continut.critica_idee@1`, alt model decât autorul atunci când există; cu un singur model, rezultatul se
 marchează „autoevaluare”). Fiecare concept primește note de la 1 la 5 pe criterii fixe:
 - specificitate;
@@ -44,6 +50,8 @@ Critica scrie și obiecții concrete și o versiune îmbunătățită a celui ma
 - fără cadre „doar obiect” la majoritate;
 - `dovada` trimite la un fapt aprobat;
 - cadrele din `material_propriu` nu se acoperă cu stock.
+- cu inventarul: mai mult de un cadru propriu fără material (20% din cadre) → „nerealizabil cu inventarul actual”;
+  un cadru de stock care numește clientul pică.
 
 Un concept respins se rescrie o singură dată cu obiecțiile; dacă pică din nou, merge la om.
 
@@ -54,7 +62,8 @@ Un concept respins se rescrie o singură dată cu obiecțiile; dacă pică din n
 
 **4. Alegerea:** scorul criticii (cu realismul, onestitatea și fezabilitatea eliminatorii sub 3) plus validarea.
 Varianta îmbunătățită de critic e candidat dacă trece validarea: scorul ei estimat sunt notele conceptului din care
-vine (obiecțiile acelea nu i se mai aplică) și, la scor egal, întrece conceptele propuse. Conceptul ales intră în
+vine (obiecțiile acelea nu i se mai aplică) și, la scor egal, întrece conceptele propuse. Conceptele realizabile cu inventarul au întâietate; dacă niciunul nu e, se alege cel mai bun și se
+deschid cererile de filmare pentru cadrele lui proprii. Conceptul ales intră în
 brieful livrabilului (`idee`), iar scriptul și postarea se scriu **din concept**, nu din subiectul calendarului.
 
 ## Imagini reale

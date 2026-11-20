@@ -39,6 +39,35 @@ def deschide(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID, versiune
     return len(cereri)
 
 
+VERSIUNE_IDEE = 0  # cererile etapei de idee vin înaintea oricărei versiuni de conținut
+
+
+def cere_filmare(
+    db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID, cadre: list[tuple[int, str, str]]
+) -> int:
+    """Cererile de filmare ale conceptului ales (F-idee): un cadru de material propriu pe care clientul nu îl
+    are încă. `cadre`: (numărul cadrului, subiectul, cererea); versiunea 0, scena = numărul cadrului."""
+    for scena, subiect, text in cadre:
+        db.execute(
+            insert(CerereMaterial)
+            .values(id=new_id(), tenant_id=tenant_id, livrabil_id=livrabil_id, versiune=VERSIUNE_IDEE,
+                    scena=scena, subiect=subiect, cerere=text, stare="deschisa")
+            .on_conflict_do_update(
+                index_elements=["tenant_id", "livrabil_id", "versiune", "scena"],
+                set_={"subiect": subiect, "cerere": text, "stare": "deschisa", "rezolvat_la": None},
+            )
+        )  # fmt: skip
+    audit.record(
+        db,
+        "livrabil.filmare_ceruta",
+        obiect_tip="livrabil",
+        obiect_id=livrabil_id,
+        tenant_id=tenant_id,
+        detalii={"cadre": [c[0] for c in cadre]},
+    )
+    return len(cadre)
+
+
 def deschise(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID | None = None) -> list[CerereMaterial]:
     q = select(CerereMaterial).where(
         CerereMaterial.tenant_id == tenant_id, CerereMaterial.stare == "deschisa"
