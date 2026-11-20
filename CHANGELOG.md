@@ -4,6 +4,11 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Corecții CI (PR #21) — producția de conținut pe coada ei; promovarea fără presupunerea unui eșantion fix
+- Producția livrabilelor (`continut.produ`) rulează pe coada `continut_productie`, cu concurența `AMA_CONTINUT_PARALEL` (implicit 4), nu pe `io` (24): aprobarea calendarului pune în coadă toate livrabilele (21 pe 30 de zile), iar fiecare pas ține sesiunea și lacătul livrabilului cât vorbește cu modelul → `QueuePool limit … reached` și `DBOSMaxStepRetriesExceeded` în `test_poarta_f6`. `motor.declara_coada` primește și o fabrică din `Settings` (limita citită la pornirea workerului); `motor.trimite_atomic` primește și cozi declarate.
+- Pool-ul de conexiuni (`app.db.dimensiuni_pool`): `AMA_DB_POOL` (implicit 10) permanente, iar peste ele câte una pentru fiecare job simultan permis de cozile limitate (greu + io + învățare + conținut) plus 5 de rezervă (înainte: 10 + 5 fix).
+- `test_invatare_promovare`: rutarea e după hash-ul id-ului promovării (aleator), deci 300 de livrabile dau uneori sub 20 în grupul de 10% (~1,6% din rulări): testul hrănește loturi până la schimbarea etapei și verifică proporția, nu un număr fix. Nu e o regresie din F-editorial/F-idee.
+
 ### F-idee — stock-ul Commons rezistă la limitarea de rată
 - `stock_commons.http_get`: cereri seriale (≥ 1 s între ele), la 429/503 până la 6 încercări cu pauza din `Retry-After` (cel mult 60 s) sau exponențială; alte 4xx (ex. 403) nu se mai reîncearcă. Jobul `idee` picase cu „HTTP Error 429: Too Many Requests” de la API-ul Commons.
 - `.secrets.baseline`: amprentele SHA-256 ale prompturilor din `tests/date/idei/spita.json` marcate ca fals pozitive (garda de secrete picase pe ele).

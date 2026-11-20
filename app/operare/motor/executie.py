@@ -28,7 +28,7 @@ from dbos import DBOS, DBOSClient, EnqueueOptions
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.logging import correlation_id
 from app.operare.motor import argumente
 from app.operare.motor.cozi import (
@@ -52,7 +52,8 @@ R = TypeVar("R")
 
 _lock = threading.RLock()
 _client: DBOSClient | None = None
-_cozi_extra: dict[str, DefinitieCoada] = {}
+# O definiție fixă sau o fabrică din configurare (limita se citește din nou la fiecare pornire a workerului).
+_cozi_extra: dict[str, DefinitieCoada | Callable[[Settings], DefinitieCoada]] = {}
 _timp_maxim: dict[str, float | None] = {}  # numele fluxului -> timpul maxim fără progres (None = implicit)
 _reincercari: dict[str, int] = {}  # numele pasului -> câte reîncercări are configurate
 
@@ -263,20 +264,23 @@ def inregistreaza_cozi() -> None:
         inregistreaza_coada(d)
 
 
-def declara_coada(definitie: DefinitieCoada) -> None:
-    """Adaugă o coadă (de furnizor sau de platformă) la cele standard; se înregistrează la pornirea
-    workerului, sau pe loc dacă executorul rulează deja. Numele fixe din 7.5 nu se pot redeclara."""
-    if definitie.nume in {c.value for c in Coada}:
-        raise ValueError(f"coada {definitie.nume!r} este una dintre cele fixe")
+def declara_coada(definitie: DefinitieCoada | Callable[[Settings], DefinitieCoada]) -> None:
+    """Adaugă o coadă (de furnizor, de platformă, a unui modul) la cele standard; se înregistrează la pornirea
+    workerului, sau pe loc dacă executorul rulează deja. Numele fixe din 7.5 nu se pot redeclara. O fabrică
+    `Settings -> DefinitieCoada` își citește limitele din configurarea de la pornire (nu de la import)."""
+    d = definitie(get_settings()) if callable(definitie) else definitie
+    if d.nume in {c.value for c in Coada}:
+        raise ValueError(f"coada {d.nume!r} este una dintre cele fixe")
     with _lock:
-        _cozi_extra[definitie.nume] = definitie
+        _cozi_extra[d.nume] = definitie
         if pornit():
-            inregistreaza_coada(definitie)
+            inregistreaza_coada(d)
 
 
 def cozi_extra() -> list[DefinitieCoada]:
+    s = get_settings()
     with _lock:
-        return list(_cozi_extra.values())
+        return [d(s) if callable(d) else d for d in _cozi_extra.values()]
 
 
 # --- clientul (procesul web) ----------------------------------------------------------------------------
@@ -308,10 +312,13 @@ def inchide_client() -> None:
 
 
 def trimite_atomic(
-    db: Session, fluxul: Callable[..., Any], *args: str, cheie: str, coada: Coada = Coada.IO
+    db: Session, fluxul: Callable[..., Any], *args: str, cheie: str, coada: Coada | str = Coada.IO
 ) -> None:
     """Înregistrează fluxul în aceeași tranzacție PostgreSQL ca decizia care îl pornește."""
     nume = nume_flux(fluxul)
+    nume_coada = coada.value if isinstance(coada, Coada) else coada
+    if not NUME_COADA.match(nume_coada):
+        raise ValueError(f"nume de coadă nepermis: {nume_coada!r}")
     argumente.verifica(nume, args, {})
     s = get_settings()
     schema = db.get_bind().dialect.identifier_preparer.quote_schema(s.motor_schema)
@@ -324,7 +331,7 @@ def trimite_atomic(
         ),
         {
             "nume": nume,
-            "coada": coada.value,
+            "coada": nume_coada,
             "args": json.dumps(args),
             "cheie": cheie,
             "versiune": s.motor_versiune,

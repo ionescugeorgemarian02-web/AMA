@@ -7,7 +7,7 @@ from uuid import UUID
 from sqlalchemy import Connection, Engine, create_engine, event, text
 from sqlalchemy.orm import Session, SessionTransaction
 
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.db.contexte import ContextDb
 
 CTX_KEY = "ama_ctx"
@@ -20,10 +20,24 @@ _SET_CONTEXT = text(
 )
 
 
+REZERVA_POOL = 5  # conexiuni peste joburi: cererile web, firele motorului care citesc prin `app.db`
+
+
+def dimensiuni_pool(s: Settings) -> tuple[int, int]:
+    """(`pool_size`, `max_overflow`). Fiecare job care rulează poate ține o sesiune, deci pool-ul cuprinde
+    toate joburile simultane permise de cozile limitate ale workerului, plus o rezervă. Altfel joburile se
+    blochează unele pe altele la `QueuePool limit reached` (pașii lungi țin sesiunea cât vorbesc cu modelul).
+    Conexiunile peste `pool_size` se deschid doar la nevoie și se închid la întoarcere."""
+    joburi = s.culoare_greu + s.io_paralel + s.invatare_paralel + s.continut_paralel
+    return s.db_pool, max(REZERVA_POOL, joburi + REZERVA_POOL - s.db_pool)
+
+
 def get_engine() -> Engine:
     global _engine
     if _engine is None:
-        _engine = create_engine(get_settings().database_url, pool_pre_ping=True, pool_size=10, max_overflow=5)
+        s = get_settings()
+        marime, peste = dimensiuni_pool(s)
+        _engine = create_engine(s.database_url, pool_pre_ping=True, pool_size=marime, max_overflow=peste)
     return _engine
 
 

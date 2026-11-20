@@ -1,4 +1,5 @@
-"""Fluxurile durabile ale producției de conținut (F6), pe coada `io`. Primesc doar identificatori; la
+"""Fluxurile durabile ale producției de conținut (F6): calendarul și briefurile pe coada `io`, producția
+livrabilelor pe coada ei (`continut_productie`). Primesc doar identificatori; la
 `gateway.Amanat`
 (profil care amână, cotă epuizată) își reprogramează munca și se încheie. Nu degradează niciodată la un model
 mai slab.
@@ -10,13 +11,31 @@ import uuid
 from sqlalchemy.orm import Session
 
 from app import creier, gateway, productie
+from app.config import Settings
 from app.continut import brief, calendar, pipeline
 from app.db import sesiune_tenant
 from app.logging import get_logger
 from app.operare import motor
-from app.operare.motor import Coada, Prioritate
+from app.operare.motor import Coada, DefinitieCoada, Prioritate
 
 log = get_logger("app.continut")
+
+# Producția livrabilelor are coada ei, cu concurență limitată (`AMA_CONTINUT_PARALEL`): aprobarea unui
+# calendar pune în coadă toate livrabilele lui deodată (21 pe 30 de zile), iar fiecare pas ține sesiunea și
+# lacătul livrabilului cât vorbește cu modelul. Pe coada `io` ar ocupa toate locurile și pool-ul de conexiuni.
+COADA_PRODUCTIE = "continut_productie"
+
+
+def _coada_productie(s: Settings) -> DefinitieCoada:
+    return DefinitieCoada(
+        COADA_PRODUCTIE,
+        paralel_global=s.continut_paralel,
+        paralel_worker=s.continut_paralel,
+        polling_sec=s.motor_polling_sec,
+    )
+
+
+motor.declara_coada(_coada_productie)
 
 # --- calendarul (F6.1)
 
@@ -195,7 +214,7 @@ def produ_livrabilul(tenant_id: str, livrabil_id: str) -> str:
                 tenant_id,
                 livrabil_id,
                 cheie=f"produ:{livrabil_id}:reluare:{r}",
-                coada=Coada.IO,
+                coada=COADA_PRODUCTIE,
                 prioritate=Prioritate.P2,
             )
             return "amanat"
@@ -203,7 +222,14 @@ def produ_livrabilul(tenant_id: str, livrabil_id: str) -> str:
 
 
 def programeaza_productia(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID) -> None:
-    motor.trimite_atomic(db, produ_livrabilul, str(tenant_id), str(livrabil_id), cheie=f"produ:{livrabil_id}")
+    motor.trimite_atomic(
+        db,
+        produ_livrabilul,
+        str(tenant_id),
+        str(livrabil_id),
+        cheie=f"produ:{livrabil_id}",
+        coada=COADA_PRODUCTIE,
+    )
 
 
 def trimite_productia(tenant_id: uuid.UUID, livrabil_id: uuid.UUID, *, cheie: str) -> str:
@@ -211,7 +237,7 @@ def trimite_productia(tenant_id: uuid.UUID, livrabil_id: uuid.UUID, *, cheie: st
         produ_livrabilul,
         str(tenant_id),
         str(livrabil_id),
-        coada=Coada.IO,
+        coada=COADA_PRODUCTIE,
         prioritate=Prioritate.P2,
         cheie=cheie,
     )
