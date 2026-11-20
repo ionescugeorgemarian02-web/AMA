@@ -467,6 +467,7 @@ def detaliu_explicat(
     logo: bytes | None = None,
     generare: dict[str, Any] | None = None,
     legenda: str = "",
+    randuri_legenda: int = 1,
     latime: int = 1080,
     inaltime: int = 1350,
 ) -> Macheta:
@@ -485,14 +486,15 @@ def detaliu_explicat(
             BANDA_LEGENDA
             - 2 * PAD
             - MARGINE
-            - (round(sabloane.TIPOGRAFIE["legenda"] * 1.3) if legenda else 0)
+            - (round(sabloane.TIPOGRAFIE["legenda"] * 1.3) * randuri_legenda if legenda else 0)
         )
         f, linii, hb = _bloc_titlu(eticheta, latime - 2 * x - LOGO_SEMNATURA - PAD, loc)
         texte = [_scrie(desen, x, y, linii, f, c["text"])]
         marimi = [int(f.size)]
         if legenda:
             fl = _font(sabloane.TIPOGRAFIE["legenda"])
-            rand = _rupe(legenda.translate(normalizare.SEDILA), fl, latime - 2 * x - LOGO_SEMNATURA - PAD)[:1]
+            rand = _rupe(legenda.translate(normalizare.SEDILA), fl, latime - 2 * x - LOGO_SEMNATURA - PAD)
+            rand = rand[:randuri_legenda]
             texte.append(_scrie(desen, x, y + hb + 10, rand, fl, c["text"]))
             marimi.append(int(fl.size))
         c_logo = _sigla(img, logo, [subiect, *texte, (0, 0, latime, hf)])
@@ -587,7 +589,7 @@ def carusel_cadre(
         if foto is not None:
             titlu, _, corp = text.partition("\n")
             m = detaliu_explicat(foto[0], titlu, ident, logo=logo, generare=foto[1], legenda=corp.strip(),
-                                 latime=latime, inaltime=inaltime)  # fmt: skip
+                                 randuri_legenda=2, latime=latime, inaltime=inaltime)  # fmt: skip
             out.append(replace(m, nume="carusel"))
             continue
         fundal, cul = (c["primara"], c["alb"]) if prima else (c["fundal"], c["text"])

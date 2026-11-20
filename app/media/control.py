@@ -375,8 +375,19 @@ def cadre_pe_scene(video: Path, lm: lista.ListaMontaj) -> list[tuple[int, float,
     return out
 
 
-def plansa(celule: list[tuple[str, str, bytes]], *, latime_celula: int = 270) -> bytes:
-    """Planșa (contact sheet): câte o celulă pe cadru, cu eticheta (titlu + activul) sub imagine."""
+def _scurt(text: str, font: Any, latime: int) -> str:
+    if font.getlength(text) <= latime:
+        return text
+    while text and font.getlength(text + "…") > latime:
+        text = text[:-1]
+    return text + "…"
+
+
+def plansa(
+    celule: list[tuple[str, str, bytes]], *, latime_celula: int = 270, rand_nou: int | None = None
+) -> bytes:
+    """Planșa (contact sheet): câte o celulă pe cadru, cu eticheta (titlu + activul) sub imagine.
+    `rand_nou`: indicele de la care celulele încep pe un rând nou (cadrele video, apoi imaginile)."""
     from PIL import ImageDraw, ImageFont
 
     font = ImageFont.truetype(str(subtitrari.cale_font("DejaVuSans-Bold.ttf")), 18)
@@ -388,17 +399,25 @@ def plansa(celule: list[tuple[str, str, bytes]], *, latime_celula: int = 270) ->
         mini.append((titlu, activ, img.resize((latime_celula, h))))
     coloane = min(4, max(1, len(mini)))
     pad, eticheta = 12, 52
-    h_rand = max(m[2].height for m in mini) + eticheta + pad
-    randuri = (len(mini) + coloane - 1) // coloane
-    foaie = Image.new("RGB", (coloane * (latime_celula + pad) + pad, randuri * h_rand + pad), "#F4F1EA")
+    pozitii, rand, col = [], 0, 0
+    for k in range(len(mini)):
+        if col == coloane or (k == rand_nou and col):
+            rand, col = rand + 1, 0
+        pozitii.append((rand, col))
+        col += 1
+    inaltimi = [0] * (rand + 1)
+    for (r, _), m in zip(pozitii, mini, strict=True):
+        inaltimi[r] = max(inaltimi[r], m[2].height + eticheta + pad)
+    foaie = Image.new("RGB", (coloane * (latime_celula + pad) + pad, sum(inaltimi) + pad), "#F4F1EA")
     desen = ImageDraw.Draw(foaie)
-    for k, (titlu, activ, img) in enumerate(mini):
-        x = pad + (k % coloane) * (latime_celula + pad)
-        y = pad + (k // coloane) * h_rand
+    for (r, c), (titlu, activ, img) in zip(pozitii, mini, strict=True):
+        x = pad + c * (latime_celula + pad)
+        y = pad + sum(inaltimi[:r])
         foaie.paste(img, (x, y))
-        desen.text((x, y + img.height + 6), titlu, font=font, fill="#1E1E1E")
-        text = activ if font_mic.getlength(activ) <= latime_celula else activ[:34] + "…"
-        desen.text((x, y + img.height + 30), text, font=font_mic, fill="#4A4A4A")
+        desen.text((x, y + img.height + 6), _scurt(titlu, font, latime_celula), font=font, fill="#1E1E1E")
+        desen.text(
+            (x, y + img.height + 30), _scurt(activ, font_mic, latime_celula), font=font_mic, fill="#4A4A4A"
+        )
     out = io.BytesIO()
     foaie.save(out, "PNG")
     return out.getvalue()
@@ -503,8 +522,10 @@ def verdict_editorial(
     for a in imagini or []:
         im, png = _imagine(db, a)
         info_imagini.append(im)
-        sigla = "da" if im.are_sigla else "nu"
-        celule.append((f"Imagine · {im.nume}"[:30], f"{im.subiecte} subiecte, sigla: {sigla}", png))
+        cu_foto = bool((a.generare or {}).get("zona_subiect"))
+        celule.append(
+            (f"Imagine · {im.nume}", "cu fotografie" if cu_foto else "fără fotografie (text și siglă)", png)
+        )
     motive = judeca(
         scene=scene, imagini=info_imagini, lipsa=lipsa, ecrane=ecrane, cadru=cadru,
         versiune_livrabil=versiune, versiune_export=versiune_export, are_export=randare is not None,
@@ -515,7 +536,7 @@ def verdict_editorial(
     etapa, text = mesaj(motive)
     plansa_id = None
     if celule:
-        foaie = plansa(celule)
+        foaie = plansa(celule, rand_nou=len(cadre_info))
         p = biblioteca.incarca(
             db, tenant_id, foaie, nume_original=f"plansa-{livrabil_id}.png", sursa="control",
             utilizator_id=None, rol_vizual="export", descriere=f"planșa editorială, livrabilul {livrabil_id}",
