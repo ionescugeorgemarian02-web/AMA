@@ -76,9 +76,15 @@ def model_brief(modele: ModelFals, *, inventeaza: bool = False) -> None:
     def handler(c: CerereInregistrata) -> str:
         p = prompt_complet(c)
         subiect = re.search(r"Subiect: (.*?)\. Unghi", p)
-        fapte = aliasuri(p)[:3] + (["F99"] if inventeaza else [])
+        ales = re.search(r"^\[(F\d+)\] oferta:", p, re.M)
+        oferta = ales.group(1) if ales else None
+        fapte = list(dict.fromkeys([*aliasuri(p)[:2], *([oferta] if oferta else [])])) + (
+            ["F99"] if inventeaza else []
+        )
         return raspuns_json(
             brief={
+                "obiectiv": "vanzare",
+                "oferta": oferta,
                 "scop": "Să aducem comenzi noi de cafea proaspătă din magazinul online.",
                 "public": "Iubitori de cafea de 25–45 de ani din Brașov și din țară.",
                 "mesaj_unic": f"Cafeaua noastră ajunge proaspătă: {subiect.group(1) if subiect else 'cafea'}.",

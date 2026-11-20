@@ -286,3 +286,13 @@ def test_pachetul_de_context_poate_include_strategia_aprobata(
         assert (
             not implicit.sectiune("strategie") and "strategie" not in implicit.lipsuri
         )  # comportamentul vechi, neschimbat
+
+
+def test_pragul_de_cost_este_un_plafon() -> None:
+    s = strategie_valida()
+    s["indicator_principal"].update(nume="Cost per lead", tinta=30, unitate="lei", sens="minimizare")
+    s["prag_minim"].update(valoare=50, unitate="lei")
+    assert strategie.probleme_strategie(s) == []
+    assert "plafon" in str(strategie.randeaza(s))
+    s["prag_minim"]["valoare"] = 20
+    assert strategie.probleme_strategie(s)

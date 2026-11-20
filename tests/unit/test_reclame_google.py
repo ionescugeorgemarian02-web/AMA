@@ -1,4 +1,4 @@
-"""F13.2 — rândul GAQL: micro-unități în bani, conversii zecimale rotunjite în jos."""
+"""F13.2 — rândul GAQL: micro-unități în bani, conversii zecimale păstrate până la agregare."""
 
 import datetime as dt
 
@@ -20,6 +20,6 @@ def test_randul_gaql() -> None:
         "7",
         dt.date(2026, 11, 10),
         1234,
-        2,
+        2.6,
     )
     assert client_id("123-456-7890") == "1234567890"

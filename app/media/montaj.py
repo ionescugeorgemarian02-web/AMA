@@ -88,9 +88,12 @@ def pregateste(
 ) -> Randare:
     """Validează lista, deschide randarea (`in_lucru`) și consemnează folosirea fiecărui activ."""
     valideaza(db, lm)
+    masuratori = {}
+    if livrabil_id:
+        masuratori["versiune_continut"] = validare.continut.citeste(db, livrabil_id).versiune
     r = Randare(tenant_id=tenant_id, livrabil_id=livrabil_id, lista=lm.model_dump(mode="json"),
                 stare="in_lucru",
-                calitate=calitate, masuratori={})  # fmt: skip
+                calitate=calitate, masuratori=masuratori)  # fmt: skip
     db.add(r)
     db.flush()
     for i in (
@@ -205,3 +208,22 @@ def ale_clientului(db: Session, tenant_id: uuid.UUID) -> list[Randare]:
     return list(
         db.execute(select(Randare).where(Randare.tenant_id == tenant_id).order_by(Randare.creat_la)).scalars()
     )
+
+
+def video_verificat(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID, versiune: int) -> Activ | None:
+    """Primul export final trecut de G6 pentru exact această versiune."""
+    return db.scalars(
+        select(Activ)
+        .join(Randare, Randare.activ_id == Activ.id)
+        .where(
+            Randare.tenant_id == tenant_id,
+            Activ.tenant_id == tenant_id,
+            Randare.livrabil_id == livrabil_id,
+            Randare.calitate == "final",
+            Randare.stare == "gata",
+            Randare.control["G6"]["rezultat"].astext == "trece",
+            Randare.masuratori["versiune_continut"].as_integer() == versiune,
+        )
+        .order_by(Randare.terminat_la, Randare.id)
+        .limit(1)
+    ).first()

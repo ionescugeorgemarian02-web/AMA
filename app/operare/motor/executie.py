@@ -13,6 +13,7 @@ Executorul (cel care rulează fluxurile) pornește doar în procesul `worker` (v
 import datetime as dt
 import functools
 import inspect
+import json
 import re
 import threading
 import time
@@ -24,6 +25,8 @@ from enum import StrEnum
 from typing import Any, ParamSpec, TypeVar
 
 from dbos import DBOS, DBOSClient, EnqueueOptions
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.logging import correlation_id
@@ -302,6 +305,31 @@ def inchide_client() -> None:
         if _client is not None:
             _client.destroy()
             _client = None
+
+
+def trimite_atomic(db: Session, fluxul: Callable[..., Any], *args: str, cheie: str) -> None:
+    """Înregistrează fluxul în aceeași tranzacție PostgreSQL ca decizia care îl pornește."""
+    nume = nume_flux(fluxul)
+    argumente.verifica(nume, args, {})
+    s = get_settings()
+    schema = db.get_bind().dialect.identifier_preparer.quote_schema(s.motor_schema)
+    db.execute(
+        text(
+            f"SELECT {schema}.enqueue_workflow(:nume, :coada, "
+            "ARRAY(SELECT json_array_elements(CAST(:args AS json))), "
+            "workflow_id => :cheie, app_version => :versiune, priority => :prioritate, "
+            "application_name => :aplicatie)"
+        ),
+        {
+            "nume": nume,
+            "coada": Coada.IO.value,
+            "args": json.dumps(args),
+            "cheie": cheie,
+            "versiune": s.motor_versiune,
+            "prioritate": calculeaza_prioritate(Prioritate.P2, None),
+            "aplicatie": NUME_APLICATIE,
+        },
+    )
 
 
 def trimite(

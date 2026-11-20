@@ -128,9 +128,9 @@ def test_live_postari_facebook_si_video_in_romana(
                 db, tenant, sc, [b - a for a, b in intervale], eticheta="Cafeneaua Zorilor"
             )
             muzica = furnizori.aduce_muzica(db, tenant, "calm", 40.0)
-            lm = regizor.regizeaza(db, tenant, fraze=fr, naratiune=nv, materiale=mat, format="A",
+            lm = regizor.regizeaza(db, tenant, fraze=fr, script=sc, livrabil_id=script_id, naratiune=nv, materiale=mat, format="A",
                                    canal="facebook", muzica=muzica)  # fmt: skip
-            rid = montaj.pregateste(db, tenant, lm).id
+            rid = montaj.pregateste(db, tenant, lm, livrabil_id=script_id).id
             [cop] = [
                 s
                 for s in sabloane.asigura_sabloane(db, tenant, "Cafeneaua Zorilor")

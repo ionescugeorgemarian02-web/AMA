@@ -212,8 +212,9 @@ class RandReclame:
     cheltuiala_bani: int = 0
     afisari: int = 0
     clicuri: int = 0
-    rezultate: int = 0  # conversiile urmărite (lead-uri, cereri de audit)
+    rezultate: float | None = None  # conversiile atribuite, inclusiv fracțiunile Google
     parinte_extern: str = ""  # campania unei reclame
+    clicuri_trafic: int | None = None  # clicuri spre destinație pentru obiectivul trafic
 
 
 @dataclass(frozen=True)

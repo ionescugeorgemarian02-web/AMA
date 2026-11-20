@@ -565,3 +565,5 @@ Format: o intrare pe pas, cea mai nouă sus.
   creata_la timestamptz, magazin unic per tenant, ștergere webhook doar cu id.
 - OAuth pe query brut, HMAC comparat în bytes și expirare callback la 5 minute.
 - Panoul folosește maparea persistentă a codurilor de reducere per magazin.
+
+- 2026-11-20 · Pilot AMA pe GitHub Actions, producție din calendar, indicatori de campanie, oferte cu surse, exporturi video versionate, atribuire comercială și import Search Console. Detalii și limite în JURNAL.md.

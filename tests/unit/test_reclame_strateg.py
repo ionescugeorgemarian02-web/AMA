@@ -20,3 +20,8 @@ def test_iesirile() -> None:
     assert v.iesire == "opreste" and v.motiv.startswith("2 ferestre la rând")
     fara = Totaluri(cheltuiala_bani=9_000, afisari=5_000, clicuri=60, rezultate=0)
     assert judeca([fara, fara], C).iesire == "opreste"
+
+
+def test_eveniment_absent_nu_devine_zero() -> None:
+    indisponibil = Totaluri(cheltuiala_bani=45_000, afisari=20_000, clicuri=300, rezultate=None)
+    assert judeca([indisponibil, SLABA], C).iesire == "asteapta"

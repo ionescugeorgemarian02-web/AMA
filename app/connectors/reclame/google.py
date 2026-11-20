@@ -3,7 +3,7 @@
 Citirea: `POST /<versiune>/customers/<id>/googleAds:searchStream`, cu o interogare GAQL pe campanie și pe
 reclamă (`segments.date`), antetele `developer-token` și `login-customer-id`.
 Costul vine în micro-unități (`metrics.cost_micros`); 1 leu = 1.000.000 micro = 100 de bani. Conversiile sunt
-zecimale (modelele de atribuire le împart); se rotunjesc în jos la rezultate întregi.
+zecimale (modelele de atribuire le împart) și se păstrează până la agregare.
 
 # NEVERIFICAT: versiunea API, nivelul de acces (Explorer/Basic, docs/16 §16.2), contul de administrator (MCC)
 și forma exactă a răspunsurilor, la migrare. Testat pe Google Ads API simulat (contract HTTP local).
@@ -11,6 +11,7 @@ zecimale (modelele de atribuire le împart); se rotunjesc în jos la rezultate �
 
 import datetime as dt
 import json
+import math
 import uuid
 from typing import Any
 
@@ -42,6 +43,14 @@ def _intreg(v: Any) -> int:
         return 0
 
 
+def numar_masurat(valoare: Any) -> float | None:
+    try:
+        n = float(valoare)
+    except (TypeError, ValueError):
+        return None
+    return n if math.isfinite(n) and n >= 0 else None
+
+
 def rand_din_gaql(r: dict[str, Any], nivel: str) -> RandReclame:
     """Nucleu pur: un rând `searchStream` → `RandReclame` (câmpurile vin în camelCase, numerele ca text)."""
     c, m = r.get("campaign") or {}, r.get("metrics") or {}
@@ -55,7 +64,8 @@ def rand_din_gaql(r: dict[str, Any], nivel: str) -> RandReclame:
         cheltuiala_bani=_intreg(m.get("costMicros")) // MICRO_PE_BAN,
         afisari=_intreg(m.get("impressions")),
         clicuri=_intreg(m.get("clicks")),
-        rezultate=_intreg(m.get("conversions")),
+        rezultate=numar_masurat(m.get("conversions")),
+        clicuri_trafic=int(m["clicks"]) if str(m.get("clicks")).isdigit() else None,
         parinte_extern=str(c.get("id", "")) if reclama else "",
     )
 

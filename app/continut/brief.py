@@ -15,8 +15,9 @@ subiectul le pune sistemul, din slot, nu modelul. Livrabilul trece `planificat �
 """
 
 import datetime as dt
+import re
 import uuid
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
@@ -30,7 +31,7 @@ from app.ids import new_id
 from app.operare.motor import Prioritate
 from app.productie import Stare
 
-REFERINTA_PROMPT = "continut.brief@1"
+REFERINTA_PROMPT = "continut.brief@2"
 COMPONENTA = "D5"
 BUGET_TOKENI = 3000
 SECTIUNI = ("strategie", "public")
@@ -38,6 +39,8 @@ SECTIUNI = ("strategie", "public")
 
 class ContinutBrief(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    obiectiv: Literal["vanzare", "editorial"]
+    oferta: str | None = None
     scop: str = Field(min_length=10, max_length=300)
     public: str = Field(min_length=5, max_length=300)
     mesaj_unic: str = Field(min_length=10, max_length=300)
@@ -61,7 +64,13 @@ def fapte_disponibile(pachet: creier.PachetContext) -> dict[str, dict[str, Any]]
     """Aliasurile (F1, F2, …) ale faptelor și ofertelor din pachet, în ordinea lui (deterministă)."""
     elemente = [*pachet.sectiune("fapte"), *pachet.sectiune("oferte")]
     return {
-        f"F{i}": {"id": e.id, "versiune": e.versiune, "tip": e.tip, "text": e.text}
+        f"F{i}": {
+            "id": e.id,
+            "versiune": e.versiune,
+            "tip": e.tip,
+            "text": e.text,
+            "destinatie": e.detalii.get("destinatie"),
+        }
         for i, e in enumerate(elemente, start=1)
     }
 
@@ -73,6 +82,15 @@ def probleme_brief(b: ContinutBrief, disponibile: dict[str, dict[str, Any]]) -> 
         probleme.append("brieful trebuie să permită cel puțin un fapt din pachet")
     if len(set(b.fapte_permise)) != len(b.fapte_permise):
         probleme.append("un fapt apare de două ori")
+    comercial = b.obiectiv == "vanzare" or re.search(
+        r"\b(comandă|cumpără|rezervă|programează-te)\b", b.apel_la_actiune, re.IGNORECASE
+    )
+    if comercial or b.oferta:
+        of = disponibile.get(b.oferta or "", {})
+        if of.get("tip") != "oferta" or b.oferta not in b.fapte_permise:
+            probleme.append("materialul comercial cere o ofertă aprobată în faptele permise")
+        elif not of.get("destinatie"):
+            probleme.append("oferta aprobată nu are destinație pentru apelul la acțiune")
     return probleme
 
 
@@ -137,7 +155,7 @@ def scrie(db: Session, livrabil_id: uuid.UUID, *, utilizator_id: uuid.UUID | Non
             "pilon": slot.pilon,
             "subiect": slot.subiect,
             "unghi": slot.unghi or "-",
-            "fapte": "\n".join(f"[{a}] {f['text']}" for a, f in disponibile.items())
+            "fapte": "\n".join(f"[{a}] {f['tip']}: {f['text']}" for a, f in disponibile.items())
             or "(niciun fapt relevant)",
             "context": context.ca_text(pachet),
         },
@@ -151,6 +169,7 @@ def scrie(db: Session, livrabil_id: uuid.UUID, *, utilizator_id: uuid.UUID | Non
     continut = {
         **b.model_dump(mode="json"),
         "fapte_permise": [{"alias": a, **disponibile[a]} for a in b.fapte_permise],
+        "oferta": disponibile[b.oferta] if b.oferta else None,
         "tip": lv.tip,
         "canal": lv.canal,
         "termen": slot.slot_la.isoformat(),
@@ -186,10 +205,12 @@ def text_pentru_autor(continut: dict[str, Any]) -> str:
     """Brieful, gata de pus în promptul autorului (faptele permise cu textul lor)."""
     permise = continut.get("fapte_permise", [])
     fapte = "\n".join(f"- {f['text']}" for f in permise) or "- (niciun fapt permis)"
+    oferta = continut.get("oferta")
+    comercial = f"Oferta aprobată: {oferta['text']}\nDestinație: {oferta['destinatie']}\n" if oferta else ""
     interdictii = "; ".join(continut.get("interdictii", [])) or "-"
     return (
         f"Scop: {continut['scop']}\nPublic: {continut['public']}\nMesaj unic: {continut['mesaj_unic']}\n"
         f"Format: {continut['format']}\nApel la acțiune (unul singur): {continut['apel_la_actiune']}\n"
-        f"Interdicții: {interdictii}\n"
+        f"{comercial}Interdicții: {interdictii}\n"
         f"Fapte permise (singurele cifre, prețuri și promisiuni permise):\n{fapte}"
     )

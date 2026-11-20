@@ -27,6 +27,7 @@ import httpx
 
 from app.connectors.contract import RandReclame, RezultatPlatforma, StareCont, Token
 from app.connectors.publicare.baza import ClientHttp, DepozitBaza, DepozitTokenuri, token_sau_autentificare
+from app.connectors.reclame.google import numar_masurat
 from app.connectors.reclame.meta import bani
 from app.operare.motor import EroareAutentificare, EroareDefinitiva, EroareTemporara
 
@@ -79,7 +80,8 @@ def rand_din_raport(r: dict[str, Any], nivel: str) -> RandReclame:
         cheltuiala_bani=bani(m.get("spend", "0")),
         afisari=int(float(m.get("impressions", 0) or 0)),
         clicuri=int(float(m.get("clicks", 0) or 0)),
-        rezultate=int(float(m.get("conversion", 0) or 0)),
+        rezultate=numar_masurat(m.get("conversion")),
+        clicuri_trafic=int(m["clicks"]) if str(m.get("clicks")).isdigit() else None,
         parinte_extern=str(m.get("campaign_id", "")) if nivel == "reclama" else "",
     )
 
@@ -194,8 +196,10 @@ class ContTiktok:
                         "placements": ["PLACEMENT_TIKTOK"],
                         "location_ids": [LOCATIE_RO],
                         "budget_mode": "BUDGET_MODE_INFINITE",
-                        "optimization_goal": "LEAD_GENERATION",
-                        "billing_event": "OCPM",
+                        "optimization_goal": "CLICK"
+                        if payload["obiectiv"] == "trafic"
+                        else "LEAD_GENERATION",
+                        "billing_event": "CPC" if payload["obiectiv"] == "trafic" else "OCPM",
                         "schedule_type": "SCHEDULE_FROM_NOW",
                         "operation_status": "ENABLE",
                     },

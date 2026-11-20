@@ -889,3 +889,15 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### G-pool (Opus)
 - Portat din fabrica (citit, nu copiat): catalogul, cheile cu nume exacte și dezactivarea automată, seiful (Fernet, cheie din `AMA_MASTER_KEY`), sănătatea pe model, paza familiei, resetul pe fus orar, rezervele pe rol; cotele cu rezervare/decontare și preflight-ul TPM existau deja în F3.3 (limitatorul). Comanda `python -m app.gateway.verifica_furnizori` pentru primul test live.
 - Verificat: testele noi (unit + integrare) și suita gateway-ului; `make guards`, `make audit`, `make check` (vezi raportul sesiunii). Deschis: tot ce e în „De verificat la primul test live (G-pool)”.
+
+## Predare către Claude · 20 noiembrie 2026 · OpenAI Codex
+
+Bază de lucru `625d5a6`, ramură `codex/agentie-pilot`. Modificările acestei ramuri aparțin Codex.
+- Calendar și producție: aprobarea din panou înregistrează joburile în aceeași tranzacție PostgreSQL, cu cheie per livrabil. Planificarea distribuie combinațiile de canal și format ținând cont de limita zilnică.
+- Pilot GitHub Actions: două dosare fictive (magazin și atelier), decizii lingvistice prin gateway-ul Anthropic, registru temporar, rezultate pe caz. Secretul necesar este `ANTHROPIC_API_KEY`. Raportul consemnează aprobările simulate și verificările omise. Fluxul cu cheie reală rămâne de verificat.
+- Strategie și reclame: sensul indicatorului, conversii fracționare și clicuri de trafic distincte, rezultate indisponibile păstrate separat. Migrare `0140`.
+- Oferte și conținut: brief comercial cu ofertă aprobată și destinație. Studiul de caz al paginii provine din afirmații aprobate asociate ofertei. Prompturi noi versionate.
+- Video: transmiterea indicațiilor vizuale în regie și asocierea randării cu versiunea scenariului. Exportul asistat se caută după client, livrabil, versiune și control G6.
+- Atribuire: importul comenzii păstrează utm_content. În portal și în pilot sunt disponibile comenzile importate și volumul măsurat. Pentru servicii operatorul poate introduce totalul zilnic confirmat din exportul clientului, pe livrabil. Migrare `0141`.
+- SEO: import CSV cu pagină și produs, interogări ordonate după impresii și poziție. Comandă: `uv run python -m app.seo export.csv --produs "Produs" --pagina "/pagina"`.
+- Verificări inițiale: cele 40 de teste focalizate pe brief, ofertă, calendar, SEO, obiective, reclame, dosare și raport au trecut. Verificările finale se documentează mai jos. Nu s-au lansat reclame, publicări sau plăți.

@@ -17,8 +17,9 @@ import datetime as dt
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
+from sqlalchemy import text
 
 from app import productie
 from app.analiza import colector, etichete, retentie, sanatate, trafic
@@ -350,3 +351,27 @@ async def adauga_concurent(
     except reclame_concurenta.ConcurentInvalid as exc:
         return _concurenta(request, u, db, tid, status=422, eroare=str(exc))
     return RedirectResponse(f"/analiza/concurenta?client={tid}&mesaj=concurent", status_code=303)
+
+
+@router.post("/livrabil/{livrabil_id}/programari", dependencies=[Depends(csrf_protect)])
+def importa_programari(
+    livrabil_id: uuid.UUID,
+    zi: Annotated[dt.date, Form()],
+    numar: Annotated[int, Form(ge=0, le=2147483647)],
+    u: Agentie,
+    _p: PoateEdita,
+    db: DbSession,
+) -> Response:
+    """Total zilnic din sistemul de rezervări al clientului, reimportabil după anulări."""
+    lv = productie.citeste(db, livrabil_id)
+    if lv is None:
+        raise HTTPException(status_code=404)
+    db.execute(
+        text(
+            "INSERT INTO programari_material(tenant_id,livrabil_id,zi,numar) "
+            "VALUES (:tid,:lid,:zi,:numar) ON CONFLICT(tenant_id,livrabil_id,zi) "
+            "DO UPDATE SET numar=excluded.numar"
+        ),
+        {"tid": lv.tenant_id, "lid": lv.id, "zi": zi, "numar": numar},
+    )
+    return RedirectResponse(f"/analiza/livrabil/{lv.id}?mesaj=salvat", status_code=303)

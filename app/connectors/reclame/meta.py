@@ -26,7 +26,7 @@ from app.operare.motor import EroareDefinitiva
 
 CANAL_TOKEN = "meta_ads"  # noqa: S105  (numele canalului din depozit, nu un secret)
 ACTIUNE_REZULTAT = "lead"
-CAMPURI = "campaign_id,campaign_name,spend,impressions,clicks,actions,date_start"
+CAMPURI = "campaign_id,campaign_name,spend,impressions,clicks,inline_link_clicks,actions,date_start"
 # account_status din Marketing API: 1 = activ; restul (dezactivat, neplătit, în revizuire de risc) = problemă.
 STARI_CONT = {
     2: "cont dezactivat",
@@ -57,9 +57,13 @@ def _intreg(v: Any) -> int:
 
 def rand_din_insights(r: dict[str, Any], nivel: str) -> RandReclame:
     """Nucleu pur: un rând `insights` → `RandReclame`."""
-    rezultate = sum(
-        _intreg(a.get("value")) for a in r.get("actions") or [] if a.get("action_type") == ACTIUNE_REZULTAT
-    )
+    actiuni = r.get("actions")
+    rezultate = None
+    if isinstance(actiuni, list):
+        valori = [a.get("value") for a in actiuni if a.get("action_type") == ACTIUNE_REZULTAT]
+        if all(str(v).isdigit() for v in valori):
+            rezultate = sum(int(v) for v in valori)
+    clicuri_link = r.get("inline_link_clicks")
     reclama = nivel == "reclama"
     return RandReclame(
         nivel=nivel,
@@ -70,6 +74,7 @@ def rand_din_insights(r: dict[str, Any], nivel: str) -> RandReclame:
         afisari=_intreg(r.get("impressions")),
         clicuri=_intreg(r.get("clicks")),
         rezultate=rezultate,
+        clicuri_trafic=int(str(clicuri_link)) if str(clicuri_link).isdigit() else None,
         parinte_extern=str(r.get("campaign_id", "")) if reclama else "",
     )
 
@@ -132,7 +137,9 @@ class ScriereMeta:
                     "campaign_id": cid,
                     "status": "ACTIVE",
                     "billing_event": "IMPRESSIONS",
-                    "optimization_goal": "LEAD_GENERATION",
+                    "optimization_goal": "LINK_CLICKS"
+                    if payload["obiectiv"] == "trafic"
+                    else "LEAD_GENERATION",
                     "targeting": json.dumps({"geo_locations": {"countries": ["RO"]}}),
                 },
             )

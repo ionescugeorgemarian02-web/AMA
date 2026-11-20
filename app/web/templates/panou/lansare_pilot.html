@@ -15,8 +15,8 @@
     <li>Incidente critice: {{ r.poarta.incidente_critice }}</li>
     <li>Minute de om: {{ r.poarta.minute_om }} · satisfacția medie: {{ r.poarta.satisfactie if r.poarta.satisfactie is not none else "–" }}</li>
   </ul>
-  {% if r.rapoarte %}<table><thead><tr><th scope="col">Săptămâna</th><th scope="col">Din prima</th><th scope="col">Incidente</th><th scope="col">Feedback</th></tr></thead>
-  <tbody>{% for x in r.rapoarte %}<tr><th scope="row">{{ x.saptamana }}</th><td>{{ "%.0f"|format(x.rata_aprobare_din_prima * 100) ~ "%" if x.rata_aprobare_din_prima is not none else "–" }}</td><td>{{ x.incidente_critice }}</td><td>{{ "lipsă" if x.feedback_lipsa else "da" }}</td></tr>{% endfor %}</tbody></table>{% endif %}
+  {% if r.rapoarte %}<table><thead><tr><th scope="col">Săptămâna</th><th scope="col">Din prima</th><th scope="col">Incidente</th><th scope="col">Feedback</th><th scope="col">Comenzi importate</th></tr></thead>
+  <tbody>{% for x in r.rapoarte %}<tr><th scope="row">{{ x.saptamana }}</th><td>{{ "%.0f"|format(x.rata_aprobare_din_prima * 100) ~ "%" if x.rata_aprobare_din_prima is not none else "–" }}</td><td>{{ x.incidente_critice }}</td><td>{{ "lipsă" if x.feedback_lipsa else "da" }}</td><td>{{ x.comercial.comenzi_importate if x.comercial else "–" }}</td></tr>{% endfor %}</tbody></table>{% endif %}
   <form method="post" action="/lansare/pilot/{{ r.p.tenant_id }}/feedback">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <label>Ziua întâlnirii <input type="date" name="zi" value="{{ azi }}" required></label>

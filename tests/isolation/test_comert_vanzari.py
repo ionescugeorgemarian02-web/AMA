@@ -73,3 +73,31 @@ def test_monede_lot_invalid_si_timestamptz(date, chei_de_test):
             )
             == "timestamp with time zone"
         )
+
+
+def test_atribuire_pe_material_dupa_rambursare(date, chei_de_test):
+    import datetime as dt
+
+    from app.comert import atribuire
+    from app.db import sesiune_tenant
+
+    shop = f"m{uuid.uuid4().hex}.myshopify.com"
+    oauth.incepe(date.a, shop, "id", "https://ama.invalid/callback")
+    comanda = {
+        "id": "1",
+        "updated_at": "2026-11-05T12:00:00Z",
+        "created_at": "2026-11-01T08:00:00Z",
+        "total_price": "49",
+        "currency": "RON",
+        "utm_content": "material-a",
+        "rambursat_bani": "9",
+    }
+    vanzari.importa(date.a, shop, "comanda", [comanda])
+    interval = (dt.datetime(2026, 11, 1, tzinfo=dt.UTC), dt.datetime(2026, 12, 1, tzinfo=dt.UTC))
+    with sesiune_tenant(date.a) as db:
+        r = atribuire.materiale(db, date.a, *interval)
+        assert r["comenzi_importate"] == 1
+        assert r["materiale"][0]["material"] == "material-a"
+        assert r["materiale"][0]["net_bani"] == 4000
+    with sesiune_tenant(date.b) as db:
+        assert not atribuire.materiale(db, date.b, *interval)["materiale"]

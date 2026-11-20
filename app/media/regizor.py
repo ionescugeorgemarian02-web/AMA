@@ -185,6 +185,7 @@ def regizeaza(
     canal: str = "tiktok",
     muzica: Activ | None = None,
     livrabil_id: uuid.UUID | None = None,
+    script: dict[str, Any] | None = None,
 ) -> lista.ListaMontaj:
     """Cere alegerile modelului, construiește lista și o validează (`ListaInvalida` dacă nu trece)."""
     folosibile = [m for m in materiale if not licente.probleme(m.licenta)]
@@ -193,6 +194,15 @@ def regizeaza(
     durate = {
         m.id: d for m in folosibile if (d := info_activ(m).durata) is not None and m.categorie == "video"
     }
+    indicatii = [""] * len(fraze)
+    if script:
+        indicatii = (
+            ([""] if script.get("hook") else [])
+            + [str(b.get("vizual", "")) for b in script.get("batai", []) if str(b.get("voce", "")).strip()]
+            + ([""] if script.get("cta") else [])
+        )
+        if len(indicatii) != len(fraze):
+            raise ListaInvalida(["scenariul și narațiunea au număr diferit de bătăi"])
     continut.prompturi.asigura()
     r = gateway.apeleaza(
         db,
@@ -205,7 +215,7 @@ def regizeaza(
         max_tokeni=800,
         variabile={
             "format": format,
-            "batai": "\n".join(f"{i}. {f}" for i, f in enumerate(fraze)),
+            "batai": "\n".join(f"{i}. {f} {indicatii[i]}".strip() for i, f in enumerate(fraze)),
             "materiale": "\n".join(
                 f"{i}: {m.descriere or m.nume_original}"
                 + (f" ({durate[m.id]:.1f} s)" if m.id in durate else "")

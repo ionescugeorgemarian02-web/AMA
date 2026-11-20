@@ -13,6 +13,10 @@
     <tbody>{% for eticheta, v in c.cifre.totaluri_etichetate %}<tr><th scope="row">{{ eticheta }}</th><td>{{ v }}</td></tr>{% endfor %}</tbody>
   </table>
   {% endif %}
+  {% if c.comercial %}<h4>Rezultate comerciale</h4>
+  <p>Comenzi importate în luna raportată · {{ c.comercial.comenzi_importate }}</p>
+  {% for g in c.comercial.programari %}<p>Material {{ g.material }} · {{ g.numar }} programări confirmate în {{ g.zile }} zile raportate.</p>{% endfor %}
+  {% for g in c.comercial.materiale %}<p>{{ g.campanie }} / {{ g.canal }} / {{ g.material }} · {{ g.comenzi }} comenzi · {{ g.net_bani }} unități minore {{ g.moneda }} net.</p>{% else %}<p>Date comerciale insuficiente pentru atribuirea pe materiale.</p>{% endfor %}{% endif %}
   <h3>3–4. Ce a mers și ce schimbăm</h3>
   {% if c.ce_a_mers %}<p>{{ c.ce_a_mers }}</p>{% endif %}
   {% if c.ce_nu_a_mers %}<p>{{ c.ce_nu_a_mers }}</p>{% endif %}

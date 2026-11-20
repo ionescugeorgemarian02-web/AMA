@@ -13,7 +13,7 @@ from app import oferta
 from app.db import sesiune_tenant
 from tests.integration.utile_productie import fabrica_clienti, om, tenant  # noqa: F401
 from tests.onboarding_utile import ModelFals, model_fals, modele, raspuns_json  # noqa: F401
-from tests.validare_utile import fapt_aprobat
+from tests.validare_utile import fapt_aprobat, oferta_aprobata
 
 pytestmark = pytest.mark.db
 APEL = "Cere auditul gratuit"
@@ -40,13 +40,9 @@ def scriptat(modele: ModelFals, *, al_doilea_apel: bool = False) -> None:
         titlu="Află ce îți lipsește ca să fii ales de clienți noi",
         subtitlu="Un audit gratuit al prezenței online a firmei tale, gata în câteva minute.",
         beneficii=benef,
-        dovada="Auditul folosește aceeași metodă cu care lucrăm pentru brandurile noastre proprii.",
         apel=APEL,
         reclame=[f"Firma ta e greu de găsit online? {APEL}.", f"Trei lucruri de făcut luna aceasta. {APEL}.",
                  f"Vezi ce le lipsește clienților tăi pe site. {APEL}."],
-        studiu_caz={"situatie": "O prăjitorie de cafea avea un site clar, dar fără un motiv de a o alege.",
-                    "actiune": "Am pus oferta principală și un singur buton pe prima pagină.",
-                    "rezultat": "Vizitatorii găsesc acum oferta și butonul de contact de pe telefon."},
     )  # fmt: skip
 
 
@@ -57,6 +53,23 @@ def test_pagina_de_audit_a_agentiei_trece_g2_g3_g9_si_are_un_singur_apel(
     fapt_aprobat(
         tenant, om, "termen", "Audit", "Auditul de marketing este gratuit"
     )  # faptul din registrul agenției
+    dovezi = {
+        camp: str(fapt_aprobat(tenant, om, "altul", "Auditul prăjitoriei", afirmatie))
+        for camp, afirmatie in {
+            "situatie": "Prăjitoria avea un site cu prezentarea produselor.",
+            "actiune": "Oferta principală a primit un buton pe prima pagină.",
+            "rezultat": "Vizitatorii găsesc oferta și de pe telefon.",
+        }.items()
+    }
+    oferta_aprobata(
+        tenant,
+        om,
+        "Auditul gratuit de marketing",
+        "0",
+        destinatie="/site/audit",
+        fapte=list(dovezi.values()),
+        studiu_caz=dovezi,
+    )
     with sesiune_tenant(tenant, om) as db:
         pg = oferta.pagini.genereaza(db, tenant, firma="AMA", oferta="Auditul gratuit de marketing",
                                      public="firme mici", apel=APEL, tinta="/site/audit", slug="audit-gratuit")  # fmt: skip
@@ -64,7 +77,8 @@ def test_pagina_de_audit_a_agentiei_trece_g2_g3_g9_si_are_un_singur_apel(
         assert {"G2@V1", "G3@V1", "G9@V1"} <= {x.split("@")[0] + "@V1" for x in pg.validare["rulate"]}
         assert {x.split("@")[0] for x in pg.validare["rulate"]} == {"G2", "G3", "G9"}
         assert pg.validare["apeluri_in_plus"] == [] and len(pg.continut["reclame"]) == 3
-        assert pg.continut["studiu_caz"]["rezultat"]
+        assert pg.continut["studiu_caz"]["rezultat"] == "Vizitatorii găsesc oferta și de pe telefon."
+        assert {d["id"] for d in pg.continut["fapte_aprobate"]} == set(dovezi.values())
         assert client.get("/site/p/audit-gratuit").status_code == 404  # nepublicată
         oferta.pagini.publica(db, pg.id, utilizator_id=om)
     h = client.get("/site/p/audit-gratuit").text
@@ -76,10 +90,12 @@ def test_o_pagina_cu_al_doilea_apel_la_actiune_e_respinsa(
     tenant: uuid.UUID, om: uuid.UUID, modele: ModelFals
 ) -> None:
     scriptat(modele, al_doilea_apel=True)
+    oferta_aprobata(tenant, om, "Auditul gratuit", "0", destinatie="/site/audit")
     fapt_aprobat(tenant, om, "termen", "Audit", "Auditul de marketing este gratuit")
     with sesiune_tenant(tenant, om) as db:
         pg = oferta.pagini.genereaza(db, tenant, firma="AMA", oferta="Auditul gratuit", public="firme mici",
                                      apel=APEL, tinta="/site/audit", slug="audit-doi")  # fmt: skip
+        assert pg.continut["studiu_caz"] is None
         assert pg.stare == "respins" and pg.validare["apeluri_in_plus"] == ["Sună"]
         with pytest.raises(oferta.pagini.EroareOferta):
             oferta.pagini.publica(db, pg.id, utilizator_id=om)

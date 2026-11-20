@@ -59,6 +59,8 @@ class Verdict:
 
 def slaba(t: Totaluri, c: plan_media.CriteriiOprire) -> bool | None:
     """`None` = date insuficiente; altfel dacă fereastra e sub pragul minim (CPR peste multiplu × țintă)."""
+    if t.rezultate is None:
+        return None
     suficient = t.afisari >= c.afisari_minime and t.clicuri >= c.clicuri_minime
     suficient = suficient or t.cheltuiala_bani >= 2 * c.cost_tinta_bani
     if not suficient:
@@ -73,6 +75,8 @@ def judeca(ferestre: list[Totaluri], c: plan_media.CriteriiOprire) -> Verdict:
     t = ferestre[0]
     s = slaba(t, c)
     cpr = t.cost_pe_rezultat_bani
+    if t.rezultate is None:
+        return Verdict("asteapta", "evenimentul urmărit nu are date complete")
     if s is None:
         return Verdict(
             "asteapta", "date insuficiente pentru o decizie (afișări, clicuri sau cheltuială sub minim)"
@@ -93,7 +97,7 @@ def judeca(ferestre: list[Totaluri], c: plan_media.CriteriiOprire) -> Verdict:
     return Verdict("continua", "cost pe rezultat sub țintă")
 
 
-def _cifre(t: Totaluri) -> dict[str, int | None]:
+def _cifre(t: Totaluri) -> dict[str, float | None]:
     return {
         "cheltuiala_bani": t.cheltuiala_bani,
         "afisari": t.afisari,
@@ -151,7 +155,12 @@ def revizuieste_campania(db: Session, campanie_id: uuid.UUID, acum: dt.datetime)
         sf = pana_la - dt.timedelta(days=FEREASTRA_ZILE * k)
         ferestre.append(
             rezultate.totaluri(
-                db, c.cont_id, sf - dt.timedelta(days=FEREASTRA_ZILE - 1), sf, obiect_extern=c.id_extern
+                db,
+                c.cont_id,
+                sf - dt.timedelta(days=FEREASTRA_ZILE - 1),
+                sf,
+                obiect_extern=c.id_extern,
+                eveniment=p.masurare.eveniment,
             )
         )
     v = judeca(ferestre, p.criterii_oprire)
@@ -180,6 +189,7 @@ def revizuieste_campania(db: Session, campanie_id: uuid.UUID, acum: dt.datetime)
         de_la=pana_la - dt.timedelta(days=FEREASTRA_ZILE - 1),
         pana_la=pana_la,
         observat={
+            "eveniment": p.masurare.eveniment,
             "fereastra": _cifre(ferestre[0]),
             "anterioare": [_cifre(f) for f in ferestre[1:]],
             "tinta_bani": p.criterii_oprire.cost_tinta_bani,

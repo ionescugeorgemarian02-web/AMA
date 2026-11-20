@@ -20,6 +20,7 @@ from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
+from app.comert import atribuire
 from app.lansare.modele import PilotClient, PilotFeedback, PilotRaport
 from app.operare import audit, urme
 from app.operare.urme import Urma
@@ -209,6 +210,7 @@ def raport_saptamanal(db: Session, saptamana: dt.date) -> list[dict[str, Any]]:
             "saptamana_pilot": (s - luni(p.inceput)).days // 7 + 1,
             **ind.ca_dict(),
             "feedback_lipsa": ind.feedback_saptamani == 0,
+            "comercial": atribuire.materiale(db, p.tenant_id, _moment(s), _moment(s + dt.timedelta(days=7))),
             "poarta": stare_poarta(db, p, s + dt.timedelta(days=6)),
         }
         db.execute(

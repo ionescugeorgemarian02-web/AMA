@@ -33,7 +33,7 @@ from app.onboarding import completare, prompturi
 from app.operare import audit
 from app.operare.motor import Prioritate
 
-REFERINTA_PROMPT = "onboarding.strategie@1"
+REFERINTA_PROMPT = "onboarding.strategie@2"
 CHEIE_STRATEGIE = "strategie-90"
 BUGET_TOKENI = 6000
 CANALE = (
@@ -73,6 +73,7 @@ class Indicator(BaseModel):
     nume: str = Field(min_length=3, max_length=100)
     unitate: str = Field(min_length=1, max_length=30)
     tinta: float = Field(gt=0)
+    sens: Literal["maximizare", "minimizare"] = "maximizare"  # strategiile salvate înaintea v2
     mod_masurare: str = Field(min_length=10, max_length=300)
 
 
@@ -109,7 +110,10 @@ def probleme_strategie(c: dict[str, Any]) -> list[str]:
     probleme: list[str] = []
     if s.prag_minim.unitate.strip().lower() != s.indicator_principal.unitate.strip().lower():
         probleme.append("pragul minim și indicatorul principal trebuie să aibă aceeași unitate")
-    if s.prag_minim.valoare >= s.indicator_principal.tinta:
+    ind = s.indicator_principal
+    if ind.sens == "minimizare" and s.prag_minim.valoare <= ind.tinta:
+        probleme.append("plafonul acceptabil trebuie să fie peste ținta indicatorului principal")
+    if ind.sens == "maximizare" and s.prag_minim.valoare >= ind.tinta:
         probleme.append("pragul minim trebuie să fie sub ținta indicatorului principal")
     if s.fereastra_masurare_zile > 90:
         probleme.append("fereastra de măsurare nu poate depăși cele 90 de zile")
@@ -126,11 +130,12 @@ def randeaza(c: dict[str, Any]) -> str | None:
     except ValidationError:
         return None
     ind, prag = s.indicator_principal, s.prag_minim
+    eticheta = "plafon acceptabil" if ind.sens == "minimizare" else "prag minim"
     plan30 = "; ".join(f"{p.actiune} ({p.canal})" for p in s.plan_30_zile)
     plan90 = "; ".join(f"{p.actiune} ({p.canal})" for p in s.plan_90_zile)
     return (
         f"Ipoteză: {s.ipoteza}\nIndicator principal: {ind.nume}, țintă {ind.tinta} {ind.unitate}; "
-        f"prag minim {prag.valoare} {prag.unitate}; "
+        f"{eticheta} {prag.valoare} {prag.unitate}; "
         f"fereastră de măsurare {s.fereastra_masurare_zile} de zile\n"
         f"Plan 30 de zile: {plan30}\nPlan 90 de zile: {plan90}\nCriteriu de oprire: {s.criteriu_oprire}"
     )

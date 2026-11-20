@@ -75,7 +75,12 @@ def semnale(db: Session, cont: ContReclame, acum: dt.datetime) -> list[Anomalie]
         out.append(Anomalie(cont.id, "ritm", "cheltuiala de azi depășește de câteva ori ritmul planificat"))
     ieri = rezultate.totaluri(db, cont.id, azi - dt.timedelta(days=1), azi - dt.timedelta(days=1))
     inainte = rezultate.totaluri(db, cont.id, azi - dt.timedelta(days=8), azi - dt.timedelta(days=2))
-    if ieri.clicuri >= CLICURI_MINIME_URMARIRE and ieri.rezultate == 0 and inainte.rezultate > 0:
+    if (
+        ieri.clicuri >= CLICURI_MINIME_URMARIRE
+        and ieri.rezultate == 0
+        and inainte.rezultate is not None
+        and inainte.rezultate > 0
+    ):
         out.append(Anomalie(cont.id, "urmarire", "urmărirea conversiilor nu mai trimite evenimente"))
     referinta = inainte.cost_pe_clic_bani, inainte.cost_pe_mie_bani
     for actual, medie, nume in (

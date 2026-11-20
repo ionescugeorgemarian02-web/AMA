@@ -25,6 +25,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
 from app import continut, finante, productie, validare
 from app.analiza import raport_cifre
+from app.comert import atribuire
 from app.ids import new_id
 from app.operare import audit
 from app.productie import Stare
@@ -116,6 +117,7 @@ def compune(db: Session, tenant_id: uuid.UUID, luna: dt.date) -> dict[str, Any]:
     return {
         "luna": luna.strftime("%Y-%m"),
         "livrat": livrat,
+        "comercial": atribuire.materiale(db, tenant_id, de_la, pana_la),
         "cifre": cifre,
         "ce_a_mers": texte["ce_a_mers"],
         "ce_nu_a_mers": texte["ce_nu_a_mers"],

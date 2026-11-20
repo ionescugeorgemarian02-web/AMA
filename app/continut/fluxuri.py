@@ -7,6 +7,8 @@ mai slab.
 import datetime as dt
 import uuid
 
+from sqlalchemy.orm import Session
+
 from app import creier, gateway, productie
 from app.continut import brief, calendar, pipeline
 from app.db import sesiune_tenant
@@ -181,6 +183,10 @@ def produ_livrabilul(tenant_id: str, livrabil_id: str) -> str:
             )
             return "amanat"
     return r
+
+
+def programeaza_productia(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID) -> None:
+    motor.trimite_atomic(db, produ_livrabilul, str(tenant_id), str(livrabil_id), cheie=f"produ:{livrabil_id}")
 
 
 def trimite_productia(tenant_id: uuid.UUID, livrabil_id: uuid.UUID, *, cheie: str) -> str:

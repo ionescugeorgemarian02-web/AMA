@@ -58,3 +58,11 @@ def test_problemele_propunerii() -> None:
 def test_canalele_strategiei() -> None:
     s = {"plan_30_zile": [{"canal": "facebook"}, {"canal": "email"}], "plan_90_zile": [{"canal": "linkedin"}]}
     assert calendar.canale_din_strategie(s) == ["facebook", "linkedin"]
+
+
+def test_patru_combinatii_incap_in_calendar() -> None:
+    canale = ["facebook", "instagram", "linkedin", "tiktok"]
+    propunere = calendar_valid(
+        formate=[{"canal": canal, "tip": "postare", "pe_saptamana": 2} for canal in canale]
+    )
+    assert not calendar.probleme_calendar(propunere, canale_permise=canale, inceput=INCEPUT)

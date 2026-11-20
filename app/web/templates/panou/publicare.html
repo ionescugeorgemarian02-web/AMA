@@ -11,6 +11,7 @@
 <section class="card" aria-labelledby="p-{{ p.id }}">
   <h2 id="p-{{ p.id }}">{{ clienti.get(p.tenant_id, "Client") }} · {{ p.canal }} <span class="insigna atentie">de publicat</span></h2>
   {% if ora %}<p class="slab">Ora recomandată: {{ ora|moment }}</p>{% endif %}
+  {% if p.pachet.video_versiune or p.pachet.batai %}<a href="/publicare/{{ p.id }}/video">Descarcă exportul video aprobat</a>{% endif %}
   <label for="t-{{ p.id }}">Textul postării</label>
   <textarea id="t-{{ p.id }}" rows="8" readonly>{{ p.pachet.text }}</textarea>
   <button type="button" data-partajeaza="t-{{ p.id }}" data-titlu="{{ p.canal }}">Partajează</button>
