@@ -237,7 +237,7 @@ def _scrie_postarea(db: Session, lv: productie.Livrabil, b: dict[str, object]) -
     hook = editor.editeaza(hook_ales(db, lv, b), limba)
     r = gateway.apeleaza(
         db,
-        prompt="continut.postare@1",
+        prompt="continut.postare@2",
         schema=PostareScrisa,
         tenant_id=lv.tenant_id,
         componenta="continut.postare",

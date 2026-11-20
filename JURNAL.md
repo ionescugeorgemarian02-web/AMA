@@ -962,3 +962,9 @@ Fotografiile B, descărcate în CI de pe Wikimedia Commons:
 - deviz: factura atelierului Hermann Bauer din Leipzig, din 1921, domeniu public.
 
 A și B au trecut (2 passed).
+
+## F-idee, etapa de idee (fluxul nou 1–4) · 20 noiembrie 2026 · Claude
+
+- Făcut: `app/continut/idei.py` (propune → critica → `probleme_concept` → `alege` → o rescriere → om), migrarea `0143_idei_concepte`, prompturile `continut.idei@1`, `continut.critica_idee@1`, `continut.brief@4`, `continut.postare@2`, `continut.script@3`; integrarea în `pipeline`/`fluxuri`, `brief.text_pentru_autor`, `scripturi` (`cadre`), `regizor.scene_script` și `selectie.alege`. Modelul fals (`tests/onboarding_utile.py`) răspunde implicit la noile prompturi.
+- Verificat: `tests/unit` + `tests/integration/test_continut_*` (inclusiv `test_continut_idei.py`), `test_media_selectie_scene`, `test_editorial_spita`, `test_media_regizor`, `test_media_verdict_editorial`, `test_gateway_prompturi`; Ruff check/format, mypy app, `make guards`.
+- Deschis: `test_poarta_f6` pică local cu epuizarea poolului de conexiuni (21 de fluxuri de producție pornite la aprobarea calendarului, în paralel cu fluxul de briefuri); pică identic și pe `HEAD` fără schimbările mele (verificat într-un worktree separat), deci nu e o regresie F-idee, dar merită investigat. Critica cu alt model e [NEVERIFICAT] cu modele reale (în teste lanțul are un singur model → `autoevaluare`).

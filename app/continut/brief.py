@@ -26,13 +26,13 @@ from sqlalchemy.orm import Session
 
 from app import creier, gateway, onboarding, productie
 from app.continut import calendar, prompturi
-from app.continut.modele import Brief
+from app.continut.modele import Brief, IdeeConcept
 from app.creier import context
 from app.ids import new_id
 from app.operare.motor import Prioritate
 from app.productie import Stare
 
-REFERINTA_PROMPT = "continut.brief@3"
+REFERINTA_PROMPT = "continut.brief@4"
 COMPONENTA = "D5"
 BUGET_TOKENI = 3000
 SECTIUNI = ("strategie", "public")
@@ -167,19 +167,10 @@ def al_livrabilului(db: Session, livrabil_id: uuid.UUID) -> Brief | None:
     return db.execute(select(Brief).where(Brief.livrabil_id == livrabil_id)).scalar_one_or_none()
 
 
-def scrie(db: Session, livrabil_id: uuid.UUID, *, utilizator_id: uuid.UUID | None = None) -> Brief:
-    """Brieful unui livrabil `planificat` dintr-un calendar; îl mută în `briefat`. Idempotent: un brief
-    existent se
-    întoarce neschimbat. Ridică `gateway.Amanat`, `BriefInvalid` sau `RegulaCreier` (ghid de brand lipsă)."""
-    existent = al_livrabilului(db, livrabil_id)
-    if existent is not None:
-        return existent
-    lv = productie.blocheaza(db, livrabil_id)
-    if Stare(lv.stare) is not Stare.PLANIFICAT:
-        raise creier.RegulaCreier(f"brieful se scrie pentru un livrabil planificat, nu „{lv.stare}”")
-    slot = calendar.intrarea_livrabilului(db, lv.id)
-    if slot is None:
-        raise creier.RegulaCreier("livrabilul nu vine dintr-un calendar")
+def pachet_livrabil(
+    db: Session, lv: productie.Livrabil, slot: Any, *, utilizator_id: uuid.UUID | None = None
+) -> creier.PachetContext:
+    """Pachetul de context al livrabilului (F4.7), citit la data publicării; comun briefului și ideii."""
     la = max(lv.termen_la or dt.datetime.now(dt.UTC), dt.datetime.now(dt.UTC))
     pachet = context.construieste(
         db,
@@ -194,9 +185,56 @@ def scrie(db: Session, livrabil_id: uuid.UUID, *, utilizator_id: uuid.UUID | Non
         sectiuni_extra=SECTIUNI,
         exemple=(lv.tip, lv.canal),
     )
+    return pachet
+
+
+def idee_aleasa(db: Session, livrabil_id: uuid.UUID) -> dict[str, Any] | None:
+    """Conceptul ales în etapa de idee (F-idee), dacă există."""
+    r = db.execute(
+        select(IdeeConcept).where(IdeeConcept.livrabil_id == livrabil_id, IdeeConcept.ales.is_(True))
+    ).scalar_one_or_none()
+    return None if r is None else {**r.concept, "id": str(r.id)}
+
+
+def text_idee(idee: dict[str, Any] | None, disponibile: dict[str, dict[str, Any]] | None = None) -> str:
+    """Conceptul ales, ca text pentru autorii de brief, postare și script (gol fără concept)."""
+    if not idee:
+        return ""
+    dovada = idee.get("dovada_text") or (disponibile or {}).get(idee.get("dovada", ""), {}).get("text", "")
+    cadre = "\n".join(
+        f"{i}. {c['subiect']}: {c['actiune']} ({c.get('context') or '-'}) "
+        f"[{c.get('tip')}, {c.get('incadrare')}]"
+        for i, c in enumerate(idee.get("cadre", []), start=1)
+    )
+    return (
+        "Conceptul ales (scrie din el, nu din subiectul calendarului):\n"
+        f"Momentul real: {idee.get('moment_real', '')}\nTensiunea: {idee.get('tensiune', '')}\n"
+        f"Mesajul conceptului: {idee.get('mesaj_unic', '')}\nDovada: {dovada or '-'}\n"
+        f"De ce acum: {idee.get('de_ce_acum', '')}\n"
+        f"Cadrele, în ordine (o bătaie pe cadru):\n{cadre}\n"
+    )
+
+
+def scrie(db: Session, livrabil_id: uuid.UUID, *, utilizator_id: uuid.UUID | None = None) -> Brief:
+    """Brieful unui livrabil `planificat` dintr-un calendar; îl mută în `briefat`. Idempotent: un brief
+    existent se
+    întoarce neschimbat. Ridică `gateway.Amanat`, `BriefInvalid` sau `RegulaCreier` (ghid de brand lipsă)."""
+    existent = al_livrabilului(db, livrabil_id)
+    if existent is not None:
+        return existent
+    lv = productie.blocheaza(db, livrabil_id)
+    if Stare(lv.stare) is not Stare.PLANIFICAT:
+        raise creier.RegulaCreier(f"brieful se scrie pentru un livrabil planificat, nu „{lv.stare}”")
+    slot = calendar.intrarea_livrabilului(db, lv.id)
+    if slot is None:
+        raise creier.RegulaCreier("livrabilul nu vine dintr-un calendar")
+    pachet = pachet_livrabil(db, lv, slot, utilizator_id=utilizator_id)
     if "ghid_brand" in pachet.lipsuri:
         raise creier.RegulaCreier("brieful cere ghidul de brand aprobat")
     disponibile = fapte_disponibile(pachet)
+    idee = idee_aleasa(db, lv.id)
+    if idee is not None and not idee.get("dovada_text"):
+        idee["dovada_text"] = disponibile.get(idee.get("dovada", ""), {}).get("text", "")
     prompturi.asigura()
     r = gateway.apeleaza(
         db,
@@ -217,6 +255,7 @@ def scrie(db: Session, livrabil_id: uuid.UUID, *, utilizator_id: uuid.UUID | Non
             "fapte": "\n".join(f"[{a}] {f['tip']}: {f['text']}" for a, f in disponibile.items())
             or "(niciun fapt relevant)",
             "context": context.ca_text(pachet),
+            "idee": text_idee(idee) or "(niciun concept ales: scrie din subiect)",
         },
     )
     if not isinstance(r.iesire, PropunereBrief):
@@ -236,6 +275,7 @@ def scrie(db: Session, livrabil_id: uuid.UUID, *, utilizator_id: uuid.UUID | Non
         "subiect": slot.subiect,
         "unghi": slot.unghi,
         "lipsuri": [x for x in pachet.lipsuri if x == "fapte_relevante"],
+        **({"idee": idee} if idee is not None else {}),
     }
     rand = Brief(
         id=new_id(),
@@ -280,6 +320,6 @@ def text_pentru_autor(continut: dict[str, Any]) -> str:
     return (
         f"Scop: {continut['scop']}\nPublic: {continut['public']}\nMesaj unic: {continut['mesaj_unic']}\n"
         f"Format: {continut['format']}\nApel la acțiune (unul singur): {continut['apel_la_actiune']}\n"
-        f"{vizual}{comercial}Interdicții: {interdictii}\n"
+        f"{vizual}{text_idee(continut.get('idee'))}{comercial}Interdicții: {interdictii}\n"
         f"Fapte permise (singurele cifre, prețuri și promisiuni permise):\n{fapte}"
     )

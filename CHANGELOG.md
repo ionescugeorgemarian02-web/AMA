@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F-idee (D-032) — etapa de idee înaintea briefului
+- `app/continut/idei.py`: 5 concepte din momentul real al publicului (`continut.idei@1`), critica pe șase criterii (`continut.critica_idee@1`, alt model când lanțul `creatie` are unul, altfel `autoevaluare`), validarea deterministă `probleme_concept` (verbe de acțiune, substantive concrete, mișcare ≥ 60% la video, ≤ 1 cadru text, fără majoritate de obiecte, dovadă din fapte aprobate, material propriu fără stock), alegerea cu realism/onestitate eliminatorii, o rescriere cu obiecțiile, apoi omul (`alege_manual`). Tabelul `idei_concepte` (migrarea `0143`, RLS), audit și urme.
+- Pipeline-ul rulează ideea înaintea briefului (`pipeline.idee_si_brief`, oprirea `idee_la_om`); `continut.brief@4`, `continut.postare@2`, `continut.script@3` scriu din concept; scriptul poartă `cadre`, iar storyboardul le folosește ca indicații în plus (filmarea preferată pentru cadrele cu mișcare).
+
 ### Corecții CI (PR #21)
 - `foto_dominanta`: fără zonă liberă pentru titlu, fotografia sus și titlul pe bandă (în loc de `TextPreaLung`). Testele: vocea simulată fără espeak-ng în `test_media_selectie_scene`; `test_media_verdict_editorial` nu mai lasă cererea în așteptare.
 

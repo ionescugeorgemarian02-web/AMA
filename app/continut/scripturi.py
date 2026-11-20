@@ -89,7 +89,7 @@ def _cere(
     tinta = durata_tinta(b)
     r = gateway.apeleaza(
         db,
-        prompt="continut.script@2",
+        prompt="continut.script@3",
         schema=ScriptVideo,
         tenant_id=lv.tenant_id,
         componenta="continut.script",
@@ -109,6 +109,11 @@ def _cere(
     if not isinstance(r.iesire, ScriptVideo):
         raise TypeError("ieșirea nu respectă schema promptului")
     return r.iesire, r.model
+
+
+def _cadre_idee(b: dict[str, object]) -> dict[str, object]:
+    idee = b.get("idee")
+    return {"cadre": idee["cadre"]} if isinstance(idee, dict) and idee.get("cadre") else {}
 
 
 def scrie_scriptul(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> validare.ContinutNou:
@@ -136,6 +141,8 @@ def scrie_scriptul(db: Session, lv: productie.Livrabil, b: dict[str, object]) ->
                     "durata_estimata_sec": estimata,
                     # F-editorial: natura decide ce face storyboardul cu o scenă fără material
                     "natura": "educativ" if b.get("natura") == "educativ" else "prezentare",
+                    # F-idee: cadrele conceptului ales sunt indicațiile vizuale ale storyboardului
+                    **_cadre_idee(b),
                 },
                 autor=COMPONENTA,
                 model_autor=model,

@@ -9,7 +9,9 @@ normalizate (litere mici, fără diacritice), fără cuvinte de umplutură și f
 litere. Două cuvinte se potrivesc dacă au un prefix comun de cel puțin 4 litere care acoperă cuvântul mai
 scurt, minus o terminație de cel mult 3 litere („transmisia” ↔ „transmisie”, „frânei” ↔ „frâne”). Scorul =
 cuvintele indicației găsite / toate cuvintele indicației. Câștigă scorul cel mai mare; la egalitate, activul
-nefolosit încă, apoi fotografia sau filmarea înaintea ilustrației, apoi id-ul (stabil).
+nefolosit încă, apoi fotografia sau filmarea înaintea ilustrației, apoi (pentru un cadru cu mișcare din
+conceptul ales, F-idee) filmarea înaintea fotografiei, apoi id-ul (stabil). Cadrele conceptului intră ca
+indicații în plus (`CerereScena.alternative`): scorul scenei e cel mai bun dintre indicații.
 
 O scenă `obligatorie` (o bătaie cu indicație proprie) fără potrivire rămâne „lipsă”, cu subiectul cerut. O
 scenă neobligatorie (hook, apel la acțiune) fără potrivire refolosește primul activ ales în storyboard, cu
@@ -86,6 +88,13 @@ class CerereScena:
     replica: str
     indicatie: str
     obligatorie: bool = True
+    # F-idee: cadrul conceptului (subiect + acțiune + context, interogările de stock), ca indicații în plus;
+    # scorul e cel mai bun dintre indicații, deci un cadru nu strică o potrivire care exista deja
+    alternative: tuple[str, ...] = ()
+    video: bool = False  # cadrul cere mișcare: la scor egal, filmarea înaintea fotografiei
+
+    def indicatii(self) -> list[str]:
+        return [x for x in (self.indicatie or self.replica, *self.alternative) if x.strip()]
 
 
 @dataclass(frozen=True)
@@ -119,14 +128,18 @@ def alege(scene: list[CerereScena], candidati: list[Candidat]) -> list[AlegereSc
     out: list[AlegereScena | None] = [None] * len(scene)
     amanate: list[int] = []
     for i, s in enumerate(scene):
-        subiect = subiect_cerut(s.indicatie or s.replica)
+        subiect = subiect_cerut(s.indicatie or (s.alternative[0] if s.alternative else s.replica))
         notate = []
         for c in pool:
-            scor, gasite = potrivire(s.indicatie or s.replica, f"{c.subiect} {c.descriere}")
+            text = f"{c.subiect} {c.descriere}"
+            scor, gasite = max((potrivire(i, text) for i in s.indicatii()), key=lambda p: p[0])
             if scor > 0:
-                notate.append((-scor, folosite.get(c.id, 0), c.rol == "ilustratie", str(c.id), c, gasite))
+                static = s.video and c.categorie != "video"
+                notate.append(
+                    (-scor, folosite.get(c.id, 0), c.rol == "ilustratie", static, str(c.id), c, gasite)
+                )
         if notate:
-            neg, _, _, _, c, gasite = min(notate, key=lambda t: t[:4])
+            neg, _, _, _, _, c, gasite = min(notate, key=lambda t: t[:5])
             reutil = f"; refolosit (a {folosite[c.id] + 1}-a oară)" if c.id in folosite else ""
             folosite[c.id] = folosite.get(c.id, 0) + 1
             out[i] = AlegereScena(

@@ -93,8 +93,8 @@ NUME_BRIEFURI = "continut.briefuri"
 def _brief(tenant_id: str, livrabil_id: str) -> str:
     """`gata`, `amanat:<moment ISO>` sau `refuzat:<motiv>` pentru brieful unui livrabil."""
     try:
-        with sesiune_tenant(uuid.UUID(tenant_id)) as db:
-            brief.scrie(db, uuid.UUID(livrabil_id))
+        if pipeline.idee_si_brief(uuid.UUID(tenant_id), uuid.UUID(livrabil_id)) == pipeline.IDEE_LA_OM:
+            return f"refuzat:{pipeline.IDEE_LA_OM}"
     except gateway.Amanat as amanat:
         return f"amanat:{amanat.pana_la.isoformat()}"
     except gateway.EroareGateway as exc:
@@ -185,7 +185,7 @@ def _pas_productie(tenant_id: str, livrabil_id: str) -> str:
 def produ_livrabilul(tenant_id: str, livrabil_id: str) -> str:
     r = pipeline.stare(uuid.UUID(tenant_id), uuid.UUID(livrabil_id)).value
     for _ in range(pipeline.MAXIM_PASI):
-        if r.startswith("refuzat:") or r == "fara_autor" or productie.Stare(r) not in pipeline.LUCRU:
+        if r.startswith("refuzat:") or r in pipeline.OPRIRI or productie.Stare(r) not in pipeline.LUCRU:
             return r
         r = _pas_productie(tenant_id, livrabil_id)
         if r.startswith("amanat:"):

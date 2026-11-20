@@ -249,14 +249,28 @@ def cerere_material(subiect: str) -> str:
 
 def scene_script(script: dict[str, Any]) -> list[selectie.CerereScena]:
     """Scenele, în ordinea frazelor (`fraze_din_script`): hook și apel fără indicație proprie, bătăile cu
-    indicația lor vizuală (obligatorie dacă există)."""
+    indicația lor vizuală (obligatorie dacă există). Cu `cadre` (conceptul ales, F-idee), bătaia j primește
+    cadrul j (subiect + acțiune + context și interogările de stock) ca indicații în plus."""
     out = []
     if str(script.get("hook", "")).strip():
         out.append(selectie.CerereScena(str(script["hook"]).strip(), "", obligatorie=False))
-    for b in script.get("batai", []):
+    cadre = [c for c in script.get("cadre", []) if isinstance(c, dict) and c.get("tip") != "text"]
+    for j, b in enumerate(x for x in script.get("batai", []) if str(x.get("voce", "")).strip()):
         voce, vizual = str(b.get("voce", "")).strip(), str(b.get("vizual", "")).strip()
-        if voce:
-            out.append(selectie.CerereScena(voce, vizual, obligatorie=bool(vizual)))
+        cadru = cadre[j] if j < len(cadre) else None
+        alternative: tuple[str, ...] = ()
+        if cadru is not None:
+            descriere = " ".join(str(cadru.get(k, "")) for k in ("subiect", "actiune", "context")).strip()
+            alternative = tuple(x for x in (descriere, *map(str, cadru.get("interogari", []))) if x.strip())
+        out.append(
+            selectie.CerereScena(
+                voce,
+                vizual,
+                obligatorie=bool(vizual or alternative),
+                alternative=alternative,
+                video=bool(cadru and cadru.get("tip") == "video"),
+            )
+        )
     if str(script.get("cta", "")).strip():
         out.append(selectie.CerereScena(str(script["cta"]).strip(), "", obligatorie=False))
     return out
