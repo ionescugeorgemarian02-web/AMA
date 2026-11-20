@@ -43,7 +43,7 @@ def test_campanie(
 
     raport = {
         "executate": [],
-        "simulate": ["date client", "aprobările umane"],
+        "simulate": ["date client", "aprobările umane", "alinierea subtitrării pe textul cunoscut"],
         "omise": ["publicare externă", "judecător independent", "atribuire comercială live"],
     }
 
@@ -135,10 +135,9 @@ def test_campanie(
         with sesiune_tenant(tenant, om) as db:
             c = validare.continut.citeste(db, lid)
             (iesire / f"{tip}.txt").write_text(c.text)
-            cop = next(
-                s for s in sabloane.asigura_sabloane(db, tenant, dosar.marca) if s.tip == "coperta_video"
-            )
-            _, imagine = compozitor.creeaza(db, tenant, cop, {"titlu": dosar.produs})
+            tip_sablon = "coperta_video" if tip == "script_video_scurt" else "anunt"
+            cop = next(s for s in sabloane.asigura_sabloane(db, tenant, dosar.marca) if s.tip == tip_sablon)
+            _, imagine = compozitor.creeaza(db, tenant, cop, {"titlu": c.campuri.get("hook") or dosar.produs})
             (iesire / f"coperta-{tip}.png").write_bytes(imagine.png)
             versiune = c.versiune
         if tip == "script_video_scurt":

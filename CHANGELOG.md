@@ -566,4 +566,4 @@ Format: o intrare pe pas, cea mai nouă sus.
 - OAuth pe query brut, HMAC comparat în bytes și expirare callback la 5 minute.
 - Panoul folosește maparea persistentă a codurilor de reducere per magazin.
 
-- 2026-11-20 · Pilot AMA pe GitHub Actions, producție din calendar, indicatori de campanie, oferte cu surse, exporturi video versionate, atribuire comercială și import Search Console. Detalii și limite în JURNAL.md.
+- 2026-11-20 · Pilot AMA pe GitHub Actions, producție din calendar, indicatori de campanie, oferte cu surse, exporturi video versionate, atribuire comercială și import Search Console. Animațiile folosesc identitatea clientului și simboluri alese după subiect. Detalii și limite în JURNAL.md.

@@ -89,7 +89,8 @@ def pregateste_script(tenant_id: str, livrabil_id: str, versiune: str) -> str:
     from sqlalchemy import select
 
     from app import productie, validare
-    from app.media import animatie, biblioteca, licente, normalizare, regizor, transcriere
+    from app.conturi.modele import Client
+    from app.media import animatie, biblioteca, licente, normalizare, regizor, sabloane, transcriere
 
     tid, lid = uuid.UUID(tenant_id), uuid.UUID(livrabil_id)
     with sesiune_tenant(tid) as db:
@@ -121,7 +122,23 @@ def pregateste_script(tenant_id: str, livrabil_id: str, versiune: str) -> str:
         ]
         if not active:
             intervale = regizor.momente_batai(fraze, voce.aliniere, voce.naratiune.durata + regizor.COADA)
-            active = animatie.clipuri_script(db, tid, script, [b - a for a, b in intervale])
+            ident, _ = sabloane.identitate(
+                db, tid, db.scalars(select(Client.nume).where(Client.id == tid)).one()
+            )
+            paleta = ident["culori"]
+            active = animatie.clipuri_script(
+                db,
+                tid,
+                script,
+                [b - a for a, b in intervale],
+                eticheta=ident["nume"],
+                culori={
+                    "fundal": paleta["fundal"],
+                    "fundal2": paleta["secundara"],
+                    "text": paleta["text"],
+                    "accent": paleta["primara"],
+                },
+            )
         lm = regizor.regizeaza(
             db,
             tid,

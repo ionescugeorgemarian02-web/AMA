@@ -12,6 +12,7 @@ repo: fontul Montserrat (SIL OFL) și iconițele Lucide (ISC). Textul ocupă zon
 """
 
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -38,7 +39,7 @@ ICONITE: tuple[tuple[str, str], ...] = (
     ("temperatur", "thermometer"), ("cadou", "gift"), ("magazin", "store"), ("cafenea", "store"),
     ("adresa", "map-pin"), ("brasov", "map-pin"), ("fermier", "hand-heart"), ("iubi", "heart"),
     ("calitat", "star"), ("pachet", "package"), ("cafe", "coffee"), ("espresso", "coffee"),
-    ("filtru", "coffee"),
+    ("filtru", "coffee"), ("program", "calendar"), ("revizi", "calendar"),
 )  # fmt: skip
 
 
@@ -56,7 +57,7 @@ def iconita(text: str) -> str:
     for cheie, nume in ICONITE:
         if any(c.strip(".,;:!?„”\"'()").startswith(cheie) for c in cuvinte):
             return nume
-    return "coffee"
+    return "sparkles"
 
 
 def _binar(nume: str) -> str:
@@ -93,10 +94,15 @@ def randeaza(
     with tempfile.TemporaryDirectory() as d:
         cadre = Path(d) / "cadre"
         cadre.mkdir()
+        simbol = iconita(f"{titlu} {indicatie}")
+        svg = (ACTIVE / "iconite" / f"{simbol}.svg").read_text()
+        paleta = CULORI_IMPLICITE if culori is None else culori
+        if not all(re.fullmatch(r"#[0-9A-Fa-f]{6}", paleta.get(rol, "")) for rol in CULORI_IMPLICITE):
+            raise ValueError("Paleta animației cere patru culori hexazecimale.")
         intrare = {
             "latime": latime, "inaltime": inaltime, "fps": FPS, "durata": durata, "titlu": titlu.strip(),
-            "eticheta": eticheta, "icon": (ACTIVE / "iconite" / f"{iconita(titlu)}.svg").read_text(),
-            "particula": (ACTIVE / "iconite" / "bean.svg").read_text(), "culori": culori or CULORI_IMPLICITE,
+            "eticheta": eticheta, "icon": svg,
+            "particula": svg, "culori": {rol: paleta[rol] for rol in CULORI_IMPLICITE},
             "fonturi": str(ACTIVE / "fonturi"), "varianta": varianta, "samanta": samanta,
             "iesire": str(cadre), "comparatie_macinare": comparatie_macinare(titlu, indicatie),
         }  # fmt: skip
@@ -151,7 +157,7 @@ def clip(
             "statut": licente.STATUT_OK,
             "componente": [
                 {"font": "Montserrat", "licenta": "SIL Open Font License 1.1"},
-                {"iconita": iconita(titlu), "set": "Lucide", "licenta": "ISC"},
+                {"iconita": iconita(f"{titlu} {indicatie}"), "set": "Lucide", "licenta": "ISC"},
                 {"randator": "animatie_interna", "identitate": eticheta},
             ],
         },

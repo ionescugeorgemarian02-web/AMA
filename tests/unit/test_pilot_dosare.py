@@ -18,3 +18,11 @@ def test_comparatia_macinaturii_foloseste_indicatia_din_scenariu() -> None:
 
     assert comparatie_macinare("Cum alegi?", "Compară măcinătura fină și medie.")
     assert not comparatie_macinare("Programează revizia", "Mecanicul verifică frânele.")
+
+
+def test_simbolurile_urmeaza_subiectul_fiecarui_client() -> None:
+    from app.media.animatie import iconita
+
+    assert iconita("Programează revizia bicicletei") == "calendar"
+    assert iconita("Mecanicul verifică frânele") == "sparkles"
+    assert iconita("Cum macini cafeaua?") == "bean"
