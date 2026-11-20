@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F-idee — stock-ul Commons rezistă la limitarea de rată
+- `stock_commons.http_get`: cereri seriale (≥ 1 s între ele), la 429/503 până la 6 încercări cu pauza din `Retry-After` (cel mult 60 s) sau exponențială; alte 4xx (ex. 403) nu se mai reîncearcă. Jobul `idee` picase cu „HTTP Error 429: Too Many Requests” de la API-ul Commons.
+- `.secrets.baseline`: amprentele SHA-256 ale prompturilor din `tests/date/idei/spita.json` marcate ca fals pozitive (garda de secrete picase pe ele).
+
 ### F-idee — ideea ține cont de inventarul real al clientului
 - `continut.idei@2` și `continut.critica_idee@2` primesc inventarul (`idei.inventar`: fotografiile și filmările proprii din portal/client, cu subiectele, plus stock-ul generic): conceptul e realizabil cu ce există acum; cel mult un cadru propriu `de_filmat`; stock-ul nu numește clientul. Critica notează fezabilitatea după inventar.
 - `probleme_concept(..., inventar=)`: peste 1 cadru propriu fără material (20% din cadre) → „nerealizabil cu inventarul actual”; cadrul de stock care numește clientul pică. `alege` preferă conceptele realizabile; dacă niciunul, alege cel mai bun și deschide cereri de filmare (`media.cereri.cere_filmare`, versiunea 0, scena = cadrul).

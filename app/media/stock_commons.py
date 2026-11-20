@@ -10,7 +10,8 @@ necunoscute.
   ffmpeg la MP4 H.264 vertical 1080×1920, fără sunet, cel mult 15 s (decupare centrată; scalare cu fundal
   estompat doar pentru cadre panoramice, unde decuparea ar pierde subiectul).
 
-Rețeaua: doar https, User-Agent generic, limită de timp și câteva reîncercări. Testele injectează `http`.
+Rețeaua: doar https, User-Agent generic, limită de timp, cereri seriale (cel puțin 1 s între ele) și
+reîncercări; la limitarea de rată (429/503) se respectă `Retry-After`. Testele injectează `http`.
 """
 
 import html
@@ -19,6 +20,7 @@ import json
 import re
 import tempfile
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable, Mapping
@@ -253,22 +255,60 @@ def ca_jpeg(corp: bytes) -> bytes:
 # --- rețeaua
 
 
-def http_get(url: str, antete: Mapping[str, str], *, incercari: int = 3, timp: float = 30.0) -> bytes:
+STATUS_LIMITARE = (429, 503)  # limitare de rată / suprasolicitare: se reîncearcă după `Retry-After`
+INCERCARI_LIMITARE = 6
+ASTEPTARE_MAX = 60.0  # o singură pauză nu trece de un minut, oricât cere serverul
+PAUZA_MIN = (
+    1.0  # cereri seriale, rare: eticheta API-ului Wikimedia (o rafală de pe IP-ul CI-ului primește 429)
+)
+_ultima_cerere = 0.0
+
+
+def _asteptare_limitare(eroare: urllib.error.HTTPError, k: int) -> float:
+    """Pauza după un 429/503: `Retry-After` (în secunde) dacă e dat, altfel exponențial (2, 4, 8, … s)."""
+    try:
+        cerut = float(eroare.headers.get("Retry-After") or "")
+    except (TypeError, ValueError):
+        cerut = 2.0 * 2**k
+    return min(ASTEPTARE_MAX, max(1.0, cerut))
+
+
+def http_get(
+    url: str,
+    antete: Mapping[str, str],
+    *,
+    incercari: int = 3,
+    timp: float = 30.0,
+    dormi: Callable[[float], None] = time.sleep,
+) -> bytes:
+    """GET https cu reîncercări. Erorile de rețea și 5xx: `incercari` încercări. Limitarea de rată (429,
+    503): până la `INCERCARI_LIMITARE`, cu pauza cerută de server (`Retry-After`) sau exponențială.
+    Alte 4xx: imediat."""
+    global _ultima_cerere
     if not url.startswith("https://"):
         raise ValueError("doar https")
     cerere = urllib.request.Request(url, headers={"User-Agent": UA, **antete})  # noqa: S310 (doar https)
-    for k in range(incercari):
+    k = 0
+    while True:
+        if (rest := PAUZA_MIN - (time.monotonic() - _ultima_cerere)) > 0:
+            dormi(rest)
+        _ultima_cerere = time.monotonic()
         try:
             with urllib.request.urlopen(cerere, timeout=timp) as r:  # noqa: S310 (doar https)
                 corp = bytes(r.read(OCTETI_MAX + 1))
             if len(corp) > OCTETI_MAX:
                 raise ValueError("fișier prea mare")
             return corp
-        except OSError:
-            if k == incercari - 1:
+        except urllib.error.HTTPError as e:
+            limitare = e.code in STATUS_LIMITARE
+            if (not limitare and e.code < 500) or k >= (INCERCARI_LIMITARE if limitare else incercari) - 1:
                 raise
-            time.sleep(1.5 * (k + 1))
-    raise RuntimeError("inaccesibil")
+            dormi(_asteptare_limitare(e, k) if limitare else 1.5 * (k + 1))
+        except OSError:
+            if k >= incercari - 1:
+                raise
+            dormi(1.5 * (k + 1))
+        k += 1
 
 
 class StockCommons:

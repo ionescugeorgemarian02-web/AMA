@@ -258,3 +258,59 @@ def test_scriptul_de_proba_porneste() -> None:
     r = subprocess.run([sys.executable, str(rad / "scripts/stock_proba.py"), "--help"], capture_output=True, text=True,
                        check=False, cwd=rad)  # fmt: skip
     assert r.returncode == 0 and "--tip" in r.stdout
+
+
+class _Raspuns(io.BytesIO):
+    def __enter__(self) -> "_Raspuns":
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self.close()
+
+
+def _urlopen_cu(raspunsuri: list[Any], cereri: list[str]) -> Any:
+    def urlopen(cerere: Any, timeout: float) -> _Raspuns:
+        cereri.append(cerere.full_url)
+        r = raspunsuri.pop(0)
+        if isinstance(r, Exception):
+            raise r
+        return _Raspuns(r)
+
+    return urlopen
+
+
+def _http_error(cod: int, retry_after: str | None = None) -> Any:
+    import email.message
+    import urllib.error
+
+    antete = email.message.Message()
+    if retry_after is not None:
+        antete["Retry-After"] = retry_after
+    return urllib.error.HTTPError("https://commons.wikimedia.org/w/api.php", cod, "x", antete, None)
+
+
+def test_http_get_respecta_limitarea_de_rata(monkeypatch: pytest.MonkeyPatch) -> None:
+    """429 (cu și fără `Retry-After`) și 503 se reîncearcă după pauza cerută; cererile sunt rărite."""
+    cereri: list[str] = []
+    raspunsuri = [_http_error(429, "7"), _http_error(429), _http_error(503, "500"), b"{}"]
+    monkeypatch.setattr(sc.urllib.request, "urlopen", _urlopen_cu(raspunsuri, cereri))
+    pauze: list[float] = []
+    assert sc.http_get("https://commons.wikimedia.org/w/api.php?q=1", {}, dormi=pauze.append) == b"{}"
+    assert len(cereri) == 4
+    lungi = [p for p in pauze if p > sc.PAUZA_MIN]  # fără pauzele de rărire (≤ 1 s)
+    assert lungi == [7.0, 4.0, sc.ASTEPTARE_MAX]
+
+
+def test_http_get_renunta_dupa_limitarea_persistenta_si_la_4xx(monkeypatch: pytest.MonkeyPatch) -> None:
+    cereri: list[str] = []
+    monkeypatch.setattr(
+        sc.urllib.request, "urlopen", _urlopen_cu([_http_error(429)] * sc.INCERCARI_LIMITARE, cereri)
+    )
+    with pytest.raises(sc.urllib.error.HTTPError, match="429"):
+        sc.http_get("https://commons.wikimedia.org/w/api.php", {}, dormi=lambda _: None)
+    assert len(cereri) == sc.INCERCARI_LIMITARE
+    cereri.clear()
+    monkeypatch.setattr(sc.urllib.request, "urlopen", _urlopen_cu([_http_error(403)], cereri))
+    with pytest.raises(sc.urllib.error.HTTPError, match="403"):
+        sc.http_get("https://commons.wikimedia.org/w/api.php", {}, dormi=lambda _: None)
+    assert len(cereri) == 1  # un refuz (ex. proxy-ul local) nu se reîncearcă

@@ -987,3 +987,7 @@ A și B au trecut (2 passed).
 - Verificat: `tests/unit` (2046 trecute), `test_continut_idei`, `test_editorial_spita`, `test_idee_spita` (`AMA_IDEE_FALS=1`), testele de integrare ale lanțului de conținut, ruff, mypy, `make guards`. `test_poarta_f6` a picat o dată pe timeout de pool (DBOS), trecut la reluare, la fel de lent ca pe baza neschimbată (~120 s).
 - Deschis: `tests/date/idei/spita.json` șters; jobul CI `idee` (redare) pică până la reînregistrarea prin punte.
 
+### Reparația CI după reînregistrarea Spița (rularea 44803503554, Claude Opus 5.5)
+- `check` / gărzi: detect-secrets a semnalat 11 „Hex High Entropy String” în `tests/date/idei/spita.json` — toate sunt `prompt_sha256` (amprente, nu secrete); baseline actualizat.
+- `idee`: API-ul Commons a răspuns 429 (rafală de căutări de pe IP-ul runner-ului; reîncercările de 1,5/3 s nu ajungeau). `http_get` rărește cererile și respectă `Retry-After`; teste unitare noi pe 429/503/403.
+- Verificat local: testele unitare de stock, demonstrația `idee` (stock simulat: Commons e blocat local cu 403), ruff, mypy app, make guards. NEVERIFICAT local: stock-ul real Commons (doar în CI).
