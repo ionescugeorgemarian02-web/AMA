@@ -50,6 +50,8 @@ def test_mp4_cu_g6_trecut_si_sigla_in_scene_e_respins_editorial_si_apare_la_apro
         assert ed["mesaj"] == "Scenele 0–4 folosesc aceeași siglă. Revino la selecția materialelor."
         assert [c["scena"] for c in ed["cadre"]] == [0, 1, 2, 3, 4]
         assert all(c["activ_id"] == str(sigla.id) for c in ed["cadre"])
+        # G6 trecut nu ajunge: un export respins editorial nu apare ca pregătit pentru publicare
+        assert montaj.video_verificat(db, tenant, lid, r.masuratori["versiune_continut"]) is None
         assert ed["evaluare_vizuala"]["stare"] == "neverificata"  # niciun model cu imagini, niciun operator
         foaie = db.get(Activ, uuid.UUID(ed["plansa_activ_id"]))
         assert foaie is not None and foaie.rol_vizual == "export"

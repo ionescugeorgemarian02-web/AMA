@@ -217,7 +217,8 @@ def ale_clientului(db: Session, tenant_id: uuid.UUID) -> list[Randare]:
 
 
 def video_verificat(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID, versiune: int) -> Activ | None:
-    """Primul export final trecut de G6 pentru exact această versiune."""
+    """Primul export final trecut de G6 și nerespins editorial, pentru exact această versiune (un clip respins
+    editorial, de exemplu numai cu sigla, nu poate apărea ca pregătit pentru publicare)."""
     return db.scalars(
         select(Activ)
         .join(Randare, Randare.activ_id == Activ.id)
@@ -228,6 +229,7 @@ def video_verificat(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID, v
             Randare.calitate == "final",
             Randare.stare == "gata",
             Randare.control["G6"]["rezultat"].astext == "trece",
+            Randare.control["editorial"]["rezultat"].astext.is_distinct_from("respins"),
             Randare.masuratori["versiune_continut"].as_integer() == versiune,
         )
         .order_by(Randare.terminat_la, Randare.id)
