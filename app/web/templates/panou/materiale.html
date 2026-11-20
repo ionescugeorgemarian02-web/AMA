@@ -1,0 +1,60 @@
+{% extends "panou/baza.html" %}
+{% block title %}Materiale · AMA{% endblock %}
+{% block pagina %}
+<h1>Materiale</h1>
+{% if mesaj %}<p class="mesaj" role="status">{{ mesaj }}</p>{% endif %}
+{% if eroare %}<p class="mesaj eroare" role="alert">{{ eroare }}</p>{% endif %}
+<p class="slab">Rolul vizual spune unde poate apărea un fișier. Sigla, coperțile și exporturile nu intră niciodată în scene. Subiectul descrie ce se vede și ajută la alegerea cadrelor.</p>
+<form method="get" action="/materiale" class="card">
+  <label for="client">Client</label>
+  <select id="client" name="client">
+    <option value="">Alege clientul</option>
+    {% for id, nume in clienti.items() %}<option value="{{ id }}"{% if id == client %} selected{% endif %}>{{ nume }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="secundar">Arată</button>
+</form>
+
+{% if client %}
+<section class="card" aria-labelledby="cereri">
+  <h2 id="cereri">Material cerut</h2>
+  {% for c in cereri %}
+  <article class="card" aria-label="Cererea pentru scena {{ c.scena }}">
+    <p><strong>{{ c.cerere }}</strong></p>
+    <p class="slab">Livrabilul {{ c.livrabil_id }} · versiunea {{ c.versiune }} · scena {{ c.scena }}</p>
+    {% if poate_edita %}
+    <form method="post" action="/materiale/{{ client }}/livrabile/{{ c.livrabil_id }}/reia">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit" class="secundar">Reia livrabilul după încărcare</button>
+    </form>
+    {% endif %}
+  </article>
+  {% else %}
+  <p class="slab">Niciun livrabil nu așteaptă material.</p>
+  {% endfor %}
+</section>
+
+<section class="card" aria-labelledby="neclasificate">
+  <h2 id="neclasificate">De clasificat</h2>
+  {% for a in neclasificate %}
+  <article class="card" aria-label="{{ a.nume_original }}">
+    <h3>{{ a.nume_original }} <span class="insigna atentie">rol incert</span></h3>
+    <p class="slab">{{ a.categorie }} · {{ a.sursa }}{% if a.descriere %} · {{ a.descriere }}{% endif %}</p>
+    {% if poate_edita %}
+    <form method="post" action="/materiale/{{ client }}/active/{{ a.id }}/clasifica">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="rol-{{ a.id }}">Rol vizual</label>
+      <select id="rol-{{ a.id }}" name="rol" required>
+        {% for cod, eticheta in roluri.items() %}<option value="{{ cod }}">{{ eticheta }}</option>{% endfor %}
+      </select>
+      <label for="subiect-{{ a.id }}">Ce se vede</label>
+      <input id="subiect-{{ a.id }}" name="subiect" maxlength="200" placeholder="de exemplu: transmisie, lanț pe pinion">
+      <button type="submit">Salvează</button>
+    </form>
+    {% endif %}
+  </article>
+  {% else %}
+  <p class="slab">Toate fotografiile și filmările au rol.</p>
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}
