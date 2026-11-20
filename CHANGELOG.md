@@ -4,6 +4,11 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F-editorial (punctele 6–7) — verdict editorial și demonstrația A/B
+- `control.verdict_editorial`, separat de G6: sigla ca subiect, activ repetat, text ieșit din cadru, material lipsă, export al altei versiuni; mesaj cu etapa de reluat, starea evaluării vizuale, planșa cu un cadru pe scenă. Persistat în `randari.control["editorial"]`, afișat la aprobare (panou și portal) cu planșa.
+- Caruselul folosește fotografia potrivită ideii; fără ea, cadrul rămâne tipografic.
+- `scripts/foto_test_commons.py`, `tests/integration/test_editorial_spita.py` și jobul `editorial` din CI (artefactul `editorial-spita`).
+
 ### F-editorial (punctele 4–5) — machete editoriale, montaj și voce
 - `compozitor`: machetele `foto_dominanta`, `detaliu_explicat`, `carusel` (decupare pe zona subiectului, titlul în zona cea mai liniștită cu voal, sigla discretă), verificarea la 360 px (`verifica_export`, `MachetaIlizibila`) și `exporta` (alegerea din brief + active; fără fotografie, macheta tipografică cu notă; `rol_vizual='coperta'`). `sabloane`: sistemul tipografic restrâns și `alege_macheta`.
 - Montaj: `regizor.reutilizari` (raportată în `randari.masuratori`), subtitrările urcă sus (`StilSubtitrari.pozitie='sus'`) când subiectul sau prețul stă jos; textul animat pe ecran ≤ 6 cuvinte. Durata urmează vocea: `scripturi.se_incadreaza` nu mai cere minimum −15% din țintă (doar plafon și 8 s).

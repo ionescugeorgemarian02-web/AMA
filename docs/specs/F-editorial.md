@@ -57,6 +57,8 @@ Clipul trecuse G6, iar imaginea de feed nu conținea decât text și siglă. Baz
 8. **Demonstrația A/B** e un test determinist (`tests/integration/test_editorial_spita.py`) care rulează în CI
    la fiecare PR și urcă artefactele (jobul `editorial` din `ci.yml`). Textele, oferta de 120 lei și dosarul sunt
    fixe; nu se apelează niciun model. Cazul A are doar sigla: livrabilul e blocat, cu cadrele lipsă enumerate.
-   Cazul B are sigla și trei fotografii reale, cu licență liberă, din Wikimedia Commons (licența e documentată
-   în `tests/date/spita/LICENTE.md`). Rezultatul B: imagine de feed, carusel, MP4 vertical cu voce și
-   subtitrări, storyboard, planșă, G6, verdict editorial și mostra audio.
+   Cazul B are sigla și trei fotografii reale, cu licență liberă, din Wikimedia Commons, descărcate în CI de
+   `scripts/foto_test_commons.py` (licențele, autorii și sha256 în `LICENTE.json`, urcat cu artefactele). Fără
+   ele, testul folosește trei imagini procedurale și scrie în raport „fotografii procedurale, nu reale”.
+   Rezultatul B: imagine de feed, carusel, MP4 vertical cu voce și subtitrări, storyboard, planșă, G6,
+   verdict editorial și mostra audio.
