@@ -213,8 +213,8 @@ def logo_activ(db: Session, tenant_id: uuid.UUID, ident: dict[str, Any]) -> Acti
 
 def alege_macheta(brief: dict[str, Any], fotografii: int) -> tuple[str, str]:
     """(macheta, nota) din brieful vizual (`natura`, `ce_vede_publicul`, `format`) și numărul de fotografii
-    potrivite. Nucleu pur. Caruselul e tipografic, deci nu cere fotografie; restul da: fără fotografie,
-    macheta tipografică existentă, cu o notă onestă."""
+    potrivite. Nucleu pur. Caruselul nu cere fotografie (cadrele fără fotografie potrivită rămân tipografice);
+    restul da: fără fotografie, macheta tipografică existentă, cu o notă onestă."""
     ce_vede = str(brief.get("ce_vede_publicul") or "").strip()
     if str(brief.get("format") or "").lower() == "carusel":
         return "carusel", ""

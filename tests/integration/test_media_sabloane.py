@@ -114,6 +114,13 @@ def test_machetele_editoriale_aleg_dupa_brief_si_active_si_nu_reintra_in_scene(
                                   "pas": "Programează revizia"})  # fmt: skip
         assert car.macheta == "carusel" and len(car.imagini) == 4
         assert all(x.rol_vizual == "coperta" for x in car.active)
+        assert all(str(foto.id) not in str(x.licenta) for x in car.active)  # nicio idee nu cere atelierul
+        # o idee potrivită cu fotografia: cadrul ei folosește fotografia (+ legenda), restul rămân tipografice
+        cu = compozitor.exporta(db, t, "Atelierul Spița", {**brief, "format": "carusel"},
+                                {"intrebare": "Ce verificăm?", "idei": ["Mecanicul și bicicleta\nîn atelier",
+                                                                       "Disc murdar"], "pas": "Programează"})  # fmt: skip
+        assert [x.generare["pozitie_titlu"] for x in cu.active] == ["sus", "banda", "sus", "sus"]
+        assert {c["activ_id"] for c in cu.active[1].licenta["componente"]} >= {str(foto.id)}
         # exporturile nu reintră în scene (decizia 2)
         cand = {c.id for c in regizor.candidati(biblioteca.ale_clientului(db, t))}
         from app.media import selectie

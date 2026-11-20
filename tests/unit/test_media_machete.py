@@ -81,6 +81,20 @@ def test_caruselul_are_aceeasi_grila_si_intoarce_png_uri() -> None:
     assert len(pngs) == 3 and all(p.startswith(b"\x89PNG") for p in pngs)
 
 
+def test_caruselul_foloseste_fotografia_potrivita_ideii_altfel_ramane_tipografic() -> None:
+    foto = fotografie_procedurala()
+    cadre = compozitor.carusel_cadre(
+        "De ce scârțâie frâna?", ["Pinionul uzat\nDinții ascuțiți rup lanțul", "Disc murdar"],
+        "Programează o revizie de 120 lei", IDENT, logo=LOGO, fotografii=[(foto, {}), None],
+    )  # fmt: skip
+    for k, m in enumerate(cadre):
+        _salveaza(f"carusel-foto-{k + 1}.png", m.png)
+        assert m.nume == "carusel" and compozitor.verifica_export(m) == []
+    assert cadre[1].subiect is not None and cadre[1].pozitie_titlu == "banda"  # fotografia + legenda
+    assert len(cadre[1].texte) == 2  # eticheta și legenda
+    assert cadre[2].subiect is None and cadre[2].pozitie_titlu == "sus"  # fără fotografie: tipografic
+
+
 @pytest.mark.parametrize(
     ("brief", "foto", "asteptat"),
     [

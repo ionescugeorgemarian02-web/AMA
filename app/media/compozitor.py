@@ -11,7 +11,7 @@ logo, fotografii), pe care G5 o verifică din pixeli.
 
 import io
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageStat
@@ -140,6 +140,10 @@ def compune(
     )  # fmt: skip
 
 
+def _dimensiuni(png: bytes) -> tuple[int, int]:
+    return Image.open(io.BytesIO(png)).size
+
+
 def creeaza(
     db: Session,
     tenant_id: uuid.UUID,
@@ -174,7 +178,8 @@ def creeaza(
         rol_vizual="coperta",
         descriere=f"{sablon.tip}: {' / '.join(texte.values())[:200]}",
         licenta={"tip": "productie_proprie", "statut": licente.STATUT_OK, "componente": componente},
-        generare={"sablon": sablon.tip, "versiune": sablon.versiune, "texte": texte},
+        generare={"sablon": sablon.tip, "versiune": sablon.versiune, "texte": texte,
+                  "cutii_text": [list(t[0]) for t in c.texte], "dimensiuni": list(_dimensiuni(c.png))},
     )  # fmt: skip
     v = vizual.verdict(c.png, c.asteptari)
     provenienta.emite(db, a, validari={"G5": {"rezultat": v.rezultat.value,
@@ -560,11 +565,15 @@ def carusel_cadre(
     ident: dict[str, Any],
     *,
     logo: bytes | None = None,
+    fotografii: list[tuple[bytes, dict[str, Any]] | None] | None = None,
     latime: int = 1080,
     inaltime: int = 1350,
 ) -> list[Macheta]:
     """N cadre cu aceeași grilă, tipografie și paletă: întâi întrebarea, apoi câte o idee pe cadru, la urmă
-    pasul următor. O idee „titlu\\ncorp” are și un rând de corp sub titlu."""
+    pasul următor. O idee „titlu\\ncorp” are și un rând de corp sub titlu. `fotografii` (aliniate cu
+    `idei`, `(corp, generare)` sau `None`): cadrul intermediar cu fotografie potrivită e o fotografie
+    apropiată cu eticheta și legenda în bandă (stilul `detaliu_explicat`); doar fără fotografie rămâne
+    tipografic."""
     c = ident["culori"]
     cadre = [intrebare, *idei, pas_urmator]
     n = len(cadre)
@@ -572,6 +581,15 @@ def carusel_cadre(
     out = []
     for k, text in enumerate(cadre):
         prima, ultima = k == 0, k == n - 1
+        foto = None
+        if fotografii and not prima and not ultima and k - 1 < len(fotografii):
+            foto = fotografii[k - 1]
+        if foto is not None:
+            titlu, _, corp = text.partition("\n")
+            m = detaliu_explicat(foto[0], titlu, ident, logo=logo, generare=foto[1], legenda=corp.strip(),
+                                 latime=latime, inaltime=inaltime)  # fmt: skip
+            out.append(replace(m, nume="carusel"))
+            continue
         fundal, cul = (c["primara"], c["alb"]) if prima else (c["fundal"], c["text"])
         img = Image.new("RGB", (latime, inaltime), fundal)
         desen = ImageDraw.Draw(img)
@@ -676,6 +694,24 @@ def fotografii_potrivite(active: list[Activ], ce_vede: str) -> list[Activ]:
     )
 
 
+def fotografii_pe_idei(idei: list[str], fotografii: list[Activ]) -> list[Activ | None]:
+    """Fotografia potrivită fiecărei idei din carusel (`selectie.potrivire` pe subiect + descriere), întâi
+    una nefolosită încă; `None` când nicio fotografie nu se potrivește (cadrul rămâne tipografic)."""
+    folosite: set[uuid.UUID] = set()
+    out: list[Activ | None] = []
+    for idee in idei:
+        notate = [
+            (-scor, a.id in folosite, str(a.id), a)
+            for a in fotografii
+            if (scor := selectie.potrivire(idee, f"{a.subiect or ''} {a.descriere or ''}")[0]) > 0
+        ]
+        ales = min(notate, key=lambda t: t[:3])[3] if notate else None
+        if ales is not None:
+            folosite.add(ales.id)
+        out.append(ales)
+    return out
+
+
 def _salveaza(
     db: Session, tenant_id: uuid.UUID, m: Macheta, k: int, componente: list[Activ], generare: dict[str, Any]
 ) -> Activ:
@@ -702,6 +738,8 @@ def _salveaza(
             "cadru": k + 1,
             "pozitie_titlu": m.pozitie_titlu,
             "zona_subiect": list(m.subiect) if m.subiect else None,
+            "cutii_text": [list(t) for t in m.texte],
+            "dimensiuni": [m.latime, m.inaltime],
         },
     )
     v = vizual.verdict(m.png, m.asteptari)
@@ -739,12 +777,20 @@ def exporta(
     logo = biblioteca.citeste_fisier(sigla)
     componente = [sigla]
     if macheta == "carusel":
+        idei = [str(x) for x in texte.get("idei") or []]
+        pe_idei = fotografii_pe_idei(idei, fotografii)
+        for f in pe_idei:
+            if f is not None and f not in componente:
+                componente.append(f)
         cadre = carusel_cadre(
             str(texte.get("intrebare") or titlu),
-            [str(x) for x in texte.get("idei") or []],
+            idei,
             str(texte.get("pas") or ""),
             ident,
             logo=logo,
+            fotografii=[
+                None if f is None else (biblioteca.citeste_fisier(f), f.generare or {}) for f in pe_idei
+            ],
         )
     else:
         foto = fotografii[0]
