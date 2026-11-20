@@ -949,3 +949,16 @@ GitHub Actions a trecut ambele verificări, `check` și `imagine`, la commitul p
 - Rularea 44752194357: `editorial` pica în `foto_dominanta` cu `TextPreaLung` (fotografia reală de pe Commons, 3:2, are subiectul pe aproape toată înălțimea decupajului 4:5, iar banda liberă rămasă nu ținea titlul nici la 64 px). Acum, fără zonă liberă destul de înaltă (sau când singura zonă atinge subiectul), fotografia stă sus și titlul pe o bandă dedesubt (`pozitie_titlu='banda'`), fără să acopere subiectul; test unitar cu o fotografie texturată 3:2.
 - `check` pica de două ori: `test_media_selectie_scene` cerea espeak-ng (lipsește în jobul `check`) — vocea e acum simulată acolo unde espeak-ng lipsește, ca în `test_media_voce`; `test_panou` vedea cererea lăsată în așteptare de `test_media_verdict_editorial` (coada de aprobări e comună), care acum își anulează cererea la final.
 - Verificat local: testele de mai sus (inclusiv selecția scenelor cu espeak-ng ascuns din PATH), `test_editorial_spita` cu imagini procedurale, `test_media_sabloane`, Ruff check/format, mypy app. Commons rămâne blocat din sesiune, deci fotografia reală se verifică doar în CI.
+
+### F-editorial · rularea CI cu artefacte (Claude)
+
+Rularea CI 109 (commit `f8322da`) a trecut toate joburile: check, imagine, editorial.
+- Rularea: https://github.com/ionescugeorgemarian02-web/AMA/actions/runs/44757970925
+- Artefactul `editorial-spita` (23 de fișiere, 41 MB): https://github.com/ionescugeorgemarian02-web/AMA/actions/runs/44757970925/artifacts/14642281609
+
+Fotografiile B, descărcate în CI de pe Wikimedia Commons:
+- transmisie: „Racing bicycle chain (detail)”, CC BY-SA 4.0, Cjp24;
+- frână: „Bike disc break disc pads and caliper”, CC BY-SA 4.0, Alextredz;
+- deviz: factura atelierului Hermann Bauer din Leipzig, din 1921, domeniu public.
+
+A și B au trecut (2 passed).
