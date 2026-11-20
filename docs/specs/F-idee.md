@@ -47,7 +47,14 @@ Critica scrie și obiecții concrete și o versiune îmbunătățită a celui ma
 
 Un concept respins se rescrie o singură dată cu obiecțiile; dacă pică din nou, merge la om.
 
-**4. Alegerea:** scorul criticii (cu realismul și onestitatea eliminatorii sub 3) plus validarea. Conceptul ales intră în
+- cadrele de stock nu cer continuitate de personaj sau loc („același biciclist”, „aceeași intersecție, a doua zi”)
+  și nici reacții jucate („pietonii întorc capul”): acelea sunt material propriu sau filmare regizată;
+- un cadru de stock pe care criticul îl obiectă pentru fezabilitate sau onestitate (îl numește și spune că nu se
+  găsește, nu se poate filma, e prezentat drept altceva sau pretinde continuitate) pică validarea.
+
+**4. Alegerea:** scorul criticii (cu realismul, onestitatea și fezabilitatea eliminatorii sub 3) plus validarea.
+Varianta îmbunătățită de critic e candidat dacă trece validarea: scorul ei estimat sunt notele conceptului din care
+vine (obiecțiile acelea nu i se mai aplică) și, la scor egal, întrece conceptele propuse. Conceptul ales intră în
 brieful livrabilului (`idee`), iar scriptul și postarea se scriu **din concept**, nu din subiectul calendarului.
 
 ## Imagini reale

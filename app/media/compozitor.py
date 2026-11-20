@@ -11,6 +11,7 @@ logo, fotografii), pe care G5 o verifică din pixeli.
 
 import io
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from typing import Any
 
@@ -22,6 +23,7 @@ from app.media.modele import Activ, SablonGrafic
 from app.media.subtitrari import cale_font
 
 MARIME_MIN = 28
+TITLU_MAX_CUVINTE = 7  # [I] titlul unei imagini de feed: scurt, citit dintr-o privire
 
 
 class TextPreaLung(ValueError):
@@ -421,6 +423,29 @@ def _asteptari(
     )
 
 
+def scurteaza(text: str, cuvinte: int) -> str:
+    """Primele `cuvinte` cuvinte, întregi (niciun cuvânt tăiat), fără punctuația rămasă la capăt."""
+    return " ".join(text.split()[:cuvinte]).rstrip(" ,;:–—-")
+
+
+def _cu_titlu_scurtat(compune_: Callable[[str], Macheta], titlu: str) -> Macheta:
+    """Compune cu titlul întreg; dacă nu încape nici la mărimea minimă, nici pe bandă, îl scurtează la
+    `TITLU_MAX_CUVINTE` cuvinte întregi, apoi cu câte un cuvânt mai puțin, și spune asta în `nota`."""
+    try:
+        return compune_(titlu)
+    except TextPreaLung:
+        n = len(titlu.split())
+        for k in range(min(TITLU_MAX_CUVINTE, n - 1), 0, -1):
+            scurt = scurteaza(titlu, k)
+            try:
+                m = compune_(scurt)
+            except TextPreaLung:
+                continue
+            nota = f"titlul nu încăpea ({n} cuvinte): scurtat la {k} cuvinte, „{scurt}”"
+            return replace(m, nota="; ".join(x for x in (m.nota, nota) if x))
+        raise
+
+
 def foto_dominanta(
     foto: bytes,
     titlu: str,
@@ -432,7 +457,26 @@ def foto_dominanta(
     inaltime: int = 1350,
 ) -> Macheta:
     """Fotografia umple cadrul, decupată pe subiect; titlul scurt stă în zona cea mai liniștită, pe un voal
-    de contrast; sigla mică, în colțul liber."""
+    de contrast; sigla mică, în colțul liber. Un titlu lung nu crapă: mărimi descrescătoare până la
+    `TITLU_MIN`, apoi banda sub fotografie, apoi titlul scurtat la cuvinte întregi (cu `nota`)."""
+    return _cu_titlu_scurtat(
+        lambda t: _foto_dominanta(
+            foto, t, ident, logo=logo, generare=generare, latime=latime, inaltime=inaltime
+        ),
+        titlu,
+    )
+
+
+def _foto_dominanta(
+    foto: bytes,
+    titlu: str,
+    ident: dict[str, Any],
+    *,
+    logo: bytes | None,
+    generare: dict[str, Any] | None,
+    latime: int,
+    inaltime: int,
+) -> Macheta:
     sursa = Image.open(io.BytesIO(foto)).convert("RGB")
     img, subiect, _ = decupeaza(sursa, latime, inaltime, zona_subiect(sursa, generare))
     lat_text = latime - 2 * (MARGINE + PAD)
@@ -443,9 +487,14 @@ def foto_dominanta(
         return _foto_cu_banda(
             sursa, titlu, ident, logo=logo, generare=generare, latime=latime, inaltime=inaltime
         )
-    f, linii, hb = _bloc_titlu(
-        titlu, lat_text, max(zona[3] - zona[1] - 2 * PAD, round(sabloane.TITLU_MIN * 1.2))
-    )
+    try:
+        f, linii, hb = _bloc_titlu(
+            titlu, lat_text, max(zona[3] - zona[1] - 2 * PAD, round(sabloane.TITLU_MIN * 1.2))
+        )
+    except TextPreaLung:  # zona liniștită e prea mică pentru titlu: banda sub fotografie
+        return _foto_cu_banda(
+            sursa, titlu, ident, logo=logo, generare=generare, latime=latime, inaltime=inaltime
+        )
     y = {"sus": zona[1] + PAD, "jos": zona[3] - PAD - hb}.get(pozitie, (zona[1] + zona[3] - hb) // 2)
     img = _voal(img, y - PAD, y + hb + PAD, pozitie, ident["culori"]["text"])
     cutie = _scrie(ImageDraw.Draw(img), MARGINE + PAD, y, linii, f, "#FFFFFF")
@@ -514,7 +563,41 @@ def detaliu_explicat(
     inaltime: int = 1350,
 ) -> Macheta:
     """Fotografie apropiată + o singură adnotare: cu `punct` (x, y relative la fotografie) o linie spre piesă
-    și eticheta în zona liniștită; fără punct, eticheta (și legenda) sub fotografie."""
+    și eticheta în zona liniștită; fără punct, eticheta (și legenda) sub fotografie. O etichetă lungă nu
+    crapă: mărimi descrescătoare, apoi banda sub fotografie, apoi eticheta scurtată la cuvinte întregi."""
+
+    def cu(t: str) -> Macheta:
+        kw: dict[str, Any] = {
+            "logo": logo,
+            "generare": generare,
+            "legenda": legenda,
+            "randuri_legenda": randuri_legenda,
+            "latime": latime,
+            "inaltime": inaltime,
+        }
+        if punct is not None:
+            try:
+                return _detaliu_explicat(foto, t, ident, punct=punct, **kw)
+            except TextPreaLung:  # nu încape lângă piesă: eticheta pe bandă, sub fotografie
+                pass
+        return _detaliu_explicat(foto, t, ident, punct=None, **kw)
+
+    return _cu_titlu_scurtat(cu, eticheta)
+
+
+def _detaliu_explicat(
+    foto: bytes,
+    eticheta: str,
+    ident: dict[str, Any],
+    *,
+    punct: tuple[float, float] | None,
+    logo: bytes | None,
+    generare: dict[str, Any] | None,
+    legenda: str,
+    randuri_legenda: int,
+    latime: int,
+    inaltime: int,
+) -> Macheta:
     sursa = Image.open(io.BytesIO(foto)).convert("RGB")
     c = ident["culori"]
     if punct is None:
@@ -858,8 +941,13 @@ def exporta(
     probleme = [p for m in cadre for p in verifica_export(m)]
     if probleme:
         raise MachetaIlizibila(probleme)
+    nota = "; ".join(x for x in (nota, *(m.nota for m in cadre)) if x)
     for x in componente:
         licente.foloseste(db, x.id, scop="compozitie")
-    gen_txt = {"titlu": titlu, "texte": {k: v for k, v in texte.items() if isinstance(v, str | list)}}
+    gen_txt = {
+        "titlu": titlu,
+        "nota": nota,
+        "texte": {k: v for k, v in texte.items() if isinstance(v, str | list)},
+    }
     salvate = [_salveaza(db, tenant_id, m, k, componente, gen_txt) for k, m in enumerate(cadre)]
     return Export(macheta, nota, salvate, [m.png for m in cadre])

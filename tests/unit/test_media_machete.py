@@ -90,6 +90,30 @@ def test_detaliu_explicat_cu_punct_si_fara() -> None:
     assert compozitor.verifica_export(fara) == [] and vizual.probleme(fara.png, fara.asteptari) == []
 
 
+HOOK_LUNG = (
+    "Frâna care scârțâie după ploaie nu e un capriciu al bicicletei tale: e semnul că etrierul freacă "
+    "discul la fiecare oprire, iar revizia de 120 de lei o reglează înainte de prima zi cu gheață pe pistă"
+)
+
+
+def test_titlul_lung_nu_crapa_se_scurteaza_la_cuvinte_intregi_cu_nota() -> None:
+    m = compozitor.foto_dominanta(fotografie_procedurala(), HOOK_LUNG, IDENT, logo=LOGO)
+    assert m.nota.startswith("titlul nu încăpea") and compozitor.verifica_export(m) == []
+    scurt = m.nota.split("„", 1)[1].rstrip("”")
+    assert len(scurt.split()) <= compozitor.TITLU_MAX_CUVINTE and HOOK_LUNG.startswith(scurt)
+    assert HOOK_LUNG[len(scurt)] == " "  # niciun cuvânt tăiat la jumătate
+    for punct in (None, (0.7, 0.6)):
+        d = compozitor.detaliu_explicat(fotografie_procedurala(), HOOK_LUNG, IDENT, punct=punct, logo=LOGO)
+        assert d.nota.startswith("titlul nu încăpea") and compozitor.verifica_export(d) == []
+    scurt_ok = compozitor.foto_dominanta(fotografie_procedurala(), "Frâna care cântă la semafor", IDENT)
+    assert scurt_ok.nota == ""  # un titlu scurt rămâne întreg
+
+
+def test_scurtarea_pastreaza_cuvintele_intregi() -> None:
+    assert compozitor.scurteaza("Frâna, care cântă; la semafor", 2) == "Frâna, care"
+    assert compozitor.scurteaza("Frâna, care cântă", 1) == "Frâna"
+
+
 def test_caruselul_are_aceeasi_grila_si_intoarce_png_uri() -> None:
     cadre = compozitor.carusel_cadre(
         "De ce scârțâie frâna?", ["Plăcuțe uzate", "Disc murdar\nUn strat subțire de ulei ajunge"],

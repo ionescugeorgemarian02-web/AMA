@@ -196,6 +196,16 @@ def idee_aleasa(db: Session, livrabil_id: uuid.UUID) -> dict[str, Any] | None:
     return None if r is None else {**r.concept, "id": str(r.id)}
 
 
+TITLU_IMAGINE_CUVINTE = 7  # [I] titlul imaginii de feed: scurt, nu hook-ul postării
+
+
+def titlu_imagine(idee: dict[str, Any] | None, rezerva: str = "") -> str:
+    """Titlul imaginii de feed: titlul conceptului ales (scurt, scris pentru o privire), nu hook-ul postării;
+    fără concept, `rezerva` (de pildă produsul). Cel mult `TITLU_IMAGINE_CUVINTE` cuvinte întregi."""
+    titlu = str((idee or {}).get("titlu") or rezerva).strip()
+    return " ".join(titlu.split()[:TITLU_IMAGINE_CUVINTE]).rstrip(" ,;:–—-")
+
+
 def text_idee(idee: dict[str, Any] | None, disponibile: dict[str, dict[str, Any]] | None = None) -> str:
     """Conceptul ales, ca text pentru autorii de brief, postare și script (gol fără concept)."""
     if not idee:

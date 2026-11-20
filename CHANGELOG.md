@@ -4,6 +4,10 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F-idee — corecții după prima rulare reală prin punte
+- `idei.alege`: fezabilitatea sub 3 elimină; cadrele de stock obiectate de critic (`cadre_obiectate`) și cele care cer continuitate de personaj/loc sau reacții jucate pică `probleme_concept`; varianta îmbunătățită de critic e candidat cu notele conceptului-sursă. Pe datele rulării Spița, video-ul alege varianta îmbunătățită a conceptului 5 („Bicicleta scoasă de pe balcon”), nu conceptul 2.
+- Imaginea de feed: titlul vine din conceptul ales (`brief.titlu_imagine`, ≤ 7 cuvinte), nu din hook; `foto_dominanta` și `detaliu_explicat` nu mai crapă pe text lung (mărimi descrescătoare → bandă → scurtare la cuvinte întregi, cu `nota`).
+
 ### F-idee (D-032) — etapa de idee înaintea briefului
 - `app/continut/idei.py`: 5 concepte din momentul real al publicului (`continut.idei@1`), critica pe șase criterii (`continut.critica_idee@1`, alt model când lanțul `creatie` are unul, altfel `autoevaluare`), validarea deterministă `probleme_concept` (verbe de acțiune, substantive concrete, mișcare ≥ 60% la video, ≤ 1 cadru text, fără majoritate de obiecte, dovadă din fapte aprobate, material propriu fără stock), alegerea cu realism/onestitate eliminatorii, o rescriere cu obiecțiile, apoi omul (`alege_manual`). Tabelul `idei_concepte` (migrarea `0143`, RLS), audit și urme.
 - Pipeline-ul rulează ideea înaintea briefului (`pipeline.idee_si_brief`, oprirea `idee_la_om`); `continut.brief@4`, `continut.postare@2`, `continut.script@3` scriu din concept; scriptul poartă `cadre`, iar storyboardul le folosește ca indicații în plus (filmarea preferată pentru cadrele cu mișcare).

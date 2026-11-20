@@ -460,7 +460,7 @@ def test_idee_concept_stock_video_si_feed_pentru_spita(
             assert video is not None
             b = brief.al_livrabilului(db, lids["postare"])
             assert b is not None
-            titlu = str(post.campuri.get("hook") or DOSAR.produs)[:90]
+            titlu = brief.titlu_imagine(alese["postare"]["concept"], DOSAR.produs)
             feed = compozitor.exporta(db, t, DOSAR.marca, dict(b.continut), {"titlu": titlu})
             v = control.verdict_editorial(db, t, lid, randare=r, imagini=feed.active)
             shutil.copyfile(regizor.cale(video), Path(DIR) / "video.mp4")

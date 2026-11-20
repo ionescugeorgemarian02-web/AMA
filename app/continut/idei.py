@@ -11,10 +11,14 @@ alegerea.
    are unul; altfel același model, iar rezultatul se marchează `autoevaluare`.
 3. **Validarea deterministă** (`probleme_concept`): substantiv concret și verb de acțiune pe fiecare cadru,
    mișcare pe ≥ 60% din cadre la video, cel mult un cadru doar cu text, fără majoritate de cadre doar cu
-   obiecte, dovada trimite la un fapt aprobat, materialul propriu nu se acoperă cu stock.
-4. **Alegerea** (`alege`, pur): scorul criticii, cu realismul și onestitatea eliminatorii sub 3, plus
-   validarea. Fără un concept bun, cel mai bun se rescrie o singură dată cu obiecțiile (și se critică din
-   nou); dacă pică iar, ideea merge la om (`alege_manual`).
+   obiecte, dovada trimite la un fapt aprobat, materialul propriu nu se acoperă cu stock, cadrele de stock
+   nu cer continuitate de personaj sau loc („același biciclist”, „a doua zi”) și nici reacții jucate
+   („pietonii întorc capul”): acelea sunt material propriu sau filmare regizată.
+4. **Alegerea** (`alege`, pur): scorul criticii, cu realismul, onestitatea și fezabilitatea eliminatorii
+   sub 3, plus validarea (în care intră și cadrele de stock obiectate de critic). Varianta îmbunătățită de
+   critic e candidat cu notele conceptului din care vine și câștigă la scor egal. Fără un concept bun, cel
+   mai bun se rescrie o singură dată cu obiecțiile (și se critică din nou); dacă pică iar, ideea merge la
+   om (`alege_manual`).
 
 `pregateste` rulează tot lanțul într-o tranzacție și persistă conceptele, notele și alegerea
 (`idei_concepte`), cu urmă și audit. Conceptul ales intră în brief (`brief.idee_aleasa`), iar postarea și
@@ -46,7 +50,7 @@ PROMPT_CRITICA = "continut.critica_idee@1"
 PROFIL = "creatie"
 NUMAR_CONCEPTE = 5
 CRITERII = ("specificitate", "realism", "relevanta", "fezabilitate", "noutate", "onestitate")
-ELIMINATORII = ("realism", "onestitate")
+ELIMINATORII = ("realism", "onestitate", "fezabilitate")
 NOTA_MINIMA_ELIMINATORIE = 3
 PRAG_MISCARE_VIDEO = 0.6
 ANTERIOARE = 8  # câte concepte alese anterior primește autorul (noutatea)
@@ -128,7 +132,8 @@ spala spala spalat spaland freaca frecand sterge sterg stergand lustruieste repa
 montand demonteaza desurubeaza insurubeaza surubeste ajusteaza ajustand regleaza reglind regland
 verifica verificand testeaza testand umfla umflan umfland pompeaza pompand schimba schimband inlocuieste
 scoate scot scotand desface desfac pune pun punand aseaza asaza aseaza ridica ridicand apasa apasand
-trage trag tragand impinge impingand deschide deschid deschizand inchide inchid inchizand taie taind
+trece trec trecand trage trag tragand impinge impingand
+deschide deschid deschizand inchide inchid inchizand taie taind
 masoara masurand cantareste macina macinand amesteca amestecand framanta coace coc prajeste prajind
 fierbe fierband toarna torn turnand varsa varsand aprinde aprind stinge ruleaza ruland alearga alergand
 merge merg mergand calca calcand intra intrand iese ies iesind intoarce intorc intorcand vireaza
@@ -183,6 +188,8 @@ def _contine(cuvinte: list[str], lista: frozenset[str]) -> bool:
 
 def _verb(actiune: str) -> bool:
     cuvinte = _norm(actiune)
+    if re.search(r"\b(ii|le) arata\b", " ".join(cuvinte)):  # „îi arată clientului”: un gest spre cineva
+        return True
     return any(w in VERBE_ACTIUNE for w in cuvinte) or _contine(
         [w for w in cuvinte if len(w) >= 6], frozenset(v for v in VERBE_ACTIUNE if len(v) >= 6)
     )
@@ -201,13 +208,59 @@ def doar_obiect(c: Cadru) -> bool:
     return not _contine(_norm(f"{c.subiect} {c.actiune} {c.context}"), AGENTI)
 
 
+# [I] ce stock-ul nu poate livra: continuitatea unui personaj sau a unui loc între cadre și reacțiile jucate
+# ale trecătorilor. Un clip de stock e alt om, altă stradă, altă zi; o reacție la comandă cere figuranți.
+CONTINUITATE = re.compile(
+    r"\b(acelasi|aceeasi|aceiasi|aceleasi|a doua zi|ziua urmatoare|dupa revizie|dupa reparatie)\b"
+)
+REACTIE_JUCATA = re.compile(
+    r"\b(intorc\w* capul|isi intorc\w*|se intorc\w* spre|se uita\w* (spre|la|dupa)|privesc\w* (spre|dupa)"
+    r"|reactioneaza|aplauda|ridica din sprancene)\b"
+)
+# [I] semnele unei obiecții de fezabilitate sau onestitate pe un cadru (textul criticului, fără diacritice)
+OBIECTIE_CADRU = re.compile(
+    r"nu se gase|nu exista|greu de gasit|nu se poate|nu se filmeaza|imposibil|trucaj|figurant|nerealist"
+    r"|prezentat drept|prezentat ca|luat drept|nu poate garanta|continuitate|filmeaza la"
+)
+_NUMAR_CADRE = re.compile(r"\bcadr(?:ul|ele)\s+(\d+(?:\s*(?:,|si)\s*\d+)*)")
+
+
+def _text_norm(text: str) -> str:
+    """Litere mici, fără diacritice, cuvintele (și cifrele, „cadrul 5”) despărțite de un spațiu."""
+    fara = "".join(c for c in unicodedata.normalize("NFKD", text.lower()) if not unicodedata.combining(c))
+    return " ".join(w for w in re.split(r"[^a-z0-9]+", fara) if w)
+
+
+def cadre_obiectate(obiectii: list[str]) -> dict[int, str]:
+    """Cadrele (numărul, de la 1) pe care criticul le obiectă pentru fezabilitate sau onestitate: obiecția
+    numește cadrul („Cadrul 4 …”, „Cadrele 1 și 5 …”) și spune că nu se găsește, nu se poate filma, e
+    prezentat drept altceva sau pretinde continuitate. Prima obiecție pe cadru."""
+    out: dict[int, str] = {}
+    for ob in obiectii:
+        t = _text_norm(ob)
+        if not OBIECTIE_CADRU.search(t):
+            continue
+        for m in _NUMAR_CADRE.finditer(t):
+            for nr in re.findall(r"\d+", m.group(1)):
+                out.setdefault(int(nr), ob)
+    return out
+
+
 def _alias(dovada: str) -> str:
     m = re.match(r"\s*\[?(F\d+)\]?", dovada)
     return m.group(1) if m else ""
 
 
-def probleme_concept(concept: Concept, fapte: dict[str, dict[str, Any]], *, video: bool = False) -> list[str]:
-    """Nucleu pur: ce face conceptul nefilmabil, static, vag sau necinstit. Listă goală = trece."""
+def probleme_concept(
+    concept: Concept,
+    fapte: dict[str, dict[str, Any]],
+    *,
+    video: bool = False,
+    obiectii: list[str] | None = None,
+) -> list[str]:
+    """Nucleu pur: ce face conceptul nefilmabil, static, vag sau necinstit. Listă goală = trece.
+    `obiectii`: obiecțiile criticului pe acest concept; un cadru de stock obiectat pentru fezabilitate sau
+    onestitate (`cadre_obiectate`) e o problemă: se scoate, se filmează la client sau conceptul se rescrie."""
     out: list[str] = []
     imagini = [(i, c) for i, c in enumerate(concept.cadre, start=1) if c.tip != "text"]
     for i, c in imagini:
@@ -256,6 +309,25 @@ def probleme_concept(concept: Concept, fapte: dict[str, dict[str, Any]], *, vide
             out.append(f"cadrul {i} nu are interogări de stock (sau trebuie marcat ca material propriu)")
         elif any(re.search(r"[ăâîșțşţ]", q, re.IGNORECASE) for q in c.interogari):
             out.append(f"cadrul {i}: interogările de stock se scriu în engleză")
+    stock = [(i, c) for i, c in imagini if i not in concept.material_propriu and c.interogari]
+    semnalate: set[int] = set()
+    for i, c in stock:
+        t = _text_norm(f"{c.subiect} {c.actiune} {c.context}")
+        if CONTINUITATE.search(t) or REACTIE_JUCATA.search(t):
+            semnalate.add(i)
+        if CONTINUITATE.search(t):
+            out.append(
+                f"cadrul {i} cere continuitate („{c.subiect}”, {c.context or c.actiune}): stock-ul e alt om, "
+                "alt loc, altă zi; e material propriu sau filmare regizată"
+            )
+        elif REACTIE_JUCATA.search(t):
+            out.append(
+                f"cadrul {i} cere o reacție jucată („{c.actiune}”): stock-ul nu o are; e filmare regizată"
+            )
+    obiectate = cadre_obiectate(obiectii or [])
+    for i, _c in stock:
+        if i in obiectate and i not in semnalate:
+            out.append(f"cadrul {i} obiectat de critic: {obiectate[i]}")
     return out
 
 
@@ -309,9 +381,13 @@ def alege(
     video: bool = False,
     sursa: Literal["propus", "rescris"] = "propus",
 ) -> Alegere:
-    """Scorul criticii (suma notelor; realismul și onestitatea sub 3 elimină) plus validarea deterministă.
-    Varianta îmbunătățită a criticului moștenește notele conceptului din care vine; la scor egal o întrece.
-    Determinist."""
+    """Scorul criticii (suma notelor; realismul, onestitatea și fezabilitatea sub 3 elimină) plus validarea
+    deterministă, care include obiecțiile criticului pe cadre de stock anume (`cadre_obiectate`).
+
+    Varianta îmbunătățită de critic e candidat ca oricare altul, dacă trece `probleme_concept`. Scorul ei
+    estimat sunt notele conceptului din care vine (criticul a scris-o rezolvând exact obiecțiile acelea, deci
+    obiecțiile nu i se mai aplică); la scor egal întrece orice concept propus, iar un concept propus cu scor
+    mai mare care pică validarea (de pildă pe cadrele obiectate) nu o mai blochează. Determinist."""
     note = {e.nr: e for e in critica_.evaluari}
     evaluate: list[Evaluat] = []
     for nr, c in enumerate(propunere.concepte, start=1):
@@ -323,7 +399,7 @@ def alege(
                 c,
                 e.note() if e else {},
                 list(e.obiectii) if e else [],
-                probleme_concept(c, fapte, video=video),
+                probleme_concept(c, fapte, video=video, obiectii=e.obiectii if e else []),
             )
         )
     if critica_.imbunatatit is not None and critica_.nr_imbunatatit in note:
