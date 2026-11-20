@@ -107,7 +107,10 @@ def probleme(lista: ListaMontaj, active: dict[uuid.UUID, InfoActiv]) -> list[str
             continue
         if not info.licentiat:
             out.append(f"scena {i}: activul {s.activ_id} nu are licență înregistrată")
-        asteptat = {"A": ("video",), "B": ("foto",), "C": ("video",), "E": ("video", "foto")}[lista.format]
+        # F-idee: A amestecă clipurile de stock cu fotografii (cu mișcare) când cadrele conceptului le cer
+        asteptat = {"A": ("video", "foto"), "B": ("foto",), "C": ("video",), "E": ("video", "foto")}[
+            lista.format
+        ]
         if info.categorie not in asteptat:
             out.append(f"scena {i}: formatul {lista.format} nu folosește {info.categorie}")
         lunga = info.durata is not None and s.sursa_de_la + (s.sfarsit - s.inceput) > info.durata + eps
