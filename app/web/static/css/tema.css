@@ -149,3 +149,7 @@ del { background: var(--pericol-fundal); }
 @media (prefers-reduced-motion: reduce) { .prompter { height: auto; } .prompter-text { animation: none; padding-top: 0; } }
 /* Graficele randate pe server (F10.2): SVG cu culoarea textului, lat cât cardul. */
 .grafic { display: block; width: 100%; height: auto; max-height: 14rem; }
+
+/* F-editorial: planșa verdictului editorial (un cadru pe scenă) */
+.plansa { margin: 0.5rem 0; }
+.plansa img { max-width: 100%; height: auto; display: block; }

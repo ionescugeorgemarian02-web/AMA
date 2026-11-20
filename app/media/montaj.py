@@ -130,6 +130,8 @@ def executa(db: Session, r: Randare) -> Randare:
     r = _inregistreaza(db, r, lm, corp)
     if r.calitate == "final":
         _controleaza(db, r, lm)
+        if r.livrabil_id is not None:  # F-editorial: verdictul editorial, separat de G6, cu planșa
+            control.verdict_editorial(db, r.tenant_id, r.livrabil_id, randare=r)
         a = db.get(Activ, r.activ_id)
         if a is not None:
             provenienta.emite(db, a, validari=r.control, om_real=lm.format == "E")
@@ -231,3 +233,37 @@ def video_verificat(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID, v
         .order_by(Randare.terminat_la, Randare.id)
         .limit(1)
     ).first()
+
+
+ETICHETE_REZULTAT = {"trece": "trece", "esec": "respins", "respins": "respins"}
+
+
+def controale(
+    db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID, versiune: int
+) -> dict[str, Any] | None:
+    """Pentru ecranul de aprobare: G6 și verdictul editorial ale ultimului export final al versiunii, separat,
+    plus activul planșei. `None` când versiunea nu are export."""
+    r = db.scalars(
+        select(Randare)
+        .where(
+            Randare.tenant_id == tenant_id,
+            Randare.livrabil_id == livrabil_id,
+            Randare.calitate == "final",
+            Randare.masuratori["versiune_continut"].as_integer() == versiune,
+        )
+        .order_by(Randare.creat_la.desc(), Randare.id.desc())
+        .limit(1)
+    ).first()
+    if r is None:
+        return None
+    g6, ed = (r.control or {}).get("G6") or {}, (r.control or {}).get("editorial") or {}
+    return {
+        "randare_id": r.id,
+        "g6": ETICHETE_REZULTAT.get(g6.get("rezultat", ""), "neverificat"),
+        "g6_dovezi": [d.get("detalii", "") for d in g6.get("dovezi", [])],
+        "editorial": ETICHETE_REZULTAT.get(ed.get("rezultat", ""), "neverificat"),
+        "mesaj": ed.get("mesaj", ""),
+        "motive": [m.get("detalii", "") for m in ed.get("motive", [])],
+        "evaluare": (ed.get("evaluare_vizuala") or {}).get("eticheta", "neverificată"),
+        "plansa_activ_id": ed.get("plansa_activ_id"),
+    }

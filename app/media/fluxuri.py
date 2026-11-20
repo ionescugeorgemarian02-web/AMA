@@ -182,7 +182,11 @@ def pregateste_script(tenant_id: str, livrabil_id: str, versiune: str) -> str:
             livrabil_id=lid,
             materiale_fixe=fixe,
         )
-        return str(montaj.pregateste(db, tid, lm, livrabil_id=lid).id)
+        r = montaj.pregateste(db, tid, lm, livrabil_id=lid)
+        # storyboardul ales (activul pe scenă și motivul), pentru verdictul editorial și planșă
+        r.masuratori = {**(r.masuratori or {}), "storyboard": sb.model_dump(mode="json")}
+        db.flush()
+        return str(r.id)
 
 
 @motor.flux("media.script", timp_maxim_sec=2400)

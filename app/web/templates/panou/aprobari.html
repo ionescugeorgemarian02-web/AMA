@@ -22,6 +22,15 @@
     <p class="slab">{{ c.livrabil.canal }}</p>
     {% for k in ('titlu', 'subiect', 'preantet') %}{% if c.campuri.get(k) %}<p><strong>{{ c.campuri[k] }}</strong></p>{% endif %}{% endfor %}
   {% if c.livrabil.tip == "script_video_scurt" %}<a href="/aprobari-media/{{ a.id }}/video">Deschide exportul acestei versiuni</a>{% endif %}
+  {% set ctl = controale.get(a.id) %}{% if ctl %}
+  <div class="rand"><span class="eticheta">Control tehnic (G6)</span><span>{{ ctl.g6 }}</span></div>
+  {% for d in ctl.g6_dovezi %}<p class="slab">{{ d }}</p>{% endfor %}
+  <div class="rand"><span class="eticheta">Verdict editorial</span><span>{{ ctl.editorial }}</span></div>
+  {% if ctl.mesaj %}<p>{{ ctl.mesaj }}</p>{% endif %}
+  {% for m in ctl.motive[1:] %}<p class="slab">{{ m }}</p>{% endfor %}
+  <p class="slab">Relevanță și compoziție: {{ ctl.evaluare }}</p>
+  {% if ctl.plansa_activ_id %}<figure class="plansa"><img src="/aprobari-media/{{ a.id }}/plansa" alt="Planșa: câte un cadru pe scenă" loading="lazy"><figcaption class="slab">Planșa: câte un cadru pe scenă, cu activul folosit.</figcaption></figure>{% endif %}
+  {% endif %}
     <p class="text-canal">{{ c.text }}</p>
     {% if c.campuri.get('cta') %}<p><span class="buton secundar">{{ c.campuri['cta'] }}</span></p>{% endif %}
   </div>

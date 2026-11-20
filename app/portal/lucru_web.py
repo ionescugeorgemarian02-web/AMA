@@ -17,7 +17,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
-from app import continut, creier, productie, validare
+from app import continut, creier, media, productie, validare
 from app.conturi import (
     DbSession,
     Permisiune,
@@ -121,12 +121,18 @@ def _ale_clientului(db: DbSession) -> list[tuple[productie.Aprobare, productie.L
 
 @router.get("/aprobari")
 def aprobarile(request: Request, u: Client, db: DbSession, mesaj: str = "", eroare: str = "") -> Response:
+    cereri = _ale_clientului(db)
     return pagina(
         request,
         u,
         "portal/aprobari.html",
         tab="aprobari",
-        cereri=_ale_clientului(db),
+        cereri=cereri,
+        controale={
+            ap.id: media.montaj.controale(db, ap.tenant_id, lv.id, ap.versiune)
+            for ap, lv, _ in cereri
+            if lv.tip == "script_video_scurt"
+        },
         motive=productie.MOTIVE_RESPINGERE,
         mesaj=MESAJE.get(mesaj, ""),
         eroare=eroare,

@@ -35,3 +35,24 @@ def previzualizare(
     if activ is None or not media.regizor.cale(activ).is_file():
         raise HTTPException(status_code=404, detail="Exportul versiunii nu este disponibil.")
     return FileResponse(media.regizor.cale(activ), media_type="video/mp4")
+
+
+@router.get("/aprobari-media/{cerere}/plansa")
+def plansa(
+    cerere: uuid.UUID,
+    db: DbSession,
+    u: Annotated[SesiuneCurenta, Depends(require_permission(Permisiune.LIVRABIL_APROBA))],
+) -> FileResponse:
+    """Planșa verdictului editorial (F-editorial): câte un cadru pe scenă al exportului versiunii."""
+    ap = db.get(productie.Aprobare, cerere)
+    if ap is None:
+        raise HTTPException(status_code=404)
+    c = media.montaj.controale(db, ap.tenant_id, ap.livrabil_id, ap.versiune)
+    activ = (
+        media.biblioteca.citeste_activ(db, uuid.UUID(c["plansa_activ_id"]))
+        if c and c["plansa_activ_id"]
+        else None
+    )
+    if activ is None or not media.regizor.cale(activ).is_file():
+        raise HTTPException(status_code=404, detail="Planșa versiunii nu este disponibilă.")
+    return FileResponse(media.regizor.cale(activ), media_type="image/png")
