@@ -1,0 +1,1294 @@
+{
+ "descriere": "Răspunsurile prompturilor de creație ale demonstrației F-idee (Atelierul Spița), cu prompturile platformei.",
+ "mod": "punte",
+ "autor": "generator: subagent Claude Opus / critic: subagent Claude Sonnet",
+ "inregistrat_la": "2026-11-20T18:52:14+00:00",
+ "raspunsuri": {
+  "continut.idei#1": {
+   "sarcina": "continut.idei",
+   "nr": 1,
+   "rol": "generator",
+   "prompt_sha256": "e6104287c7f089fe85c35d6c555d9e01a0495ac43af7d8dc1bba1785af0c401c",
+   "autor": "subagent Claude Opus",
+   "raspuns": {
+    "dovezi": [
+     "F1: Revizia Urbană costă 120 lei pentru o bicicletă",
+     "F2: oferta Revizia Urbană, 120 RON",
+     "Ghid: Revizia Urbană acoperă frâne și transmisie; prețul spus dinainte",
+     "Strategie: navetiști din Sibiu; clip cu frâna și transmisia reglate"
+    ],
+    "incredere": 0.8,
+    "concepte": [
+     {
+      "titlu": "Lanțul care scârțâie la fiecare pedală",
+      "moment_real": "Miercuri, 7:45, după o noapte cu ploaie. Navetistul pleacă de la bloc spre birou și, de la prima pedală, lanțul scârțâie ritmic. Pe tot drumul, la fiecare apăsare, același sunet uscat.",
+      "tensiune": "Douăzeci de minute ascultă bicicleta cum se plânge și se întreabă cât mai rezistă lanțul așa.",
+      "mesaj_unic": "La Revizia Urbană curățăm și ungem lanțul, ca drumul de dimineață să se audă doar din roți.",
+      "dovada": "F1",
+      "de_ce_acum": "Ploile din noiembrie spală uleiul de pe lanț; după câteva zile ude, transmisia începe să scârțâie la fiecare pedalare.",
+      "cadre": [
+       {
+        "subiect": "biciclist",
+        "actiune": "pedalează pe stradă udă, cu geaca udă",
+        "context": "oraș, dimineață gri după ploaie",
+        "tip": "video",
+        "incadrare": "plan larg",
+        "interogari": [
+         "cycling city rain",
+         "cyclist commuting rain street"
+        ]
+       },
+       {
+        "subiect": "lanțul ud",
+        "actiune": "se rotește pe pinion, cu picături de apă",
+        "context": "transmisia bicicletei, în mers",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": [
+         "bicycle chain cassette rotating",
+         "bicycle chain wet"
+        ]
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "curăță lanțul cu peria în timp ce învârte pedala",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "mâna mecanicului",
+        "actiune": "picură ulei pe lanț, za cu za, în timp ce pedala se rotește",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": []
+       },
+       {
+        "subiect": "biciclist",
+        "actiune": "pedalează constant pe o stradă udă",
+        "context": "oraș, dimineață",
+        "tip": "video",
+        "incadrare": "plan mediu",
+        "interogari": [
+         "cyclist riding wet street",
+         "cyclist commuting street"
+        ]
+       },
+       {
+        "subiect": "apel la acțiune",
+        "actiune": "apare textul: Revizia Urbană, 120 lei. Programare din formular.",
+        "context": "final de clip",
+        "tip": "text",
+        "incadrare": "",
+        "interogari": []
+       }
+      ],
+      "material_propriu": [
+       3,
+       4
+      ]
+     },
+     {
+      "titlu": "Schimbătorul care sare pe urcare",
+      "moment_real": "Dimineața, pe urcarea spre centru, navetistul trece pe un pinion mai ușor. Lanțul sare, pedala fuge în gol sub picior și el se dezechilibrează lângă mașinile care trec.",
+      "tensiune": "O secundă de dezechilibru în trafic, apoi tot restul urcării merge pe același pinion, de teamă să mai schimbe.",
+      "mesaj_unic": "Cu schimbătorul reglat la Revizia Urbană, urci dimineața schimbând vitezele fără să sară lanțul.",
+      "dovada": "F1",
+      "de_ce_acum": "Noroiul și apa din noiembrie intră în transmisie, iar schimbătorul începe să sară tocmai când naveta se face pe frig și întuneric.",
+      "cadre": [
+       {
+        "subiect": "biciclist",
+        "actiune": "urcă o stradă în pantă, ridicându-se din șa",
+        "context": "oraș, dimineață, asfalt ud",
+        "tip": "video",
+        "incadrare": "plan larg",
+        "interogari": [
+         "cycling uphill city",
+         "cyclist climbing street"
+        ]
+       },
+       {
+        "subiect": "schimbătorul spate",
+        "actiune": "mută lanțul de pe un pinion pe altul",
+        "context": "transmisia bicicletei, în mers",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": [
+         "bicycle derailleur shifting",
+         "bicycle rear derailleur"
+        ]
+       },
+       {
+        "subiect": "piciorul pe pedală",
+        "actiune": "apasă pedala care se rotește",
+        "context": "pe urcare, pantof ud",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": [
+         "cyclist pedaling close up",
+         "bicycle pedal foot"
+        ]
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "învârte pedala și strânge șurubul de reglaj al schimbătorului",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "clientul Spița",
+        "actiune": "urcă panta pe bicicleta lui și schimbă viteza din manetă",
+        "context": "strada din apropierea atelierului, dimineața, filmat cu clientul real",
+        "tip": "video",
+        "incadrare": "plan mediu",
+        "interogari": []
+       },
+       {
+        "subiect": "apel la acțiune",
+        "actiune": "apare textul: Revizia Urbană, frâne și transmisie, 120 lei.",
+        "context": "final de clip",
+        "tip": "text",
+        "incadrare": "",
+        "interogari": []
+       }
+      ],
+      "material_propriu": [
+       4,
+       5
+      ]
+     },
+     {
+      "titlu": "Coborârea pe întuneric",
+      "moment_real": "La 7 dimineața, în noiembrie, încă e întuneric. Navetistul coboară o stradă cu farul aprins și strânge frânele mai devreme, în reprize scurte, pentru că nu mai știe exact unde prind.",
+      "tensiune": "Coboară crispat, cu degetele pe manete, și pierde singura parte ușoară a drumului spre birou.",
+      "mesaj_unic": "Cu frânele reglate la Revizia Urbană, știi din nou unde prinde frâna la coborâre.",
+      "dovada": "F1",
+      "de_ce_acum": "Dimineața e încă întuneric la ora navetei, iar asfaltul e rece și ud aproape în fiecare zi.",
+      "cadre": [
+       {
+        "subiect": "far de bicicletă",
+        "actiune": "luminează asfaltul ud în mers",
+        "context": "stradă, dimineață pe întuneric",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": [
+         "bicycle light night street",
+         "cycling at night city"
+        ]
+       },
+       {
+        "subiect": "biciclist",
+        "actiune": "coboară o stradă, cu felinarele aprinse",
+        "context": "oraș, dimineață pe întuneric, ploaie măruntă",
+        "tip": "video",
+        "incadrare": "plan larg",
+        "interogari": [
+         "cyclist night rain city",
+         "cycling city rain"
+        ]
+       },
+       {
+        "subiect": "mâna pe manetă",
+        "actiune": "strânge maneta de frână",
+        "context": "pe ghidon, mănușă",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": [
+         "bicycle brake lever hand",
+         "hand squeezing bike brake"
+        ]
+       },
+       {
+        "subiect": "discul de frână",
+        "actiune": "se rotește și încetinește între plăcuțe",
+        "context": "roata din față, în mers",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": [
+         "bicycle disc brake",
+         "bicycle disc brake rotating"
+        ]
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "învârte roata și strânge maneta de probă până roata se oprește",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "video",
+        "incadrare": "plan mediu",
+        "interogari": []
+       },
+       {
+        "subiect": "apel la acțiune",
+        "actiune": "apare textul: Revizia Urbană, 120 lei. Programare din formular.",
+        "context": "final de clip",
+        "tip": "text",
+        "incadrare": "",
+        "interogari": []
+       }
+      ],
+      "material_propriu": [
+       5
+      ]
+     },
+     {
+      "titlu": "Prețul înainte de stand",
+      "moment_real": "Seara, după program, navetistul intră cu bicicleta în atelier. Înainte să o urce pe stand, mecanicul îi spune ce verifică la frâne și transmisie și cât costă: 120 lei.",
+      "tensiune": "A amânat revizia săptămâni întregi pentru că nu știa cu ce notă de plată pleacă de acolo.",
+      "mesaj_unic": "La Revizia Urbană afli prețul înainte să lași bicicleta: 120 lei.",
+      "dovada": "F2",
+      "de_ce_acum": "Înainte de iarnă, navetiștii vor să-și pună bicicleta la punct, dar amână când nu știu cât îi costă.",
+      "cadre": [
+       {
+        "subiect": "navetist",
+        "actiune": "împinge bicicleta pe ușa atelierului Spița",
+        "context": "intrarea atelierului Spița, seara",
+        "tip": "video",
+        "incadrare": "plan mediu",
+        "interogari": []
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "arată cu degetul frâna și lanțul, explicând",
+        "context": "în atelierul Spița, lângă stand",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "urcă bicicleta pe stand și învârte roata",
+        "context": "în atelierul Spița",
+        "tip": "video",
+        "incadrare": "plan mediu",
+        "interogari": []
+       },
+       {
+        "subiect": "mâinile mecanicului",
+        "actiune": "curăță lanțul cu peria",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": []
+       },
+       {
+        "subiect": "biciclist",
+        "actiune": "pedalează pe stradă seara, cu farul aprins",
+        "context": "oraș, seara",
+        "tip": "video",
+        "incadrare": "plan larg",
+        "interogari": [
+         "cyclist riding city evening",
+         "cycling at night city"
+        ]
+       },
+       {
+        "subiect": "apel la acțiune",
+        "actiune": "apare textul: Revizia Urbană, 120 lei. Prețul îl știi dinainte.",
+        "context": "final de clip",
+        "tip": "text",
+        "incadrare": "",
+        "interogari": []
+       }
+      ],
+      "material_propriu": [
+       1,
+       2,
+       3,
+       4
+      ]
+     },
+     {
+      "titlu": "Bicicleta de pe balcon",
+      "moment_real": "Prima dimineață cu brumă. Navetistul ia bicicleta de pe balcon, unde a stat în ploaie toată săptămâna, și învârte pedala cu mâna: lanțul e ruginiu pe margini și scârțâie.",
+      "tensiune": "Ezită în ușă: pleacă așa sau ia autobuzul plin? Se teme că lanțul îl lasă pe drum.",
+      "mesaj_unic": "O Revizie Urbană de 120 lei face bicicleta lăsată afară bună de navetă dimineața.",
+      "dovada": "F1",
+      "de_ce_acum": "În noiembrie, bicicletele ținute pe balcon prind umezeală, iar navetiștii decid acum dacă rămân pe două roți peste iarnă.",
+      "cadre": [
+       {
+        "subiect": "bicicletă pe balcon",
+        "actiune": "picături de ploaie se scurg pe cadru și pe lanț",
+        "context": "balcon de bloc, dimineață rece",
+        "tip": "video",
+        "incadrare": "plan mediu",
+        "interogari": [
+         "bicycle on balcony rain",
+         "bicycle parked in rain"
+        ]
+       },
+       {
+        "subiect": "lanț ruginit",
+        "actiune": "se rotește încet pe foaie când pedala e învârtită",
+        "context": "transmisia bicicletei, lumină de dimineață",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": [
+         "rusty bicycle chain",
+         "bicycle chain rotating close up"
+        ]
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "curăță rugina de pe lanț și îl unge, rotind pedala",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "biciclist",
+        "actiune": "trece pedalând pe lângă o stație de autobuz",
+        "context": "stradă udă, dimineață",
+        "tip": "video",
+        "incadrare": "plan larg",
+        "interogari": [
+         "cyclist passing bus stop",
+         "cyclist commuting street"
+        ]
+       },
+       {
+        "subiect": "apel la acțiune",
+        "actiune": "apare textul: Revizia Urbană, 120 lei. Programare din formular.",
+        "context": "final de clip",
+        "tip": "text",
+        "incadrare": "",
+        "interogari": []
+       }
+      ],
+      "material_propriu": [
+       3
+      ]
+     }
+    ]
+   }
+  },
+  "continut.critica_idee#1": {
+   "sarcina": "continut.critica_idee",
+   "nr": 1,
+   "rol": "critic",
+   "prompt_sha256": "ce7bc39578d77e74a38cac0b03c3bc9f963f1f3e09722d558511b2b728d5165b",
+   "autor": "subagent Claude Sonnet",
+   "raspuns": {
+    "dovezi": [
+     "F1/F2 acoperă doar prețul de 120 lei; ghidul aprobă „frâne și transmisie” ca conținut al reviziei, nu enumerarea curățării sau ungerii lanțului și nici rezultate precum „fără să sară lanțul”",
+     "Scârțâitul lanțului după ploaie, rugina de suprafață pe un lanț lăsat afară și frecarea sunt fenomene reale; lanțul care sare de pe pinion ține de uzură sau reglaj, iar un singur reglaj nu îl rezolvă garantat",
+     "Lipsuri declarate: public și pasaje_materiale; afirmațiile despre ce amână sau decid navetiștii nu au dovadă"
+    ],
+    "incredere": 0.75,
+    "evaluari": [
+     {
+      "nr": 1,
+      "specificitate": 4,
+      "realism": 5,
+      "relevanta": 4,
+      "fezabilitate": 4,
+      "noutate": 3,
+      "onestitate": 3,
+      "obiectii": [
+       "Cadrul 2 (lanț ud rotindu-se, cu picături, în mers) nu se găsește în stock în varianta cu apă și, mai ales, e mut: scârțâitul, miezul scenei, nu se aude. Filmează lanțul la atelier cu sunetul real.",
+       "Cadrul 5 (biciclist pedalează constant pe stradă udă) e prezentat ca același navetist după revizie; e stock diferit, deci continuitate falsă. Scoate-l sau fă-l explicit generic.",
+       "Mesajul „curățăm și ungem lanțul, ca drumul să se audă doar din roți” promite un rezultat și o operațiune care nu sunt în fapte aprobate; spune „transmisia se verifică”.",
+       "Tensiunea („se întreabă cât mai rezistă lanțul”) e gând, nu imagine; nu apare în niciun cadru.",
+       "Cadrul 1 e acceptabil ca stock, dar fără subtitlu „scârț” clipul pierde sunetul pe Instagram fără audio."
+      ]
+     },
+     {
+      "nr": 2,
+      "specificitate": 4,
+      "realism": 3,
+      "relevanta": 3,
+      "fezabilitate": 3,
+      "noutate": 3,
+      "onestitate": 2,
+      "obiectii": [
+       "Mesajul „schimbând vitezele fără să sară lanțul” e o promisiune de rezultat fără fapt aprobat; un lanț uzat sau o casetă uzată nu se vindecă cu un reglaj.",
+       "Scena-cheie (lanțul sare, dezechilibru lângă mașini) nu apare în niciun cadru: cadrul 2 arată o schimbare normală, deci imaginea contrazice tensiunea.",
+       "Cadrul 1 (urcare în pantă, asfalt ud) se găsește greu în stock ca urcare reală din șa.",
+       "Cadrul 5 e bun (client real), dar „strada din apropierea atelierului” trebuie să existe cu pantă; confirmă traseul înainte să-l scrii.",
+       "Fraza „restul urcării merge pe același pinion” e un detaliu specific, dar neverificat."
+      ]
+     },
+     {
+      "nr": 3,
+      "specificitate": 3,
+      "realism": 3,
+      "relevanta": 3,
+      "fezabilitate": 2,
+      "noutate": 3,
+      "onestitate": 3,
+      "obiectii": [
+       "Cadrele 1 și 2 (noapte, ploaie măruntă, coborâre, felinare) nu se găsesc în stock gratuit în combinația cerută; un cadru de noapte generic nu arată Sibiul.",
+       "Cadrul 4 (disc în mers, încetinind între plăcuțe) nu se găsește în stock: discul se vede rar în mișcare reală pe stradă.",
+       "Mesajul „știi din nou unde prinde frâna” e o promisiune vagă de efect; tensiunea (crispare) nu se vede.",
+       "Doar cadrul 5 e propriu, iar restul poveștii e stock de noapte: povestea nu se poate realiza ieftin.",
+       "Lipsește orice cadru din care să reiasă că frânele sunt dereglate; sugestia stă doar în text."
+      ]
+     },
+     {
+      "nr": 4,
+      "specificitate": 4,
+      "realism": 4,
+      "relevanta": 2,
+      "fezabilitate": 4,
+      "noutate": 4,
+      "onestitate": 3,
+      "obiectii": [
+       "Subiectul e drumul de dimineață, iar scena e seara la atelier: ratează calendarul.",
+       "Tensiunea („a amânat săptămâni întregi”) și de_ce_acum („navetiștii amână când nu știu cât costă”) sunt afirmații despre public fără dovadă.",
+       "Cadrul 1 („navetist” pe ușa atelierului) e regie cu un om prezentat drept client; spune cine e sau filmează un client real cu acord.",
+       "Cadrul 5 (biciclist seara cu farul aprins) e stock care pare că e același om care pleacă din atelier: continuitate falsă.",
+       "Cadrul 2 (mecanicul explică frâna și lanțul) are valoare, dar fără text pe imagine cu operațiunile nu se transmite „ce verificăm”."
+      ]
+     },
+     {
+      "nr": 5,
+      "specificitate": 4,
+      "realism": 4,
+      "relevanta": 5,
+      "fezabilitate": 3,
+      "noutate": 4,
+      "onestitate": 2,
+      "obiectii": [
+       "Cadrul 1 (picături de ploaie curg pe cadrul de pe balcon) nu se găsește în stock decât ca bicicletă generică lăsată afară; pus ca „bicicleta navetistului”, minte.",
+       "Mesajul „face bicicleta lăsată afară bună de navetă” e o promisiune largă fără dovadă; cu o rugină avansată, 120 lei nu garantează nimic.",
+       "Cadrul 3 (mecanicul curăță rugina) promite o operațiune neconfirmată în Revizia Urbană; verifică la atelier.",
+       "Cadrul 4 (biciclist pe lângă stație) e stock prezentat ca același navetist: continuitate falsă.",
+       "„Se teme că lanțul îl lasă pe drum” e o stare interioară neverificată, nevăzută în imagine."
+      ]
+     }
+    ],
+    "nr_imbunatatit": 1,
+    "imbunatatit": {
+     "titlu": "Lanțul care scârțâie la fiecare pedală",
+     "moment_real": "Miercuri, 7:45, după o noapte cu ploaie. Navetistul pleacă de la bloc spre birou și, de la prima pedală, lanțul scârțâie ritmic, sunet uscat, la fiecare apăsare.",
+     "tensiune": "Aude bicicleta la fiecare pedală și nu știe dacă e doar apă sau ceva mai mult. Mecanicul ascultă, apoi lucrează la transmisie.",
+     "mesaj_unic": "La Revizia Urbană transmisia se verifică și se reglează, iar prețul îl știi dinainte: 120 lei.",
+     "dovada": "F1",
+     "de_ce_acum": "După câteva zile ude de noiembrie, de obicei lanțul își pierde uleiul și scârțâie, iar naveta de dimineață se aude.",
+     "cadre": [
+      {
+       "subiect": "biciclist generic",
+       "actiune": "pedalează pe o stradă udă dimineața, cu subtitlul „scârț, scârț”",
+       "context": "oraș, dimineață gri după ploaie",
+       "tip": "video",
+       "incadrare": "plan larg",
+       "interogari": [
+        "cycling city rain",
+        "cyclist commuting rain street"
+       ]
+      },
+      {
+       "subiect": "lanțul",
+       "actiune": "se rotește pe pinion și scârțâie, sunet real înregistrat",
+       "context": "în atelierul Spița, bicicleta pe stand",
+       "tip": "video",
+       "incadrare": "detaliu",
+       "interogari": []
+      },
+      {
+       "subiect": "mecanicul Spița",
+       "actiune": "ascultă lanțul, apoi îl curăță cu peria în timp ce învârte pedala",
+       "context": "în atelierul Spița, bicicleta pe stand",
+       "tip": "video",
+       "incadrare": "prim-plan",
+       "interogari": []
+      },
+      {
+       "subiect": "mâna mecanicului",
+       "actiune": "picură ulei pe lanț, za cu za, în timp ce pedala se rotește",
+       "context": "în atelierul Spița, bicicleta pe stand",
+       "tip": "video",
+       "incadrare": "detaliu",
+       "interogari": []
+      },
+      {
+       "subiect": "pedala și lanțul",
+       "actiune": "se rotesc la loc, în liniște",
+       "context": "în atelierul Spița, bicicleta pe stand",
+       "tip": "video",
+       "incadrare": "detaliu",
+       "interogari": []
+      },
+      {
+       "subiect": "apel la acțiune",
+       "actiune": "apare textul: Revizia Urbană, frâne și transmisie, 120 lei. Programare din formular.",
+       "context": "final de clip",
+       "tip": "text",
+       "incadrare": "",
+       "interogari": []
+      }
+     ],
+     "material_propriu": [
+      2,
+      3,
+      4,
+      5
+     ]
+    }
+   }
+  },
+  "continut.brief#1": {
+   "sarcina": "continut.brief",
+   "nr": 1,
+   "rol": "generator",
+   "prompt_sha256": "68157168a57bfeeac0bcbcd38d1f556785bde892bc3e068903b3fb56694f76d3",
+   "autor": "subagent Claude Opus",
+   "raspuns": {
+    "dovezi": [
+     "Concept ales: lanțul care scârțâie la fiecare pedală",
+     "F1: Revizia Urbană costă 120 lei pentru o bicicletă",
+     "F2: oferta Revizia Urbană, 120 RON",
+     "Ghid: Revizia Urbană: frâne și transmisie; prețul spus dinainte"
+    ],
+    "incredere": 0.84,
+    "brief": {
+     "obiectiv": "vanzare",
+     "oferta": "F2",
+     "scop": "Navetiștii din Sibiu al căror lanț scârțâie după zilele ude să programeze Revizia Urbană din formular, știind prețul dinainte: 120 lei.",
+     "public": "Navetiști din Sibiu care merg dimineața la birou cu bicicleta și în noiembrie, după nopți cu ploaie.",
+     "mesaj_unic": "La Revizia Urbană transmisia se verifică și se reglează, iar prețul îl știi dinainte: 120 lei.",
+     "fapte_permise": [
+      "F1",
+      "F2"
+     ],
+     "format": "Clip vertical scurt Instagram, 6 cadre, câte o bătaie pe cadru: drumul ud de dimineață, lanțul care scârțâie, curățat și uns în atelierul Spița, apoi rotit în liniște; sunet real; text doar la final.",
+     "apel_la_actiune": "Programează Revizia Urbană din formular: 120 lei.",
+     "interdictii": [
+      "Nu da un diagnostic sigur pentru scârțâit; transmisia se verifică și se reglează",
+      "Nu inventa prețuri, termene sau operațiuni în afară de F1 și F2",
+      "Nu folosi cuvintele „garantat” și „reducere”",
+      "Nu promite efecte medicale",
+      "Nu compara cu alte firme",
+      "Fără superlative („cel mai bun”, „numărul 1”)"
+     ],
+     "idee_editoriala": "Miercuri, 7:45, după ploaie: de la prima pedală, lanțul scârțâie tot drumul spre birou. Arătăm în atelier cum mecanicul ascultă, curăță și unge lanțul până tace.",
+     "ce_vede_publicul": "Un biciclist pedalează pe o stradă udă, dimineața; lanțul se rotește pe pinion și scârțâie, cu sunet real; mecanicul Spița ascultă lanțul, apoi îl curăță cu peria în timp ce învârte pedala.",
+     "informatie_in_plus": "Scârțâitul lanțului după ploaie se verifică și se reglează la Revizia Urbană, care include frâne și transmisie, cu prețul știut dinainte: 120 lei.",
+     "natura": "prezentare"
+    }
+   }
+  },
+  "continut.hookuri#1": {
+   "sarcina": "continut.hookuri",
+   "nr": 1,
+   "rol": "generator",
+   "prompt_sha256": "6074c00f5dd08d5954cbdc3c7bade6ef384d5768fb42d78f136c775cd1e69d71",
+   "autor": "subagent Claude Opus",
+   "raspuns": {
+    "dovezi": [
+     "Concept ales: lanțul care scârțâie la fiecare pedală",
+     "F1/F2: Revizia Urbană, 120 lei"
+    ],
+    "incredere": 0.8,
+    "hookuri": [
+     {
+      "text": "Lanțul tău scârțâie de la prima pedală până la birou? Îl auzi doar tu, la fiecare apăsare.",
+      "tipar": "intrebare"
+     },
+     {
+      "text": "7:45, după o noapte cu ploaie. Prima pedală: scârț. A doua: scârț. Tot drumul spre birou.",
+      "tipar": "poveste"
+     },
+     {
+      "text": "Ploaia nu udă doar lanțul. Îi spală uleiul, și de aici vine scârțâitul de dimineață.",
+      "tipar": "contraintuitiv"
+     },
+     {
+      "text": "Mai mult ulei peste noroi nu oprește scârțâitul. Lanțul se curăță întâi, apoi se unge.",
+      "tipar": "greseala"
+     }
+    ]
+   }
+  },
+  "continut.script#1": {
+   "sarcina": "continut.script",
+   "nr": 1,
+   "rol": "generator",
+   "prompt_sha256": "c7a2b742975adbd97beeddcf99afd54b9a9b508c43fd841517755cfb66ae4d40",
+   "autor": "subagent Claude Opus",
+   "raspuns": {
+    "dovezi": [
+     "Concept ales: lanțul care scârțâie la fiecare pedală, cadrele 1–5",
+     "F1/F2: Revizia Urbană, 120 lei",
+     "Brief: transmisia se verifică și se reglează, fără diagnostic sigur"
+    ],
+    "incredere": 0.82,
+    "batai": [
+     {
+      "voce": "Miercuri, șapte și trei sferturi. Până la birou, fiecare pedală se aude.",
+      "text_ecran": "scârț, scârț",
+      "vizual": "un biciclist pedalează pe o stradă udă, dimineața, după ploaie"
+     },
+     {
+      "voce": "E doar apă? Sau ceva mai mult? Din mers, n-ai cum să știi.",
+      "text_ecran": "",
+      "vizual": "lanțul se rotește pe pinion și scârțâie, bicicleta pe standul atelierului Spița"
+     },
+     {
+      "voce": "La Revizia Urbană, mecanicul ascultă întâi. Apoi scoate noroiul dintre zale.",
+      "text_ecran": "",
+      "vizual": "mecanicul Spița ascultă lanțul, apoi îl curăță cu peria în timp ce învârte pedala"
+     },
+     {
+      "voce": "Uleiul ajunge înapoi unde l-a spălat ploaia.",
+      "text_ecran": "",
+      "vizual": "mâna mecanicului picură ulei pe lanț, za cu za, în timp ce pedala se rotește"
+     },
+     {
+      "voce": "Transmisia se verifică și se reglează. Prețul îl știi dinainte.",
+      "text_ecran": "Revizia Urbană, 120 lei",
+      "vizual": "pedala și lanțul se rotesc din nou, în liniște, pe stand"
+     }
+    ],
+    "apel_la_actiune": "Programează Revizia Urbană din formular: 120 lei."
+   }
+  },
+  "continut.idei#2": {
+   "sarcina": "continut.idei",
+   "nr": 2,
+   "rol": "generator",
+   "prompt_sha256": "77a57246a947a71bcd88dcad33d7e04756b9a0abf807ce6ea4c489967c1b3f99",
+   "autor": "subagent Claude Opus",
+   "raspuns": {
+    "dovezi": [
+     "F1: Revizia Urbană costă 120 lei pentru o bicicletă",
+     "F2: oferta Revizia Urbană, 120 RON",
+     "Ghid: Revizia Urbană: frâne și transmisie; reglăm frâna ca etrierul să prindă discul egal; prețul spus dinainte",
+     "Pilon: Revizia pe înțeles; subiect: frâna care scârțâie după ploaie"
+    ],
+    "incredere": 0.8,
+    "concepte": [
+     {
+      "titlu": "Scârțâitul de la semafor",
+      "moment_real": "Dimineața, după o noapte cu ploaie, navetistul ajunge la primul semafor și strânge frâna. Discul scoate un scârțâit ascuțit, care se repetă la fiecare semafor până la birou.",
+      "tensiune": "Sunetul îl însoțește tot drumul și nu știe ce înseamnă: e doar apă pe disc sau frâna nu mai prinde cum trebuie?",
+      "mesaj_unic": "Când frâna scârțâie după ploaie, la Revizia Urbană se verifică și se reglează, cu prețul știut dinainte: 120 lei.",
+      "dovada": "F1",
+      "de_ce_acum": "În noiembrie plouă des, iar apa și mizeria de pe carosabil ajung pe disc și pe plăcuțe la fiecare drum.",
+      "cadre": [
+       {
+        "subiect": "biciclist",
+        "actiune": "frânează la semafor pe asfalt ud",
+        "context": "intersecție urbană, dimineață ploioasă",
+        "tip": "video",
+        "incadrare": "plan larg",
+        "interogari": [
+         "cyclist braking traffic light",
+         "cyclist waiting red light rain"
+        ]
+       },
+       {
+        "subiect": "mâna pe manetă",
+        "actiune": "strânge maneta de frână",
+        "context": "pe ghidon, mănușă udă",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": [
+         "bicycle brake lever hand",
+         "hand squeezing bike brake"
+        ]
+       },
+       {
+        "subiect": "discul de frână",
+        "actiune": "se rotește și încetinește între plăcuțe",
+        "context": "roata din față, cu apă",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": [
+         "bicycle disc brake",
+         "bicycle disc brake rotating"
+        ]
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "curăță discul cu o cârpă și verifică plăcuțele",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "aliniază etrierul și strânge șurubul cu cheia",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "foto",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "text pe imagine",
+        "actiune": "apare textul: Revizia Urbană: frâne și transmisie, 120 lei. Programare din formular.",
+        "context": "final de postare",
+        "tip": "text",
+        "incadrare": "",
+        "interogari": []
+       }
+      ],
+      "material_propriu": [
+       4,
+       5
+      ]
+     },
+     {
+      "titlu": "Roata care freacă la împins",
+      "moment_real": "Seara, după ploaie, navetistul coboară de pe bicicletă și o împinge pe trotuar până la bloc. La fiecare rotire, roata din față face un „șșt” scurt, deși maneta nu e strânsă.",
+      "tensiune": "Un sunet care vara nu era acolo. Ce faci cu un zgomot pe care nu-l înțelegi?",
+      "mesaj_unic": "Dacă roata freacă la împins, la Revizia Urbană frâna se verifică și se reglează, iar prețul îl știi dinainte: 120 lei.",
+      "dovada": "F1",
+      "de_ce_acum": "După câteva zile ude de noiembrie, pe disc și pe plăcuțe rămân apă și murdărie, iar frecarea se aude și la împins.",
+      "cadre": [
+       {
+        "subiect": "clientul Spița",
+        "actiune": "împinge bicicleta pe trotuarul ud, roata din față face „șșt”, sunet real",
+        "context": "trotuarul din fața atelierului Spița, seara",
+        "tip": "video",
+        "incadrare": "plan mediu",
+        "interogari": []
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "învârte roata cu mâna și ascultă de aproape frecarea",
+        "context": "în atelierul Spița, bicicleta pe stand, sunet real",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "verifică plăcuțele cu lanterna și curăță discul",
+        "context": "în atelierul Spița",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": []
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "slăbește etrierul, îl aliniază pe disc și strânge șuruburile",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "clientul și mecanicul",
+        "actiune": "mecanicul învârte roata, care merge liber; clientul se apleacă și ascultă",
+        "context": "lângă standul atelierului Spița",
+        "tip": "video",
+        "incadrare": "plan mediu",
+        "interogari": []
+       },
+       {
+        "subiect": "text pe imagine",
+        "actiune": "apare textul: Revizia Urbană: frâne și transmisie, 120 lei. Programare din formular.",
+        "context": "final de postare",
+        "tip": "text",
+        "incadrare": "",
+        "interogari": []
+       }
+      ],
+      "material_propriu": [
+       1,
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     {
+      "titlu": "Frunze ude pe pistă",
+      "moment_real": "Dimineața, pe pista de biciclete de lângă parc, asfaltul e acoperit de frunze ude. Navetistul strânge frâna înainte de curbă, frâna scârțâie și prinde mai târziu decât se aștepta.",
+      "tensiune": "După curba aceea, frânează mai devreme la fiecare intersecție și merge încordat până la birou.",
+      "mesaj_unic": "O frână reglată să prindă discul egal te lasă să frânezi pe ud fără să ghicești.",
+      "dovada": "F1",
+      "de_ce_acum": "La final de noiembrie pistele sunt pline de frunze ude, iar ploaia face frânarea neuniformă.",
+      "cadre": [
+       {
+        "subiect": "biciclist",
+        "actiune": "pedalează pe o pistă acoperită cu frunze ude",
+        "context": "parc, dimineață de toamnă",
+        "tip": "video",
+        "incadrare": "plan larg",
+        "interogari": [
+         "cyclist autumn leaves bike path",
+         "cycling wet leaves park"
+        ]
+       },
+       {
+        "subiect": "roata bicicletei",
+        "actiune": "trece peste frunze ude",
+        "context": "pistă de biciclete, toamna",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": [
+         "bicycle wheel autumn leaves",
+         "bicycle tire wet leaves"
+        ]
+       },
+       {
+        "subiect": "mâna pe manetă",
+        "actiune": "strânge frâna înainte de curbă",
+        "context": "pe ghidon, dimineața",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": [
+         "bicycle brake lever hand",
+         "cyclist braking rain street"
+        ]
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "strânge șurubul etrierului și învârte roata de probă",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "text pe imagine",
+        "actiune": "apare textul: Revizia Urbană, 120 lei. Programare din formular.",
+        "context": "final de postare",
+        "tip": "text",
+        "incadrare": "",
+        "interogari": []
+       }
+      ],
+      "material_propriu": [
+       4
+      ]
+     },
+     {
+      "titlu": "Maneta care ajunge la ghidon",
+      "moment_real": "Joi dimineața, după trei zile de ploaie, navetistul frânează la capătul străzii și maneta merge tot mai departe, până aproape atinge ghidonul.",
+      "tensiune": "Simte că trebuie să strângă tot mai tare pentru aceeași oprire și nu mai știe cât îi rămâne din frână.",
+      "mesaj_unic": "Când maneta ajunge la ghidon, frâna cere un reglaj, iar la Revizia Urbană știi prețul dinainte: 120 lei.",
+      "dovada": "F2",
+      "de_ce_acum": "Zilele ude la rând din noiembrie dereglează frâna mai repede decât vara.",
+      "cadre": [
+       {
+        "subiect": "biciclist",
+        "actiune": "frânează pe o stradă udă",
+        "context": "oraș, dimineață gri",
+        "tip": "video",
+        "incadrare": "plan larg",
+        "interogari": [
+         "cyclist braking rain street",
+         "cycling city rain"
+        ]
+       },
+       {
+        "subiect": "mâna pe manetă",
+        "actiune": "strânge maneta până aproape de ghidon",
+        "context": "pe ghidon, picături de apă",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": [
+         "hand squeezing bike brake",
+         "bicycle brake lever hand"
+        ]
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "reglează frâna și strânge maneta de probă",
+        "context": "în atelierul Spița, bicicleta pe stand",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "clientul Spița",
+        "actiune": "strânge maneta, iar roata se oprește",
+        "context": "în atelierul Spița, lângă stand",
+        "tip": "foto",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "text pe imagine",
+        "actiune": "apare textul: Revizia Urbană, 120 lei. Prețul îl știi dinainte.",
+        "context": "final de postare",
+        "tip": "text",
+        "incadrare": "",
+        "interogari": []
+       }
+      ],
+      "material_propriu": [
+       3,
+       4
+      ]
+     },
+     {
+      "titlu": "„De ce scârțâie doar după ploaie?”",
+      "moment_real": "Sâmbătă dimineața, la tejgheaua atelierului, un client ține bicicleta de ghidon și întreabă de ce frâna scârțâie doar după ploaie. Mecanicul învârte roata și îi arată pe disc urmele de apă și noroi.",
+      "tensiune": "A citit zece explicații diferite pe internet și tot nu știe ce are bicicleta lui.",
+      "mesaj_unic": "La Revizia Urbană îți arătăm pe bicicleta ta ce verificăm la frână, înainte de reglaj.",
+      "dovada": "F1",
+      "de_ce_acum": "În noiembrie, frâna scârțâie după aproape fiecare drum ud, iar întrebarea vine de la mulți navetiști.",
+      "cadre": [
+       {
+        "subiect": "clientul Spița",
+        "actiune": "intră cu bicicleta și o sprijină de tejghea",
+        "context": "atelierul Spița, sâmbătă dimineața",
+        "tip": "video",
+        "incadrare": "plan mediu",
+        "interogari": []
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "învârte roata și arată cu degetul discul",
+        "context": "la tejgheaua atelierului Spița",
+        "tip": "video",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "mâinile mecanicului",
+        "actiune": "curăță discul cu o cârpă",
+        "context": "bicicleta pe stand, în atelierul Spița",
+        "tip": "video",
+        "incadrare": "detaliu",
+        "interogari": []
+       },
+       {
+        "subiect": "mecanicul Spița",
+        "actiune": "aliniază etrierul și strânge șurubul cu cheia",
+        "context": "în atelierul Spița",
+        "tip": "foto",
+        "incadrare": "prim-plan",
+        "interogari": []
+       },
+       {
+        "subiect": "text pe imagine",
+        "actiune": "apare textul: Revizia Urbană: frâne și transmisie, 120 lei.",
+        "context": "final de postare",
+        "tip": "text",
+        "incadrare": "",
+        "interogari": []
+       }
+      ],
+      "material_propriu": [
+       1,
+       2,
+       3,
+       4
+      ]
+     }
+    ]
+   }
+  },
+  "continut.critica_idee#2": {
+   "sarcina": "continut.critica_idee",
+   "nr": 2,
+   "rol": "critic",
+   "prompt_sha256": "59b0783d1d2cebc8b8af5341662038ae4f93314a88aadf8604fdc9bca77837e0",
+   "autor": "subagent Claude Sonnet",
+   "raspuns": {
+    "dovezi": [
+     "F1/F2 acoperă doar prețul; ghidul aprobă „Reglăm frâna ca etrierul să prindă discul egal” și „frâne și transmisie”, nu promisiuni de siguranță sau de comportament pe ud",
+     "Frecarea discului la împins după ploaie și scârțâitul sunt fenomene reale; derapajul pe frunze ține de anvelopă, nu de reglajul etrierului",
+     "Lipsuri declarate: public și pasaje_materiale; „mulți navetiști întreabă” sau „aproape fiecare drum ud” sunt neverificate",
+     "Conceptul folosit deja e lanțul care scârțâie; conceptele 2 și 5 sunt în unghi diferit (frână, atelier)"
+    ],
+    "incredere": 0.76,
+    "evaluari": [
+     {
+      "nr": 1,
+      "specificitate": 4,
+      "realism": 5,
+      "relevanta": 5,
+      "fezabilitate": 3,
+      "noutate": 3,
+      "onestitate": 3,
+      "obiectii": [
+       "Cadrul 3 (disc în rotație, încetinind între plăcuțe, cu apă) nu se găsește în stock în varianta cu apă și în mers; scoate-l sau filmează discul la atelier.",
+       "Cadrele 1 și 2 sunt stock mute: scârțâitul, tema postării, nu se aude. Subtitlu „iiiiț” pe imagine sau sunet real din atelier.",
+       "Cadrul 5 e foto (șurub strâns) dintr-o poveste care începe cu video: un cadru static, nu spune nimic; arată mâna care rotește roata după reglaj.",
+       "Tensiunea („e apă pe disc sau frâna nu mai prinde?”) e bună, dar e text; nu apare în vreun cadru.",
+       "„Apa și mizeria ajung pe disc la fiecare drum” e generalizare; spune „de obicei, după câteva zile ude”."
+      ]
+     },
+     {
+      "nr": 2,
+      "specificitate": 5,
+      "realism": 5,
+      "relevanta": 4,
+      "fezabilitate": 4,
+      "noutate": 4,
+      "onestitate": 4,
+      "obiectii": [
+       "Cadrul 1 („clientul Spița” împinge bicicleta, cu sunet real) e prezentat drept client: dacă e angajat sau figurant, e regie spusă ca realitate; filmează un client real cu acord sau spune „mecanicul”.",
+       "Cadrul 5 („clientul se apleacă și ascultă”) sugerează că frâna e rezolvată; păstrează gestul, fără text de tip „ca nouă”.",
+       "Subiectul din calendar e scârțâitul, iar conceptul vorbește despre frecare la împins: leagă-le în text, altfel pare altă problemă.",
+       "Cadrul 3 (lanterna pe plăcuțe) e filmabil, dar nu promite în text „verificăm plăcuțele” dacă atelierul nu confirmă că e inclus.",
+       "„Pe disc și pe plăcuțe rămân apă și murdărie” e explicație plauzibilă, nu fapt aprobat; „de obicei”."
+      ]
+     },
+     {
+      "nr": 3,
+      "specificitate": 3,
+      "realism": 3,
+      "relevanta": 3,
+      "fezabilitate": 2,
+      "noutate": 4,
+      "onestitate": 2,
+      "obiectii": [
+       "Cadrele 1 și 2 (pistă cu frunze ude, anvelopă pe frunze) nu se găsesc în stock gratuit pentru un oraș precum Sibiu, iar „pista lângă parc” nu e verificată.",
+       "Mesajul „frânezi pe ud fără să ghicești” promite siguranță pe care F1 nu o acoperă; frunzele ude ține de aderența anvelopei, nu de etrier.",
+       "Cadrul 3 (mână pe manetă, înainte de curbă) e stock generic prezentat ca scena din parc.",
+       "Povestea promite că frâna „prinde mai târziu”, dar niciun cadru nu arată asta.",
+       "Doar cadrul 4 e propriu: restul poveștii depinde de stock greu de găsit."
+      ]
+     },
+     {
+      "nr": 4,
+      "specificitate": 4,
+      "realism": 4,
+      "relevanta": 3,
+      "fezabilitate": 3,
+      "noutate": 3,
+      "onestitate": 3,
+      "obiectii": [
+       "Subiectul e frâna care scârțâie, iar conceptul vorbește despre cursa manetei: altă problemă; leagă-o de scârțâit sau scoate-o.",
+       "Cadrul 2 (maneta ajunge aproape de ghidon) nu se găsește în stock: mâna pe manetă generică nu arată distanța.",
+       "Cadrul 4 e foto static al clientului care strânge maneta: nu arată nimic.",
+       "„Zilele ude dereglează frâna mai repede decât vara” e o afirmație neprobată.",
+       "„Nu mai știe cât îi rămâne din frână” e gând, nu se vede."
+      ]
+     },
+     {
+      "nr": 5,
+      "specificitate": 5,
+      "realism": 4,
+      "relevanta": 5,
+      "fezabilitate": 4,
+      "noutate": 3,
+      "onestitate": 3,
+      "obiectii": [
+       "Mesajul „îți arătăm pe bicicleta ta ce verificăm” promite o demonstrație la fiecare client, neconfirmată de fapte aprobate.",
+       "„Întrebarea vine de la mulți navetiști” și „aproape după fiecare drum ud” sunt statistici inventate.",
+       "Cadrul 1 și cadrul 2 cu „clientul Spița” sunt regie dacă omul nu e un client real; spune clar cine e.",
+       "Cadrul 4 e foto cu șurub: statică, scoate-o sau fă video.",
+       "Tensiunea („zece explicații pe internet”) e inventată și nu se vede."
+      ]
+     }
+    ],
+    "nr_imbunatatit": 2,
+    "imbunatatit": {
+     "titlu": "Roata care freacă la împins",
+     "moment_real": "Seara, după ploaie, mecanicul sau un client cu acord împinge bicicleta pe trotuarul din fața atelierului. La fiecare rotire, roata din față face un „șșt” scurt, deși maneta nu e strânsă.",
+     "tensiune": "Un sunet care vara nu era acolo. Ce faci cu un zgomot pe care nu-l înțelegi? Până nu ascultă roata de aproape, nu poate ști.",
+     "mesaj_unic": "Dacă roata freacă la împins după ploaie, la Revizia Urbană frâna se verifică și se reglează, iar prețul îl știi dinainte: 120 lei.",
+     "dovada": "F1",
+     "de_ce_acum": "După câteva zile ude de noiembrie, de obicei rămân apă și murdărie pe disc și pe plăcuțe, iar frecarea se aude și la împins.",
+     "cadre": [
+      {
+       "subiect": "bicicletă împinsă pe trotuar",
+       "actiune": "roata din față face „șșt” la fiecare rotire, sunet real; apare subtitlul „șșt”",
+       "context": "trotuarul din fața atelierului Spița, seara, după ploaie",
+       "tip": "video",
+       "incadrare": "plan mediu",
+       "interogari": []
+      },
+      {
+       "subiect": "mecanicul Spița",
+       "actiune": "învârte roata cu mâna și ascultă de aproape frecarea",
+       "context": "în atelierul Spița, bicicleta pe stand, sunet real",
+       "tip": "video",
+       "incadrare": "prim-plan",
+       "interogari": []
+      },
+      {
+       "subiect": "mecanicul Spița",
+       "actiune": "curăță discul cu o cârpă și verifică plăcuțele cu lanterna",
+       "context": "în atelierul Spița, bicicleta pe stand",
+       "tip": "video",
+       "incadrare": "detaliu",
+       "interogari": []
+      },
+      {
+       "subiect": "mecanicul Spița",
+       "actiune": "slăbește etrierul, îl aliniază pe disc și strânge șuruburile",
+       "context": "în atelierul Spița, bicicleta pe stand",
+       "tip": "video",
+       "incadrare": "prim-plan",
+       "interogari": []
+      },
+      {
+       "subiect": "mecanicul și proprietarul bicicletei",
+       "actiune": "mecanicul învârte roata, care merge liber; proprietarul se apleacă și ascultă",
+       "context": "lângă standul atelierului Spița",
+       "tip": "video",
+       "incadrare": "plan mediu",
+       "interogari": []
+      },
+      {
+       "subiect": "text pe imagine",
+       "actiune": "apare textul: Revizia Urbană: frâne și transmisie, 120 lei. Programare din formular.",
+       "context": "final de postare",
+       "tip": "text",
+       "incadrare": "",
+       "interogari": []
+      }
+     ],
+     "material_propriu": [
+      1,
+      2,
+      3,
+      4,
+      5
+     ]
+    }
+   }
+  },
+  "continut.brief#2": {
+   "sarcina": "continut.brief",
+   "nr": 2,
+   "rol": "generator",
+   "prompt_sha256": "088d8fea213374d3ee2391b473e294b687f00450a6459fe37201698772146309",
+   "autor": "subagent Claude Opus",
+   "raspuns": {
+    "dovezi": [
+     "Concept ales: roata care freacă la împins",
+     "F1: Revizia Urbană costă 120 lei pentru o bicicletă",
+     "F2: oferta Revizia Urbană, 120 RON",
+     "Ghid: frâne și transmisie; prețul spus dinainte"
+    ],
+    "incredere": 0.84,
+    "brief": {
+     "obiectiv": "vanzare",
+     "oferta": "F2",
+     "scop": "Navetiștii din Sibiu care aud roata din față frecând după ploaie să programeze Revizia Urbană din formular, cu prețul știut dinainte: 120 lei.",
+     "public": "Navetiști din Sibiu care merg cu bicicleta și pe ploaie, în noiembrie, și au auzit un sunet nou la roata din față.",
+     "mesaj_unic": "Dacă roata freacă la împins, la Revizia Urbană frâna se verifică și se reglează, iar prețul îl știi dinainte: 120 lei.",
+     "fapte_permise": [
+      "F1",
+      "F2"
+     ],
+     "format": "Postare Facebook cu imagini reale din atelierul Spița, în ordinea cadrelor: clientul împinge bicicleta, mecanicul ascultă, verifică și curăță, aliniază etrierul, roata merge liber; text pe imagine doar în cadrul final.",
+     "apel_la_actiune": "Programează Revizia Urbană din formular: 120 lei.",
+     "interdictii": [
+      "Nu da un diagnostic sigur pentru sunet; frâna se verifică și se reglează",
+      "Nu inventa prețuri, termene sau operațiuni în afară de F1 și F2",
+      "Nu folosi cuvintele „garantat” și „reducere”",
+      "Nu promite efecte medicale",
+      "Nu compara cu alte firme",
+      "Fără superlative („cel mai bun”, „numărul 1”)"
+     ],
+     "idee_editoriala": "Seara, după ploaie, împingi bicicleta spre bloc și roata face „șșt” la fiecare rotire, deși nu ții de frână. Arătăm, pe o bicicletă reală, cum mecanicul ascultă și verifică sunetul.",
+     "ce_vede_publicul": "Clientul împinge bicicleta pe trotuarul ud din fața atelierului Spița; mecanicul învârte roata pe stand și ascultă de aproape frecarea; apoi verifică plăcuțele cu lanterna și curăță discul.",
+     "informatie_in_plus": "Frecarea roții din față după ploaie se verifică și se reglează la Revizia Urbană, care include frâne și transmisie, cu prețul știut dinainte: 120 lei.",
+     "natura": "prezentare"
+    }
+   }
+  },
+  "continut.hookuri#2": {
+   "sarcina": "continut.hookuri",
+   "nr": 2,
+   "rol": "generator",
+   "prompt_sha256": "a86febb975b4f67c0e90505088be954b3a1facb078e0518780943495fe853c5d",
+   "autor": "subagent Claude Opus",
+   "raspuns": {
+    "dovezi": [
+     "Concept ales: roata care freacă la împins",
+     "F1/F2: Revizia Urbană, 120 lei"
+    ],
+    "incredere": 0.8,
+    "hookuri": [
+     {
+      "text": "Nu ții de frână, dar roata face „șșt” la fiecare rotire. Ce faci cu un sunet pe care nu-l înțelegi?",
+      "tipar": "intrebare"
+     },
+     {
+      "text": "Seara, după ploaie, împingi bicicleta spre bloc. Și abia acum auzi roata din față frecând.",
+      "tipar": "poveste"
+     },
+     {
+      "text": "Frâna se aude cel mai bine când nu frânezi: împinge bicicleta pe lângă tine și ascultă.",
+      "tipar": "contraintuitiv"
+     },
+     {
+      "text": "Vara, roata din față mergea în liniște. După o săptămână de ploaie, freacă la fiecare rotire.",
+      "tipar": "inainte_dupa"
+     }
+    ]
+   }
+  },
+  "continut.postare#1": {
+   "sarcina": "continut.postare",
+   "nr": 1,
+   "rol": "generator",
+   "prompt_sha256": "41a4139b45f46e0c67361f2fd18b528128337f6dcd24021d6c22836d1bb66a49",
+   "autor": "subagent Claude Opus",
+   "raspuns": {
+    "dovezi": [
+     "Concept ales: roata care freacă la împins",
+     "F1: Revizia Urbană costă 120 lei pentru o bicicletă",
+     "Brief: Revizia Urbană include frâne și transmisie; frâna se verifică și se reglează"
+    ],
+    "incredere": 0.83,
+    "text": "Nu ții de frână, dar roata face „șșt” la fiecare rotire. Ce faci cu un sunet pe care nu-l înțelegi?\n\nSeara, după ploaie, cobori de pe bicicletă și o împingi până la bloc. Abia atunci îl auzi. Vara nu era acolo.\n\nÎn atelier, mecanicul pune bicicleta pe stand și învârte roata cu mâna. Ascultă de aproape. Se uită la plăcuțe cu lanterna, curăță discul, apoi aliniază etrierul și strânge șuruburile. Învârte iar roata și te cheamă să asculți și tu.\n\nLa Revizia Urbană, frâna se verifică și se reglează, împreună cu transmisia. Prețul îl știi dinainte: 120 lei.\n\nProgramează Revizia Urbană din formular: 120 lei.",
+    "hashtaguri": [
+     "Sibiu",
+     "bicicleta",
+     "naveta",
+     "RevizieBicicleta"
+    ]
+   }
+  },
+  "media.regizor#1": {
+   "sarcina": "media.regizor",
+   "nr": 1,
+   "rol": "generator",
+   "prompt_sha256": "3e30a6eff2b0fafa1967d4d9209ca134382323271b47a510e51ad7182b206e33",
+   "autor": "subagent Claude Opus",
+   "raspuns": {
+    "dovezi": [
+     "Materialele corespund cadrelor conceptului: 0 drumul ud, 1 lanțul pe stand (cadrul 2), 2 curățarea (cadrul 3), 3 ungerea (cadrul 4), 4 transmisia în liniște (cadrul 5)",
+     "Hook-ul despre lanț se deschide pe lanț; apelul final revine la mecanic, fără a repeta cadrul precedent"
+    ],
+    "incredere": 0.85,
+    "scene": [
+     {
+      "bataie": 0,
+      "material": 1,
+      "miscare": "zoom_in"
+     },
+     {
+      "bataie": 1,
+      "material": 0,
+      "miscare": "static"
+     },
+     {
+      "bataie": 2,
+      "material": 1,
+      "miscare": "zoom_out"
+     },
+     {
+      "bataie": 3,
+      "material": 2,
+      "miscare": "zoom_in"
+     },
+     {
+      "bataie": 4,
+      "material": 3,
+      "miscare": "zoom_in"
+     },
+     {
+      "bataie": 5,
+      "material": 4,
+      "miscare": "static"
+     },
+     {
+      "bataie": 6,
+      "material": 2,
+      "miscare": "zoom_out"
+     }
+    ],
+    "coperta": "Ploaia spală uleiul de pe lanț"
+   }
+  }
+ }
+}
