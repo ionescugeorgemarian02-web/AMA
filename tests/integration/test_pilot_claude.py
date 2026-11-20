@@ -64,7 +64,7 @@ def test_campanie(
             assert (
                 conn.execute(
                     text(
-                        "UPDATE gateway_profiluri SET lant=:lant, lant_degradare='{}' "
+                        "UPDATE gateway_profiluri SET lant=:lant, lant_degradare='{}', la_epuizare='amana' "
                         "WHERE nume=:profil RETURNING nume"
                     ),
                     {"lant": [m.cod], "profil": profil},
