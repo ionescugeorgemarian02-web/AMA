@@ -19,6 +19,7 @@ pauză pe bătaie
 """
 
 import math
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
@@ -38,7 +39,8 @@ class Bataie(BaseModel):
     model_config = ConfigDict(extra="forbid")
     voce: str = Field(min_length=3, max_length=400)
     text_ecran: str = Field(default="", max_length=80)
-    vizual: str = Field(min_length=3, max_length=200)
+    # indicația vizuală a bătăii (F-editorial): ce se vede concret; validarea respinge indicațiile vagi
+    vizual: Annotated[brief.Observabila, Field(min_length=3, max_length=200)]
 
 
 class ScriptVideo(gateway.Iesire):
@@ -81,7 +83,7 @@ def _cere(
     tinta = durata_tinta(b)
     r = gateway.apeleaza(
         db,
-        prompt="continut.script@1",
+        prompt="continut.script@2",
         schema=ScriptVideo,
         tenant_id=lv.tenant_id,
         componenta="continut.script",
@@ -126,6 +128,8 @@ def scrie_scriptul(db: Session, lv: productie.Livrabil, b: dict[str, object]) ->
                     "cta": cta,
                     "durata_tinta_sec": tinta,
                     "durata_estimata_sec": estimata,
+                    # F-editorial: natura decide ce face storyboardul cu o scenă fără material
+                    "natura": "educativ" if b.get("natura") == "educativ" else "prezentare",
                 },
                 autor=COMPONENTA,
                 model_autor=model,

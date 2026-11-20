@@ -3,6 +3,7 @@
 
 # ruff: noqa: F811
 import uuid
+from typing import Any
 
 import pytest
 
@@ -67,10 +68,36 @@ def test_un_fapt_inventat_respinge_brieful_si_livrabilul_ramane_planificat(
             brief.scrie(db, lid)
 
 
+VIZUAL: dict[str, Any] = {
+    "idee_editoriala": "Măcinarea potrivită schimbă gustul cafelei.",
+    "ce_vede_publicul": "Râșnița cu boabe și trei grade de măcinare pe tejghea.",
+    "informatie_in_plus": "Fiecare metodă de preparare cere altă măcinare.",
+    "natura": "educativ",
+}
+
+
+def test_brieful_vizual_respinge_ce_vede_publicul_vag() -> None:
+    assert brief.problema_indicatie("Râșnița cu boabe pe tejghea") is None
+    assert brief.problema_indicatie("mecanic care reglează etrierul frânei") is None
+    assert "vagă" in (brief.problema_indicatie("Cadru dinamic, premium și modern") or "")
+    assert brief.problema_indicatie("  ") == "indicația vizuală e goală"
+    with pytest.raises(ValueError, match="vagă"):
+        brief.ContinutBrief(
+            obiectiv="editorial", scop="Să explicăm măcinarea", public="Iubitori de cafea",
+            mesaj_unic="Cafeaua ajunge proaspătă", fapte_permise=[], format="Postare scurtă",
+            apel_la_actiune="Află detalii", **{**VIZUAL, "ce_vede_publicul": "imagine dinamică și premium"},
+        )  # fmt: skip
+    text = brief.text_pentru_autor({**brief.ContinutBrief(
+        obiectiv="editorial", scop="Să explicăm măcinarea", public="Iubitori de cafea",
+        mesaj_unic="Cafeaua ajunge proaspătă", fapte_permise=[], format="Postare scurtă",
+        apel_la_actiune="Află detalii", **VIZUAL).model_dump(), "fapte_permise": [], "oferta": None})  # fmt: skip
+    assert "Ce vede publicul: Râșnița" in text and "Natura materialului: educativ" in text
+
+
 def test_nucleul_lumii_inchise() -> None:
     b = brief.ContinutBrief(
         obiectiv="editorial", scop="Să explicăm măcinarea", public="Iubitori de cafea", mesaj_unic="Cafeaua ajunge proaspătă",
-        fapte_permise=[], format="Postare scurtă", apel_la_actiune="Află detalii",
+        fapte_permise=[], format="Postare scurtă", apel_la_actiune="Află detalii", **VIZUAL,
     )  # fmt: skip
     assert brief.probleme_brief(b, {}) == []
     assert brief.probleme_brief(b, {"F1": {}}) == ["brieful trebuie să permită cel puțin un fapt din pachet"]
@@ -88,6 +115,7 @@ def test_vanzarea_cere_oferta_aprobata_cu_destinatie() -> None:
         fapte_permise=["F1"],
         format="Postare scurtă",
         apel_la_actiune="Comandă acum",
+        **VIZUAL,
     )
     assert brief.probleme_brief(b, {"F1": {"tip": "fapt"}})
     assert brief.probleme_brief(b, {"F1": {"tip": "oferta", "destinatie": None}})

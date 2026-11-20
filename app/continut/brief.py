@@ -16,10 +16,11 @@ subiectul le pune sistemul, din slot, nu modelul. Livrabilul trece `planificat �
 
 import datetime as dt
 import re
+import unicodedata
 import uuid
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -31,10 +32,63 @@ from app.ids import new_id
 from app.operare.motor import Prioritate
 from app.productie import Stare
 
-REFERINTA_PROMPT = "continut.brief@2"
+REFERINTA_PROMPT = "continut.brief@3"
 COMPONENTA = "D5"
 BUGET_TOKENI = 3000
 SECTIUNI = ("strategie", "public")
+
+
+# --- brieful vizual (F-editorial, decizia 4): indicațiile trebuie să fie observabile ---
+
+# [I] cuvinte care nu spun CE se vede: adjective de efect, termeni de cadru și de montaj, umplutură
+_VAGI = """
+dinamic dinamica dinamice premium modern moderna moderne elegant eleganta elegante atractiv
+atractiva captivant captivanta profesional profesionala frumos frumoasa frumoase spectaculos
+spectaculoasa cinematic cinematografic energic energica vibrant vibranta inspirational
+inspirationala minimalist minimalista luminos luminoasa calduros calduroasa autentic autentica
+emotionant impresionant creativ creativa stilat stilata curat curata simplu simpla rapid rapida lent
+lenta wow epic fresh cool trendy viral cadru cadrul cadre plan planul prim apropiat apropiata larg
+larga imagine imaginea imagini scena scene vizual vizuala vizuale broll roll montaj tranzitie
+tranzitii zoom efect efecte atmosfera ambianta vibe stil energie emotie emotii poveste mesaj concept
+abstract abstracta generic generica grafica grafice animatie animatii text fundal culori culoare
+lumina miscare video clip ceva cald calda calde rece reci
+"""
+VAGI = frozenset(_VAGI.split())
+_UMPLUTURA = """
+care sunt este fost pentru prin dintre catre langa peste spre dupa foarte mult multa toate fiecare
+noastre nostru noastra niste doar chiar apoi cele cela cea cel una unul unei unui ale lui lor
+"""
+UMPLUTURA = frozenset(_UMPLUTURA.split())
+
+
+def _cuvinte(text: str) -> list[str]:
+    fara = "".join(c for c in unicodedata.normalize("NFKD", text.lower()) if not unicodedata.combining(c))
+    return [w for w in re.split(r"[^a-z0-9]+", fara) if len(w) >= 3 and w not in UMPLUTURA]
+
+
+def problema_indicatie(text: str) -> str | None:
+    """Nucleu pur: `None` dacă indicația numește ceva concret ce se vede; altfel motivul respingerii.
+    Fără analiză gramaticală: concret = cel puțin un cuvânt de conținut care nu e adjectiv de efect sau
+    termen de cadru (aproximare [I] a „substantivului concret”)."""
+    cuvinte = _cuvinte(text)
+    if not cuvinte:
+        return "indicația vizuală e goală"
+    if all(c in VAGI for c in cuvinte):
+        return (
+            f"indicația vizuală „{text.strip()[:80]}” e vagă: numește ce se vede (un obiect, o persoană, "
+            "un loc sau o acțiune), nu doar cum arată"
+        )
+    return None
+
+
+def _observabila(text: str) -> str:
+    problema = problema_indicatie(text)
+    if problema:
+        raise ValueError(problema)
+    return text
+
+
+Observabila = Annotated[str, AfterValidator(_observabila)]
 
 
 class ContinutBrief(BaseModel):
@@ -48,6 +102,11 @@ class ContinutBrief(BaseModel):
     format: str = Field(min_length=5, max_length=300)
     apel_la_actiune: str = Field(min_length=3, max_length=150)
     interdictii: list[str] = Field(default_factory=list, max_length=10)
+    # brieful vizual (F-editorial)
+    idee_editoriala: str = Field(min_length=10, max_length=300)
+    ce_vede_publicul: Annotated[Observabila, Field(min_length=10, max_length=300)]
+    informatie_in_plus: str = Field(min_length=5, max_length=300)
+    natura: Literal["educativ", "prezentare"]
 
 
 class PropunereBrief(gateway.Iesire):
@@ -208,9 +267,19 @@ def text_pentru_autor(continut: dict[str, Any]) -> str:
     oferta = continut.get("oferta")
     comercial = f"Oferta aprobată: {oferta['text']}\nDestinație: {oferta['destinatie']}\n" if oferta else ""
     interdictii = "; ".join(continut.get("interdictii", [])) or "-"
+    vizual = "".join(
+        f"{eticheta}: {continut[cheie]}\n"
+        for cheie, eticheta in (
+            ("idee_editoriala", "Ideea editorială"),
+            ("ce_vede_publicul", "Ce vede publicul"),
+            ("informatie_in_plus", "Informația în plus"),
+            ("natura", "Natura materialului"),
+        )
+        if continut.get(cheie)
+    )
     return (
         f"Scop: {continut['scop']}\nPublic: {continut['public']}\nMesaj unic: {continut['mesaj_unic']}\n"
         f"Format: {continut['format']}\nApel la acțiune (unul singur): {continut['apel_la_actiune']}\n"
-        f"{comercial}Interdicții: {interdictii}\n"
+        f"{vizual}{comercial}Interdicții: {interdictii}\n"
         f"Fapte permise (singurele cifre, prețuri și promisiuni permise):\n{fapte}"
     )

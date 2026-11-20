@@ -92,6 +92,10 @@ def model_brief(modele: ModelFals, *, inventeaza: bool = False) -> None:
                 "format": "Prima linie ca hook, corp scurt, un singur apel la acțiune.",
                 "apel_la_actiune": "Comandă acum din magazinul online.",
                 "interdictii": ["Fără promisiuni medicale", "Fără cuvântul „ieftin”"],
+                "idee_editoriala": "Prospețimea se vede pe pachet: data prăjirii e scrisă de mână.",
+                "ce_vede_publicul": "Pachetul de cafea cu data prăjirii, pe tejghea lângă râșniță.",
+                "informatie_in_plus": "Cafeaua își pierde aroma la câteva săptămâni după prăjire.",
+                "natura": "prezentare",
             }
         )
 
