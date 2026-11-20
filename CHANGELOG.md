@@ -4,6 +4,11 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F-editorial (punctele 1–3) — rol vizual, selecție, brief vizual, storyboard
+- Migrarea `0142`: `active.rol_vizual` (CHECK, NULL = incert) și `active.subiect`, cu completare din sursă și categorie; tabelul `cereri_material` (RLS). `biblioteca.incarca` deduce rolul, `biblioteca.clasifica` lasă urmă în audit.
+- `media.selectie` (pur): potrivire pe subiect, fără siglă, coperți și exporturi. `regizor.storyboard` rulează înaintea vocii în `fluxuri.pregateste_script`; o prezentare fără material se blochează cu „Încarcă o fotografie verticală cu …”, iar `fluxuri.reia_livrabil` o reia. Ecranul `/materiale` din panou.
+- Brieful vizual (`continut.brief@3`): `idee_editoriala`, `ce_vede_publicul`, `informatie_in_plus`, `natura`; indicațiile vizuale vagi sunt respinse (`continut.script@2`).
+
 ### G-pool — Modele gratuite din catalogul fabricii
 - `app/gateway/catalog.py` (13 furnizori, 47 de modele, familii, numele exacte ale cheilor, adresele compatibile OpenAI), `secrete.py`, seiful (tabelul `gateway_seif`), `sanatate_model.py`, `verifica_furnizori.py`; rutarea cu `rezerva:<profil>`, `alta_familie`, verificarea contextului; resetul Gemini pe fusul Los Angeles; migrarea `0109`; numele secretelor în `infra/env/*.example` și compose. D-028.
 

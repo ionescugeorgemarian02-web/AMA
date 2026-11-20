@@ -913,3 +913,11 @@ Verificări locale: Ruff, mypy și gărzile au trecut. Testul strategului de rec
 În `app/media/fluxuri.py` și `animatie.py`, scenele fără filmări preiau numele și paleta clientului. Simbolul și particulele urmăresc subiectul scenei. Atelierul folosește calendarul pentru programări. Cafeneaua folosește boabele pentru măcinare. În `tests/integration/test_pilot_claude.py`, imaginile de feed și coperțile video folosesc formate diferite și titlul materialului validat. Raportul indică alinierea simulată a subtitrărilor.
 
 GitHub Actions a trecut ambele verificări, `check` și `imagine`, la commitul precedent `0a2ffd2`. Pentru corecția vizuală, au trecut cele trei teste din `test_pilot_dosare.py`, Ruff, mypy și gărzile. Codex a randat două mostre locale, câte una pentru fiecare client, cu Chromium și FFmpeg. ffprobe confirmă H.264, 1080 × 1920 și 36 de cadre la fiecare. Mostrele verifică animația. Pentru campania completă cu modelul real, rulează manual „Pilot AMA cu Claude” după integrare, cu secretul `ANTHROPIC_API_KEY` și un model disponibil în cont.
+
+## F-editorial, punctele 1–3 · 20 noiembrie 2026 · Claude
+
+- Pilot: `la_epuizare='amana'` în actualizarea profilurilor (constrângerea `profil_degradare` neatinsă).
+- Regresie „Atelierul Spița” (`tests/integration/test_media_selectie_scene.py`): pica pe codul vechi (sigla în toate scenele), trece acum prin `fluxuri.pregateste_script`.
+- Migrare `0142` (rol vizual, subiect, `cereri_material`), `media.selectie`, `regizor.storyboard` înaintea vocii, cereri de material și reluare (`fluxuri.reia_livrabil`, ecranul `/materiale`), brief vizual `continut.brief@3` și `continut.script@2`.
+- Verificat local: testele focalizate de media, conținut, regizor, poarta F8, migrații, prompturi și `tests/unit`; Ruff, format, mypy, gărzi.
+- Deschis: fișierele din portal intră cu rol NULL până le clasifică operatorul. Natura necunoscută înseamnă `prezentare`, deci pilotul fără fotografii se oprește acum cu cereri. Sigla apare în storyboard doar ca `semnatura` și nu se montează încă. Clipurile animate pentru scenele educative n-au fost randate local (lipsește Chromium/Playwright). Urmează machetele, montajul, verdictul editorial și testul A/B.
