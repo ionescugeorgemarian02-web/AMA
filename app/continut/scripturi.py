@@ -8,7 +8,8 @@ acțiune, durată estimată din numărul de cuvinte”; docs/14: E2 livrează sc
 apelul la acțiune.
 - Durata NU o dă modelul: se estimează determinist din cuvintele rostite (`CUVINTE_PE_SECUNDA` [I]) plus o
 pauză pe bătaie
-  [I]. Scriptul se încadrează dacă durata estimată e în ±15% [I] din durata-țintă (din brief; implicit 30 s,
+  [I]. Scriptul se încadrează dacă durata estimată e cel mult +15% [I] peste ținta (F-editorial: mai scurt
+  e permis, durata urmează vocea; minimum `DURATA_SCRIPT_MIN`) (din brief; implicit 30 s,
   între 15 și
   60). Dacă nu se încadrează, E2 primește o singură dată instrucțiunea de a scurta / lungi; altfel livrabilul
   merge în
@@ -33,6 +34,9 @@ CUVINTE_PE_SECUNDA = 2.5  # [I] ritmul unei voci calme în română
 PAUZA_PE_BATAIE = 0.5  # [I] secunde între bătăi (tăietură, respirație)
 TOLERANTA = 0.15  # [I] ±15% din durata-țintă
 DURATA_IMPLICITA, DURATA_MINIMA, DURATA_MAXIMA = 30, 15, 60
+# F-editorial (decizia 6): durata urmează vocea; ținta e un plafon, nu un minim. O idee scurtă, acoperită de
+# două cadre bune, poate ține mai puțin decât ținta; sub `DURATA_SCRIPT_MIN` [I] nu mai e un clip.
+DURATA_SCRIPT_MIN = 8.0
 
 
 class Bataie(BaseModel):
@@ -59,7 +63,9 @@ def durata_estimata(hook: str, batai: list[str], cta: str) -> float:
 
 
 def se_incadreaza(estimata: float, tinta: int) -> bool:
-    return abs(estimata - tinta) <= TOLERANTA * tinta
+    """Cel mult ținta + 15%; mai scurt e permis (nu prelungim materialul spre 30 s), dar nu sub minimul unui
+    clip."""
+    return DURATA_SCRIPT_MIN <= estimata <= (1 + TOLERANTA) * tinta
 
 
 def durata_tinta(continut_brief: dict[str, object]) -> int:

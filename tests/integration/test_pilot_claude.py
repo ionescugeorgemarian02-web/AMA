@@ -14,7 +14,7 @@ from sqlalchemy import Engine, select, text
 from app import cercetare, continut, creier, validare
 from app.continut import pipeline
 from app.db import sesiune_tenant
-from app.media import compozitor, fluxuri, montaj, regizor, sabloane
+from app.media import cereri, compozitor, fluxuri, montaj, regizor, sabloane, voce
 from app.onboarding import citate, completare, ghid, piata, public, strategie
 from app.operare import motor
 from tests.gateway_utile import FabricaModele
@@ -45,6 +45,8 @@ def test_campanie(
         "executate": [],
         "simulate": ["date client", "aprobările umane", "alinierea subtitrării pe textul cunoscut"],
         "omise": ["publicare externă", "judecător independent", "atribuire comercială live"],
+        # F-editorial: o oprire legitimă (material lipsă) e un rezultat, nu o cădere a pilotului
+        "blocate": [],
     }
 
     def etapa(nume: str) -> None:
@@ -135,10 +137,29 @@ def test_campanie(
         with sesiune_tenant(tenant, om) as db:
             c = validare.continut.citeste(db, lid)
             (iesire / f"{tip}.txt").write_text(c.text)
-            tip_sablon = "coperta_video" if tip == "script_video_scurt" else "anunt"
-            cop = next(s for s in sabloane.asigura_sabloane(db, tenant, dosar.marca) if s.tip == tip_sablon)
-            _, imagine = compozitor.creeaza(db, tenant, cop, {"titlu": c.campuri.get("hook") or dosar.produs})
-            (iesire / f"coperta-{tip}.png").write_bytes(imagine.png)
+            titlu = c.campuri.get("hook") or dosar.produs
+            if tip == "script_video_scurt":
+                cop = next(
+                    s for s in sabloane.asigura_sabloane(db, tenant, dosar.marca) if s.tip == "coperta_video"
+                )
+                _, imagine = compozitor.creeaza(db, tenant, cop, {"titlu": titlu})
+                (iesire / f"coperta-{tip}.png").write_bytes(imagine.png)
+            # imaginile prin machetele editoriale: foto_dominanta dacă există fotografie, altfel cea tipografică
+            b = continut.brief.al_livrabilului(db, lid)
+            try:
+                exp = compozitor.exporta(
+                    db, tenant, dosar.marca, dict(b.continut or {}) if b else {}, {"titlu": titlu}
+                )
+            except compozitor.MachetaIlizibila as e:
+                raport["blocate"].append(
+                    {"etapa": f"imagine {tip}", "motiv": "macheta ilizibilă", "detalii": e.probleme}
+                )
+            else:
+                for k, png in enumerate(exp.imagini):
+                    (iesire / f"imagine-{tip}-{exp.macheta}-{k + 1}.png").write_bytes(png)
+                raport.setdefault("machete", []).append(
+                    {"tip": tip, "macheta": exp.macheta, "nota": exp.nota}
+                )
             versiune = c.versiune
         if tip == "script_video_scurt":
             job = motor.trimite(
@@ -152,8 +173,28 @@ def test_campanie(
             assert motor.asteapta_flux(job, timeout_sec=1800).stare == motor.StareJob.TERMINAT
             with sesiune_tenant(tenant, om) as db:
                 activ = montaj.video_verificat(db, tenant, lid, versiune)
-                assert activ, "Exportul video nu a trecut G6."
-                shutil.copyfile(regizor.cale(activ), iesire / "video.mp4")
+                lipsa = cereri.deschise(db, tenant, lid)
+                if activ is None and lipsa:  # oprire legitimă: storyboardul cere fotografii reale
+                    raport["blocate"].append({
+                        "etapa": "video",
+                        "motiv": "material lipsă (prezentare fără fotografii reale)",
+                        "cereri": [{"scena": x.scena, "subiect": x.subiect, "cerere": x.cerere} for x in lipsa],
+                    })  # fmt: skip
+                    raport["omise"].append("video: blocat pe material lipsă (vezi „blocate”)")
+                else:
+                    assert activ, "Exportul video nu a trecut G6."
+                    shutil.copyfile(regizor.cale(activ), iesire / "video.mp4")
+                # mostra audio, cu vocea folosită la randare
+                _, wav = voce.mostra(
+                    db,
+                    tenant,
+                    dosar.marca,
+                    f"{dosar.pret} lei",
+                    c.campuri.get("cta") or "",
+                    voce.PROFIL_RANDARE,
+                )
+                (iesire / "mostra.wav").write_bytes(wav)
+                raport["executate"].append("mostra audio")
         etapa(f"validare și export {tip}")
     if "script_video_scurt" not in alese:
         raport["omise"].append("video: calendarul nu conține acest format")

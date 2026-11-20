@@ -53,7 +53,7 @@ class StilSubtitrari(Model):
     culoare: str = Field(default="#FFFFFF", pattern=r"^#[0-9A-Fa-f]{6}$")
     evidentiere: str = Field(default="#FFD400", pattern=r"^#[0-9A-Fa-f]{6}$")
     contur: str = Field(default="#000000", pattern=r"^#[0-9A-Fa-f]{6}$")
-    pozitie: Literal["jos", "mijloc"] = "jos"
+    pozitie: Literal["jos", "mijloc", "sus"] = "jos"  # „sus”: subiectul sau prețul stă jos (F-editorial)
     marime: int = Field(default=68, ge=36, le=110)
 
 

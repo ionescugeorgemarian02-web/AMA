@@ -81,6 +81,8 @@ def test_nucleul_duratei() -> None:
         == 9.9
     )  # 21 de cuvinte / 2,5 + 3 × 0,5
     assert scripturi.se_incadreaza(33.0, 30) and not scripturi.se_incadreaza(36.0, 30)
+    # F-editorial: un clip mai scurt e permis (durata urmează vocea), dar nu sub minimul unui clip
+    assert scripturi.se_incadreaza(12.0, 30) and not scripturi.se_incadreaza(6.0, 30)
     assert scripturi.durata_tinta({}) == 30 and scripturi.durata_tinta({"durata_tinta_sec": 90}) == 60
 
 

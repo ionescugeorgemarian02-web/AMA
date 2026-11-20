@@ -921,3 +921,13 @@ GitHub Actions a trecut ambele verificări, `check` și `imagine`, la commitul p
 - Migrare `0142` (rol vizual, subiect, `cereri_material`), `media.selectie`, `regizor.storyboard` înaintea vocii, cereri de material și reluare (`fluxuri.reia_livrabil`, ecranul `/materiale`), brief vizual `continut.brief@3` și `continut.script@2`.
 - Verificat local: testele focalizate de media, conținut, regizor, poarta F8, migrații, prompturi și `tests/unit`; Ruff, format, mypy, gărzi.
 - Deschis: fișierele din portal intră cu rol NULL până le clasifică operatorul. Natura necunoscută înseamnă `prezentare`, deci pilotul fără fotografii se oprește acum cu cereri. Sigla apare în storyboard doar ca `semnatura` și nu se montează încă. Clipurile animate pentru scenele educative n-au fost randate local (lipsește Chromium/Playwright). Urmează machetele, montajul, verdictul editorial și testul A/B.
+
+## F-editorial, punctele 4–5 · 20 noiembrie 2026 · Claude
+
+- Machete în `compozitor` (`foto_dominanta`, `detaliu_explicat`, `carusel`, `exporta`) și `sabloane` (`TIPOGRAFIE` titlu 88 / legendă 40 / corp 44, titlul coboară cel mult la 64 px; `alege_macheta`). Zona subiectului: `generare.zona_subiect` (relativă) sau centrul de energie al muchiilor; punctul piesei: `generare.punct_piesa`.
+- Montaj: tăietura rămâne pe începutul replicii (`momente_batai`, testat); `regizor.reutilizari` pe `activ_id` (alt zoom = reutilizare) în `randari.masuratori.reutilizari`; poziția subtitrărilor după timpul în care subiectul stă jos față de sus (`pozitie_subtitrari`, plus `pret_jos`).
+- Durata: singura regulă care împingea spre 30 s era `scripturi.se_incadreaza` (±15% din țintă). Relaxată documentat: plafon +15%, minimum 8 s [I]; montajul folosea deja vocea + coada.
+- `voce.mostra` și `voce.PROFIL_RANDARE` (folosit și de `fluxuri.pregateste_script`). Pilotul: `blocate` în `raport.json`, `mostra.wav`, `imagine-*.png` prin machete.
+- Verificat local: PNG-uri din fiecare machetă și un cadru din MP4-ul cu subtitrări sus (privite), testele focalizate + `tests/unit`, Ruff, format, mypy, gărzi. Pilotul real (`AMA_PILOT_CLAUDE=1`) nu l-am rulat (cere cheie).
+- Deschis: poziția subtitrărilor e una pe listă, nu pe scenă; zona subiectului pentru video vine doar din `generare`; caruselul nu folosește fotografii; verdictul editorial (punctul 7) și testul A/B (punctul 8) urmează.
+

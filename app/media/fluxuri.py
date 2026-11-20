@@ -111,6 +111,7 @@ def pregateste_script(tenant_id: str, livrabil_id: str, versiune: str) -> str:
     from app import productie, validare
     from app.conturi.modele import Client
     from app.media import animatie, cereri, normalizare, sabloane, transcriere
+    from app.media import voce as media_voce
     from app.media.modele import Activ
 
     tid, lid = uuid.UUID(tenant_id), uuid.UUID(livrabil_id)
@@ -138,7 +139,7 @@ def pregateste_script(tenant_id: str, livrabil_id: str, versiune: str) -> str:
             return BLOCAT_MATERIAL
         cereri.rezolva(db, tid, lid)
         fraze = [normalizare.normalizeaza(f) for f in regizor.fraze_din_script(script)]
-        voce = transcriere.naratiune_verificata(db, tid, fraze, profil_cod="ro-espeak-nativ")
+        voce = transcriere.naratiune_verificata(db, tid, fraze, profil_cod=media_voce.PROFIL_RANDARE)
         de_ilustrat = [s.scena for s in sb.scene if s.sursa == "ilustratie"]
         clipuri: dict[int, Activ] = {}
         if de_ilustrat:

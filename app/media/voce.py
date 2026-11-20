@@ -24,7 +24,7 @@ from typing import Any, Protocol
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.media import audio, biblioteca
+from app.media import audio, biblioteca, pronuntie
 from app.media.modele import Activ
 
 PAUZA_FRAZE = 0.2  # [I] secunde între fraze (14.4: 150–300 ms)
@@ -99,6 +99,7 @@ PROFILURI: dict[str, ProfilVoce] = {
     ),
 }
 PROFIL_IMPLICIT = "ro-simulat"
+PROFIL_RANDARE = "ro-espeak-nativ"  # vocea folosită la randarea clipurilor (`fluxuri.pregateste_script`)
 
 
 def profil(cod: str | None = None) -> ProfilVoce:
@@ -318,3 +319,22 @@ def durata_estimata(text: str) -> float:
     c = text.split()
     s = sum(silabe(x) for x in c)
     return round(s * MotorVoceSimulat.SILABA + max(0, len(c) - 1) * MotorVoceSimulat.INTRE_CUVINTE, 3)
+
+
+def mostra(
+    db: Session,
+    tenant_id: uuid.UUID,
+    nume_afacere: str,
+    pret: str,
+    cta: str,
+    profil_cod: str = PROFIL_RANDARE,
+) -> tuple[Activ, bytes]:
+    """Mostra audio pentru pilot (F-editorial, decizia 6): numele afacerii, prețul și îndemnul final, rostite
+    cu vocea folosită la randare (același profil, același motor, același dicționar de pronunție). Salvată ca
+    activ `export`; întoarce (activul, WAV-ul)."""
+    fraze = [pronuntie.pentru_voce(db, tenant_id, t) for t in (nume_afacere, pret, cta) if t.strip()]
+    n = sintetizeaza(db, tenant_id, fraze, profil_cod=profil_cod, descriere=f"mostră audio: {nume_afacere}")
+    n.activ.rol_vizual = "export"
+    n.activ.generare = {**(n.activ.generare or {}), "mostra": True, "texte": fraze}
+    db.flush()
+    return n.activ, audio.scrie(n.wav)

@@ -4,6 +4,11 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### F-editorial (punctele 4–5) — machete editoriale, montaj și voce
+- `compozitor`: machetele `foto_dominanta`, `detaliu_explicat`, `carusel` (decupare pe zona subiectului, titlul în zona cea mai liniștită cu voal, sigla discretă), verificarea la 360 px (`verifica_export`, `MachetaIlizibila`) și `exporta` (alegerea din brief + active; fără fotografie, macheta tipografică cu notă; `rol_vizual='coperta'`). `sabloane`: sistemul tipografic restrâns și `alege_macheta`.
+- Montaj: `regizor.reutilizari` (raportată în `randari.masuratori`), subtitrările urcă sus (`StilSubtitrari.pozitie='sus'`) când subiectul sau prețul stă jos; textul animat pe ecran ≤ 6 cuvinte. Durata urmează vocea: `scripturi.se_incadreaza` nu mai cere minimum −15% din țintă (doar plafon și 8 s).
+- `voce.mostra` (numele, prețul, îndemnul, cu `voce.PROFIL_RANDARE`, activ `export`); pilotul tratează blocarea pe material ca rezultat (`raport.json` → `blocate`) și exportă mostra și imaginile prin machete.
+
 ### F-editorial (punctele 1–3) — rol vizual, selecție, brief vizual, storyboard
 - Migrarea `0142`: `active.rol_vizual` (CHECK, NULL = incert) și `active.subiect`, cu completare din sursă și categorie; tabelul `cereri_material` (RLS). `biblioteca.incarca` deduce rolul, `biblioteca.clasifica` lasă urmă în audit.
 - `media.selectie` (pur): potrivire pe subiect, fără siglă, coperți și exporturi. `regizor.storyboard` rulează înaintea vocii în `fluxuri.pregateste_script`; o prezentare fără material se blochează cu „Încarcă o fotografie verticală cu …”, iar `fluxuri.reia_livrabil` o reia. Ecranul `/materiale` din panou.

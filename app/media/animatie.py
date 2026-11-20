@@ -171,11 +171,20 @@ def clip(
     )
 
 
+MAX_CUVINTE_ECRAN = 6  # [I] F-editorial: textul de pe ecran e scurt; vocea spune restul
+
+
+def scurt(text: str, n: int = MAX_CUVINTE_ECRAN) -> str:
+    """Cel mult `n` cuvinte pe ecran (cu „…” când textul e tăiat)."""
+    c = text.split()
+    return text.strip() if len(c) <= n else " ".join(c[:n]).rstrip(",;:") + "…"
+
+
 def texte_batai(campuri: dict[str, Any]) -> list[str]:
     """Textul de pe ecran al fiecărei bătăi, în ordinea frazelor regizorului: hook, bătăile, CTA."""
     batai = campuri.get("batai") or []
     out = [str(campuri.get("hook") or "")]
-    out += [str(b.get("text_ecran") or b.get("voce") or "") for b in batai]
+    out += [scurt(str(b.get("text_ecran") or b.get("voce") or "")) for b in batai]
     out.append(str(campuri.get("cta") or ""))
     return [t for t in out if t.strip()]
 

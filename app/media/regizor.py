@@ -19,12 +19,14 @@ from sqlalchemy.orm import Session
 from app import continut, gateway
 from app.config import get_settings
 from app.logging import get_logger
-from app.media import audio, biblioteca, ffmpeg, licente, lista, selectie, transcriere
+from app.media import audio, biblioteca, compozitor, ffmpeg, licente, lista, selectie, transcriere
 from app.media.modele import Activ
 from app.operare.motor import Prioritate
 
 log = get_logger("app.media")
 COADA = 0.6  # [I] secunde după ultimul cuvânt
+SUBIECT_JOS = 2 / 3  # [I] un subiect care coboară în treimea de jos ar fi acoperit de subtitrările de jos
+SUBIECT_SUS = 0.2  # [I] un subiect care urcă peste 20% din înălțime ar fi acoperit de subtitrările de sus
 
 
 class AlegereScena(BaseModel):
@@ -119,9 +121,12 @@ def construieste(
     coperta: str = "",
     muzica: Activ | None = None,
     durate: dict[uuid.UUID, float] | None = None,
+    stil: lista.StilSubtitrari | None = None,
 ) -> lista.ListaMontaj:
     """Nucleul determinist: alegerile + momentele vocii -> lista de montaj. `durate` (video): o bătaie
-    mai lungă decât clipul ales se împarte în bucăți egale, pe clipurile următoare care o acoperă."""
+    mai lungă decât clipul ales se împarte în bucăți egale, pe clipurile următoare care o acoperă.
+    Tăietura cade pe începutul replicii care cere cadrul (`momente_batai`); durata urmează vocea (+ coada),
+    fără prelungire spre o durată-țintă."""
     durata = round(naratiune.naratiune.durata + COADA, 3)
     intervale = momente_batai(fraze, naratiune.aliniere, durata)
     scene = []
@@ -141,8 +146,18 @@ def construieste(
         muzica=lista.Muzica(activ_id=muzica.id) if muzica is not None else None,
         scene=scene,
         texte=texte(fraze, naratiune.aliniere),
+        stil=stil or lista.StilSubtitrari(),
         coperta=lista.Coperta(text=(coperta or fraze[0])[:60]),
     )
+
+
+def reutilizari(lm: lista.ListaMontaj) -> dict[uuid.UUID, int]:
+    """Câte bătăi în plus refolosesc aceeași sursă, pe `activ_id`. Alt zoom sau altă mișcare pe aceeași
+    sursă rămâne reutilizare; bucățile aceleiași bătăi (un clip împărțit) nu contează."""
+    batai: dict[uuid.UUID, set[int]] = {}
+    for s in lm.scene:
+        batai.setdefault(s.activ_id, set()).add(s.bataie)
+    return {a: len(b) - 1 for a, b in batai.items() if len(b) > 1}
 
 
 def _bucati(
@@ -166,6 +181,30 @@ def _bucati(
         y = b if k == n - 1 else round(a + (k + 1) * pas, 3)
         out.append((potrivite[k % len(potrivite)], round(x, 3), y))
     return out
+
+
+Zona = tuple[float, float, float, float]
+
+
+def pozitie_subtitrari(
+    zone: list[tuple[Zona | None, float]], *, pret_jos: bool = False
+) -> Literal["jos", "sus"]:
+    """Subtitrările urcă sus când prețul stă jos sau când subiectul (zona relativă) coboară în treimea de jos
+    mai mult timp decât urcă în banda de sus. `zone`: (zona scenei, durata scenei). Nucleu pur."""
+    if pret_jos:
+        return "sus"
+    jos = sum(d for z, d in zone if z is not None and z[3] > SUBIECT_JOS)
+    sus = sum(d for z, d in zone if z is not None and z[1] < SUBIECT_SUS)
+    return "sus" if jos > sus else "jos"
+
+
+def stil_subtitrari(
+    lm: lista.ListaMontaj, materiale: list[Activ], *, pret_jos: bool = False
+) -> lista.StilSubtitrari:
+    """Stilul listei, cu poziția aleasă din zonele subiectului pe durata scenelor."""
+    zone = {m.id: compozitor.zona_relativa(m) for m in materiale}
+    pe_scene = [(zone.get(s.activ_id), s.sfarsit - s.inceput) for s in lm.scene]
+    return lm.stil.model_copy(update={"pozitie": pozitie_subtitrari(pe_scene, pret_jos=pret_jos)})
 
 
 # --- storyboardul (F-editorial, decizia 3): din inventarul real, ÎNAINTE de voce și montaj ---
@@ -286,9 +325,11 @@ def regizeaza(
     livrabil_id: uuid.UUID | None = None,
     script: dict[str, Any] | None = None,
     materiale_fixe: list[int] | None = None,
+    pret_jos: bool = False,
 ) -> lista.ListaMontaj:
     """Cere alegerile modelului, construiește lista și o validează (`ListaInvalida` dacă nu trece).
-    `materiale_fixe` (din storyboard): materialul fiecărei bătăi e deja ales; modelul dă doar mișcarea."""
+    `materiale_fixe` (din storyboard): materialul fiecărei bătăi e deja ales; modelul dă doar mișcarea.
+    `pret_jos`: prețul apare jos în cadru, deci subtitrările urcă sus."""
     folosibile = [m for m in materiale if not licente.probleme(m.licenta)]
     if not folosibile:
         raise ListaInvalida(["niciun material cu licență"])
@@ -335,6 +376,7 @@ def regizeaza(
         log.warning("regizorul a primit alegeri invalide", extra={"note": note[:5]})
     lm = construieste(format=format, canal=canal, fraze=fraze, naratiune=naratiune, materiale=folosibile,
                       alegeri=alegeri, coperta=r.iesire.coperta, muzica=muzica, durate=durate)  # fmt: skip
+    lm = lm.model_copy(update={"stil": stil_subtitrari(lm, folosibile, pret_jos=pret_jos)})
     ids = {s.activ_id for s in lm.scene} | {lm.voce.activ_id} | ({lm.muzica.activ_id} if lm.muzica else set())
     p = lista.probleme(lm, info_active(db, ids))
     if p:

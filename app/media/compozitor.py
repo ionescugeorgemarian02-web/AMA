@@ -256,6 +256,20 @@ def zona_subiect(img: Image.Image, generare: dict[str, Any] | None = None) -> Cu
     )
 
 
+def zona_relativa(a: Activ) -> tuple[float, float, float, float] | None:
+    """Zona subiectului unui activ, relativă (0–1): din `generare`, altfel, pentru o fotografie, din energie.
+    Pentru video fără zonă declarată: necunoscută (`None`)."""
+    z = (a.generare or {}).get("zona_subiect")
+    if isinstance(z, list | tuple) and len(z) == 4:
+        x0, y0, x1, y1 = (float(v) for v in z)
+        return x0, y0, x1, y1
+    if a.categorie != "foto":
+        return None
+    img = Image.open(io.BytesIO(biblioteca.citeste_fisier(a)))
+    x0, y0, x1, y1 = zona_subiect(img)
+    return x0 / img.width, y0 / img.height, x1 / img.width, y1 / img.height
+
+
 def decupeaza(
     img: Image.Image,
     w: int,

@@ -88,7 +88,10 @@ def pregateste(
 ) -> Randare:
     """Validează lista, deschide randarea (`in_lucru`) și consemnează folosirea fiecărui activ."""
     valideaza(db, lm)
-    masuratori = {}
+    masuratori: dict[str, Any] = {
+        # F-editorial: aceeași sursă în altă bătaie (alt zoom / mișcare) e reutilizare, raportată ca atare
+        "reutilizari": {str(k): v for k, v in regizor.reutilizari(lm).items()},
+    }
     if livrabil_id:
         masuratori["versiune_continut"] = validare.continut.citeste(db, livrabil_id).versiune
     r = Randare(tenant_id=tenant_id, livrabil_id=livrabil_id, lista=lm.model_dump(mode="json"),
