@@ -73,3 +73,6 @@ def test_mp4_cu_g6_trecut_si_sigla_in_scene_e_respins_editorial_si_apare_la_apro
     p = client.get(f"/aprobari-media/{ap.id}/plansa")
     assert p.status_code == 200 and p.headers["content-type"] == "image/png"
     assert client.get(f"/aprobari-media/{uuid.uuid4()}/plansa").status_code == 404
+    # cererea nu rămâne în așteptare pentru testele următoare (coada de aprobări e comună agenției)
+    with sesiune_tenant(tenant) as db:
+        assert productie.aprobari.anuleaza_cererea_in_asteptare(db, lid) is not None

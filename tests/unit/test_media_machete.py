@@ -2,10 +2,11 @@
 
 import io
 import os
+import random
 from pathlib import Path
 
 import pytest
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from app.media import compozitor, sabloane, vizual
 from tests.media_utile import fotografie_procedurala
@@ -43,6 +44,27 @@ def test_foto_dominanta_titlul_in_zona_linistita_fara_sa_acopere_subiectul() -> 
 def test_subiectul_sus_impinge_titlul_jos() -> None:
     m = compozitor.foto_dominanta(fotografie_procedurala(subiect=(0.5, 0.2)), "Revizie completă", IDENT)
     assert m.pozitie_titlu in ("mijloc", "jos") and compozitor.verifica_export(m) == []
+
+
+def test_fara_zona_libera_pentru_titlu_fotografia_sus_si_titlul_pe_banda() -> None:
+    # fotografie 3:2 cu textură peste tot: subiectul (energia) ocupă aproape toată înălțimea decupajului 4:5
+    rnd = random.Random(1)  # noqa: S311 - textură deterministă de test
+    img = Image.new("RGB", (1080, 720), "gray")
+    desen = ImageDraw.Draw(img)
+    for _ in range(4000):
+        x, y = rnd.randrange(1080), rnd.randrange(720)
+        culoare = (rnd.randrange(256), rnd.randrange(256), rnd.randrange(256))
+        desen.line((x, y, x + rnd.randint(-30, 30), y + rnd.randint(-30, 30)), fill=culoare, width=2)
+    out = io.BytesIO()
+    img.save(out, "JPEG")
+    m = compozitor.foto_dominanta(
+        out.getvalue(), "Revizia Urbană: frâne și transmisie, 120 lei", IDENT, logo=LOGO
+    )
+    assert m.pozitie_titlu == "banda" and Image.open(io.BytesIO(m.png)).size == (1080, 1350)
+    assert m.subiect is not None and not any(compozitor._atinge(t, m.subiect) for t in m.texte)
+    assert m.titlu_marime >= sabloane.TITLU_MIN
+    assert compozitor.verifica_export(m) == []
+    assert vizual.probleme(m.png, m.asteptari) == []
 
 
 def test_verificarea_la_360_px_respinge_litera_mica_si_textul_peste_subiect() -> None:

@@ -4,6 +4,9 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Corecții CI (PR #21)
+- `foto_dominanta`: fără zonă liberă pentru titlu, fotografia sus și titlul pe bandă (în loc de `TextPreaLung`). Testele: vocea simulată fără espeak-ng în `test_media_selectie_scene`; `test_media_verdict_editorial` nu mai lasă cererea în așteptare.
+
 ### F-editorial (punctele 6–7) — verdict editorial și demonstrația A/B
 - `control.verdict_editorial`, separat de G6: sigla ca subiect, activ repetat, text ieșit din cadru, material lipsă, export al altei versiuni; mesaj cu etapa de reluat, starea evaluării vizuale, planșa cu un cadru pe scenă. Persistat în `randari.control["editorial"]`, afișat la aprobare (panou și portal) cu planșa.
 - Caruselul folosește fotografia potrivită ideii; fără ea, cadrul rămâne tipografic.

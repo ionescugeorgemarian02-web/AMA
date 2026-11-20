@@ -325,7 +325,7 @@ def zona_linistita(img: Image.Image, subiect: Cutie | None, necesar: int) -> tup
         if b - a < 40:
             continue
         variante.append((ImageStat.Stat(gri.crop((0, a, w, b))).var[0], nume, (m, a, w - m, b)))
-    if not variante:  # subiectul acoperă tot: jos, iar verificarea la 360 px va refuza exportul
+    if not variante:  # subiectul acoperă tot: jos, peste subiect (`foto_dominanta` trece atunci pe bandă)
         return "jos", (m, 2 * h // 3, w - m, h - m)
     inalte = [v for v in variante if v[2][3] - v[2][1] >= necesar]
     _, nume, cutie = min(inalte) if inalte else max(variante, key=lambda v: v[2][3] - v[2][1])
@@ -344,8 +344,8 @@ def _bloc_titlu(text: str, latime: int, inaltime: int) -> tuple[ImageFont.FreeTy
     return f, linii, len(linii) * round(f.size * 1.2)
 
 
-def _necesar_titlu(text: str, latime: int) -> int:
-    f = _font(sabloane.TIPOGRAFIE["titlu"])
+def _necesar_titlu(text: str, latime: int, marime: int | None = None) -> int:
+    f = _font(marime or sabloane.TIPOGRAFIE["titlu"])
     return len(_rupe(text.translate(normalizare.SEDILA), f, latime)) * round(f.size * 1.2) + 2 * PAD
 
 
@@ -437,6 +437,12 @@ def foto_dominanta(
     img, subiect, _ = decupeaza(sursa, latime, inaltime, zona_subiect(sursa, generare))
     lat_text = latime - 2 * (MARGINE + PAD)
     pozitie, zona = zona_linistita(img, subiect, _necesar_titlu(titlu, lat_text))
+    if _atinge(zona, subiect) or zona[3] - zona[1] < _necesar_titlu(titlu, lat_text, sabloane.TITLU_MIN):
+        # nicio zonă liberă nu ține titlul nici la `TITLU_MIN` (subiectul ocupă aproape toată înălțimea):
+        # fotografia sus, titlul pe o bandă sub ea, fără să acopere subiectul
+        return _foto_cu_banda(
+            sursa, titlu, ident, logo=logo, generare=generare, latime=latime, inaltime=inaltime
+        )
     f, linii, hb = _bloc_titlu(
         titlu, lat_text, max(zona[3] - zona[1] - 2 * PAD, round(sabloane.TITLU_MIN * 1.2))
     )
@@ -455,6 +461,42 @@ def foto_dominanta(
         subiect,
         _asteptari("foto_dominanta", png, ident, [(cutie, int(f.size))], [(0, 0, latime, inaltime)], c_logo),
         pozitie,
+    )
+
+
+def _foto_cu_banda(
+    sursa: Image.Image,
+    titlu: str,
+    ident: dict[str, Any],
+    *,
+    logo: bytes | None,
+    generare: dict[str, Any] | None,
+    latime: int,
+    inaltime: int,
+) -> Macheta:
+    """`foto_dominanta` când fotografia nu are zonă liniștită pentru titlu: fotografia (decupată pe subiect)
+    deasupra, titlul pe o bandă în culoarea de fundal a identității, sigla în colțul benzii."""
+    c = ident["culori"]
+    x = MARGINE + PAD
+    lat_text = latime - 2 * x - LOGO_SEMNATURA - PAD
+    f, linii, hb = _bloc_titlu(titlu, lat_text, inaltime // 3)
+    hf = inaltime - (hb + 2 * PAD + MARGINE)
+    poza, subiect, _ = decupeaza(sursa, latime, hf, zona_subiect(sursa, generare))
+    img = Image.new("RGB", (latime, inaltime), c["fundal"])
+    img.paste(poza, (0, 0))
+    cutie = _scrie(ImageDraw.Draw(img), x, hf + PAD, linii, f, c["text"])
+    c_logo = _sigla(img, logo, [subiect, cutie, (0, 0, latime, hf)])
+    png = _png(img)
+    return Macheta(
+        "foto_dominanta",
+        png,
+        latime,
+        inaltime,
+        int(f.size),
+        (cutie,),
+        subiect,
+        _asteptari("foto_dominanta", png, ident, [(cutie, int(f.size))], [(0, 0, latime, hf)], c_logo),
+        "banda",
     )
 
 

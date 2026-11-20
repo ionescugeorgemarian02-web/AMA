@@ -5,7 +5,7 @@ activ, nu are voie să pună sigla în scene. Trece prin pregătirea folosită �
 
 import io
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from typing import Any
 
 import pytest
@@ -16,7 +16,7 @@ from sqlalchemy import select
 from app import productie
 from app.conturi import Rol
 from app.db import sesiune_tenant
-from app.media import biblioteca, cereri, fluxuri, lista, regizor, sabloane
+from app.media import biblioteca, cereri, fluxuri, lista, regizor, sabloane, voce
 from app.media.modele import Activ, Randare
 from tests.integration.conftest import Cont
 from tests.integration.utile_panou import autentifica, csrf
@@ -85,6 +85,19 @@ def test_sigla_nu_e_niciodata_materialul_principal_al_unei_scene(
         assert len(cereri.deschise(db, tenant, lid)) == 3
 
 
+@pytest.fixture
+def voce_disponibila() -> Iterator[None]:
+    """Testul privește alegerea scenelor, nu vocea: unde espeak-ng lipsește (jobul `check` din CI), vocea e
+    simulată, ca în `test_media_voce`; jobul `editorial` rulează aceeași cale cu espeak-ng real."""
+    if not voce.MotorEspeak.disponibil():
+        voce.seteaza_motor(voce.MotorVoceSimulat())  # SIMULAT: fără espeak-ng, vocea de test
+    try:
+        yield
+    finally:
+        voce.seteaza_motor(None)
+
+
+@pytest.mark.usefixtures("voce_disponibila")
 def test_dupa_incarcarea_fotografiilor_acelasi_livrabil_se_reia(tenant: uuid.UUID, modele: ModelFals) -> None:
     model_regizor(modele)
     with sesiune_tenant(tenant) as db:
