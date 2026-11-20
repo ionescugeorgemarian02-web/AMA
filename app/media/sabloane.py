@@ -172,6 +172,7 @@ def asigura_sabloane(db: Session, tenant_id: uuid.UUID, nume_brand: str) -> list
 def _logo_activ(db: Session, tenant_id: uuid.UUID, ident: dict[str, Any]) -> Activ:
     return biblioteca.incarca(
         db, tenant_id, logo(ident), nume_original="logo.png", sursa="identitate", utilizator_id=None,
+        rol_vizual="logo", subiect=f"sigla {ident['nume']}",
         descriere=f"logo propus pentru {ident['nume']}",
         licenta={"tip": "productie_proprie", "statut": licente.STATUT_OK,
                  "componente": [{"descriere": "logo propus din inițialele brandului (F8.10)"}]},

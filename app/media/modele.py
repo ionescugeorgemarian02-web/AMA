@@ -4,7 +4,7 @@ import datetime as dt
 import uuid
 from typing import Any
 
-from sqlalchemy import BigInteger, DateTime, Text, func
+from sqlalchemy import BigInteger, DateTime, Integer, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -27,10 +27,29 @@ class Activ(BazaMedia):
     nume_original: Mapped[str] = mapped_column(Text)
     sursa: Mapped[str] = mapped_column(Text)
     descriere: Mapped[str] = mapped_column(Text, default="")
+    # F-editorial: rolul în material (NULL = incert, de clasificat) și ce se vede, pentru potrivirea scenelor
+    rol_vizual: Mapped[str | None] = mapped_column(Text)
+    subiect: Mapped[str] = mapped_column(Text, default="")
     incarcat_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     licenta: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     generare: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class CerereMaterial(BazaMedia):
+    """O scenă a unei prezentări fără material potrivit (F-editorial): livrabilul așteaptă încărcarea."""
+
+    __tablename__ = "cereri_material"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    versiune: Mapped[int] = mapped_column(Integer)
+    scena: Mapped[int] = mapped_column(Integer)
+    subiect: Mapped[str] = mapped_column(Text)
+    cerere: Mapped[str] = mapped_column(Text)
+    stare: Mapped[str] = mapped_column(Text, default="deschisa")
+    creat_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    rezolvat_la: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Tendinta(BazaMedia):

@@ -192,6 +192,7 @@ def _inregistreaza(db: Session, r: Randare, lm: lista.ListaMontaj, corp: bytes) 
         corp,
         nume_original=f"video-{r.id}.mp4",
         sursa="montaj",
+        rol_vizual="export",
         utilizator_id=None,
         descriere=f"video format {lm.format}, {lm.canal}, {lm.durata:.1f} s",
         licenta={"tip": "productie_proprie", "statut": licente.STATUT_OK, "componente": componente(db, lm)},

@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 from app import continut, gateway
 from app.config import get_settings
 from app.logging import get_logger
-from app.media import audio, ffmpeg, licente, lista, transcriere
+from app.media import audio, biblioteca, ffmpeg, licente, lista, selectie, transcriere
 from app.media.modele import Activ
 from app.operare.motor import Prioritate
 
@@ -168,6 +168,105 @@ def _bucati(
     return out
 
 
+# --- storyboardul (F-editorial, decizia 3): din inventarul real, ÎNAINTE de voce și montaj ---
+
+Natura = Literal["educativ", "prezentare"]
+
+
+class ScenaStoryboard(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scena: int = Field(ge=0)
+    replica: str
+    subiect: str
+    activ_id: uuid.UUID | None = None
+    scor: float = 0.0
+    motiv: str
+    sursa: Literal["activ", "ilustratie", "lipsa"]
+    obligatorie: bool = True
+    nota: str = ""
+
+
+class Storyboard(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    natura: Natura
+    scene: list[ScenaStoryboard]
+    # sigla clientului: DOAR semnătură finală opțională, niciodată scenă
+    semnatura: uuid.UUID | None = None
+
+    @property
+    def blocat(self) -> bool:
+        return any(s.sursa == "lipsa" for s in self.scene)
+
+    def cereri(self) -> list[tuple[int, str, str]]:
+        """(scena, subiect, cererea precisă) pentru scenele lipsă; întâi bătăile cu indicație proprie."""
+        lipsa = [s for s in self.scene if s.sursa == "lipsa"]
+        alese = [s for s in lipsa if s.obligatorie] or lipsa
+        return [(s.scena, s.subiect, cerere_material(s.subiect)) for s in alese]
+
+
+def cerere_material(subiect: str) -> str:
+    return f"Încarcă o fotografie verticală cu {subiect}"
+
+
+def scene_script(script: dict[str, Any]) -> list[selectie.CerereScena]:
+    """Scenele, în ordinea frazelor (`fraze_din_script`): hook și apel fără indicație proprie, bătăile cu
+    indicația lor vizuală (obligatorie dacă există)."""
+    out = []
+    if str(script.get("hook", "")).strip():
+        out.append(selectie.CerereScena(str(script["hook"]).strip(), "", obligatorie=False))
+    for b in script.get("batai", []):
+        voce, vizual = str(b.get("voce", "")).strip(), str(b.get("vizual", "")).strip()
+        if voce:
+            out.append(selectie.CerereScena(voce, vizual, obligatorie=bool(vizual)))
+    if str(script.get("cta", "")).strip():
+        out.append(selectie.CerereScena(str(script["cta"]).strip(), "", obligatorie=False))
+    return out
+
+
+def candidati(active: list[Activ]) -> list[selectie.Candidat]:
+    """Inventarul real al clientului. Clipurile animate generate automat nu sunt material al afacerii."""
+    return [
+        selectie.Candidat(
+            id=a.id,
+            rol=a.rol_vizual,
+            categorie=a.categorie,
+            subiect=a.subiect or "",
+            descriere=a.descriere or "",
+            licenta_ok=not licente.probleme(a.licenta),
+        )
+        for a in active
+        if a.sursa != "animatie"
+    ]
+
+
+def compune_storyboard(
+    script: dict[str, Any], active: list[Activ], *, natura: Natura = "prezentare"
+) -> Storyboard:
+    """Nucleul determinist al storyboardului (fără bază)."""
+    cereri = scene_script(script)
+    alegeri = selectie.alege(cereri, candidati(active))
+    scene = []
+    for c, a in zip(cereri, alegeri, strict=True):
+        if a.activ_id is not None:
+            sursa, nota = "activ", ""
+        elif natura == "educativ":
+            sursa = "ilustratie"
+            nota = f"Nu avem material cu „{a.subiect}”: scena e o ilustrație animată, nu o imagine reală."
+        else:
+            sursa, nota = "lipsa", cerere_material(a.subiect)
+        scene.append(
+            ScenaStoryboard(scena=a.scena, replica=a.replica, subiect=a.subiect, activ_id=a.activ_id,
+                            scor=a.scor, motiv=a.motiv, sursa=sursa, obligatorie=c.obligatorie, nota=nota)
+        )  # fmt: skip
+    sigla = next((a.id for a in active if a.rol_vizual == "logo" and not licente.probleme(a.licenta)), None)
+    return Storyboard(natura=natura, scene=scene, semnatura=sigla)
+
+
+def storyboard(db: Session, tenant_id: uuid.UUID, script: dict[str, Any], *, natura: Natura) -> Storyboard:
+    """Storyboardul livrabilului din inventarul real al clientului (`biblioteca.ale_clientului`)."""
+    return compune_storyboard(script, biblioteca.ale_clientului(db, tenant_id), natura=natura)
+
+
 class ListaInvalida(ValueError):
     def __init__(self, probleme: list[str]) -> None:
         super().__init__("; ".join(probleme))
@@ -186,8 +285,10 @@ def regizeaza(
     muzica: Activ | None = None,
     livrabil_id: uuid.UUID | None = None,
     script: dict[str, Any] | None = None,
+    materiale_fixe: list[int] | None = None,
 ) -> lista.ListaMontaj:
-    """Cere alegerile modelului, construiește lista și o validează (`ListaInvalida` dacă nu trece)."""
+    """Cere alegerile modelului, construiește lista și o validează (`ListaInvalida` dacă nu trece).
+    `materiale_fixe` (din storyboard): materialul fiecărei bătăi e deja ales; modelul dă doar mișcarea."""
     folosibile = [m for m in materiale if not licente.probleme(m.licenta)]
     if not folosibile:
         raise ListaInvalida(["niciun material cu licență"])
@@ -226,6 +327,10 @@ def regizeaza(
     if not isinstance(r.iesire, PlanRegizor):
         raise TypeError("ieșirea nu respectă schema promptului")
     alegeri, note = _repara(r.iesire, len(fraze), len(folosibile))
+    if materiale_fixe is not None:
+        if len(materiale_fixe) != len(fraze) or any(not 0 <= m < len(folosibile) for m in materiale_fixe):
+            raise ListaInvalida(["storyboardul nu se potrivește cu bătăile sau cu materialele"])
+        alegeri = [a.model_copy(update={"material": materiale_fixe[a.bataie]}) for a in alegeri]
     if note:
         log.warning("regizorul a primit alegeri invalide", extra={"note": note[:5]})
     lm = construieste(format=format, canal=canal, fraze=fraze, naratiune=naratiune, materiale=folosibile,

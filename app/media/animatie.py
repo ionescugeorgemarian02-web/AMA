@@ -150,6 +150,7 @@ def clip(
         corp,
         nume_original="animatie.mp4",
         sursa="animatie",
+        rol_vizual="ilustratie",
         utilizator_id=None,
         descriere=f"grafică animată: {titlu.strip()[:200]}",
         licenta={
@@ -209,3 +210,35 @@ def clipuri_script(
         )
         for i, (t, d) in enumerate(zip(texte, durate, strict=False))
     ]
+
+
+def clipuri_scene(
+    db: Session,
+    tenant_id: uuid.UUID,
+    campuri: dict[str, Any],
+    durate: dict[int, float],
+    *,
+    eticheta: str = "",
+    culori: dict[str, str] | None = None,
+) -> dict[int, Activ]:
+    """Clipurile doar pentru scenele cerute (F-editorial: ilustrația unei scene educative fără material)."""
+    texte = texte_batai(campuri)
+    indicatii = (
+        ([""] if campuri.get("hook") else [])
+        + [str(b.get("vizual", "")) for b in campuri.get("batai", []) if b.get("text_ecran") or b.get("voce")]
+        + ([""] if campuri.get("cta") else [])
+    )
+    return {
+        i: clip(
+            db,
+            tenant_id,
+            texte[i],
+            durata=round(max(d, 1.0) + 1.0, 2),
+            varianta=i,
+            indicatie=indicatii[i] if i < len(indicatii) else "",
+            eticheta=eticheta,
+            culori=culori,
+        )
+        for i, d in sorted(durate.items())
+        if i < len(texte)
+    }

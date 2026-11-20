@@ -97,6 +97,60 @@ def fara_metadate(corp: bytes, tip: TipFisier) -> bytes:
         return corp
 
 
+ROLURI_VIZUALE = ("logo", "fotografie", "filmare", "ilustratie", "coperta", "export")
+_ROL_PE_SURSA = {"identitate": "logo", "compozitor": "coperta", "montaj": "export", "animatie": "ilustratie"}
+
+
+def rol_implicit(sursa: str, categorie: str) -> str | None:
+    """Rolul dedus din sursă și categorie (aceeași regulă ca în completarea din migrarea 0142); altfel NULL
+    (incert: îl clasifică operatorul). Un fișier din portal poate fi și siglă, deci rămâne incert."""
+    if sursa in _ROL_PE_SURSA:
+        return _ROL_PE_SURSA[sursa]
+    if sursa in ("stock", "generat"):
+        return {"foto": "fotografie", "video": "filmare"}.get(categorie)
+    return None
+
+
+def clasifica(
+    db: Session, activ_id: uuid.UUID, rol: str | None, subiect: str, *, utilizator_id: uuid.UUID | None = None
+) -> Activ:
+    """Operatorul stabilește rolul vizual și subiectul unui activ (F-editorial), cu urmă în audit."""
+    if rol is not None and rol not in ROLURI_VIZUALE:
+        raise ValueError(f"rol vizual necunoscut: {rol!r}")
+    a = db.get(Activ, activ_id, with_for_update=True)
+    if a is None:
+        raise LookupError("activ inexistent")
+    inainte = {"rol_vizual": a.rol_vizual, "subiect": a.subiect}
+    a.rol_vizual, a.subiect = rol, subiect.strip()[:200]
+    db.flush()
+    audit.record(
+        db,
+        "activ.clasificat",
+        obiect_tip="activ",
+        obiect_id=a.id,
+        tenant_id=a.tenant_id,
+        utilizator_id=utilizator_id,
+        detalii={"inainte": inainte, "dupa": {"rol_vizual": a.rol_vizual, "subiect": a.subiect}},
+    )
+    return a
+
+
+def neclasificate(db: Session, tenant_id: uuid.UUID, *, limita: int = 200) -> list[Activ]:
+    """Fotografiile și filmările cu rol incert (NULL), de clasificat în panou."""
+    return list(
+        db.execute(
+            select(Activ)
+            .where(
+                Activ.tenant_id == tenant_id,
+                Activ.rol_vizual.is_(None),
+                Activ.categorie.in_(("foto", "video")),
+            )
+            .order_by(Activ.creat_la.desc())
+            .limit(limita)
+        ).scalars()
+    )
+
+
 def _scrie(tenant_id: uuid.UUID, nume: str, corp: bytes) -> str:
     if not NUME_SIGUR.match(nume):
         raise ValueError("nume de fișier nesigur")
@@ -124,9 +178,14 @@ def incarca(
     descriere: str = "",
     licenta: dict[str, Any] | None = None,
     generare: dict[str, Any] | None = None,
+    rol_vizual: str | None = None,
+    subiect: str = "",
 ) -> Activ:
     """Verifică, salvează și înregistrează un activ. Idempotent pe conținut (același hash, același activ).
-    `licenta`: statutul drepturilor (F8.1, F8.4), `generare`: promptul / modelul / sămânța (F8.4, 14.3)."""
+    `licenta`: statutul drepturilor (F8.1, F8.4), `generare`: promptul / modelul / sămânța (F8.4, 14.3).
+    `rol_vizual` (F-editorial): dacă lipsește, se deduce din sursă și categorie (`rol_implicit`)."""
+    if rol_vizual is not None and rol_vizual not in ROLURI_VIZUALE:
+        raise ValueError(f"rol vizual necunoscut: {rol_vizual!r}")
     tip = verifica(corp)
     corp = fara_metadate(corp, tip)
     if licenta is None and sursa == "portal":
@@ -151,6 +210,8 @@ def incarca(
         incarcat_de=utilizator_id,
         licenta=licenta,
         generare=generare,
+        rol_vizual=rol_vizual or rol_implicit(sursa, tip.categorie),
+        subiect=subiect.strip()[:200],
     )
     db.add(a)
     db.flush()

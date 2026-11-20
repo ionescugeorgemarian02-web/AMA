@@ -171,6 +171,7 @@ def creeaza(
     ]
     a = biblioteca.incarca(
         db, tenant_id, c.png, nume_original=f"{sablon.tip}.png", sursa="compozitor", utilizator_id=None,
+        rol_vizual="coperta",
         descriere=f"{sablon.tip}: {' / '.join(texte.values())[:200]}",
         licenta={"tip": "productie_proprie", "statut": licente.STATUT_OK, "componente": componente},
         generare={"sablon": sablon.tip, "versiune": sablon.versiune, "texte": texte},
