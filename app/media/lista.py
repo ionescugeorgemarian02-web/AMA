@@ -53,7 +53,7 @@ class StilSubtitrari(Model):
     culoare: str = Field(default="#FFFFFF", pattern=r"^#[0-9A-Fa-f]{6}$")
     evidentiere: str = Field(default="#FFD400", pattern=r"^#[0-9A-Fa-f]{6}$")
     contur: str = Field(default="#000000", pattern=r"^#[0-9A-Fa-f]{6}$")
-    pozitie: Literal["jos", "mijloc"] = "jos"
+    pozitie: Literal["jos", "mijloc", "sus"] = "jos"  # „sus”: subiectul sau prețul stă jos (F-editorial)
     marime: int = Field(default=68, ge=36, le=110)
 
 
@@ -107,7 +107,10 @@ def probleme(lista: ListaMontaj, active: dict[uuid.UUID, InfoActiv]) -> list[str
             continue
         if not info.licentiat:
             out.append(f"scena {i}: activul {s.activ_id} nu are licență înregistrată")
-        asteptat = {"A": ("video",), "B": ("foto",), "C": ("video",), "E": ("video", "foto")}[lista.format]
+        # F-idee: A amestecă clipurile de stock cu fotografii (cu mișcare) când cadrele conceptului le cer
+        asteptat = {"A": ("video", "foto"), "B": ("foto",), "C": ("video",), "E": ("video", "foto")}[
+            lista.format
+        ]
         if info.categorie not in asteptat:
             out.append(f"scena {i}: formatul {lista.format} nu folosește {info.categorie}")
         lunga = info.durata is not None and s.sursa_de_la + (s.sfarsit - s.inceput) > info.durata + eps

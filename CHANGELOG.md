@@ -4,6 +4,48 @@ Format: o intrare pe pas, cea mai nouă sus.
 
 ## Nelansat
 
+### Corecții CI (PR #21) — producția de conținut pe coada ei; promovarea fără presupunerea unui eșantion fix
+- Producția livrabilelor (`continut.produ`) rulează pe coada `continut_productie`, cu concurența `AMA_CONTINUT_PARALEL` (implicit 4), nu pe `io` (24): aprobarea calendarului pune în coadă toate livrabilele (21 pe 30 de zile), iar fiecare pas ține sesiunea și lacătul livrabilului cât vorbește cu modelul → `QueuePool limit … reached` și `DBOSMaxStepRetriesExceeded` în `test_poarta_f6`. `motor.declara_coada` primește și o fabrică din `Settings` (limita citită la pornirea workerului); `motor.trimite_atomic` primește și cozi declarate.
+- Pool-ul de conexiuni (`app.db.dimensiuni_pool`): `AMA_DB_POOL` (implicit 10) permanente, iar peste ele câte una pentru fiecare job simultan permis de cozile limitate (greu + io + învățare + conținut) plus 5 de rezervă (înainte: 10 + 5 fix).
+- `test_invatare_promovare`: rutarea e după hash-ul id-ului promovării (aleator), deci 300 de livrabile dau uneori sub 20 în grupul de 10% (~1,6% din rulări): testul hrănește loturi până la schimbarea etapei și verifică proporția, nu un număr fix. Nu e o regresie din F-editorial/F-idee.
+
+### F-idee — stock-ul Commons rezistă la limitarea de rată
+- `stock_commons.http_get`: cereri seriale (≥ 1 s între ele), la 429/503 până la 6 încercări cu pauza din `Retry-After` (cel mult 60 s) sau exponențială; alte 4xx (ex. 403) nu se mai reîncearcă. Jobul `idee` picase cu „HTTP Error 429: Too Many Requests” de la API-ul Commons.
+- `.secrets.baseline`: amprentele SHA-256 ale prompturilor din `tests/date/idei/spita.json` marcate ca fals pozitive (garda de secrete picase pe ele).
+
+### F-idee — ideea ține cont de inventarul real al clientului
+- `continut.idei@2` și `continut.critica_idee@2` primesc inventarul (`idei.inventar`: fotografiile și filmările proprii din portal/client, cu subiectele, plus stock-ul generic): conceptul e realizabil cu ce există acum; cel mult un cadru propriu `de_filmat`; stock-ul nu numește clientul. Critica notează fezabilitatea după inventar.
+- `probleme_concept(..., inventar=)`: peste 1 cadru propriu fără material (20% din cadre) → „nerealizabil cu inventarul actual”; cadrul de stock care numește clientul pică. `alege` preferă conceptele realizabile; dacă niciunul, alege cel mai bun și deschide cereri de filmare (`media.cereri.cere_filmare`, versiunea 0, scena = cadrul).
+- `tests/date/idei/spita.json` scos: se reînregistrează prin punte cu prompturile noi.
+
+### F-idee — corecții după prima rulare reală prin punte
+- `idei.alege`: fezabilitatea sub 3 elimină; cadrele de stock obiectate de critic (`cadre_obiectate`) și cele care cer continuitate de personaj/loc sau reacții jucate pică `probleme_concept`; varianta îmbunătățită de critic e candidat cu notele conceptului-sursă. Pe datele rulării Spița, video-ul alege varianta îmbunătățită a conceptului 5 („Bicicleta scoasă de pe balcon”), nu conceptul 2.
+- Imaginea de feed: titlul vine din conceptul ales (`brief.titlu_imagine`, ≤ 7 cuvinte), nu din hook; `foto_dominanta` și `detaliu_explicat` nu mai crapă pe text lung (mărimi descrescătoare → bandă → scurtare la cuvinte întregi, cu `nota`).
+
+### F-idee (D-032) — etapa de idee înaintea briefului
+- `app/continut/idei.py`: 5 concepte din momentul real al publicului (`continut.idei@1`), critica pe șase criterii (`continut.critica_idee@1`, alt model când lanțul `creatie` are unul, altfel `autoevaluare`), validarea deterministă `probleme_concept` (verbe de acțiune, substantive concrete, mișcare ≥ 60% la video, ≤ 1 cadru text, fără majoritate de obiecte, dovadă din fapte aprobate, material propriu fără stock), alegerea cu realism/onestitate eliminatorii, o rescriere cu obiecțiile, apoi omul (`alege_manual`). Tabelul `idei_concepte` (migrarea `0143`, RLS), audit și urme.
+- Pipeline-ul rulează ideea înaintea briefului (`pipeline.idee_si_brief`, oprirea `idee_la_om`); `continut.brief@4`, `continut.postare@2`, `continut.script@3` scriu din concept; scriptul poartă `cadre`, iar storyboardul le folosește ca indicații în plus (filmarea preferată pentru cadrele cu mișcare).
+- Demonstrația `tests/integration/test_idee_spita.py` (Atelierul Spița) și jobul CI `idee`: idei, critică, concept ales, script, postare, stock real (Commons) pe interogările cadrelor cu atribuiri, MP4 vertical, imagine de feed, planșă, G6 și verdict editorial. Prompturile de creație vin din punte (generator / critic, înregistrate în `tests/date/idei/spita.json`), din modelul Anthropic real sau din redarea înregistrării.
+- Lista de montaj: formatul A acceptă și fotografii între clipuri (cadrele unui concept amestecă video și foto).
+
+### Corecții CI (PR #21)
+- `foto_dominanta`: fără zonă liberă pentru titlu, fotografia sus și titlul pe bandă (în loc de `TextPreaLung`). Testele: vocea simulată fără espeak-ng în `test_media_selectie_scene`; `test_media_verdict_editorial` nu mai lasă cererea în așteptare.
+
+### F-editorial (punctele 6–7) — verdict editorial și demonstrația A/B
+- `control.verdict_editorial`, separat de G6: sigla ca subiect, activ repetat, text ieșit din cadru, material lipsă, export al altei versiuni; mesaj cu etapa de reluat, starea evaluării vizuale, planșa cu un cadru pe scenă. Persistat în `randari.control["editorial"]`, afișat la aprobare (panou și portal) cu planșa.
+- Caruselul folosește fotografia potrivită ideii; fără ea, cadrul rămâne tipografic.
+- `scripts/foto_test_commons.py`, `tests/integration/test_editorial_spita.py` și jobul `editorial` din CI (artefactul `editorial-spita`).
+
+### F-editorial (punctele 4–5) — machete editoriale, montaj și voce
+- `compozitor`: machetele `foto_dominanta`, `detaliu_explicat`, `carusel` (decupare pe zona subiectului, titlul în zona cea mai liniștită cu voal, sigla discretă), verificarea la 360 px (`verifica_export`, `MachetaIlizibila`) și `exporta` (alegerea din brief + active; fără fotografie, macheta tipografică cu notă; `rol_vizual='coperta'`). `sabloane`: sistemul tipografic restrâns și `alege_macheta`.
+- Montaj: `regizor.reutilizari` (raportată în `randari.masuratori`), subtitrările urcă sus (`StilSubtitrari.pozitie='sus'`) când subiectul sau prețul stă jos; textul animat pe ecran ≤ 6 cuvinte. Durata urmează vocea: `scripturi.se_incadreaza` nu mai cere minimum −15% din țintă (doar plafon și 8 s).
+- `voce.mostra` (numele, prețul, îndemnul, cu `voce.PROFIL_RANDARE`, activ `export`); pilotul tratează blocarea pe material ca rezultat (`raport.json` → `blocate`) și exportă mostra și imaginile prin machete.
+
+### F-editorial (punctele 1–3) — rol vizual, selecție, brief vizual, storyboard
+- Migrarea `0142`: `active.rol_vizual` (CHECK, NULL = incert) și `active.subiect`, cu completare din sursă și categorie; tabelul `cereri_material` (RLS). `biblioteca.incarca` deduce rolul, `biblioteca.clasifica` lasă urmă în audit.
+- `media.selectie` (pur): potrivire pe subiect, fără siglă, coperți și exporturi. `regizor.storyboard` rulează înaintea vocii în `fluxuri.pregateste_script`; o prezentare fără material se blochează cu „Încarcă o fotografie verticală cu …”, iar `fluxuri.reia_livrabil` o reia. Ecranul `/materiale` din panou.
+- Brieful vizual (`continut.brief@3`): `idee_editoriala`, `ce_vede_publicul`, `informatie_in_plus`, `natura`; indicațiile vizuale vagi sunt respinse (`continut.script@2`).
+
 ### G-pool — Modele gratuite din catalogul fabricii
 - `app/gateway/catalog.py` (13 furnizori, 47 de modele, familii, numele exacte ale cheilor, adresele compatibile OpenAI), `secrete.py`, seiful (tabelul `gateway_seif`), `sanatate_model.py`, `verifica_furnizori.py`; rutarea cu `rezerva:<profil>`, `alta_familie`, verificarea contextului; resetul Gemini pe fusul Los Angeles; migrarea `0109`; numele secretelor în `infra/env/*.example` și compose. D-028.
 
@@ -565,3 +607,5 @@ Format: o intrare pe pas, cea mai nouă sus.
   creata_la timestamptz, magazin unic per tenant, ștergere webhook doar cu id.
 - OAuth pe query brut, HMAC comparat în bytes și expirare callback la 5 minute.
 - Panoul folosește maparea persistentă a codurilor de reducere per magazin.
+
+- 2026-11-20 · Pilot AMA pe GitHub Actions, producție din calendar, indicatori de campanie, oferte cu surse, exporturi video versionate, atribuire comercială și import Search Console. Animațiile folosesc identitatea clientului și simboluri alese după subiect. Detalii și limite în JURNAL.md.

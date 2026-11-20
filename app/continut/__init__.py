@@ -1,4 +1,5 @@
 """Producția de conținut text (F6, docs/13): strategul de conținut și calendarul (D3),
+etapa de idee (F-idee: momentul real, critica, validarea și alegerea conceptului, înaintea briefului),
 autorul de brief (D5),
 hook-urile, postările și scripturile video (E1, E4, E2, E8), cu validarea și aprobarea lor,
 adaptorul pe platformă (E10),
@@ -14,7 +15,9 @@ Restul aplicației folosește doar ce se exportă aici:
     livrabile = continut.calendar.aproba(db, calendar_id, utilizator_id=om)
     # D5: brieful fiecărui slot, cu faptele permise din pachetul de context:
     job = continut.fluxuri.trimite_briefurile(tenant, calendar_id, cheie="briefuri:…")
-    # un livrabil: brief → hook-uri → postare → editare → validare (≤ 2 reparații) → aprobare:
+    # F-idee: 5 concepte → critica → validarea deterministă → alegerea (sau omul: idei.alege_manual):
+    concept = continut.idei.pregateste(db, livrabil_id)
+    # un livrabil: idee → brief → hook-uri → postare → editare → validare (≤ 2 reparații) → aprobare:
     job = continut.fluxuri.trimite_productia(tenant, livrabil_id, cheie="produ:…")
     stare = continut.pipeline.produ(tenant, livrabil_id)  # același lanț, sincron (proba, testele)
     # E10: aceeași idee, câte un livrabil nou pe canal, în limitele de lungime:
@@ -28,17 +31,19 @@ from app.continut import (
     editor,
     feedback,
     fluxuri,
+    idei,
     pipeline,
     proba,
     scriere,
     scripturi,
 )
-from app.continut.modele import Adaptare, Brief, Calendar, IntrareCalendar, VariantaHook
+from app.continut.modele import Adaptare, Brief, Calendar, IdeeConcept, IntrareCalendar, VariantaHook
 
 __all__ = [
     "Adaptare",
     "Brief",
     "Calendar",
+    "IdeeConcept",
     "IntrareCalendar",
     "VariantaHook",
     "adaptor",
@@ -47,6 +52,7 @@ __all__ = [
     "editor",
     "feedback",
     "fluxuri",
+    "idei",
     "pipeline",
     "proba",
     "scriere",

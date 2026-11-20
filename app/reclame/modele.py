@@ -4,7 +4,7 @@ import datetime as dt
 import uuid
 from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, Date, DateTime, Integer, Text, func
+from sqlalchemy import BigInteger, Boolean, Date, DateTime, Float, Integer, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -52,7 +52,8 @@ class RezultatReclame(BazaReclame):
     cheltuiala_bani: Mapped[int] = mapped_column(BigInteger)
     afisari: Mapped[int] = mapped_column(BigInteger)
     clicuri: Mapped[int] = mapped_column(BigInteger)
-    rezultate: Mapped[int] = mapped_column(Integer)
+    rezultate: Mapped[float | None] = mapped_column(Float)
+    clicuri_trafic: Mapped[int | None] = mapped_column(BigInteger)
     citit_la: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

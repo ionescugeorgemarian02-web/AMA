@@ -22,6 +22,7 @@ from app.panou.gateway_web import router as router_gateway
 from app.panou.invatare_web import router as router_invatare
 from app.panou.lansare_web import router as router_lansare
 from app.panou.leaduri_web import router as router_leaduri
+from app.panou.materiale_web import router as router_materiale
 from app.panou.motor_web import router as router_motor
 from app.panou.onboarding_web import router as router_onboarding
 from app.panou.operare_web import router as router_operare
@@ -71,6 +72,7 @@ def inregistreaza(app: FastAPI) -> None:
     app.include_router(router_reclame)
     app.include_router(router_comert)
     app.include_router(router_urme)
+    app.include_router(router_materiale)  # F-editorial: rol vizual și material lipsă
     app.include_router(router_lansare)  # F15.5–F15.6: pilotul și lista de go-live
 
 

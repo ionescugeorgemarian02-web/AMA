@@ -20,7 +20,7 @@ from sqlalchemy import DateTime, Text, func, select
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
-from app import continut, gateway
+from app import continut, creier, gateway
 from app.ids import new_id
 from app.operare import audit
 from app.operare.motor import Prioritate
@@ -55,10 +55,8 @@ class PaginaScrisa(gateway.Iesire):
     titlu: str = Field(min_length=10, max_length=120)
     subtitlu: str = Field(min_length=10, max_length=240)
     beneficii: list[str] = Field(min_length=3, max_length=5)
-    dovada: str = Field(min_length=10, max_length=400)
     apel: str = Field(min_length=3, max_length=60)
     reclame: list[str] = Field(min_length=3, max_length=3)
-    studiu_caz: StudiuCaz
 
 
 class Baza(DeclarativeBase):
@@ -86,10 +84,8 @@ class EroareOferta(ValueError):
 
 def texte_pagina(c: dict[str, Any]) -> str:
     """Textul paginii (fără buton), în ordinea afișării."""
-    s = c["studiu_caz"]
-    return "\n".join(
-        [c["titlu"], c["subtitlu"], *c["beneficii"], c["dovada"], s["situatie"], s["actiune"], s["rezultat"]]
-    )
+    s = c.get("studiu_caz") or {}
+    return "\n".join([c["titlu"], c["subtitlu"], *c["beneficii"], c["dovada"], *s.values()])
 
 
 def apeluri_in_plus(c: dict[str, Any]) -> list[str]:
@@ -114,6 +110,20 @@ def genereaza(
 ) -> PaginaCaptare:
     if not SLUG.match(slug) or not tinta.startswith("/"):
         raise EroareOferta("slug sau țintă invalide")
+    acum = dt.datetime.now(dt.UTC)
+    potrivite = [
+        o
+        for o in creier.oferte.pentru_context(db, tenant_id, acum)
+        if o.nume == oferta and o.destinatie == tinta
+    ]
+    if len(potrivite) != 1:
+        raise EroareOferta("Selectează o ofertă aprobată, valabilă, cu destinația corespunzătoare.")
+    aleasa = potrivite[0]
+    fapte = {
+        str(f.intrare_id): f
+        for f in creier.fapte.pentru_context(db, tenant_id, acum)
+        if f.intrare_id in aleasa.fapte
+    }
     continut.prompturi.asigura()
     r1 = gateway.apeleaza(
         db,
@@ -123,14 +133,19 @@ def genereaza(
         componenta="oferta.arhitect",
         prioritate=Prioritate.P2,
         max_tokeni=800,
-        variabile={"firma": firma, "oferta": oferta, "public": public, "apel": apel},
+        variabile={
+            "firma": firma,
+            "oferta": creier.oferte.text_oferta(aleasa),
+            "public": public,
+            "apel": apel,
+        },
     )
     if not isinstance(r1.iesire, PropunereOferta):
         raise TypeError("ieșirea nu respectă schema")
     p = r1.iesire
     r2 = gateway.apeleaza(
         db,
-        prompt="oferta.copywriter@1",
+        prompt="oferta.copywriter@2",
         schema=PaginaScrisa,
         tenant_id=tenant_id,
         componenta="oferta.copywriter",
@@ -139,6 +154,9 @@ def genereaza(
         variabile={
             "firma": firma,
             "magnet": p.magnet,
+            "oferta": creier.oferte.text_oferta(aleasa),
+            "fapte": "\n".join(f.afirmatie for f in fapte.values()),
+            "destinatie": tinta,
             "promisiune": p.promisiune,
             "public": p.public,
             "traseu": "\n".join(f"- {x}" for x in p.traseu),
@@ -148,6 +166,11 @@ def genereaza(
     if not isinstance(r2.iesire, PaginaScrisa):
         raise TypeError("ieșirea nu respectă schema")
     c = r2.iesire.model_dump()
+    c["fapte_aprobate"] = [{"id": k, "versiune": f.versiune} for k, f in fapte.items()]
+    c["dovada"] = ""
+    c["studiu_caz"] = (
+        {k: fapte[v].afirmatie for k, v in aleasa.studiu_caz.items()} if aleasa.studiu_caz else None
+    )
     c["apel"] = apel  # butonul e al ofertei, nu al modelului
     rez = evalueaza_text(
         db,

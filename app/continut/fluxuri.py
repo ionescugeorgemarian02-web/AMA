@@ -1,4 +1,5 @@
-"""Fluxurile durabile ale producției de conținut (F6), pe coada `io`. Primesc doar identificatori; la
+"""Fluxurile durabile ale producției de conținut (F6): calendarul și briefurile pe coada `io`, producția
+livrabilelor pe coada ei (`continut_productie`). Primesc doar identificatori; la
 `gateway.Amanat`
 (profil care amână, cotă epuizată) își reprogramează munca și se încheie. Nu degradează niciodată la un model
 mai slab.
@@ -7,14 +8,34 @@ mai slab.
 import datetime as dt
 import uuid
 
+from sqlalchemy.orm import Session
+
 from app import creier, gateway, productie
+from app.config import Settings
 from app.continut import brief, calendar, pipeline
 from app.db import sesiune_tenant
 from app.logging import get_logger
 from app.operare import motor
-from app.operare.motor import Coada, Prioritate
+from app.operare.motor import Coada, DefinitieCoada, Prioritate
 
 log = get_logger("app.continut")
+
+# Producția livrabilelor are coada ei, cu concurență limitată (`AMA_CONTINUT_PARALEL`): aprobarea unui
+# calendar pune în coadă toate livrabilele lui deodată (21 pe 30 de zile), iar fiecare pas ține sesiunea și
+# lacătul livrabilului cât vorbește cu modelul. Pe coada `io` ar ocupa toate locurile și pool-ul de conexiuni.
+COADA_PRODUCTIE = "continut_productie"
+
+
+def _coada_productie(s: Settings) -> DefinitieCoada:
+    return DefinitieCoada(
+        COADA_PRODUCTIE,
+        paralel_global=s.continut_paralel,
+        paralel_worker=s.continut_paralel,
+        polling_sec=s.motor_polling_sec,
+    )
+
+
+motor.declara_coada(_coada_productie)
 
 # --- calendarul (F6.1)
 
@@ -91,8 +112,8 @@ NUME_BRIEFURI = "continut.briefuri"
 def _brief(tenant_id: str, livrabil_id: str) -> str:
     """`gata`, `amanat:<moment ISO>` sau `refuzat:<motiv>` pentru brieful unui livrabil."""
     try:
-        with sesiune_tenant(uuid.UUID(tenant_id)) as db:
-            brief.scrie(db, uuid.UUID(livrabil_id))
+        if pipeline.idee_si_brief(uuid.UUID(tenant_id), uuid.UUID(livrabil_id)) == pipeline.IDEE_LA_OM:
+            return f"refuzat:{pipeline.IDEE_LA_OM}"
     except gateway.Amanat as amanat:
         return f"amanat:{amanat.pana_la.isoformat()}"
     except gateway.EroareGateway as exc:
@@ -152,7 +173,24 @@ NUME_PRODUCTIE = "continut.produ"
 def _pas_productie(tenant_id: str, livrabil_id: str) -> str:
     """Starea după un pas din lanț, `amanat:<moment ISO>` sau `refuzat:<motiv>`."""
     try:
-        return pipeline.pas(uuid.UUID(tenant_id), uuid.UUID(livrabil_id))
+        tid, lid = uuid.UUID(tenant_id), uuid.UUID(livrabil_id)
+        stare = pipeline.pas(tid, lid)
+        if stare == productie.Stare.ASTEAPTA_APROBARE.value:
+            from app.media import fluxuri as media_fluxuri
+
+            with sesiune_tenant(tid) as db:
+                lv = productie.citeste(db, lid)
+                if lv and lv.tip == "script_video_scurt":
+                    motor.trimite_atomic(
+                        db,
+                        media_fluxuri.produce_script,
+                        tenant_id,
+                        livrabil_id,
+                        str(lv.versiune),
+                        cheie=f"video:{lid}:v{lv.versiune}",
+                        coada=motor.Coada.GREU,
+                    )
+        return stare
     except gateway.Amanat as amanat:
         return f"amanat:{amanat.pana_la.isoformat()}"
     except gateway.EroareGateway as exc:
@@ -166,7 +204,7 @@ def _pas_productie(tenant_id: str, livrabil_id: str) -> str:
 def produ_livrabilul(tenant_id: str, livrabil_id: str) -> str:
     r = pipeline.stare(uuid.UUID(tenant_id), uuid.UUID(livrabil_id)).value
     for _ in range(pipeline.MAXIM_PASI):
-        if r.startswith("refuzat:") or r == "fara_autor" or productie.Stare(r) not in pipeline.LUCRU:
+        if r.startswith("refuzat:") or r in pipeline.OPRIRI or productie.Stare(r) not in pipeline.LUCRU:
             return r
         r = _pas_productie(tenant_id, livrabil_id)
         if r.startswith("amanat:"):
@@ -176,11 +214,22 @@ def produ_livrabilul(tenant_id: str, livrabil_id: str) -> str:
                 tenant_id,
                 livrabil_id,
                 cheie=f"produ:{livrabil_id}:reluare:{r}",
-                coada=Coada.IO,
+                coada=COADA_PRODUCTIE,
                 prioritate=Prioritate.P2,
             )
             return "amanat"
     return r
+
+
+def programeaza_productia(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID) -> None:
+    motor.trimite_atomic(
+        db,
+        produ_livrabilul,
+        str(tenant_id),
+        str(livrabil_id),
+        cheie=f"produ:{livrabil_id}",
+        coada=COADA_PRODUCTIE,
+    )
 
 
 def trimite_productia(tenant_id: uuid.UUID, livrabil_id: uuid.UUID, *, cheie: str) -> str:
@@ -188,7 +237,7 @@ def trimite_productia(tenant_id: uuid.UUID, livrabil_id: uuid.UUID, *, cheie: st
         produ_livrabilul,
         str(tenant_id),
         str(livrabil_id),
-        coada=Coada.IO,
+        coada=COADA_PRODUCTIE,
         prioritate=Prioritate.P2,
         cheie=cheie,
     )

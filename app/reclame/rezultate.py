@@ -10,8 +10,9 @@ detaliul lor și nu se adună încă o dată).
 import datetime as dt
 import uuid
 from dataclasses import dataclass
+from typing import Any
 
-from sqlalchemy import ColumnElement, func, select
+from sqlalchemy import ColumnElement, case, func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
@@ -97,7 +98,8 @@ def _scrie(db: Session, cont: ContReclame, randuri: list[RandReclame], acum: dt.
             "cheltuiala_bani": max(0, r.cheltuiala_bani),
             "afisari": max(0, r.afisari),
             "clicuri": max(0, r.clicuri),
-            "rezultate": max(0, r.rezultate),
+            "rezultate": r.rezultate,
+            "clicuri_trafic": r.clicuri_trafic,
             "citit_la": acum,
         }
         db.execute(
@@ -164,7 +166,7 @@ class Totaluri:
     cheltuiala_bani: int = 0
     afisari: int = 0
     clicuri: int = 0
-    rezultate: int = 0
+    rezultate: float | None = None
 
     @property
     def cost_pe_rezultat_bani(self) -> int | None:
@@ -183,12 +185,23 @@ class Totaluri:
         return round(self.cheltuiala_bani * 1000 / self.afisari) if self.afisari else None
 
 
+def _suma_completa(coloana: ColumnElement[Any]) -> ColumnElement[Any]:
+    # SQL SUM ignoră NULL. Un rezultat parțial ar transforma date lipsă într-o penalizare.
+    return case((func.count(coloana) == func.count(), func.sum(coloana)))
+
+
 SUME = (
     func.coalesce(func.sum(RezultatReclame.cheltuiala_bani), 0),
     func.coalesce(func.sum(RezultatReclame.afisari), 0),
     func.coalesce(func.sum(RezultatReclame.clicuri), 0),
-    func.coalesce(func.sum(RezultatReclame.rezultate), 0),
+    _suma_completa(RezultatReclame.rezultate.expression),
 )
+
+
+def _valoare(n: float | None) -> float | None:
+    if n is None:
+        return None
+    return int(n) if int(n) == n else n
 
 
 def _filtru(
@@ -210,12 +223,18 @@ def totaluri(
     *,
     obiect_extern: str | None = None,
     nivel: str = "campanie",
+    eveniment: str = "lead",
 ) -> Totaluri:
-    q = select(*SUME).where(*_filtru(cont_id, de_la, pana_la, nivel))
+    rezultat = SUME[3]
+    if eveniment == "clic_destinatie":
+        rezultat = _suma_completa(RezultatReclame.clicuri_trafic.expression)
+    elif eveniment != "lead":
+        raise ValueError("eveniment de reclame necunoscut")
+    q = select(*SUME[:3], rezultat).where(*_filtru(cont_id, de_la, pana_la, nivel))
     if obiect_extern is not None:
         q = q.where(RezultatReclame.obiect_extern == obiect_extern)
     c, a, k, r = db.execute(q).one()
-    return Totaluri(int(c), int(a), int(k), int(r))
+    return Totaluri(int(c), int(a), int(k), _valoare(r))
 
 
 def pe_obiecte(
@@ -234,7 +253,9 @@ def pe_obiecte(
     if parinte_extern is not None:
         q = q.where(RezultatReclame.parinte_extern == parinte_extern)
     q = q.group_by(RezultatReclame.obiect_extern).order_by(SUME[0].desc(), RezultatReclame.obiect_extern)
-    return [(str(o), str(n), Totaluri(int(c), int(a), int(k), int(r))) for o, n, c, a, k, r in db.execute(q)]
+    return [
+        (str(o), str(n), Totaluri(int(c), int(a), int(k), _valoare(r))) for o, n, c, a, k, r in db.execute(q)
+    ]
 
 
 def pe_zile(
@@ -246,4 +267,4 @@ def pe_zile(
         .group_by(RezultatReclame.zi)
         .order_by(RezultatReclame.zi)
     )
-    return [(z, Totaluri(int(c), int(a), int(k), int(r))) for z, c, a, k, r in db.execute(q)]
+    return [(z, Totaluri(int(c), int(a), int(k), _valoare(r))) for z, c, a, k, r in db.execute(q)]

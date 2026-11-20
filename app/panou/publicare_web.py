@@ -83,3 +83,21 @@ def link(
         db.rollback()
         return _pagina(request, u, db, status=422, eroare=f"Linkul nu a fost salvat: {exc}.")
     return RedirectResponse("/publicare?mesaj=publicat", status_code=303)
+
+
+@router.get("/{publicare_id}/video")
+def video(publicare_id: uuid.UUID, u: Agentie, db: DbSession) -> Response:
+    from fastapi.responses import FileResponse
+
+    from app import media
+    from app.publicare.modele import PublicareAsistata
+
+    p = db.get(PublicareAsistata, publicare_id)
+    if p is None:
+        raise HTTPException(status_code=404)
+    activ = media.montaj.video_verificat(db, p.tenant_id, p.livrabil_id, p.versiune)
+    if activ is None or not media.regizor.cale(activ).is_file():
+        raise HTTPException(status_code=404, detail="Exportul verificat al versiunii aprobate lipsește.")
+    return FileResponse(
+        media.regizor.cale(activ), media_type="video/mp4", filename=f"{p.livrabil_id}-v{p.versiune}.mp4"
+    )

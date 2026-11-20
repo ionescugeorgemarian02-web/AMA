@@ -54,6 +54,77 @@ def raspuns_json(**campuri: Any) -> str:
     return json.dumps({**campuri, "dovezi": ["scriptat"], "incredere": 0.9}, ensure_ascii=False)
 
 
+def concept_zorilor(dovada: str = "", **suprascrie: Any) -> dict[str, Any]:
+    """# SIMULAT: un concept bun pentru brandul fictiv (moment real, cadre cu oameni în acțiune)."""
+    c: dict[str, Any] = {
+        "titlu": "Prima cafea de sâmbătă",
+        "moment_real": "Sâmbătă dimineața, în bucătăria de acasă, cineva deschide un pachet nou și macină boabele.",
+        "tensiune": "Cafeaua din supermarket are gust de carton și nu știe de când stă pe raft.",
+        "mesaj_unic": "Cafeaua proaspătă se recunoaște după data prăjirii de pe pachet.",
+        "dovada": dovada,
+        "de_ce_acum": "Weekendul e momentul în care oamenii prepară cafeaua pe îndelete.",
+        "cadre": [
+            {"subiect": "mâna clientului", "actiune": "deschide pachetul și miroase boabele",
+             "context": "bucătăria de acasă, dimineața", "tip": "video", "incadrare": "prim-plan",
+             "interogari": ["hands opening coffee bag", "smelling coffee beans close up"]},
+            {"subiect": "boabele de cafea", "actiune": "se rostogolesc în prăjitor",
+             "context": "prăjitoria din Brașov", "tip": "video", "incadrare": "detaliu", "interogari": []},
+            {"subiect": "mâna baristului", "actiune": "scrie data prăjirii pe pachet",
+             "context": "tejgheaua cafenelei", "tip": "foto", "incadrare": "prim-plan",
+             "interogari": ["hand writing date on coffee bag", "coffee roaster label handwriting"]},
+            {"subiect": "clientul", "actiune": "toarnă apă fierbinte peste cafeaua măcinată",
+             "context": "bucătăria de acasă", "tip": "video", "incadrare": "plan mediu",
+             "interogari": ["pour over coffee home kitchen", "pouring hot water coffee filter"]},
+            {"subiect": "apelul la acțiune", "actiune": "apare adresa magazinului", "context": "",
+             "tip": "text", "incadrare": "", "interogari": []},
+        ],
+        "material_propriu": [2],
+    }  # fmt: skip
+    c.update(suprascrie)
+    return c
+
+
+def aliasuri_fapte(p: str) -> list[str]:
+    bucata = p.split("Fapte aprobate", 1)[1].split("Context aprobat", 1)[0] if "Fapte aprobate" in p else ""
+    return re.findall(r"^\[(F\d+)\] ", bucata, re.M)
+
+
+FARA_FILMARI = "Clientul NU are nicio filmare proprie."
+
+
+def concept_din_stock(dovada: str = "", **suprascrie: Any) -> dict[str, Any]:
+    """# SIMULAT: conceptul bun realizabil fără material propriu: cadrul 2 (prăjirea) e acțiune generică de stock."""
+    c = concept_zorilor(dovada)
+    c["cadre"][1] = {**c["cadre"][1], "context": "o prăjitorie de cafea",
+                     "interogari": ["coffee beans roasting drum", "coffee roaster machine beans"]}  # fmt: skip
+    c["material_propriu"] = []
+    c.update(suprascrie)
+    return c
+
+
+def idei_fals(c: CerereInregistrata) -> str:
+    """Cinci concepte (variații ale celui bun), cu dovada pe primul fapt aprobat. Realizabile cu inventarul din
+    prompt: fără filmări proprii, prăjirea vine din stock generic (nicio cerere de filmare)."""
+    p = prompt_complet(c)
+    dovada = next(iter(aliasuri_fapte(p)), "")
+    n = int(m.group(1)) if (m := re.search(r"Întoarce `concepte`: (\d+)", p)) else 5
+    fel = concept_din_stock if FARA_FILMARI in p else concept_zorilor
+    return raspuns_json(concepte=[fel(dovada, titlu=f"Prima cafea de sâmbătă {i}") for i in range(1, n + 1)])
+
+
+def critica_idee_fals(c: CerereInregistrata) -> str:
+    """Note bune pentru fiecare concept, primul cel mai bun; varianta îmbunătățită e chiar primul."""
+    p = prompt_complet(c)
+    numere = [int(x) for x in re.findall(r"^Concept (\d+):", p, re.M)] or [1]
+    primul = json.loads(p.split("Concept 1:\n", 1)[1].split("\n", 1)[0]) if "Concept 1:\n" in p else None
+    evaluari = [
+        {"nr": n, "specificitate": 5 if n == 1 else 4, "realism": 5, "relevanta": 4, "fezabilitate": 4,
+         "noutate": 4, "onestitate": 5, "obiectii": ["cadrul 4 poate arăta mai aproape aburul"]}
+        for n in numere
+    ]  # fmt: skip
+    return raspuns_json(evaluari=evaluari, nr_imbunatatit=1 if primul else None, imbunatatit=primul)
+
+
 class ModelFals:
     """Un „model” care răspunde după promptul primit. `handlere[cheie]` primește cererea și întoarce JSON-ul; testele
     din fazele următoare își adaugă handlerele aici. `stricate`: câmpuri / elemente pe care modelul le strică."""
@@ -62,6 +133,9 @@ class ModelFals:
         self.handlere: dict[str, Callable[[CerereInregistrata], str]] = {
             "Întrebarea pusă clientului": self._evalueaza,
             "Câmpurile brieful (cod": self._brief,
+            # F-idee: etapa de idee rulează înaintea oricărui brief de livrabil
+            "Propune concepte creative pentru livrabilul": idei_fals,
+            "Critică conceptele de mai jos": critica_idee_fals,
         }
         self.stricate: set[str] = set()
         self.apeluri: list[str] = []

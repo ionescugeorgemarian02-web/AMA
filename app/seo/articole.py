@@ -55,6 +55,10 @@ def brief(g: Grup, surse: list[dict[str, str]]) -> dict[str, Any]:
         "principal": g.principal,
         "secundare": g.cuvinte[1:6],
         "intentie": g.intentie,
+        "produs": g.produs,
+        "pagina": g.pagina,
+        "impresii": g.impresii,
+        "pozitie": g.pozitie,
         "surse": [
             {"nr": i + 1, "titlu": s["titlu"], "url": s["url"], "pasaj": s["pasaj"]}
             for i, s in enumerate(surse)
@@ -131,9 +135,11 @@ def scrie(
         "principal": b["principal"],
         "secundare": ", ".join(b["secundare"]) or "—",
         "intentie": b["intentie"],
+        "produs": b["produs"] or "nespecificat",
+        "pagina": b["pagina"] or "nespecificată",
         "surse": _surse_text(b),
     }
-    plan, _ = _apel(db, tenant_id, "seo.plan@1", PlanArticol, var)
+    plan, _ = _apel(db, tenant_id, "seo.plan@2", PlanArticol, var)
     plan_text = "\n".join(f"- {s.titlu}: {s.idee}" for s in plan.sectiuni)
     ciorna, _ = _apel(
         db,

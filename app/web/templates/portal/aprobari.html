@@ -16,6 +16,16 @@
 {% for ap, lv, c in cereri %}
 <section class="card" aria-labelledby="a-{{ ap.id }}">
   <h2 id="a-{{ ap.id }}">{{ lv.canal }} · {{ lv.tip }} <span class="insigna atentie">până la {{ ap.termen_la|moment }}</span></h2>
+  {% if lv.tip == "script_video_scurt" %}<a href="/aprobari-media/{{ ap.id }}/video">Deschide exportul acestei versiuni</a>{% endif %}
+  {% set ctl = controale.get(ap.id) %}{% if ctl %}
+  <div class="rand"><span class="eticheta">Control tehnic (G6)</span><span>{{ ctl.g6 }}</span></div>
+  {% for d in ctl.g6_dovezi %}<p class="slab">{{ d }}</p>{% endfor %}
+  <div class="rand"><span class="eticheta">Verdict editorial</span><span>{{ ctl.editorial }}</span></div>
+  {% if ctl.mesaj %}<p>{{ ctl.mesaj }}</p>{% endif %}
+  {% for m in ctl.motive[1:] %}<p class="slab">{{ m }}</p>{% endfor %}
+  <p class="slab">Relevanță și compoziție: {{ ctl.evaluare }}</p>
+  {% if ctl.plansa_activ_id %}<figure class="plansa"><img src="/aprobari-media/{{ ap.id }}/plansa" alt="Planșa: câte un cadru pe scenă" loading="lazy"><figcaption class="slab">Planșa: câte un cadru pe scenă, cu activul folosit.</figcaption></figure>{% endif %}
+  {% endif %}
   <div class="previzualizare"><p class="text-lung">{{ c.text }}</p>
   {% if c.campuri.hashtaguri %}<p class="slab">{% for h in c.campuri.hashtaguri %}#{{ h }} {% endfor %}</p>{% endif %}</div>
   {% if poate_aproba %}

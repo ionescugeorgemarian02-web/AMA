@@ -12,6 +12,7 @@ repo: fontul Montserrat (SIL OFL) și iconițele Lucide (ISC). Textul ocupă zon
 """
 
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -38,7 +39,7 @@ ICONITE: tuple[tuple[str, str], ...] = (
     ("temperatur", "thermometer"), ("cadou", "gift"), ("magazin", "store"), ("cafenea", "store"),
     ("adresa", "map-pin"), ("brasov", "map-pin"), ("fermier", "hand-heart"), ("iubi", "heart"),
     ("calitat", "star"), ("pachet", "package"), ("cafe", "coffee"), ("espresso", "coffee"),
-    ("filtru", "coffee"),
+    ("filtru", "coffee"), ("program", "calendar"), ("revizi", "calendar"),
 )  # fmt: skip
 
 
@@ -46,12 +47,17 @@ def _fara_diacritice(s: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFD", s.lower()) if unicodedata.category(c) != "Mn")
 
 
+def comparatie_macinare(titlu: str, indicatie: str) -> bool:
+    text = _fara_diacritice(f"{titlu} {indicatie}")
+    return "macin" in text and any(c in text for c in ("cafe", "filtru", "fin", "medie"))
+
+
 def iconita(text: str) -> str:
     cuvinte = _fara_diacritice(text).split()
     for cheie, nume in ICONITE:
         if any(c.strip(".,;:!?„”\"'()").startswith(cheie) for c in cuvinte):
             return nume
-    return "coffee"
+    return "sparkles"
 
 
 def _binar(nume: str) -> str:
@@ -77,6 +83,7 @@ def randeaza(
     *,
     durata: float,
     varianta: int = 0,
+    indicatie: str = "",
     samanta: int = 0,
     eticheta: str = "",
     culori: dict[str, str] | None = None,
@@ -87,12 +94,17 @@ def randeaza(
     with tempfile.TemporaryDirectory() as d:
         cadre = Path(d) / "cadre"
         cadre.mkdir()
+        simbol = iconita(f"{titlu} {indicatie}")
+        svg = (ACTIVE / "iconite" / f"{simbol}.svg").read_text()
+        paleta = CULORI_IMPLICITE if culori is None else culori
+        if not all(re.fullmatch(r"#[0-9A-Fa-f]{6}", paleta.get(rol, "")) for rol in CULORI_IMPLICITE):
+            raise ValueError("Paleta animației cere patru culori hexazecimale.")
         intrare = {
             "latime": latime, "inaltime": inaltime, "fps": FPS, "durata": durata, "titlu": titlu.strip(),
-            "eticheta": eticheta, "icon": (ACTIVE / "iconite" / f"{iconita(titlu)}.svg").read_text(),
-            "particula": (ACTIVE / "iconite" / "bean.svg").read_text(), "culori": culori or CULORI_IMPLICITE,
+            "eticheta": eticheta, "icon": svg,
+            "particula": svg, "culori": {rol: paleta[rol] for rol in CULORI_IMPLICITE},
             "fonturi": str(ACTIVE / "fonturi"), "varianta": varianta, "samanta": samanta,
-            "iesire": str(cadre),
+            "iesire": str(cadre), "comparatie_macinare": comparatie_macinare(titlu, indicatie),
         }  # fmt: skip
         r = subprocess.run(
             [_binar("node"), str(ACTIVE / "randeaza.mjs")],
@@ -118,12 +130,19 @@ def clip(
     *,
     durata: float,
     varianta: int = 0,
+    indicatie: str = "",
     eticheta: str = "",
     culori: dict[str, str] | None = None,
 ) -> Activ:
     """Randează și înregistrează clipul (categoria `video`, licență `productie_proprie`)."""
     corp = randeaza(
-        titlu, durata=durata, varianta=varianta, samanta=varianta + 1, eticheta=eticheta, culori=culori
+        titlu,
+        durata=durata,
+        varianta=varianta,
+        indicatie=indicatie,
+        samanta=varianta + 1,
+        eticheta=eticheta,
+        culori=culori,
     )
     return biblioteca.incarca(
         db,
@@ -131,6 +150,7 @@ def clip(
         corp,
         nume_original="animatie.mp4",
         sursa="animatie",
+        rol_vizual="ilustratie",
         utilizator_id=None,
         descriere=f"grafică animată: {titlu.strip()[:200]}",
         licenta={
@@ -138,7 +158,7 @@ def clip(
             "statut": licente.STATUT_OK,
             "componente": [
                 {"font": "Montserrat", "licenta": "SIL Open Font License 1.1"},
-                {"iconita": iconita(titlu), "set": "Lucide", "licenta": "ISC"},
+                {"iconita": iconita(f"{titlu} {indicatie}"), "set": "Lucide", "licenta": "ISC"},
                 {"randator": "animatie_interna", "identitate": eticheta},
             ],
         },
@@ -151,11 +171,20 @@ def clip(
     )
 
 
+MAX_CUVINTE_ECRAN = 6  # [I] F-editorial: textul de pe ecran e scurt; vocea spune restul
+
+
+def scurt(text: str, n: int = MAX_CUVINTE_ECRAN) -> str:
+    """Cel mult `n` cuvinte pe ecran (cu „…” când textul e tăiat)."""
+    c = text.split()
+    return text.strip() if len(c) <= n else " ".join(c[:n]).rstrip(",;:") + "…"
+
+
 def texte_batai(campuri: dict[str, Any]) -> list[str]:
     """Textul de pe ecran al fiecărei bătăi, în ordinea frazelor regizorului: hook, bătăile, CTA."""
     batai = campuri.get("batai") or []
     out = [str(campuri.get("hook") or "")]
-    out += [str(b.get("text_ecran") or b.get("voce") or "") for b in batai]
+    out += [scurt(str(b.get("text_ecran") or b.get("voce") or "")) for b in batai]
     out.append(str(campuri.get("cta") or ""))
     return [t for t in out if t.strip()]
 
@@ -171,9 +200,54 @@ def clipuri_script(
 ) -> list[Activ]:
     """Un clip pe bătaie, puțin mai lung decât bătaia (montajul taie)."""
     texte = texte_batai(campuri)
+    indicatii = (
+        ([""] if campuri.get("hook") else [])
+        + [str(b.get("vizual", "")) for b in campuri.get("batai", []) if b.get("text_ecran") or b.get("voce")]
+        + ([""] if campuri.get("cta") else [])
+    )
+
     return [
         clip(
-            db, tenant_id, t, durata=round(max(d, 1.0) + 1.0, 2), varianta=i, eticheta=eticheta, culori=culori
+            db,
+            tenant_id,
+            t,
+            durata=round(max(d, 1.0) + 1.0, 2),
+            varianta=i,
+            indicatie=indicatii[i],
+            eticheta=eticheta,
+            culori=culori,
         )
         for i, (t, d) in enumerate(zip(texte, durate, strict=False))
     ]
+
+
+def clipuri_scene(
+    db: Session,
+    tenant_id: uuid.UUID,
+    campuri: dict[str, Any],
+    durate: dict[int, float],
+    *,
+    eticheta: str = "",
+    culori: dict[str, str] | None = None,
+) -> dict[int, Activ]:
+    """Clipurile doar pentru scenele cerute (F-editorial: ilustrația unei scene educative fără material)."""
+    texte = texte_batai(campuri)
+    indicatii = (
+        ([""] if campuri.get("hook") else [])
+        + [str(b.get("vizual", "")) for b in campuri.get("batai", []) if b.get("text_ecran") or b.get("voce")]
+        + ([""] if campuri.get("cta") else [])
+    )
+    return {
+        i: clip(
+            db,
+            tenant_id,
+            texte[i],
+            durata=round(max(d, 1.0) + 1.0, 2),
+            varianta=i,
+            indicatie=indicatii[i] if i < len(indicatii) else "",
+            eticheta=eticheta,
+            culori=culori,
+        )
+        for i, d in sorted(durate.items())
+        if i < len(texte)
+    }

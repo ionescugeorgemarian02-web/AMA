@@ -21,6 +21,16 @@ INCEPUT = dt.date(2026, 12, 1)
 def pana_la_strategie(tenant: uuid.UUID, om: uuid.UUID, modele: ModelFals) -> Lant:
     """Brief, ghid, public, insight, fapte și strategie: toate aprobate de un om. Cere `executor`."""
     lant = pana_la_insight(tenant, om, modele)
+    from tests.validare_utile import oferta_aprobata
+
+    oferta_aprobata(
+        tenant,
+        om,
+        "Cafea Etiopia Guji",
+        "49",
+        destinatie="/produse/etiopia-guji",
+        descriere="Pachet de 250 g",
+    )
     model_strategie(modele)
     propune(tenant, om, f"lant:strategie:{tenant}")
     iid, versiuni = strategie_db(tenant)

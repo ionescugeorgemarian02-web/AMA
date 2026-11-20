@@ -84,6 +84,8 @@ def _cutie(
     w = latime_text(text, stil.marime)
     h = stil.marime + 2 * CONTUR
     x0 = z.stanga + (latime - z.stanga - z.dreapta - w) // 2
+    if stil.pozitie == "sus":
+        return x0, z.sus, x0 + w, z.sus + h
     y1 = inaltime - z.jos if stil.pozitie == "jos" else (inaltime + h) // 2
     return x0, y1 - h, x0 + w, y1
 
@@ -154,8 +156,8 @@ def ass(lm: lista.ListaMontaj, ecrane: list[Ecran]) -> str:
     evidențiere."""
     z = zona(lm.canal).la(lm.latime, lm.inaltime)
     st = lm.stil
-    aliniere = 2 if st.pozitie == "jos" else 5
-    rand_jos = z.jos if st.pozitie == "jos" else 0
+    aliniere = {"jos": 2, "mijloc": 5, "sus": 8}[st.pozitie]
+    rand_jos = {"jos": z.jos, "mijloc": 0, "sus": z.sus}[st.pozitie]
     antet = [
         "[Script Info]", "ScriptType: v4.00+", f"PlayResX: {lm.latime}", f"PlayResY: {lm.inaltime}",
         "WrapStyle: 2", "ScaledBorderAndShadow: yes", "", "[V4+ Styles]",

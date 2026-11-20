@@ -3,6 +3,7 @@
 
 # ruff: noqa: F811
 import uuid
+from typing import Any
 
 import pytest
 
@@ -34,6 +35,8 @@ def test_fiecare_intrare_de_calendar_are_brief_cu_fapte_permise_din_pachet(
                 assert f["id"] and f["versiune"] and f["text"]
             assert c["canal"] == s.canal and c["tip"] == s.tip and c["subiect"] == s.subiect
             assert c["mesaj_unic"] and c["apel_la_actiune"] and c["format"] and c["scop"] and c["public"]
+            assert c["oferta"]["destinatie"] == "/produse/etiopia-guji"
+            assert "Destinație: /produse/etiopia-guji" in brief.text_pentru_autor(c)
             assert b.pachet_id is not None
             lv = productie.citeste(db, s.livrabil_id)
             assert lv is not None and lv.stare == "briefat"
@@ -65,12 +68,55 @@ def test_un_fapt_inventat_respinge_brieful_si_livrabilul_ramane_planificat(
             brief.scrie(db, lid)
 
 
+VIZUAL: dict[str, Any] = {
+    "idee_editoriala": "Măcinarea potrivită schimbă gustul cafelei.",
+    "ce_vede_publicul": "Râșnița cu boabe și trei grade de măcinare pe tejghea.",
+    "informatie_in_plus": "Fiecare metodă de preparare cere altă măcinare.",
+    "natura": "educativ",
+}
+
+
+def test_brieful_vizual_respinge_ce_vede_publicul_vag() -> None:
+    assert brief.problema_indicatie("Râșnița cu boabe pe tejghea") is None
+    assert brief.problema_indicatie("mecanic care reglează etrierul frânei") is None
+    assert "vagă" in (brief.problema_indicatie("Cadru dinamic, premium și modern") or "")
+    assert brief.problema_indicatie("  ") == "indicația vizuală e goală"
+    with pytest.raises(ValueError, match="vagă"):
+        brief.ContinutBrief(
+            obiectiv="editorial", scop="Să explicăm măcinarea", public="Iubitori de cafea",
+            mesaj_unic="Cafeaua ajunge proaspătă", fapte_permise=[], format="Postare scurtă",
+            apel_la_actiune="Află detalii", **{**VIZUAL, "ce_vede_publicul": "imagine dinamică și premium"},
+        )  # fmt: skip
+    text = brief.text_pentru_autor({**brief.ContinutBrief(
+        obiectiv="editorial", scop="Să explicăm măcinarea", public="Iubitori de cafea",
+        mesaj_unic="Cafeaua ajunge proaspătă", fapte_permise=[], format="Postare scurtă",
+        apel_la_actiune="Află detalii", **VIZUAL).model_dump(), "fapte_permise": [], "oferta": None})  # fmt: skip
+    assert "Ce vede publicul: Râșnița" in text and "Natura materialului: educativ" in text
+
+
 def test_nucleul_lumii_inchise() -> None:
     b = brief.ContinutBrief(
-        scop="Să vindem cafea proaspătă", public="Iubitori de cafea", mesaj_unic="Cafeaua ajunge proaspătă",
-        fapte_permise=[], format="Postare scurtă", apel_la_actiune="Comandă acum",
+        obiectiv="editorial", scop="Să explicăm măcinarea", public="Iubitori de cafea", mesaj_unic="Cafeaua ajunge proaspătă",
+        fapte_permise=[], format="Postare scurtă", apel_la_actiune="Află detalii", **VIZUAL,
     )  # fmt: skip
     assert brief.probleme_brief(b, {}) == []
     assert brief.probleme_brief(b, {"F1": {}}) == ["brieful trebuie să permită cel puțin un fapt din pachet"]
     b2 = b.model_copy(update={"fapte_permise": ["F1", "F1"]})
     assert brief.probleme_brief(b2, {"F1": {}}) == ["un fapt apare de două ori"]
+
+
+def test_vanzarea_cere_oferta_aprobata_cu_destinatie() -> None:
+    b = brief.ContinutBrief(
+        obiectiv="vanzare",
+        oferta="F1",
+        scop="Să vindem cafea proaspătă",
+        public="Iubitori de cafea",
+        mesaj_unic="Alege cafeaua potrivită",
+        fapte_permise=["F1"],
+        format="Postare scurtă",
+        apel_la_actiune="Comandă acum",
+        **VIZUAL,
+    )
+    assert brief.probleme_brief(b, {"F1": {"tip": "fapt"}})
+    assert brief.probleme_brief(b, {"F1": {"tip": "oferta", "destinatie": None}})
+    assert not brief.probleme_brief(b, {"F1": {"tip": "oferta", "destinatie": "/produse/guji"}})

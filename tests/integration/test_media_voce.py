@@ -54,3 +54,21 @@ def test_vocea_de_pornire_ramane_de_verificat_si_nu_se_publica(tenant: uuid.UUID
             assert not media.voce.permite_publicarea(n.activ.licenta)
     finally:
         media.voce.seteaza_motor(None)
+
+
+def test_mostra_audio_cu_vocea_de_randare(tenant: uuid.UUID) -> None:
+    """F-editorial, decizia 6: mostra (numele, prețul, îndemnul) cu profilul folosit la randare, ca activ
+    `export`."""
+    import io
+    import wave
+
+    from app.media import voce
+
+    profil = voce.PROFIL_RANDARE if voce.MotorEspeak.disponibil() else "ro-simulat"
+    with sesiune_tenant(tenant) as db:
+        a, wav = voce.mostra(db, tenant, "Atelierul Spița", "Revizia costă 120 lei.", "Programează-te pe site.",
+                             profil)  # fmt: skip
+        assert a.rol_vizual == "export" and a.licenta["profil"] == profil and a.generare["mostra"] is True
+        assert "o sută douăzeci de lei" in " ".join(a.generare["texte"])
+        with wave.open(io.BytesIO(wav)) as w:
+            assert 1.0 < w.getnframes() / w.getframerate() < 15.0

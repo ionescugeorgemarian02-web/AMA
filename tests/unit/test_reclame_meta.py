@@ -32,8 +32,15 @@ def test_randul_de_insights() -> None:
         350,
         2,
     )
-    assert rand_din_insights({"campaign_id": "1", "date_start": "2026-11-10"}, "campanie").rezultate == 0
+    assert rand_din_insights({"campaign_id": "1", "date_start": "2026-11-10"}, "campanie").rezultate is None
 
 
 def test_lei() -> None:
     assert lei(1234567) == "12.345,67" and lei(5) == "0,05" and lei(None) == "–"
+
+
+def test_trafic_si_lead_se_masoara_independent() -> None:
+    date = {"campaign_id": "1", "date_start": "2026-11-10", "clicks": "37", "inline_link_clicks": "23"}
+    r = rand_din_insights(date, "campanie")
+    assert r.clicuri_trafic == 23 and r.rezultate is None
+    assert rand_din_insights({**date, "actions": []}, "campanie").rezultate == 0

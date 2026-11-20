@@ -63,6 +63,12 @@ class Settings(BaseSettings):
     )  # culoare pentru joburile grele (7.5): câte un job pe culoar
     io_paralel: int = Field(default=24, ge=1, le=200)  # coada de intrări și ieșiri
     invatare_paralel: int = Field(default=1, ge=1, le=8)
+    # Producția de conținut (F6.3) are coada ei: aprobarea unui calendar pune în coadă zeci de livrabile
+    # deodată, iar fiecare pas ține o conexiune la bază (și lacătul livrabilului) pe durata apelului la model.
+    continut_paralel: int = Field(default=4, ge=1, le=32)
+    # Pool-ul de conexiuni al aplicației: `db_pool` permanente, plus câte una pentru fiecare job care poate
+    # rula simultan pe worker (vezi `app.db.motor.dimensiuni_pool`).
+    db_pool: int = Field(default=10, ge=2, le=100)
     job_timp_maxim_sec: int = Field(default=1800, ge=1)  # fără niciun pas încheiat: job blocat (watchdog)
     # Watchdog (22.3): bătăi de inimă, scanarea joburilor, pragurile de alertă.
     watchdog_bataie_sec: float = Field(default=15.0, gt=0.0)

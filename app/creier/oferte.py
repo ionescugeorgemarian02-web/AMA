@@ -16,8 +16,9 @@ from dataclasses import dataclass
 from decimal import Decimal
 from enum import StrEnum
 from typing import Any
+from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -44,6 +45,15 @@ class Pret(BaseModel):
     unitate: str | None = Field(default=None, max_length=40)  # „250 g”, „lună”, „persoană”
 
 
+class SurseStudiuCaz(BaseModel):
+    """ID-urile celor trei afirmații aprobate, legate explicit de aceeași ofertă."""
+
+    model_config = ConfigDict(extra="forbid")
+    situatie: uuid.UUID
+    actiune: uuid.UUID
+    rezultat: uuid.UUID
+
+
 class ContinutOferta(BaseModel):
     model_config = ConfigDict(extra="forbid")
     tip: TipOferta
@@ -53,12 +63,31 @@ class ContinutOferta(BaseModel):
     pret_referinta: Pret | None = None  # obligatoriu la promoții (21.11)
     conditii: str = Field(default="", max_length=600)
     garantie: str = Field(default="", max_length=300)
+    destinatie: str | None = Field(default=None, max_length=2048)
+    studiu_caz: SurseStudiuCaz | None = None
     fapte: list[str] = Field(
         default_factory=list, max_length=20
     )  # identificatori de intrări din registrul de fapte
 
+    @field_validator("destinatie")
+    @classmethod
+    def _destinatie_web(cls, valoare: str | None) -> str | None:
+        if valoare is None:
+            return None
+        url = urlsplit(valoare)
+        cale_locala = valoare.startswith("/") and not valoare.startswith("//")
+        if any(c.isspace() or ord(c) < 32 or c == chr(92) for c in valoare) or not (
+            cale_locala or (url.scheme in {"http", "https"} and url.hostname and not url.username)
+        ):
+            raise ValueError("destinația trebuie să fie o cale locală sau o adresă web")
+        return valoare
+
     @model_validator(mode="after")
     def _promotia_are_pret_de_referinta(self) -> "ContinutOferta":
+        if self.studiu_caz:
+            dovezi = set(self.studiu_caz.model_dump(mode="json").values())
+            if len(dovezi) != 3 or not dovezi.issubset(self.fapte):
+                raise ValueError("studiul de caz cere trei fapte distincte legate de ofertă")
         if self.tip is TipOferta.PROMOTIE and self.pret_referinta is None:
             raise ValueError("o promoție cere prețul de referință")
         if self.pret_referinta is not None and self.pret_referinta.numar <= self.pret.numar:
@@ -175,6 +204,8 @@ class OfertaContext:
     pret_referinta: dict[str, Any] | None
     conditii: str
     garantie: str
+    destinatie: str | None
+    studiu_caz: dict[str, str] | None
     fapte: tuple[uuid.UUID, ...]
     sursa_tip: str
     sursa_ref: str | None
@@ -221,6 +252,8 @@ def pentru_context(db: Session, tenant_id: uuid.UUID, la: dt.datetime) -> list[O
                 conditii=c.get("conditii", ""),
                 garantie=c.get("garantie", ""),
                 fapte=legate,
+                destinatie=c.get("destinatie"),
+                studiu_caz=c.get("studiu_caz"),
                 sursa_tip=ver.sursa_tip,
                 sursa_ref=ver.sursa_ref,
                 valabil_de_la=ver.valabil_de_la,
@@ -228,3 +261,15 @@ def pentru_context(db: Session, tenant_id: uuid.UUID, la: dt.datetime) -> list[O
             )
         )
     return iesire
+
+
+def text_oferta(o: OfertaContext) -> str:
+    p = o.pret
+    unitate = f"/{p['unitate']}" if p.get("unitate") else ""
+    bucati = [f"{o.nume} ({o.tip}): {p.get('numar')} {p.get('moneda', 'RON')}{unitate}"]
+    if o.pret_referinta:
+        bucati.append(
+            f"preț de referință {o.pret_referinta.get('numar')} {o.pret_referinta.get('moneda', 'RON')}"
+        )
+    bucati += [x for x in (o.descriere, o.conditii, o.garantie) if x]
+    return "; ".join(bucati)

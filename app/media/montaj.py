@@ -88,9 +88,15 @@ def pregateste(
 ) -> Randare:
     """Validează lista, deschide randarea (`in_lucru`) și consemnează folosirea fiecărui activ."""
     valideaza(db, lm)
+    masuratori: dict[str, Any] = {
+        # F-editorial: aceeași sursă în altă bătaie (alt zoom / mișcare) e reutilizare, raportată ca atare
+        "reutilizari": {str(k): v for k, v in regizor.reutilizari(lm).items()},
+    }
+    if livrabil_id:
+        masuratori["versiune_continut"] = validare.continut.citeste(db, livrabil_id).versiune
     r = Randare(tenant_id=tenant_id, livrabil_id=livrabil_id, lista=lm.model_dump(mode="json"),
                 stare="in_lucru",
-                calitate=calitate, masuratori={})  # fmt: skip
+                calitate=calitate, masuratori=masuratori)  # fmt: skip
     db.add(r)
     db.flush()
     for i in (
@@ -124,6 +130,8 @@ def executa(db: Session, r: Randare) -> Randare:
     r = _inregistreaza(db, r, lm, corp)
     if r.calitate == "final":
         _controleaza(db, r, lm)
+        if r.livrabil_id is not None:  # F-editorial: verdictul editorial, separat de G6, cu planșa
+            control.verdict_editorial(db, r.tenant_id, r.livrabil_id, randare=r)
         a = db.get(Activ, r.activ_id)
         if a is not None:
             provenienta.emite(db, a, validari=r.control, om_real=lm.format == "E")
@@ -189,6 +197,7 @@ def _inregistreaza(db: Session, r: Randare, lm: lista.ListaMontaj, corp: bytes) 
         corp,
         nume_original=f"video-{r.id}.mp4",
         sursa="montaj",
+        rol_vizual="export",
         utilizator_id=None,
         descriere=f"video format {lm.format}, {lm.canal}, {lm.durata:.1f} s",
         licenta={"tip": "productie_proprie", "statut": licente.STATUT_OK, "componente": componente(db, lm)},
@@ -205,3 +214,58 @@ def ale_clientului(db: Session, tenant_id: uuid.UUID) -> list[Randare]:
     return list(
         db.execute(select(Randare).where(Randare.tenant_id == tenant_id).order_by(Randare.creat_la)).scalars()
     )
+
+
+def video_verificat(db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID, versiune: int) -> Activ | None:
+    """Primul export final trecut de G6 și nerespins editorial, pentru exact această versiune (un clip respins
+    editorial, de exemplu numai cu sigla, nu poate apărea ca pregătit pentru publicare)."""
+    return db.scalars(
+        select(Activ)
+        .join(Randare, Randare.activ_id == Activ.id)
+        .where(
+            Randare.tenant_id == tenant_id,
+            Activ.tenant_id == tenant_id,
+            Randare.livrabil_id == livrabil_id,
+            Randare.calitate == "final",
+            Randare.stare == "gata",
+            Randare.control["G6"]["rezultat"].astext == "trece",
+            Randare.control["editorial"]["rezultat"].astext.is_distinct_from("respins"),
+            Randare.masuratori["versiune_continut"].as_integer() == versiune,
+        )
+        .order_by(Randare.terminat_la, Randare.id)
+        .limit(1)
+    ).first()
+
+
+ETICHETE_REZULTAT = {"trece": "trece", "esec": "respins", "respins": "respins"}
+
+
+def controale(
+    db: Session, tenant_id: uuid.UUID, livrabil_id: uuid.UUID, versiune: int
+) -> dict[str, Any] | None:
+    """Pentru ecranul de aprobare: G6 și verdictul editorial ale ultimului export final al versiunii, separat,
+    plus activul planșei. `None` când versiunea nu are export."""
+    r = db.scalars(
+        select(Randare)
+        .where(
+            Randare.tenant_id == tenant_id,
+            Randare.livrabil_id == livrabil_id,
+            Randare.calitate == "final",
+            Randare.masuratori["versiune_continut"].as_integer() == versiune,
+        )
+        .order_by(Randare.creat_la.desc(), Randare.id.desc())
+        .limit(1)
+    ).first()
+    if r is None:
+        return None
+    g6, ed = (r.control or {}).get("G6") or {}, (r.control or {}).get("editorial") or {}
+    return {
+        "randare_id": r.id,
+        "g6": ETICHETE_REZULTAT.get(g6.get("rezultat", ""), "neverificat"),
+        "g6_dovezi": [d.get("detalii", "") for d in g6.get("dovezi", [])],
+        "editorial": ETICHETE_REZULTAT.get(ed.get("rezultat", ""), "neverificat"),
+        "mesaj": ed.get("mesaj", ""),
+        "motive": [m.get("detalii", "") for m in ed.get("motive", [])],
+        "evaluare": (ed.get("evaluare_vizuala") or {}).get("eticheta", "neverificată"),
+        "plansa_activ_id": ed.get("plansa_activ_id"),
+    }

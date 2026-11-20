@@ -53,6 +53,7 @@ from app.operare.motor.executie import (
     stare_flux,
     timp_maxim_flux,
     trimite,
+    trimite_atomic,
 )
 from app.operare.motor.inspectie import (
     AdancimeCoada,
@@ -152,6 +153,7 @@ __all__ = [
     "sterge_programarea",
     "timp_maxim_flux",
     "trimite",
+    "trimite_atomic",
     "uita_declaratiile",
     "ultimul_progres",
     "verifica_argumente",

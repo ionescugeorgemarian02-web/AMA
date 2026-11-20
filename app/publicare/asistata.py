@@ -179,7 +179,7 @@ def pregateste(
         versiune=lv.versiune,
         canal=lv.canal,
         cheie=efecte.cheia(lv.tenant_id, lv.id, lv.canal, lv.versiune, TIP_EFECT),
-        pachet=pachet_din(c, lv),
+        pachet={**pachet_din(c, lv), **({"video_versiune": lv.versiune} if "batai" in c.campuri else {})},
     )
     db.add(p)
     db.flush()

@@ -83,18 +83,6 @@ def _text_fapt(f: fapte.FaptPropus) -> str:
     return f"{f.subiect}: {f.afirmatie}{valoare}"
 
 
-def _text_oferta(o: oferte.OfertaContext) -> str:
-    p = o.pret
-    unitate = f"/{p['unitate']}" if p.get("unitate") else ""
-    bucati = [f"{o.nume} ({o.tip}): {p.get('numar')} {p.get('moneda', 'RON')}{unitate}"]
-    if o.pret_referinta:
-        bucati.append(
-            f"preț de referință {o.pret_referinta.get('numar')} {o.pret_referinta.get('moneda', 'RON')}"
-        )
-    bucati += [x for x in (o.descriere, o.conditii, o.garantie) if x]
-    return "; ".join(bucati)
-
-
 def exemple_pentru(
     db: Session, tenant_id: uuid.UUID, tip: str, canal: str, la: dt.datetime
 ) -> tuple[list[citire.IntrareContext], list[citire.IntrareContext]]:
@@ -186,8 +174,16 @@ def construieste(
             "fapte_relevante"
         )  # 9.3: lipsa unui fapt necesar oprește livrabilul cu o întrebare, nu o presupunere
     for s, o in oferte_rel:
-        adauga("oferte", "oferta", str(o.intrare_id), o.versiune, _text_oferta(o), scor=s,
-               fapte=sorted(str(x) for x in o.fapte))  # fmt: skip
+        adauga(
+            "oferte",
+            "oferta",
+            str(o.intrare_id),
+            o.versiune,
+            oferte.text_oferta(o),
+            scor=s,
+            destinatie=o.destinatie,
+            fapte=sorted(str(x) for x in o.fapte),
+        )
     profil = citire.pentru_context(db, tenant_id, Compartiment.PROFIL_BRAND, la)
     if profil:
         for r in profil:

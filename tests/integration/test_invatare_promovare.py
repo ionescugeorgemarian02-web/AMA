@@ -60,6 +60,22 @@ def livrabile(nume: str, n: int, scor: dict[str, float], *, start: int = 0) -> d
     return numarate
 
 
+def pana_la_iesire(
+    nume: str, pid: uuid.UUID, din: str, scor: dict[str, float], *, start: int, lot: int = 300
+) -> tuple[dict[str, int], str]:
+    """Livrabile în loturi până când promovarea iese din etapa `din`. Rutarea e după un hash al id-ului
+    promovării (aleator la fiecare rulare), deci câte livrabile ajung la eșantionul cerut variază: 300 dau
+    ~30 în grupul de 10%, dar uneori sub cele 20 cerute (~1,6% din rulări). Testul nu presupune un număr fix,
+    ci verifică că etapa nu se schimbă până nu se strânge eșantionul. Întoarce numărătoarea și etapa nouă."""
+    total = {"campion": 0, "candidat": 0}
+    for k in range(5):  # 1500 de livrabile: probabilitatea să nu ajungă e neglijabilă
+        n = livrabile(nume, lot, scor, start=start + k * lot)
+        total = {g: total[g] + n[g] for g in total}
+        if (e := etapa(pid)) != din:
+            return total, e
+    return total, din
+
+
 def etapa(pid: uuid.UUID) -> str:
     with sesiune_agentie() as db:
         return promovare.avanseaza(db, pid, acum=ACUM).etapa
@@ -88,16 +104,18 @@ def test_un_candidat_trece_prin_toate_etapele_si_revenirea_functioneaza(
     assert etapa(pid) == "umbra"
     livrabile(nume, 10, {"campion": 0.80, "candidat": 0.90}, start=10)
     assert etapa(pid) == "canar"
-    # canarul: ~10% pe candidat
-    n = livrabile(nume, 300, {"campion": 0.80, "candidat": 0.90}, start=100)
-    assert 15 <= n["candidat"] <= 50
+    # canarul: ~10% pe candidat; campionul rămâne activ până se strâng cele 20 de livrabile ale candidatului
+    n = livrabile(nume, 100, {"campion": 0.80, "candidat": 0.90}, start=100)
+    assert n["candidat"] <= 25
     assert activ(nume).versiune == 1  # campionul e încă activ
-    assert etapa(pid) == "productie"
+    n, e = pana_la_iesire(nume, pid, "canar", {"campion": 0.80, "candidat": 0.90}, start=200)
+    assert e == "productie"
+    assert 0.05 <= n["candidat"] / sum(n.values()) <= 0.2
     # producția: candidatul e activ, ~10% rămân pe campionul vechi (control)
     assert activ(nume).versiune == 3
-    n = livrabile(nume, 300, {"campion": 0.80, "candidat": 0.90}, start=1000)
-    assert 15 <= n["campion"] <= 50
-    assert etapa(pid) == "promovat"
+    n, e = pana_la_iesire(nume, pid, "productie", {"campion": 0.80, "candidat": 0.90}, start=10_000)
+    assert 0.05 <= n["campion"] / sum(n.values()) <= 0.2
+    assert e == "promovat"
     with sesiune_agentie() as db:
         p = promovare.istoric(db, nume)[0]
         assert p.castig["concluzie"] == "castiga_b" and p.castig["medie_b"] > p.castig["medie_a"]
@@ -133,10 +151,10 @@ def test_umbra_slaba_respinge_iar_controlul_mai_bun_revine_automat() -> None:
         pid = promovare.porneste(db, o.id, acum=ACUM).id
     livrabile(nume, 20, {"campion": 0.80, "candidat": 0.80})
     assert etapa(pid) == "canar"
-    livrabile(nume, 300, {"campion": 0.80, "candidat": 0.80}, start=100)
-    assert etapa(pid) == "productie"
-    livrabile(nume, 400, {"campion": 0.95, "candidat": 0.78}, start=1000)
-    assert etapa(pid) == "revenit"
+    _, e = pana_la_iesire(nume, pid, "canar", {"campion": 0.80, "candidat": 0.80}, start=100)
+    assert e == "productie"
+    _, e = pana_la_iesire(nume, pid, "productie", {"campion": 0.95, "candidat": 0.78}, start=10_000)
+    assert e == "revenit"
     assert activ(nume).sistem == u.SISTEM_CAMPION  # versiune nouă, cu textul campionului
 
 

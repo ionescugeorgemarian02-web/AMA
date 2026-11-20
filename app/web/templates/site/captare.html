@@ -6,9 +6,9 @@
 <p class="descriere">{{ c.subtitlu }}</p>
 <ul>{% for b in c.beneficii %}<li>{{ b }}</li>{% endfor %}</ul>
 <p>{{ c.dovada }}</p>
-<h2>Un exemplu</h2>
+{% if c.studiu_caz %}<h2>Un exemplu</h2>
 <p>{{ c.studiu_caz.situatie }}</p>
 <p>{{ c.studiu_caz.actiune }}</p>
-<p>{{ c.studiu_caz.rezultat }}</p>
+<p>{{ c.studiu_caz.rezultat }}</p>{% endif %}
 <a class="cta" href="{{ tinta }}">{{ c.apel }}</a>
 {% endblock %}

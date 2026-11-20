@@ -40,11 +40,12 @@ class RaportDublu:
     @property
     def platforma(self) -> Totaluri:
         t = [z.platforma for z in self.zile]
+        cunoscute = [x.rezultate for x in t if x.rezultate is not None]
         return Totaluri(
             sum(x.cheltuiala_bani for x in t),
             sum(x.afisari for x in t),
             sum(x.clicuri for x in t),
-            sum(x.rezultate for x in t),
+            sum(cunoscute) if t and len(cunoscute) == len(t) else None,
         )
 
     @property
@@ -65,7 +66,9 @@ class RaportDublu:
                 "site-ul numără doar vizitatorii care au acceptat analiza, iar o parte din clicuri nu ajung "
                 "până la încărcarea paginii."
             )
-        if p.rezultate != self.cereri_audit:
+        if p.rezultate is None:
+            out.append("Datele despre conversii sunt incomplete în perioada selectată.")
+        elif p.rezultate != self.cereri_audit:
             out.append(
                 f"Platforma raportează {p.rezultate} rezultate, site-ul {self.cereri_audit} cereri de audit: "
                 "cererile vin din toate sursele (nu doar din reclame), iar platforma atribuie conversii după "

@@ -56,7 +56,7 @@ def test_raportul_se_genereaza_pentru_un_brand_propriu(
     assert c["cifre"]["postari_masurate"] == 0 and c["verificare"]["g2_cifre"] == "trecut"
     assert set(c) == {
         "luna", "livrat", "rezultate", "aprobari", "public", "plan_luna_urmatoare", "nevoi",
-        "cifre", "ce_a_mers", "ce_nu_a_mers", "verificare",
+        "comercial", "cifre", "ce_a_mers", "ce_nu_a_mers", "verificare",
     }  # fmt: skip
     with sesiune_tenant(tenant, om) as db:  # regenerarea înlocuiește, nu dublează
         analiza.raport_lunar.genereaza(db, tenant, luna)

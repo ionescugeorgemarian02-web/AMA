@@ -65,6 +65,7 @@ def importa(tenant: uuid.UUID, shop: str, tip: str, randuri: list[dict[str, Any]
                         "moneda": str(r["currency"]),
                         "utm_source": str(r.get("utm_source", "")),
                         "utm_campaign": str(r.get("utm_campaign", "")),
+                        "utm_content": str(r.get("utm_content") or "")[:160],
                         "cod_reducere": str(r.get("cod_reducere", "")),
                         "anulata": bool(r.get("cancelled_at")),
                         "rambursat_bani": bani(r.get("rambursat_bani", 0), moneda),

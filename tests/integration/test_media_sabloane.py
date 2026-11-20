@@ -76,3 +76,54 @@ def test_textul_prea_lung_nu_iese_din_cutie(fabrica_clienti: Callable[[], uuid.U
         [anunt] = [s for s in sabloane.asigura_sabloane(db, t, "Cafeneaua Zorilor") if s.tip == "anunt"]
         with pytest.raises(compozitor.TextPreaLung):
             compozitor.compune(anunt, {"titlu": "cuvânt " * 200})
+
+
+def test_machetele_editoriale_aleg_dupa_brief_si_active_si_nu_reintra_in_scene(
+    fabrica_clienti: Callable[[], uuid.UUID],
+) -> None:
+    """F-editorial, decizia 5: fără fotografie, macheta tipografică cu notă; cu fotografie, foto_dominanta
+    sau detaliu_explicat; caruselul are N cadre. Toate ies cu `rol_vizual='coperta'`."""
+    from app.media import biblioteca, licente, regizor
+    from tests.media_utile import fotografie_procedurala
+
+    t = fabrica_clienti()
+    brief = {"ce_vede_publicul": "mecanicul cu bicicleta în atelier", "natura": "prezentare"}
+    with sesiune_tenant(t) as db:
+        fara = compozitor.exporta(db, t, "Atelierul Spița", brief, {"titlu": "Revizie de primăvară"})
+        assert fara.macheta == "anunt" and "Nu avem o fotografie" in fara.nota
+        assert fara.active[0].rol_vizual == "coperta" and fara.active[0].generare["nota"] == fara.nota
+        foto = biblioteca.incarca(
+            db, t, fotografie_procedurala(), nume_original="atelier.jpg", sursa="portal", utilizator_id=None,
+            rol_vizual="fotografie", subiect="mecanicul cu bicicleta în atelier",
+            licenta={"tip": "productie_proprie", "statut": licente.STATUT_OK,
+                     "componente": [{"descriere": "fotografie de test, procedurală"}]},
+            generare={"zona_subiect": [0.4, 0.45, 0.7, 0.8], "punct_piesa": [0.55, 0.62]},
+        )  # fmt: skip
+        dom = compozitor.exporta(db, t, "Atelierul Spița", brief, {"titlu": "Revizie de primăvară"})
+        assert dom.macheta == "foto_dominanta" and len(dom.active) == 1
+        a = dom.active[0]
+        assert (
+            a.rol_vizual == "coperta" and a.generare["zona_subiect"] and a.generare["pozitie_titlu"] == "sus"
+        )
+        assert {c["activ_id"] for c in a.licenta["componente"]} >= {str(foto.id)}
+        det = compozitor.exporta(db, t, "Atelierul Spița", {**brief, "ce_vede_publicul": "pinionul în prim-plan"},
+                                 {"titlu": "Pinionul uzat"})  # fmt: skip
+        assert det.macheta == "detaliu_explicat" and det.active[0].generare["pozitie_titlu"] != "banda"
+        car = compozitor.exporta(db, t, "Atelierul Spița", {**brief, "format": "carusel"},
+                                 {"intrebare": "De ce scârțâie frâna?", "idei": ["Plăcuțe uzate", "Disc murdar"],
+                                  "pas": "Programează revizia"})  # fmt: skip
+        assert car.macheta == "carusel" and len(car.imagini) == 4
+        assert all(x.rol_vizual == "coperta" for x in car.active)
+        assert all(str(foto.id) not in str(x.licenta) for x in car.active)  # nicio idee nu cere atelierul
+        # o idee potrivită cu fotografia: cadrul ei folosește fotografia (+ legenda), restul rămân tipografice
+        cu = compozitor.exporta(db, t, "Atelierul Spița", {**brief, "format": "carusel"},
+                                {"intrebare": "Ce verificăm?", "idei": ["Mecanicul și bicicleta\nîn atelier",
+                                                                       "Disc murdar"], "pas": "Programează"})  # fmt: skip
+        assert [x.generare["pozitie_titlu"] for x in cu.active] == ["sus", "banda", "sus", "sus"]
+        assert {c["activ_id"] for c in cu.active[1].licenta["componente"]} >= {str(foto.id)}
+        # exporturile nu reintră în scene (decizia 2)
+        cand = {c.id for c in regizor.candidati(biblioteca.ale_clientului(db, t))}
+        from app.media import selectie
+
+        eligibili = {c.id for c in selectie.eligibili(regizor.candidati(biblioteca.ale_clientului(db, t)))}
+        assert cand and eligibili == {foto.id}

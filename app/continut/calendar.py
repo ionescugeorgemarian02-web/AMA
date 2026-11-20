@@ -145,11 +145,26 @@ def _distributie(ponderi: Sequence[tuple[str, int]], total: int) -> list[str]:
 def planifica(c: ContinutCalendar, inceput: dt.date, zile: int = ZILE_IMPLICIT) -> list[Slot]:
     """Sloturile calendarului. Determinist: aceeași propunere și același început → același calendar."""
     brute: list[tuple[dt.datetime, str, str]] = []
+    ocupate = [0] * zile
     for f in c.formate:
+        folosite_format: set[int] = set()
         n = max(1, round(f.pe_saptamana * zile / 7))
         ora, minut = ORE_CANAL[f.canal]
         for i in range(n):
-            zi = inceput + dt.timedelta(days=round(i * (zile - 1) / (n - 1)) if n > 1 else 0)
+            tinta = round(i * (zile - 1) / (n - 1)) if n > 1 else 0
+            offset = min(
+                range(zile),
+                key=lambda z: (
+                    ocupate[z] >= MAXIM_PE_ZI,
+                    z in folosite_format,
+                    abs(z - tinta),
+                    ocupate[z],
+                    z,
+                ),
+            )
+            folosite_format.add(offset)
+            ocupate[offset] += 1
+            zi = inceput + dt.timedelta(days=offset)
             local = dt.datetime.combine(zi, dt.time(ora, minut), tzinfo=FUS)
             brute.append((local.astimezone(dt.UTC), f.canal, f.tip))
     brute.sort(key=lambda x: (x[0], x[1], x[2]))
@@ -188,6 +203,8 @@ def probleme_calendar(
             probleme.append(f"canalul {f.canal} nu este în strategia aprobată")
     if len({(f.canal, f.tip) for f in p.formate}) != len(p.formate):
         probleme.append("un format (canal și tip) apare de două ori")
+    if len({(i.pilon, i.subiect.casefold(), i.unghi.casefold()) for i in p.idei}) < len(p.idei):
+        probleme.append("ideile cu același subiect și unghi se repetă")
     for idee in p.idei:
         if idee.pilon not in nume:
             probleme.append(f"ideea „{idee.subiect[:40]}” are un pilon necunoscut ({idee.pilon})")

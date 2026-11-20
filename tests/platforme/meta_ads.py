@@ -239,11 +239,11 @@ class MarketingSimulat(PlatformaHttp):
                 "impressions": str(v["afisari"]),
                 "clicks": str(v["clicuri"]),
             }
-            if v["rezultate"]:
-                r["actions"] = [
-                    {"action_type": "link_click", "value": str(v["clicuri"])},
-                    {"action_type": "lead", "value": str(v["rezultate"])},
-                ]
+            r["inline_link_clicks"] = str(v["clicuri"])
+            r["actions"] = [
+                {"action_type": "link_click", "value": str(v["clicuri"])},
+                {"action_type": "lead", "value": str(v["rezultate"])},
+            ]
             if pe_reclama:
                 r |= {"ad_id": oid, "ad_name": o["name"]}
             randuri.append(r)

@@ -48,6 +48,12 @@
 {% endif %}
 
 {% if poate_edita %}
+<form class="card" method="post" action="/analiza/livrabil/{{ livrabil.id }}/programari">
+  <h2>Programări confirmate</h2><p>Totalul zilnic din exportul clientului pentru materialul {{ livrabil.id }}. Salvarea înlocuiește valoarea zilei.</p>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Ziua (UTC) <input type="date" name="zi" required></label>
+  <label>Număr <input type="number" min="0" name="numar" required></label><button>Salvează programările</button>
+</form>
 <section class="card" aria-labelledby="manual">
   <h2 id="manual">Introdu cifrele din aplicația platformei</h2>
   <p class="slab">Pentru canalele publicate asistat. Completezi doar cifrele pe care le vezi; cele citite direct de la platformă nu se pot înlocui.</p>

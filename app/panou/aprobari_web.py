@@ -21,7 +21,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
-from app import productie
+from app import media, productie
 from app.conturi import (
     DbSession,
     Permisiune,
@@ -79,12 +79,19 @@ def _pagina(
     ]
     carduri = [] if toate else birou.coada(db, dt.datetime.now(dt.UTC))
     poate = {c.aprobare.id: productie.poate_decide(u.rol, Decident(c.aprobare.decident)) for c in carduri}
+    # F-editorial: G6 și verdictul editorial ale exportului versiunii, separat, cu planșa
+    controale = {
+        c.aprobare.id: media.montaj.controale(db, c.aprobare.tenant_id, c.livrabil.id, c.aprobare.versiune)
+        for c in carduri
+        if c.livrabil.tip == "script_video_scurt"
+    }
     return pagina(
         request,
         u,
         "panou/aprobari.html",
         carduri=carduri,
         poate=poate,
+        controale=controale,
         statistica_motive=birou.statistica_motive(db),
         etichete_livrabil={k.value: v for k, v in ETICHETE_LIVRABIL.items()},
         tab="aprobari",

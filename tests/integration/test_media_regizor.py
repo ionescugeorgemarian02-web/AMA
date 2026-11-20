@@ -2,12 +2,16 @@
 potrivesc cu vocea. Cascada de voce și transcriere SIMULATĂ, modelul FALS (# SIMULAT)."""
 
 # ruff: noqa: F811
+import os
+import shutil
 import uuid
+from pathlib import Path
 
 import pytest
 
 from app.db import sesiune_tenant
 from app.media import lista, regizor, transcriere
+from app.media.modele import Activ
 from tests.integration.utile_productie import fabrica_clienti, tenant  # noqa: F401
 from tests.media_utile import fraze, materiale, model_regizor, naratiune
 from tests.onboarding_utile import ModelFals, model_fals, modele  # noqa: F401
@@ -64,3 +68,60 @@ def test_alegerile_invalide_se_repara_iar_o_lista_stricata_e_respinsa(
         assert any("nu folosește video" in p for p in lista.probleme(foto, info))
         fara_lic = {**info, mat[0].id: lista.InfoActiv("video", False, 6.0)}
         assert any("licență" in p for p in lista.probleme(lm, fara_lic))
+
+
+def test_reutilizarea_subtitrarile_sus_si_durata_dupa_voce(tenant: uuid.UUID) -> None:
+    """F-editorial, decizia 6: aceeași sursă cu altă mișcare e reutilizare, raportată pe activ; subtitrările
+    urcă sus când subiectul stă jos; durata urmează vocea (fără prelungire spre 30 s)."""
+    from app.media import biblioteca, licente, montaj, subtitrari
+    from tests.media_utile import fotografie_procedurala
+
+    scurt = {"hook": "Lanțul scârțâie?", "batai": [{"voce": "Îl curățăm și îl ungem.", "vizual": "lanț uns"},
+             {"voce": "Pinionul rămâne curat.", "vizual": "pinion curat"}], "cta": "Programează-te azi."}  # fmt: skip
+    with sesiune_tenant(tenant) as db:
+        jos, sus = (
+            biblioteca.incarca(
+                db,
+                tenant,
+                fotografie_procedurala(subiect=(0.5, y), samanta=k),
+                nume_original=f"f{k}.jpg",
+                sursa="portal",
+                utilizator_id=None,
+                rol_vizual="fotografie",
+                subiect="lanț pe pinion",
+                licenta={
+                    "tip": "productie_proprie",
+                    "statut": licente.STATUT_OK,
+                    "componente": [{"descriere": "fotografie de test"}],
+                },
+                generare={"zona_subiect": [0.3, y - 0.15, 0.7, y + 0.15]},
+            )
+            for k, y in ((1, 0.75), (2, 0.3))
+        )
+        nv, fr = naratiune(db, tenant, scurt), fraze(scurt)
+        miscari = ["zoom_in", "zoom_out", "panoramare_stanga", "zoom_in"]
+        alegeri = [regizor.AlegereScena(bataie=i, material=(1 if i == 1 else 0), miscare=m)  # type: ignore[arg-type]
+                   for i, m in enumerate(miscari)]  # fmt: skip
+        lm = regizor.construieste(format="B", canal="tiktok", fraze=fr, naratiune=nv, materiale=[jos, sus],
+                                  alegeri=alegeri)  # fmt: skip
+        lm = lm.model_copy(update={"stil": regizor.stil_subtitrari(lm, [jos, sus])})
+        assert regizor.reutilizari(lm) == {jos.id: 2}  # alt zoom, aceeași sursă: tot reutilizare
+        assert lm.stil.pozitie == "sus"  # subiectul stă jos cea mai mare parte a clipului
+        zona_sus, zona_jos = (0.3, 0.15, 0.7, 0.45), (0.3, 0.6, 0.7, 0.9)
+        assert regizor.pozitie_subtitrari([(zona_sus, 3.0), (zona_jos, 1.0)]) == "jos"
+        assert regizor.pozitie_subtitrari([(None, 2.0)], pret_jos=True) == "sus"
+        ecrane = subtitrari.grupeaza(lm)
+        z = subtitrari.zona("tiktok")
+        assert ecrane and all(
+            e.cutie[1] == z.sus and subtitrari.in_zona(e, "tiktok", 1080, 1920) for e in ecrane
+        )
+        assert "Sub,DejaVu Sans" in subtitrari.ass(lm, ecrane) and ",8,60,150,160,1" in subtitrari.ass(
+            lm, ecrane
+        )
+        assert lm.durata == pytest.approx(nv.naratiune.durata + regizor.COADA, abs=0.002) and lm.durata < 30
+        r = montaj.pregateste(db, tenant, lm)
+        assert r.masuratori["reutilizari"] == {str(jos.id): 2}
+        r = montaj.executa(db, r)  # randarea reală: G6 trece cu subtitrările sus
+        assert r.stare == "gata", r.control
+        if dosar := os.environ.get("AMA_MOSTRE_MACHETE"):
+            shutil.copyfile(regizor.cale(db.get(Activ, r.activ_id)), Path(dosar) / "clip_subtitrari_sus.mp4")

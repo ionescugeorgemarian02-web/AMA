@@ -16,6 +16,7 @@ video produse local (ffmpeg). Furnizorii reali (API-uri de stock, cota gratuită
 import datetime as dt
 import hashlib
 import io
+import os
 import random
 import re
 import tempfile
@@ -41,6 +42,9 @@ class RezultatStock:
     tip: str  # foto / video
     licenta_text: str
     descriere: str
+    url_fisier: str = ""  # adresa de descărcare (furnizorii reali); `url` e pagina publică a fișierului
+    licenta: str = ""  # numele scurt al licenței (ex. „CC BY-SA 4.0”), pentru atribuire
+    url_licenta: str = ""
 
 
 class FurnizorStock(Protocol):
@@ -137,18 +141,57 @@ def probleme_prompt(prompt: str) -> list[str]:
     return [motiv for rx, motiv in INTERZISE_PROMPT if rx.search(prompt)]
 
 
-_stock: FurnizorStock = StockSimulat()
+def stock_din_mediu() -> FurnizorStock:
+    """Furnizorul de stock după mediu. `AMA_STOCK` (pexels / pixabay / commons / simulat) îl alege explicit;
+    altfel Pexels dacă există `PEXELS_API_KEY`, apoi Pixabay (`PIXABAY_API_KEY`), apoi Wikimedia Commons (fără
+    cheie). În `AMA_ENV=test` rămâne `StockSimulat` dacă nu e cerut explicit (CI fără rețea)."""
+    cerut = os.environ.get("AMA_STOCK", "").strip().lower()
+    if not cerut:
+        if get_settings().env == "test":
+            return StockSimulat()
+        if os.environ.get("PEXELS_API_KEY", "").strip():
+            cerut = "pexels"
+        elif os.environ.get("PIXABAY_API_KEY", "").strip():
+            cerut = "pixabay"
+        else:
+            cerut = "commons"
+    if cerut == "pexels":
+        from app.media.stock_pexels import StockPexels
+
+        return StockPexels()
+    if cerut == "pixabay":
+        from app.media.stock_pixabay import StockPixabay
+
+        return StockPixabay()
+    if cerut == "commons":
+        from app.media.stock_commons import StockCommons
+
+        return StockCommons()
+    if cerut == "simulat":
+        return StockSimulat()
+    raise ValueError(f"AMA_STOCK necunoscut: {cerut}")
+
+
+_stock: FurnizorStock | None = None  # None = ales după mediu la prima folosire
 _generator: GeneratorImagini = GeneratorSimulat()
 
 
 def seteaza(stock: FurnizorStock | None = None, generator: GeneratorImagini | None = None) -> None:
+    """`stock=None` = implicitul (`stock_din_mediu`, în teste `StockSimulat`)."""
     global _stock, _generator
-    _stock = stock or StockSimulat()
+    _stock = stock
     _generator = generator or GeneratorSimulat()
 
 
+def furnizor_stock() -> FurnizorStock:
+    global _stock
+    if _stock is None:
+        _stock = stock_din_mediu()
+    return _stock
+
+
 def cauta_stock(interogare: str, *, tip: str = "foto", n: int = 3) -> list[RezultatStock]:
-    return _stock.cauta(interogare, tip=tip, n=n)
+    return furnizor_stock().cauta(interogare, tip=tip, n=n)
 
 
 def aduce_stock(db: Session, tenant_id: uuid.UUID, r: RezultatStock) -> Activ:
@@ -164,7 +207,7 @@ def aduce_stock(db: Session, tenant_id: uuid.UUID, r: RezultatStock) -> Activ:
     ).scalar_one_or_none()
     if existent is not None:
         return existent
-    corp = _stock.descarca(r)
+    corp = furnizor_stock().descarca(r)
     return biblioteca.incarca(
         db,
         tenant_id,
@@ -181,6 +224,8 @@ def aduce_stock(db: Session, tenant_id: uuid.UUID, r: RezultatStock) -> Activ:
             "autor": r.autor,
             "url": r.url,
             "copie": r.licenta_text,
+            **({"licenta": r.licenta} if r.licenta else {}),
+            **({"url_licenta": r.url_licenta} if r.url_licenta else {}),
             "descarcat_la": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
         },
     )

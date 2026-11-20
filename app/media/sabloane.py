@@ -22,7 +22,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import creier
-from app.media import biblioteca, licente, vizual
+from app.media import biblioteca, licente, selectie, vizual
 from app.media.modele import Activ, SablonGrafic
 from app.media.subtitrari import cale_font
 
@@ -172,6 +172,7 @@ def asigura_sabloane(db: Session, tenant_id: uuid.UUID, nume_brand: str) -> list
 def _logo_activ(db: Session, tenant_id: uuid.UUID, ident: dict[str, Any]) -> Activ:
     return biblioteca.incarca(
         db, tenant_id, logo(ident), nume_original="logo.png", sursa="identitate", utilizator_id=None,
+        rol_vizual="logo", subiect=f"sigla {ident['nume']}",
         descriere=f"logo propus pentru {ident['nume']}",
         licenta={"tip": "productie_proprie", "statut": licente.STATUT_OK,
                  "componente": [{"descriere": "logo propus din inițialele brandului (F8.10)"}]},
@@ -188,3 +189,41 @@ def are_glif(caracter: str, marime: int = 64, font: str = "DejaVuSans-Bold.ttf")
         return img.tobytes()
 
     return deseneaza(caracter) != deseneaza(chr(0xE000))  # U+E000: zonă privată, sigur fără glifă
+
+
+# --- machetele editoriale (F-editorial, decizia 5)
+
+MACHETE = ("foto_dominanta", "detaliu_explicat", "carusel")
+MACHETA_TIPOGRAFICA = "anunt"  # fără fotografie: șablonul tipografic existent, cu notă
+# Sistemul tipografic restrâns: trei roluri cu mărimi fixe (px la 1080 lățime). Titlul poate coborî doar
+# până la `TITLU_MIN`, cât litera lui rămâne ≥ `LITERA_TITLU_MIN` px la exportul de `LATIME_VERIFICARE` px.
+TIPOGRAFIE = {"titlu": 88, "legenda": 40, "corp": 44}
+TITLU_MIN = 64
+LATIME_VERIFICARE = 360
+LITERA_TITLU_MIN = 14
+# [I] cuvinte din „ce vede publicul” care cer un cadru apropiat pe o piesă
+_DETALIU = ("detaliu", "piesa", "aproape", "prim plan", "prim-plan", "mecanism", "component", "eticheta",
+            "textura", "cusatura", "suruburi", "surub", "pinion", "lant", "filet", "garnitura")  # fmt: skip
+
+
+def logo_activ(db: Session, tenant_id: uuid.UUID, ident: dict[str, Any]) -> Activ:
+    """Sigla brandului ca activ (semnătura machetelor)."""
+    return _logo_activ(db, tenant_id, ident)
+
+
+def alege_macheta(brief: dict[str, Any], fotografii: int) -> tuple[str, str]:
+    """(macheta, nota) din brieful vizual (`natura`, `ce_vede_publicul`, `format`) și numărul de fotografii
+    potrivite. Nucleu pur. Caruselul nu cere fotografie (cadrele fără fotografie potrivită rămân tipografice);
+    restul da: fără fotografie, macheta tipografică existentă, cu o notă onestă."""
+    ce_vede = str(brief.get("ce_vede_publicul") or "").strip()
+    if str(brief.get("format") or "").lower() == "carusel":
+        return "carusel", ""
+    if fotografii == 0:
+        return MACHETA_TIPOGRAFICA, (
+            f"Nu avem o fotografie cu {ce_vede or 'subiectul cerut'}: imagine tipografică, fără fotografie."
+        )
+    text = f" {selectie.normalizeaza(ce_vede)} "
+    detaliu = any(f" {selectie.normalizeaza(c).strip()}" in text for c in _DETALIU)
+    if brief.get("natura") == "educativ" or detaliu:
+        return "detaliu_explicat", ""
+    return "foto_dominanta", ""

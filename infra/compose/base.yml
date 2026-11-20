@@ -43,6 +43,8 @@ x-app: &app
     ZAI_API_KEY: ${ZAI_API_KEY:-}
     OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
     SEALION_API_KEY: ${SEALION_API_KEY:-}
+    PEXELS_API_KEY: ${PEXELS_API_KEY:-}
+    PIXABAY_API_KEY: ${PIXABAY_API_KEY:-}
     AMA_MEDIA_DIR: /var/lib/ama/media
     UVICORN_WORKERS: ${UVICORN_WORKERS:-2}
     FORWARDED_ALLOW_IPS: 172.31.250.0/24  # doar proxy-ul din rețeaua `edge` (edge.yml); F15.2

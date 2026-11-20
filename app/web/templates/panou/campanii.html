@@ -9,7 +9,7 @@
   <ol>{% for p in c.plan_90_zile %}<li>{{ p.actiune }} <span class="slab">({{ p.canal }}; {{ p.rezultat_asteptat }})</span></li>{% endfor %}</ol>
   <h3>Indicator principal</h3>
   <p>{{ c.indicator_principal.nume }}: țintă {{ c.indicator_principal.tinta }} {{ c.indicator_principal.unitate }}. <span class="slab">Măsurare: {{ c.indicator_principal.mod_masurare }}</span></p>
-  <h3>Prag minim</h3>
+  <h3>{{ "Plafon acceptabil" if c.indicator_principal.sens == "minimizare" else "Prag minim" }}</h3>
   <p>{{ c.prag_minim.valoare }} {{ c.prag_minim.unitate }}. <span class="slab">{{ c.prag_minim.motiv }}</span></p>
   <h3>Fereastra de măsurare</h3>
   <p>{{ c.fereastra_masurare_zile }} de zile</p>

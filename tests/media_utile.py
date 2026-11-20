@@ -121,3 +121,42 @@ def filmare_bruta(director: Any, fr: list[str], *, minim: float = 58.0) -> tuple
                     "-c:v", "libx264", "-preset", "ultrafast", "-crf", "38", "-pix_fmt", "yuv420p", "-c:a", "aac",
                     "-ar", "48000", "-shortest", str(d / "brut.mp4")], fir=4)  # fmt: skip
     return (d / "brut.mp4").read_bytes(), durata
+
+
+def fotografie_procedurala(
+    latime: int = 1600, inaltime: int = 1200, *, subiect: tuple[float, float] = (0.55, 0.62), samanta: int = 7
+) -> bytes:
+    """O „fotografie” de test (F-editorial): cer neted sus, podea cu zgomot fin, iar subiectul (un pinion cu
+    lanț, mult contrast) în jurul punctului relativ `subiect`. Deterministă."""
+    import io
+    import math
+    import random
+
+    from PIL import Image, ImageDraw, ImageFilter
+
+    rnd = random.Random(samanta)  # noqa: S311 (zgomot de test, determinist)
+    img = Image.new("RGB", (latime, inaltime))
+    d = ImageDraw.Draw(img)
+    for y in range(inaltime):  # gradient: cer sus, atelier jos
+        t = y / inaltime
+        d.line((0, y, latime, y), fill=(round(150 - 90 * t), round(170 - 100 * t), round(190 - 120 * t)))
+    for _ in range(1800):  # podeaua: zgomot fin, mai liniștit decât subiectul
+        x, y = rnd.randrange(latime), rnd.randrange(inaltime // 2, inaltime)
+        g = rnd.randrange(40, 90)
+        d.point((x, y), fill=(g, g, g))
+    cx, cy = subiect[0] * latime, subiect[1] * inaltime
+    r = min(latime, inaltime) * 0.16
+    for k in range(24):  # dinții pinionului
+        u = 2 * math.pi * k / 24
+        d.polygon([(cx + (r + 26) * math.cos(u + s), cy + (r + 26) * math.sin(u + s)) for s in (-0.08, 0.08)]
+                  + [(cx + r * math.cos(u + s), cy + r * math.sin(u + s)) for s in (0.1, -0.1)],
+                  fill=(225, 205, 120))  # fmt: skip
+    d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(200, 180, 90), outline=(20, 20, 20), width=8)
+    d.ellipse((cx - r * 0.35, cy - r * 0.35, cx + r * 0.35, cy + r * 0.35), fill=(30, 30, 30))
+    for k in range(14):  # lanțul, spre stânga jos
+        x0, y0 = cx - r - 40 - k * 34, cy + r * 0.4 + k * 9
+        d.rounded_rectangle((x0, y0, x0 + 30, y0 + 18), radius=6, outline=(15, 15, 15), width=5)
+    img = img.filter(ImageFilter.GaussianBlur(0.8))
+    out = io.BytesIO()
+    img.save(out, "JPEG", quality=92)
+    return out.getvalue()

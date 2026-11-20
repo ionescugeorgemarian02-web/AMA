@@ -100,3 +100,28 @@ class Adaptare(BazaContinut):
     canal: Mapped[str] = mapped_column(Text)
     model: Mapped[str | None] = mapped_column(Text)
     creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class IdeeConcept(BazaContinut):
+    """Un concept din etapa de idee a unui livrabil (F-idee, D-032): propus de autor, notat de critic,
+    validat determinist; cel mult unul `ales` pe livrabil."""
+
+    __tablename__ = "idei_concepte"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    livrabil_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    runda: Mapped[int] = mapped_column(Integer)  # 1 = propunerea și critica, 2 = rescrierea cu obiecțiile
+    nr: Mapped[int] = mapped_column(Integer)
+    sursa: Mapped[str] = mapped_column(Text)  # propus | imbunatatit | rescris
+    concept: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    note: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    scor: Mapped[int | None] = mapped_column(Integer)
+    obiectii: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    probleme: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    ales: Mapped[bool] = mapped_column(Boolean, default=False)
+    motiv: Mapped[str] = mapped_column(Text, default="")
+    model_autor: Mapped[str | None] = mapped_column(Text)
+    model_critic: Mapped[str | None] = mapped_column(Text)
+    autoevaluare: Mapped[bool] = mapped_column(Boolean, default=False)
+    decis_de: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    creat_la: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

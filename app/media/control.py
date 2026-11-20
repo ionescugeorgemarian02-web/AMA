@@ -12,13 +12,21 @@ sunetul, sincronizarea și subtitrările sunt în regulă. Totul se măsoară de
 Verdictul este un `validare.Verdict` (G6, V0), cu dovezi pentru fiecare problemă.
 """
 
+import io
 import re
+import tempfile
+import uuid
+from collections import Counter
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
+
+from PIL import Image
+from sqlalchemy.orm import Session
 
 from app import validare
-from app.media import ffmpeg, subtitrari, sunet
+from app.media import ffmpeg, lista, subtitrari, sunet
 
 VERSIUNE = "1"
 NEGRU_MAX, INGHETAT_MAX, LINISTE_MAX = 0.5, 2.0, 1.5
@@ -156,3 +164,421 @@ def verdict(cale: Path, a: Asteptari) -> tuple[validare.Verdict, dict[str, Any]]
         ),
         masuri,
     )
+
+
+# --- verdictul editorial (F-editorial, decizia 7): separat de G6 ---
+#
+# G6 spune dacă fișierul e corect tehnic; verdictul editorial spune dacă arată ce trebuie. Verificările
+# automate sunt demonstrabile (date, nu păreri): sigla ca singur subiect, același activ repetat, text ieșit
+# din cadru, material lipsă, export al altei versiuni. Relevanța și compoziția cer ochi: operatorul sau un
+# model care primește imaginile. Un MP4 cu G6 trecut poate fi respins editorial. Numerotarea scenelor e a
+# storyboardului (0 = hook), aceeași ca în cererile de material din panou.
+
+VERSIUNE_EDITORIAL = "1"
+PLAT_CULORI, PLAT_PRAG = 8, 0.9  # [I] imagine „plată”: ≥ 90% din pixeli în 8 culori (text și siglă pe fundal)
+ROLURI_SUBIECT = ("fotografie", "filmare", "ilustratie")
+# etapa de reluat, în ordinea fluxului: se cere prima etapă afectată
+ETAPE: dict[str, str] = {
+    "material": "Încarcă materialul cerut",
+    "selectie": "Revino la selecția materialelor",
+    "machetare": "Revino la machetare",
+    "montaj": "Refă montajul pentru versiunea curentă",
+}
+STARI_EVALUARE = {
+    "neverificata": "neverificată",
+    "autoevaluare": "autoevaluare",
+    "evaluator": "evaluator separat",
+    "operator": "operator",
+}
+
+
+@dataclass(frozen=True)
+class Motiv:
+    regula: (
+        str  # sigla_singurul_subiect | activ_repetat | text_iesit | material_lipsa | alta_versiune | vizual
+    )
+    detalii: str
+    etapa: str
+    scene: tuple[int, ...] = ()
+
+
+@dataclass(frozen=True)
+class ScenaEditoriala:
+    scena: int
+    activ_id: str | None
+    rol: str | None
+    eticheta: str
+    obligatorie: bool = True  # bătaie cu indicație vizuală proprie (hook-ul și apelul pot refolosi un cadru)
+
+
+@dataclass(frozen=True)
+class ImagineEditoriala:
+    nume: str
+    latime: int
+    inaltime: int
+    cutii_text: tuple[tuple[int, int, int, int], ...] | None  # None: geometria textului nu e cunoscută
+    are_sigla: bool
+    subiecte: int  # componente cu rol de subiect (fotografie, filmare, ilustrație)
+    plata: float  # partea din pixeli în cele mai frecvente `PLAT_CULORI` culori
+
+
+@dataclass(frozen=True)
+class EvaluareVizuala:
+    """Cine a judecat relevanța și compoziția. `modele`: generatorul și evaluatorul (coduri); `cu_imagini`:
+    modelul a primit imaginile, nu doar text."""
+
+    evaluator: Literal["operator", "model"] | None = None
+    cu_imagini: bool = False
+    modele: tuple[str, ...] = ()
+    rezultat: Literal["trece", "respins", ""] = ""
+    note: str = ""
+    etapa: str = "selectie"
+
+
+def stare_evaluare(e: EvaluareVizuala | None) -> str:
+    """`neverificata` (nimeni sau un model doar cu text), `autoevaluare` (un singur model), `evaluator`
+    (alt model, cu imagini) sau `operator`."""
+    if e is None or e.evaluator is None:
+        return "neverificata"
+    if e.evaluator == "operator":
+        return "operator"
+    if not e.cu_imagini:
+        return "neverificata"
+    return "autoevaluare" if len(set(e.modele)) <= 1 else "evaluator"
+
+
+def interval(scene: list[int] | tuple[int, ...]) -> str:
+    """„Scenele 2–4”, „Scenele 1, 3”, „Scena 2”."""
+    s = sorted(set(scene))
+    if len(s) == 1:
+        return f"Scena {s[0]}"
+    if s == list(range(s[0], s[-1] + 1)):
+        return f"Scenele {s[0]}–{s[-1]}"
+    return "Scenele " + ", ".join(str(x) for x in s)
+
+
+def plata(png: bytes) -> float:
+    """Partea din pixeli acoperită de cele mai frecvente `PLAT_CULORI` culori (cuantizate la 32 de niveluri):
+    aproape 1 pentru text și siglă pe fundal plin, mică pentru o fotografie."""
+    img = Image.open(io.BytesIO(png)).convert("RGB")
+    img.thumbnail((270, 270))
+    culori = Counter((r >> 3, g >> 3, b >> 3) for r, g, b in img.getdata())  # type: ignore[attr-defined]
+    total = sum(culori.values()) or 1
+    return round(sum(n for _, n in culori.most_common(PLAT_CULORI)) / total, 3)
+
+
+def _iesit(c: tuple[int, int, int, int], latime: int, inaltime: int) -> bool:
+    return c[0] < 0 or c[1] < 0 or c[2] > latime or c[3] > inaltime
+
+
+def judeca(
+    *,
+    scene: list[ScenaEditoriala],
+    imagini: list[ImagineEditoriala],
+    lipsa: list[tuple[int, str]],
+    ecrane: Sequence[tuple[str, tuple[int, int, int, int]]] = (),
+    cadru: tuple[int, int] = (1080, 1920),
+    versiune_livrabil: int | None = None,
+    versiune_export: int | None = None,
+    are_export: bool = True,
+) -> list[Motiv]:
+    """Nucleul pur al verificărilor automate. Întoarce motivele de respingere (gol = trece)."""
+    out: list[Motiv] = []
+    if lipsa:
+        out.append(Motiv(
+            "material_lipsa",
+            f"{interval([s for s, _ in lipsa])} nu au material: "
+            + "; ".join(f"{s}: {subiect}" for s, subiect in lipsa),
+            "material",
+            tuple(s for s, _ in lipsa),
+        ))  # fmt: skip
+    elif not are_export and not imagini:
+        out.append(Motiv("material_lipsa", "Nu există niciun export de judecat.", "material"))
+    sigla = [s for s in scene if s.rol == "logo"]
+    if sigla:
+        acelasi = len({s.activ_id for s in sigla}) == 1 and len(sigla) > 1
+        ce = "aceeași siglă" if acelasi else "sigla ca subiect"
+        verb = "folosesc" if len(sigla) > 1 else "folosește"
+        out.append(Motiv(
+            "sigla_singurul_subiect", f"{interval([s.scena for s in sigla])} {verb} {ce}.", "selectie",
+            tuple(s.scena for s in sigla),
+        ))  # fmt: skip
+    pe_activ: dict[str, list[ScenaEditoriala]] = {}
+    for s in scene:
+        if s.activ_id and s.obligatorie and s.rol != "logo":
+            pe_activ.setdefault(s.activ_id, []).append(s)
+    for grup in pe_activ.values():
+        if len(grup) > 1:
+            out.append(Motiv(
+                "activ_repetat",
+                f"{interval([s.scena for s in grup])} folosesc același material ({grup[0].eticheta}).",
+                "selectie",
+                tuple(s.scena for s in grup),
+            ))  # fmt: skip
+    for im in imagini:
+        if im.are_sigla and im.subiecte == 0:
+            out.append(Motiv(
+                "sigla_singurul_subiect",
+                f"Imaginea „{im.nume}” are doar text și siglă, fără fotografie "
+                f"({im.plata:.0%} din pixeli în {PLAT_CULORI} culori).",
+                "selectie" if not lipsa else "material",
+            ))  # fmt: skip
+        for c in im.cutii_text or ():
+            if _iesit(c, im.latime, im.inaltime):
+                out.append(
+                    Motiv("text_iesit", f"Textul din „{im.nume}” iese din cadru ({list(c)}).", "machetare")
+                )
+    for text, c in ecrane:
+        if _iesit(c, *cadru):
+            out.append(Motiv("text_iesit", f"Subtitrarea „{text}” iese din cadru ({list(c)}).", "montaj"))
+    if versiune_livrabil is not None and versiune_export is not None and versiune_export != versiune_livrabil:
+        out.append(Motiv(
+            "alta_versiune",
+            f"Exportul aparține versiunii {versiune_export}, "
+            f"iar livrabilul e la versiunea {versiune_livrabil}.",
+            "montaj",
+        ))  # fmt: skip
+    return out
+
+
+def mesaj(motive: list[Motiv]) -> tuple[str, str]:
+    """(etapa de reluat, mesajul scurt): primul motiv al primei etape afectate + ce faci."""
+    if not motive:
+        return "", ""
+    ordine = list(ETAPE)
+    etapa = min((m.etapa for m in motive), key=ordine.index)
+    primul = next(m for m in motive if m.etapa == etapa)
+    return etapa, f"{primul.detalii.rstrip('.')}. {ETAPE[etapa]}."
+
+
+# --- partea cu baza și fișierele
+
+
+def cadre_pe_scene(video: Path, lm: lista.ListaMontaj) -> list[tuple[int, float, uuid.UUID, bytes]]:
+    """Câte un cadru reprezentativ pe scenă (bătaie), extras din MP4 la mijlocul scenei:
+    (scena, momentul, activul vizibil atunci, PNG)."""
+    intervale: dict[int, tuple[float, float]] = {}
+    for s in lm.scene:
+        a, b = intervale.get(s.bataie, (s.inceput, s.sfarsit))
+        intervale[s.bataie] = (min(a, s.inceput), max(b, s.sfarsit))
+    out = []
+    with tempfile.TemporaryDirectory(prefix="ama-cadre-") as d:
+        for scena, (a, b) in sorted(intervale.items()):
+            t = round((a + b) / 2, 3)
+            activ = next(
+                (s.activ_id for s in lm.scene if s.bataie == scena and s.inceput <= t <= s.sfarsit),
+                next(s.activ_id for s in lm.scene if s.bataie == scena),
+            )
+            dest = Path(d) / f"{scena}.png"
+            ffmpeg.ruleaza(["-ss", f"{t:.3f}", "-i", str(video), "-frames:v", "1", str(dest)], timp_maxim=120)
+            out.append((scena, t, activ, dest.read_bytes()))
+    return out
+
+
+def _scurt(text: str, font: Any, latime: int) -> str:
+    if font.getlength(text) <= latime:
+        return text
+    while text and font.getlength(text + "…") > latime:
+        text = text[:-1]
+    return text + "…"
+
+
+def plansa(
+    celule: list[tuple[str, str, bytes]], *, latime_celula: int = 270, rand_nou: int | None = None
+) -> bytes:
+    """Planșa (contact sheet): câte o celulă pe cadru, cu eticheta (titlu + activul) sub imagine.
+    `rand_nou`: indicele de la care celulele încep pe un rând nou (cadrele video, apoi imaginile)."""
+    from PIL import ImageDraw, ImageFont
+
+    font = ImageFont.truetype(str(subtitrari.cale_font("DejaVuSans-Bold.ttf")), 18)
+    font_mic = ImageFont.truetype(str(subtitrari.cale_font("DejaVuSans.ttf")), 15)
+    mini = []
+    for titlu, activ, png in celule:
+        img = Image.open(io.BytesIO(png)).convert("RGB")
+        h = round(img.height * latime_celula / img.width)
+        mini.append((titlu, activ, img.resize((latime_celula, h))))
+    coloane = min(4, max(1, len(mini)))
+    pad, eticheta = 12, 52
+    pozitii, rand, col = [], 0, 0
+    for k in range(len(mini)):
+        if col == coloane or (k == rand_nou and col):
+            rand, col = rand + 1, 0
+        pozitii.append((rand, col))
+        col += 1
+    inaltimi = [0] * (rand + 1)
+    for (r, _), m in zip(pozitii, mini, strict=True):
+        inaltimi[r] = max(inaltimi[r], m[2].height + eticheta + pad)
+    foaie = Image.new("RGB", (coloane * (latime_celula + pad) + pad, sum(inaltimi) + pad), "#F4F1EA")
+    desen = ImageDraw.Draw(foaie)
+    for (r, c), (titlu, activ, img) in zip(pozitii, mini, strict=True):
+        x = pad + c * (latime_celula + pad)
+        y = pad + sum(inaltimi[:r])
+        foaie.paste(img, (x, y))
+        desen.text((x, y + img.height + 6), _scurt(titlu, font, latime_celula), font=font, fill="#1E1E1E")
+        desen.text(
+            (x, y + img.height + 30), _scurt(activ, font_mic, latime_celula), font=font_mic, fill="#4A4A4A"
+        )
+    out = io.BytesIO()
+    foaie.save(out, "PNG")
+    return out.getvalue()
+
+
+def _eticheta(a: Any) -> str:
+    if a is None:
+        return "activ inexistent"
+    rol = {"logo": "sigla", "fotografie": "fotografie", "filmare": "filmare", "ilustratie": "ilustrație"}
+    return f"{rol.get(a.rol_vizual or '', a.rol_vizual or 'activ')}: {a.subiect or a.nume_original}"[:80]
+
+
+def _imagine(db: Session, a: Any) -> tuple[ImagineEditoriala, bytes]:
+    from app.media import biblioteca
+    from app.media.modele import Activ
+
+    png = biblioteca.citeste_fisier(a)
+    gen = a.generare or {}
+    w, h = gen.get("dimensiuni") or Image.open(io.BytesIO(png)).size
+    cutii = gen.get("cutii_text")
+    roluri = []
+    for c in (a.licenta or {}).get("componente") or []:
+        if c.get("activ_id"):
+            x = db.get(Activ, uuid.UUID(c["activ_id"]))
+            roluri.append(x.rol_vizual if x is not None else None)
+    return (
+        ImagineEditoriala(
+            nume=a.nume_original,
+            latime=int(w),
+            inaltime=int(h),
+            cutii_text=tuple(tuple(c) for c in cutii) if cutii is not None else None,
+            are_sigla="logo" in roluri,
+            subiecte=sum(r in ROLURI_SUBIECT for r in roluri),
+            plata=plata(png),
+        ),
+        png,
+    )
+
+
+def verdict_editorial(
+    db: Session,
+    tenant_id: uuid.UUID,
+    livrabil_id: uuid.UUID,
+    *,
+    randare: Any = None,
+    imagini: list[Any] | None = None,
+    evaluare: EvaluareVizuala | None = None,
+) -> dict[str, Any]:
+    """Verdictul editorial al livrabilului, separat de G6: pe MP4 (câte un cadru pe scenă, la mijloc) și pe
+    PNG-urile finale (`imagini`: activele exportate). Compune planșa, o înregistrează ca activ `export` și
+    persistă verdictul în `randari.control["editorial"]` (dacă există randare) și în audit."""
+    from sqlalchemy import select
+
+    from app import productie
+    from app.media import biblioteca, cereri, licente
+    from app.media.modele import Activ, Randare
+    from app.operare import audit
+
+    lv = productie.citeste(db, livrabil_id)
+    versiune = lv.versiune if lv is not None else None
+    if randare is None:
+        randare = db.scalars(
+            select(Randare)
+            .where(Randare.tenant_id == tenant_id, Randare.livrabil_id == livrabil_id,
+                   Randare.calitate == "final", Randare.activ_id.is_not(None))
+            .order_by(Randare.creat_la.desc(), Randare.id.desc())
+            .limit(1)
+        ).first()  # fmt: skip
+    lipsa = sorted({(c.scena, c.subiect) for c in cereri.deschise(db, tenant_id, livrabil_id)})
+    scene: list[ScenaEditoriala] = []
+    ecrane: list[tuple[str, tuple[int, int, int, int]]] = []
+    celule: list[tuple[str, str, bytes]] = []
+    cadre_info: list[dict[str, Any]] = []
+    cadru = (1080, 1920)
+    versiune_export = None
+    if randare is not None and randare.activ_id is not None:
+        lm = lista.ListaMontaj.model_validate(randare.lista)
+        cadru = (lm.latime, lm.inaltime)
+        versiune_export = (randare.masuratori or {}).get("versiune_continut")
+        sb = (randare.masuratori or {}).get("storyboard") or {}
+        obligatorii = {s["scena"]: s.get("obligatorie", True) for s in sb.get("scene", [])}
+        lipsa += [(s["scena"], s["subiect"]) for s in sb.get("scene", []) if s.get("sursa") == "lipsa"]
+        lipsa = sorted(set(lipsa))
+        ultima = max((s.bataie for s in lm.scene), default=0)
+        mp4 = db.get(Activ, randare.activ_id)
+        if mp4 is not None:
+            from app.media import regizor
+
+            for scena, t, activ_id, png in cadre_pe_scene(regizor.cale(mp4), lm):
+                a = db.get(Activ, activ_id)
+                et = _eticheta(a)
+                scene.append(ScenaEditoriala(
+                    scena, str(activ_id), a.rol_vizual if a is not None else None, et,
+                    obligatorii.get(scena, 0 < scena < ultima),
+                ))  # fmt: skip
+                celule.append((f"Scena {scena} · {t:.1f} s", et, png))
+                cadre_info.append({"scena": scena, "moment": t, "activ_id": str(activ_id), "activ": et,
+                                   "plata": plata(png)})  # fmt: skip
+        if lm.texte:
+            ecrane = [(e.text, e.cutie) for e in subtitrari.grupeaza(lm)]
+    info_imagini = []
+    for a in imagini or []:
+        im, png = _imagine(db, a)
+        info_imagini.append(im)
+        cu_foto = bool((a.generare or {}).get("zona_subiect"))
+        celule.append(
+            (f"Imagine · {im.nume}", "cu fotografie" if cu_foto else "fără fotografie (text și siglă)", png)
+        )
+    motive = judeca(
+        scene=scene, imagini=info_imagini, lipsa=lipsa, ecrane=ecrane, cadru=cadru,
+        versiune_livrabil=versiune, versiune_export=versiune_export, are_export=randare is not None,
+    )  # fmt: skip
+    st = stare_evaluare(evaluare)
+    if evaluare is not None and evaluare.rezultat == "respins" and st != "neverificata":
+        motive.append(Motiv("vizual", evaluare.note or "Relevanța sau compoziția nu convin.", evaluare.etapa))
+    etapa, text = mesaj(motive)
+    plansa_id = None
+    if celule:
+        foaie = plansa(celule, rand_nou=len(cadre_info))
+        p = biblioteca.incarca(
+            db, tenant_id, foaie, nume_original=f"plansa-{livrabil_id}.png", sursa="control",
+            utilizator_id=None, rol_vizual="export", descriere=f"planșa editorială, livrabilul {livrabil_id}",
+            licenta={"tip": "productie_proprie", "statut": licente.STATUT_OK,
+                     "componente": [{"descriere": "cadre din exporturile livrabilului"}]},
+            generare={"livrabil_id": str(livrabil_id), "versiune": versiune},
+        )  # fmt: skip
+        plansa_id = str(p.id)
+    date: dict[str, Any] = {
+        "validator": "editorial",
+        "versiune": VERSIUNE_EDITORIAL,
+        "rezultat": "respins" if motive else "trece",
+        "motive": [
+            {"regula": m.regula, "detalii": m.detalii, "etapa": m.etapa, "scene": list(m.scene)}
+            for m in motive
+        ],
+        "etapa": etapa,
+        "etapa_text": ETAPE.get(etapa, ""),
+        "mesaj": text,
+        "evaluare_vizuala": {
+            "stare": st,
+            "eticheta": STARI_EVALUARE[st],
+            "evaluator": evaluare.evaluator if evaluare else None,
+            "rezultat": evaluare.rezultat if evaluare and st != "neverificata" else "",
+            "note": evaluare.note if evaluare else "",
+        },
+        "cadre": cadre_info,
+        "imagini": [
+            {"nume": i.nume, "subiecte": i.subiecte, "sigla": i.are_sigla, "plata": i.plata}
+            for i in info_imagini
+        ],
+        "plansa_activ_id": plansa_id,
+        "versiune_livrabil": versiune,
+        "versiune_export": versiune_export,
+        "randare_id": str(randare.id) if randare is not None else None,
+    }
+    if randare is not None:
+        randare.control = {**(randare.control or {}), "editorial": date}
+        db.flush()
+    audit.record(
+        db, "livrabil.verdict_editorial", obiect_tip="livrabil", obiect_id=livrabil_id, tenant_id=tenant_id,
+        rezultat="ok" if not motive else "refuzat",
+        detalii={"rezultat": date["rezultat"], "etapa": etapa, "mesaj": text, "versiune": versiune},
+    )  # fmt: skip
+    return date

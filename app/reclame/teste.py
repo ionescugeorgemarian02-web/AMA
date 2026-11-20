@@ -26,7 +26,7 @@ PRAG = 0.9
 EXTRAGERI = 20_000
 
 
-def probabilitati(cifre: list[tuple[int, int]], *, samanta: int = 7) -> list[float]:
+def probabilitati(cifre: list[tuple[int, float]], *, samanta: int = 7) -> list[float]:
     """Nucleu pur: (afișări, rezultate) pe variantă → probabilitatea fiecăreia de a fi cea mai bună."""
     rng = random.Random(samanta)  # noqa: S311  (simulare statistică, nu criptografie)
     castiguri = [0] * len(cifre)
@@ -37,10 +37,13 @@ def probabilitati(cifre: list[tuple[int, int]], *, samanta: int = 7) -> list[flo
 
 
 def decide(
-    cifre: list[tuple[int, int, int]], criterii: plan_media.CriteriiOprire
+    cifre: list[tuple[int, int, float | None]], criterii: plan_media.CriteriiOprire
 ) -> tuple[int | None, list[float], str]:
     """(afișări, clicuri, rezultate) pe variantă → (câștigătoarea sau None, probabilitățile, motivul)."""
-    p = probabilitati([(a, r) for a, _, r in cifre])
+    masurate = [(a, r) for a, _, r in cifre if r is not None]
+    if len(masurate) != len(cifre):
+        return None, [], "evenimentul urmărit nu este măsurat pentru toate variantele"
+    p = probabilitati(masurate)
     lipsa = [
         i for i, (a, k, _) in enumerate(cifre) if a < criterii.afisari_minime or k < criterii.clicuri_minime
     ]
@@ -73,7 +76,7 @@ def evalueaza(db: Session, campanie_id: uuid.UUID, acum: dt.datetime) -> Experim
     pr = db.get(PlanMediaRand, c.plan_id)
     if pr is None:
         return t
-    criterii = plan_media.plan_din(pr).criterii_oprire
+    plan = plan_media.plan_din(pr)
     anunturi = [
         a
         for a in db.execute(select(Anunt).where(Anunt.campanie_id == c.id).order_by(Anunt.nume)).scalars()
@@ -83,10 +86,18 @@ def evalueaza(db: Session, campanie_id: uuid.UUID, acum: dt.datetime) -> Experim
         return t
     de_la = t.inceput_la.date() - dt.timedelta(days=1)
     tot = [
-        rezultate.totaluri(db, c.cont_id, de_la, acum.date(), obiect_extern=a.id_extern, nivel="reclama")
+        rezultate.totaluri(
+            db,
+            c.cont_id,
+            de_la,
+            acum.date(),
+            obiect_extern=a.id_extern,
+            nivel="reclama",
+            eveniment=plan.masurare.eveniment,
+        )
         for a in anunturi
     ]
-    i, p, motiv = decide([(x.afisari, x.clicuri, x.rezultate) for x in tot], criterii)
+    i, p, motiv = decide([(x.afisari, x.clicuri, x.rezultate) for x in tot], plan.criterii_oprire)
     t.variante = [
         {
             "anunt_id": str(a.id),
@@ -94,9 +105,10 @@ def evalueaza(db: Session, campanie_id: uuid.UUID, acum: dt.datetime) -> Experim
             "afisari": x.afisari,
             "clicuri": x.clicuri,
             "rezultate": x.rezultate,
-            "probabilitate": round(pi, 4),
+            "probabilitate": round(p[j], 4) if p else None,
+            "eveniment": plan.masurare.eveniment,
         }
-        for a, x, pi in zip(anunturi, tot, p, strict=True)
+        for j, (a, x) in enumerate(zip(anunturi, tot, strict=True))
     ]
     t.motiv = motiv
     if i is None:

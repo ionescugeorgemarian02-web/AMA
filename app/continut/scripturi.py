@@ -8,7 +8,8 @@ acțiune, durată estimată din numărul de cuvinte”; docs/14: E2 livrează sc
 apelul la acțiune.
 - Durata NU o dă modelul: se estimează determinist din cuvintele rostite (`CUVINTE_PE_SECUNDA` [I]) plus o
 pauză pe bătaie
-  [I]. Scriptul se încadrează dacă durata estimată e în ±15% [I] din durata-țintă (din brief; implicit 30 s,
+  [I]. Scriptul se încadrează dacă durata estimată e cel mult +15% [I] peste ținta (F-editorial: mai scurt
+  e permis, durata urmează vocea; minimum `DURATA_SCRIPT_MIN`) (din brief; implicit 30 s,
   între 15 și
   60). Dacă nu se încadrează, E2 primește o singură dată instrucțiunea de a scurta / lungi; altfel livrabilul
   merge în
@@ -19,6 +20,7 @@ pauză pe bătaie
 """
 
 import math
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
@@ -32,13 +34,17 @@ CUVINTE_PE_SECUNDA = 2.5  # [I] ritmul unei voci calme în română
 PAUZA_PE_BATAIE = 0.5  # [I] secunde între bătăi (tăietură, respirație)
 TOLERANTA = 0.15  # [I] ±15% din durata-țintă
 DURATA_IMPLICITA, DURATA_MINIMA, DURATA_MAXIMA = 30, 15, 60
+# F-editorial (decizia 6): durata urmează vocea; ținta e un plafon, nu un minim. O idee scurtă, acoperită de
+# două cadre bune, poate ține mai puțin decât ținta; sub `DURATA_SCRIPT_MIN` [I] nu mai e un clip.
+DURATA_SCRIPT_MIN = 8.0
 
 
 class Bataie(BaseModel):
     model_config = ConfigDict(extra="forbid")
     voce: str = Field(min_length=3, max_length=400)
     text_ecran: str = Field(default="", max_length=80)
-    vizual: str = Field(min_length=3, max_length=200)
+    # indicația vizuală a bătăii (F-editorial): ce se vede concret; validarea respinge indicațiile vagi
+    vizual: Annotated[brief.Observabila, Field(min_length=3, max_length=200)]
 
 
 class ScriptVideo(gateway.Iesire):
@@ -57,7 +63,9 @@ def durata_estimata(hook: str, batai: list[str], cta: str) -> float:
 
 
 def se_incadreaza(estimata: float, tinta: int) -> bool:
-    return abs(estimata - tinta) <= TOLERANTA * tinta
+    """Cel mult ținta + 15%; mai scurt e permis (nu prelungim materialul spre 30 s), dar nu sub minimul unui
+    clip."""
+    return DURATA_SCRIPT_MIN <= estimata <= (1 + TOLERANTA) * tinta
 
 
 def durata_tinta(continut_brief: dict[str, object]) -> int:
@@ -81,7 +89,7 @@ def _cere(
     tinta = durata_tinta(b)
     r = gateway.apeleaza(
         db,
-        prompt="continut.script@1",
+        prompt="continut.script@3",
         schema=ScriptVideo,
         tenant_id=lv.tenant_id,
         componenta="continut.script",
@@ -101,6 +109,11 @@ def _cere(
     if not isinstance(r.iesire, ScriptVideo):
         raise TypeError("ieșirea nu respectă schema promptului")
     return r.iesire, r.model
+
+
+def _cadre_idee(b: dict[str, object]) -> dict[str, object]:
+    idee = b.get("idee")
+    return {"cadre": idee["cadre"]} if isinstance(idee, dict) and idee.get("cadre") else {}
 
 
 def scrie_scriptul(db: Session, lv: productie.Livrabil, b: dict[str, object]) -> validare.ContinutNou:
@@ -126,6 +139,10 @@ def scrie_scriptul(db: Session, lv: productie.Livrabil, b: dict[str, object]) ->
                     "cta": cta,
                     "durata_tinta_sec": tinta,
                     "durata_estimata_sec": estimata,
+                    # F-editorial: natura decide ce face storyboardul cu o scenă fără material
+                    "natura": "educativ" if b.get("natura") == "educativ" else "prezentare",
+                    # F-idee: cadrele conceptului ales sunt indicațiile vizuale ale storyboardului
+                    **_cadre_idee(b),
                 },
                 autor=COMPONENTA,
                 model_autor=model,

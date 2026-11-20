@@ -113,7 +113,9 @@ def propune(
 def aproba(request: Request, u: PoateDecide, db: DbSession, client_id: str, calendar_id: str) -> Response:
     c = _client(db, client_id)
     try:
-        continut.calendar.aproba(db, _id(calendar_id), utilizator_id=u.utilizator_id)
+        livrabile = continut.calendar.aproba(db, _id(calendar_id), utilizator_id=u.utilizator_id)
+        for livrabil_id in livrabile:
+            continut.fluxuri.programeaza_productia(db, c.id, livrabil_id)
     except (continut.calendar.EroareCalendar, creier.RegulaCreier) as exc:
         db.rollback()
         return _pagina(request, u, db, client_id, status=409, eroare=str(exc))

@@ -1,0 +1,161 @@
+"""Machetele editoriale (F-editorial, decizia 5): foto_dominanta, detaliu_explicat, carusel, fără bază."""
+
+import io
+import os
+import random
+from pathlib import Path
+
+import pytest
+from PIL import Image, ImageDraw
+
+from app.media import compozitor, sabloane, vizual
+from tests.media_utile import fotografie_procedurala
+
+IDENT = sabloane.propune_identitate("Atelierul Spița")
+LOGO = sabloane.logo(IDENT)
+MOSTRE = os.environ.get("AMA_MOSTRE_MACHETE")  # opțional: unde se salvează PNG-urile, pentru ochi
+
+
+def _salveaza(nume: str, png: bytes) -> None:
+    if MOSTRE:
+        Path(MOSTRE).mkdir(parents=True, exist_ok=True)
+        (Path(MOSTRE) / nume).write_bytes(png)
+
+
+def test_zona_subiectului_din_generare_altfel_din_energie() -> None:
+    img = Image.open(io.BytesIO(fotografie_procedurala(subiect=(0.7, 0.6))))
+    assert compozitor.zona_subiect(img, {"zona_subiect": [0.1, 0.2, 0.3, 0.4]}) == (160, 240, 480, 480)
+    x0, y0, x1, y1 = compozitor.zona_subiect(img)
+    assert x0 < 0.7 * 1600 < x1 and y0 < 0.6 * 1200 < y1  # centrul de energie e pe pinion
+
+
+def test_foto_dominanta_titlul_in_zona_linistita_fara_sa_acopere_subiectul() -> None:
+    m = compozitor.foto_dominanta(fotografie_procedurala(), "Lanțul curat ține de două ori mai mult",
+                                  IDENT, logo=LOGO)  # fmt: skip
+    _salveaza("foto_dominanta.png", m.png)
+    assert Image.open(io.BytesIO(m.png)).size == (1080, 1350)
+    assert m.pozitie_titlu == "sus"  # cerul neted e zona cea mai liniștită
+    assert m.subiect is not None and not any(compozitor._atinge(t, m.subiect) for t in m.texte)
+    assert m.titlu_marime in range(sabloane.TITLU_MIN, sabloane.TIPOGRAFIE["titlu"] + 1)
+    assert compozitor.verifica_export(m) == []
+    assert vizual.probleme(m.png, m.asteptari) == []  # G5: contrastul voalului, sigla
+
+
+def test_subiectul_sus_impinge_titlul_jos() -> None:
+    m = compozitor.foto_dominanta(fotografie_procedurala(subiect=(0.5, 0.2)), "Revizie completă", IDENT)
+    assert m.pozitie_titlu in ("mijloc", "jos") and compozitor.verifica_export(m) == []
+
+
+def test_fara_zona_libera_pentru_titlu_fotografia_sus_si_titlul_pe_banda() -> None:
+    # fotografie 3:2 cu textură peste tot: subiectul (energia) ocupă aproape toată înălțimea decupajului 4:5
+    rnd = random.Random(1)  # noqa: S311 - textură deterministă de test
+    img = Image.new("RGB", (1080, 720), "gray")
+    desen = ImageDraw.Draw(img)
+    for _ in range(4000):
+        x, y = rnd.randrange(1080), rnd.randrange(720)
+        culoare = (rnd.randrange(256), rnd.randrange(256), rnd.randrange(256))
+        desen.line((x, y, x + rnd.randint(-30, 30), y + rnd.randint(-30, 30)), fill=culoare, width=2)
+    out = io.BytesIO()
+    img.save(out, "JPEG")
+    m = compozitor.foto_dominanta(
+        out.getvalue(), "Revizia Urbană: frâne și transmisie, 120 lei", IDENT, logo=LOGO
+    )
+    assert m.pozitie_titlu == "banda" and Image.open(io.BytesIO(m.png)).size == (1080, 1350)
+    assert m.subiect is not None and not any(compozitor._atinge(t, m.subiect) for t in m.texte)
+    assert m.titlu_marime >= sabloane.TITLU_MIN
+    assert compozitor.verifica_export(m) == []
+    assert vizual.probleme(m.png, m.asteptari) == []
+
+
+def test_verificarea_la_360_px_respinge_litera_mica_si_textul_peste_subiect() -> None:
+    m = compozitor.foto_dominanta(fotografie_procedurala(), "Revizie completă", IDENT)
+    assert compozitor.inaltime_litera(sabloane.TITLU_MIN, 1080) >= sabloane.LITERA_TITLU_MIN
+    mica = compozitor.Macheta(**{**m.__dict__, "titlu_marime": 40})
+    assert "litera titlului" in compozitor.verifica_export(mica)[0]
+    assert m.subiect is not None
+    peste = compozitor.Macheta(**{**m.__dict__, "texte": (m.subiect,)})
+    assert "acoperă subiectul" in compozitor.verifica_export(peste)[0]
+
+
+def test_detaliu_explicat_cu_punct_si_fara() -> None:
+    foto = fotografie_procedurala()
+    cu = compozitor.detaliu_explicat(foto, "Pinionul uzat", IDENT, punct=(0.55, 0.62), logo=LOGO)
+    _salveaza("detaliu_explicat.png", cu.png)
+    assert cu.subiect is not None and compozitor.verifica_export(cu) == []
+    sx = (cu.subiect[0] + cu.subiect[2]) / 2
+    assert abs(sx - 540) < 200  # decupajul e centrat pe piesă
+    fara = compozitor.detaliu_explicat(foto, "Pinionul uzat", IDENT, logo=LOGO, legenda="Dinții ascuțiți")
+    _salveaza("detaliu_legenda.png", fara.png)
+    assert fara.pozitie_titlu == "banda" and all(t[1] >= 1350 - compozitor.BANDA_LEGENDA for t in fara.texte)
+    assert compozitor.verifica_export(fara) == [] and vizual.probleme(fara.png, fara.asteptari) == []
+
+
+HOOK_LUNG = (
+    "Frâna care scârțâie după ploaie nu e un capriciu al bicicletei tale: e semnul că etrierul freacă "
+    "discul la fiecare oprire, iar revizia de 120 de lei o reglează înainte de prima zi cu gheață pe pistă"
+)
+
+
+def test_titlul_lung_nu_crapa_se_scurteaza_la_cuvinte_intregi_cu_nota() -> None:
+    m = compozitor.foto_dominanta(fotografie_procedurala(), HOOK_LUNG, IDENT, logo=LOGO)
+    assert m.nota.startswith("titlul nu încăpea") and compozitor.verifica_export(m) == []
+    scurt = m.nota.split("„", 1)[1].rstrip("”")
+    assert len(scurt.split()) <= compozitor.TITLU_MAX_CUVINTE and HOOK_LUNG.startswith(scurt)
+    assert HOOK_LUNG[len(scurt)] == " "  # niciun cuvânt tăiat la jumătate
+    for punct in (None, (0.7, 0.6)):
+        d = compozitor.detaliu_explicat(fotografie_procedurala(), HOOK_LUNG, IDENT, punct=punct, logo=LOGO)
+        assert d.nota.startswith("titlul nu încăpea") and compozitor.verifica_export(d) == []
+    scurt_ok = compozitor.foto_dominanta(fotografie_procedurala(), "Frâna care cântă la semafor", IDENT)
+    assert scurt_ok.nota == ""  # un titlu scurt rămâne întreg
+
+
+def test_scurtarea_pastreaza_cuvintele_intregi() -> None:
+    assert compozitor.scurteaza("Frâna, care cântă; la semafor", 2) == "Frâna, care"
+    assert compozitor.scurteaza("Frâna, care cântă", 1) == "Frâna"
+
+
+def test_caruselul_are_aceeasi_grila_si_intoarce_png_uri() -> None:
+    cadre = compozitor.carusel_cadre(
+        "De ce scârțâie frâna?", ["Plăcuțe uzate", "Disc murdar\nUn strat subțire de ulei ajunge"],
+        "Programează o revizie de 120 lei", IDENT, logo=LOGO,
+    )  # fmt: skip
+    for k, m in enumerate(cadre):
+        _salveaza(f"carusel-{k + 1}.png", m.png)
+        assert compozitor.verifica_export(m) == [] and vizual.probleme(m.png, m.asteptari) == []
+    assert len(cadre) == 4 and {m.texte[0][:2] for m in cadre} == {(94, 294)}  # titlul în același loc
+    pngs = compozitor.carusel("Întrebare?", ["Idee"], "Pasul", IDENT)
+    assert len(pngs) == 3 and all(p.startswith(b"\x89PNG") for p in pngs)
+
+
+def test_caruselul_foloseste_fotografia_potrivita_ideii_altfel_ramane_tipografic() -> None:
+    foto = fotografie_procedurala()
+    cadre = compozitor.carusel_cadre(
+        "De ce scârțâie frâna?", ["Pinionul uzat\nDinții ascuțiți rup lanțul", "Disc murdar"],
+        "Programează o revizie de 120 lei", IDENT, logo=LOGO, fotografii=[(foto, {}), None],
+    )  # fmt: skip
+    for k, m in enumerate(cadre):
+        _salveaza(f"carusel-foto-{k + 1}.png", m.png)
+        assert m.nume == "carusel" and compozitor.verifica_export(m) == []
+    assert cadre[1].subiect is not None and cadre[1].pozitie_titlu == "banda"  # fotografia + legenda
+    assert len(cadre[1].texte) == 2  # eticheta și legenda
+    assert cadre[2].subiect is None and cadre[2].pozitie_titlu == "sus"  # fără fotografie: tipografic
+
+
+@pytest.mark.parametrize(
+    ("brief", "foto", "asteptat"),
+    [
+        (
+            {"ce_vede_publicul": "mecanicul ține bicicleta în atelier", "natura": "prezentare"},
+            2,
+            "foto_dominanta",
+        ),
+        ({"ce_vede_publicul": "pinionul uzat, în prim-plan", "natura": "prezentare"}, 1, "detaliu_explicat"),
+        ({"ce_vede_publicul": "frâna pe roată", "natura": "educativ"}, 1, "detaliu_explicat"),
+        ({"ce_vede_publicul": "atelierul cu biciclete", "natura": "prezentare"}, 0, "anunt"),
+        ({"ce_vede_publicul": "pași de verificare", "format": "carusel"}, 0, "carusel"),
+    ],
+)
+def test_alegerea_machetei(brief: dict[str, str], foto: int, asteptat: str) -> None:
+    macheta, nota = sabloane.alege_macheta(brief, foto)
+    assert macheta == asteptat
+    assert bool(nota) == (asteptat == "anunt")

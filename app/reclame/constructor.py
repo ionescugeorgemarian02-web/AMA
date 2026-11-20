@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.ids import new_id
 from app.reclame import plan as plan_media
 from app.reclame import propuneri, verificare
 from app.reclame.modele import Anunt, Campanie, ContReclame, PlanMediaRand
@@ -62,10 +63,12 @@ def construieste(
             cr = creative.get(v)
             if cr is None:
                 raise ConstructieRefuzata(f"lipsește creativul pentru „{v}”")
-            link = plan_media.link_cu_utm(p, v)
+            anunt_id = new_id()
+            link = plan_media.link_cu_utm(p, str(anunt_id))
             probleme = verificare.verifica(cr.titlu, cr.text, link, cont.platforma, generat_ai=cr.generat_ai)
             db.add(
                 Anunt(
+                    id=anunt_id,
                     tenant_id=r.tenant_id,
                     campanie_id=c.id,
                     nume=f"{cp.nume} · {plan_media.slug(v)}",

@@ -15,7 +15,7 @@ import re
 import unicodedata
 import uuid
 from typing import Literal
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
@@ -26,6 +26,7 @@ from app.reclame.modele import ContReclame, PlanMediaRand
 
 PARTE_TEST = 0.2  # 20% din bugetul zilnic merge la testul creativ (16.6, 7.7)
 ZILE_LUNA = 30
+EVENIMENT = {"lead": "lead", "trafic": "clic_destinatie"}
 VARIABILE = ("hook", "oferta", "format", "public")
 
 
@@ -88,8 +89,9 @@ def link_cu_utm(plan: PlanMedia, continut: str = "") -> str:
     q = {"utm_source": m.utm_source, "utm_medium": m.utm_medium, "utm_campaign": m.utm_campaign}
     if continut:
         q["utm_content"] = slug(continut)
-    sep = "&" if urlsplit(plan.pagina_destinatie).query else "?"
-    return plan.pagina_destinatie + sep + urlencode(q)
+    url = urlsplit(plan.pagina_destinatie)
+    pastrati = [(k, v) for k, v in parse_qsl(url.query, keep_blank_values=True) if k not in q]
+    return url._replace(query=urlencode([*pastrati, *q.items()])).geturl()
 
 
 def verifica(plan: PlanMedia) -> list[str]:
@@ -120,6 +122,8 @@ def verifica(plan: PlanMedia) -> list[str]:
     co = plan.criterii_oprire
     if co.cost_tinta_bani * co.multiplu_pierdere > plan.buget_lunar_bani:
         p.append("pragul de oprire la pierdere e mai mare decât tot bugetul: oprirea n-ar veni niciodată")
+    if plan.masurare.eveniment != EVENIMENT[plan.obiectiv]:
+        p.append("evenimentul măsurat trebuie să corespundă obiectivului campaniei")
     if plan.masurare.utm_source not in ("meta", "google", "tiktok"):
         p.append("sursa UTM trebuie să fie platforma (meta, google sau tiktok)")
     return p
@@ -163,7 +167,7 @@ def construieste(
         plafon_lunar_bani=cont.plafon_lunar_bani,
         plafon_campanie_bani=cont.plafon_campanie_bani,
         criterii_oprire=CriteriiOprire(cost_tinta_bani=cost_tinta_bani),
-        masurare=Masurare(utm_source=cont.platforma, utm_campaign=slug(nume)),
+        masurare=Masurare(utm_source=cont.platforma, utm_campaign=slug(nume), eveniment=EVENIMENT[obiectiv]),
     )
 
 
@@ -197,7 +201,11 @@ def propune(db: Session, cont_id: uuid.UUID, **parametri: object) -> PlanMediaRa
 
 
 def plan_din(r: PlanMediaRand) -> PlanMedia:
-    return PlanMedia.model_validate(r.continut)
+    p = PlanMedia.model_validate(r.continut)
+    # Planurile de trafic vechi au primit implicit evenimentul „lead”.
+    if p.obiectiv == "trafic" and p.masurare.eveniment == "lead":
+        p.masurare.eveniment = EVENIMENT["trafic"]
+    return p
 
 
 def decide(db: Session, plan_id: uuid.UUID, *, aprobat: bool, utilizator_id: uuid.UUID) -> PlanMediaRand:

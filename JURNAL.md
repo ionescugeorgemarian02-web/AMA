@@ -889,3 +889,111 @@ Deschis: revizuire alt model (A), investigare media (A), conectarea API-ului în
 ### G-pool (Opus)
 - Portat din fabrica (citit, nu copiat): catalogul, cheile cu nume exacte și dezactivarea automată, seiful (Fernet, cheie din `AMA_MASTER_KEY`), sănătatea pe model, paza familiei, resetul pe fus orar, rezervele pe rol; cotele cu rezervare/decontare și preflight-ul TPM existau deja în F3.3 (limitatorul). Comanda `python -m app.gateway.verifica_furnizori` pentru primul test live.
 - Verificat: testele noi (unit + integrare) și suita gateway-ului; `make guards`, `make audit`, `make check` (vezi raportul sesiunii). Deschis: tot ce e în „De verificat la primul test live (G-pool)”.
+
+## Predare către Claude · 20 noiembrie 2026 · OpenAI Codex
+
+Bază de lucru `625d5a6`, ramură `codex/agentie-pilot`. Modificările acestei ramuri aparțin Codex.
+- Calendar și producție: aprobarea din panou înregistrează joburile în aceeași tranzacție PostgreSQL, cu cheie per livrabil. Planificarea distribuie combinațiile de canal și format ținând cont de limita zilnică.
+- Pilot GitHub Actions: două dosare fictive (magazin și atelier), decizii lingvistice prin gateway-ul Anthropic, registru temporar, rezultate pe caz. Secretul necesar este `ANTHROPIC_API_KEY`. Raportul consemnează aprobările simulate și verificările omise. Fluxul cu cheie reală rămâne de verificat.
+- Strategie și reclame: sensul indicatorului, conversii fracționare și clicuri de trafic distincte, rezultate indisponibile păstrate separat. Migrare `0140`.
+- Oferte și conținut: brief comercial cu ofertă aprobată și destinație. Studiul de caz al paginii provine din afirmații aprobate asociate ofertei. Prompturi noi versionate.
+- Video: transmiterea indicațiilor vizuale în regie și asocierea randării cu versiunea scenariului. Exportul asistat se caută după client, livrabil, versiune și control G6.
+- Atribuire: importul comenzii păstrează utm_content. În portal și în pilot sunt disponibile comenzile importate și volumul măsurat. Pentru servicii operatorul poate introduce totalul zilnic confirmat din exportul clientului, pe livrabil. Migrare `0141`.
+- SEO: import CSV cu pagină și produs, interogări ordonate după impresii și poziție. Comandă: `uv run python -m app.seo export.csv --produs "Produs" --pagina "/pagina"`.
+- Verificări inițiale: cele 40 de teste focalizate pe brief, ofertă, calendar, SEO, obiective, reclame, dosare și raport au trecut. Verificările finale se documentează mai jos. Nu s-au lansat reclame, publicări sau plăți.
+
+### Completări și dovezi
+
+Codex a conectat producția unui scenariu validat la pregătirea montajului pe coada media. Fluxul folosește voce românească eSpeak NG, activele licențiate ale clientului și, în lipsa lor, animații. Comparația „fină / medie” are două mostre la aceeași scară. Operatorul și clientul pot deschide exportul versiunii în ecranul de aprobare. Pilotul exportă câte un exemplu din fiecare format ales în calendar, inclusiv MP4 când există un slot video. Linkurile reclamelor noi identifică anunțul prin UUID.
+
+Verificări locale: Ruff, mypy și gărzile au trecut. Testul strategului de reclame a trecut după corectarea simulatorului Meta, care omitea evenimentul când observase explicit zero. Testele scenariilor video au trecut pe PostgreSQL. Rularea locală integrală a fost întreruptă după erori în testele de recuperare a workerului și timeout-uri DBOS. Un test din grupul watchdog a trecut la reluare izolată. Pentru starea CI la commitul final, verifică PR #20. Pilotul cu facturare Anthropic și publicarea pe canale reale nu au fost executate.
+
+### Identitatea vizuală în pilot · OpenAI Codex
+
+În `app/media/fluxuri.py` și `animatie.py`, scenele fără filmări preiau numele și paleta clientului. Simbolul și particulele urmăresc subiectul scenei. Atelierul folosește calendarul pentru programări. Cafeneaua folosește boabele pentru măcinare. În `tests/integration/test_pilot_claude.py`, imaginile de feed și coperțile video folosesc formate diferite și titlul materialului validat. Raportul indică alinierea simulată a subtitrărilor.
+
+GitHub Actions a trecut ambele verificări, `check` și `imagine`, la commitul precedent `0a2ffd2`. Pentru corecția vizuală, au trecut cele trei teste din `test_pilot_dosare.py`, Ruff, mypy și gărzile. Codex a randat două mostre locale, câte una pentru fiecare client, cu Chromium și FFmpeg. ffprobe confirmă H.264, 1080 × 1920 și 36 de cadre la fiecare. Mostrele verifică animația. Pentru campania completă cu modelul real, rulează manual „Pilot AMA cu Claude” după integrare, cu secretul `ANTHROPIC_API_KEY` și un model disponibil în cont.
+
+## F-editorial, punctele 1–3 · 20 noiembrie 2026 · Claude
+
+- Pilot: `la_epuizare='amana'` în actualizarea profilurilor (constrângerea `profil_degradare` neatinsă).
+- Regresie „Atelierul Spița” (`tests/integration/test_media_selectie_scene.py`): pica pe codul vechi (sigla în toate scenele), trece acum prin `fluxuri.pregateste_script`.
+- Migrare `0142` (rol vizual, subiect, `cereri_material`), `media.selectie`, `regizor.storyboard` înaintea vocii, cereri de material și reluare (`fluxuri.reia_livrabil`, ecranul `/materiale`), brief vizual `continut.brief@3` și `continut.script@2`.
+- Verificat local: testele focalizate de media, conținut, regizor, poarta F8, migrații, prompturi și `tests/unit`; Ruff, format, mypy, gărzi.
+- Deschis: fișierele din portal intră cu rol NULL până le clasifică operatorul. Natura necunoscută înseamnă `prezentare`, deci pilotul fără fotografii se oprește acum cu cereri. Sigla apare în storyboard doar ca `semnatura` și nu se montează încă. Clipurile animate pentru scenele educative n-au fost randate local (lipsește Chromium/Playwright). Urmează machetele, montajul, verdictul editorial și testul A/B.
+
+## F-editorial, punctele 4–5 · 20 noiembrie 2026 · Claude
+
+- Machete în `compozitor` (`foto_dominanta`, `detaliu_explicat`, `carusel`, `exporta`) și `sabloane` (`TIPOGRAFIE` titlu 88 / legendă 40 / corp 44, titlul coboară cel mult la 64 px; `alege_macheta`). Zona subiectului: `generare.zona_subiect` (relativă) sau centrul de energie al muchiilor; punctul piesei: `generare.punct_piesa`.
+- Montaj: tăietura rămâne pe începutul replicii (`momente_batai`, testat); `regizor.reutilizari` pe `activ_id` (alt zoom = reutilizare) în `randari.masuratori.reutilizari`; poziția subtitrărilor după timpul în care subiectul stă jos față de sus (`pozitie_subtitrari`, plus `pret_jos`).
+- Durata: singura regulă care împingea spre 30 s era `scripturi.se_incadreaza` (±15% din țintă). Relaxată documentat: plafon +15%, minimum 8 s [I]; montajul folosea deja vocea + coada.
+- `voce.mostra` și `voce.PROFIL_RANDARE` (folosit și de `fluxuri.pregateste_script`). Pilotul: `blocate` în `raport.json`, `mostra.wav`, `imagine-*.png` prin machete.
+- Verificat local: PNG-uri din fiecare machetă și un cadru din MP4-ul cu subtitrări sus (privite), testele focalizate + `tests/unit`, Ruff, format, mypy, gărzi. Pilotul real (`AMA_PILOT_CLAUDE=1`) nu l-am rulat (cere cheie).
+- Deschis: poziția subtitrărilor e una pe listă, nu pe scenă; zona subiectului pentru video vine doar din `generare`; caruselul nu folosește fotografii; verdictul editorial (punctul 7) și testul A/B (punctul 8) urmează.
+
+
+## F-editorial, punctele 6–7 și corecția caruselului · 20 noiembrie 2026 · Claude (predare)
+
+- Carusel: cadrul intermediar folosește fotografia potrivită ideii (`compozitor.fotografii_pe_idei`, prin `selectie.potrivire`, întâi una nefolosită), în stilul `detaliu_explicat` cu eticheta și legenda (două rânduri) în bandă; doar fără fotografie rămâne tipografic.
+- Verdictul editorial (`control.verdict_editorial`, nucleul pur `control.judeca`), separat de G6: câte un cadru pe scenă, extras din MP4 la mijlocul scenei, plus PNG-urile finale. Reguli: sigla ca subiect al unei scene sau imagine doar cu text și siglă (componentele + partea de pixeli „plați”); același activ în două bătăi cu indicație proprie (hook-ul și apelul pot refolosi un cadru); text ieșit din cadru (cutiile salvate în `generare.cutii_text` și ecranele de subtitrare); material lipsă (cereri deschise și scene `lipsa` din storyboard); export al altei versiuni. Mesaj + etapa de reluat (de ex. „Scenele 0–4 folosesc aceeași siglă. Revino la selecția materialelor.”). Evaluarea vizuală: `neverificata` / `autoevaluare` / `evaluator` / `operator`. Planșa e un activ `export`. Verdictul se scrie în `randari.control["editorial"]` (la fiecare randare finală cu livrabil, din `montaj.executa`) și în audit (`livrabil.verdict_editorial`). Storyboardul se păstrează în `randari.masuratori["storyboard"]`.
+- Ecranul de aprobare (panou și portal): G6 și verdictul editorial separat, motivele, starea evaluării vizuale și planșa (`/aprobari-media/{cerere}/plansa`). `montaj.controale` alimentează ambele ecrane. Un MP4 cu G6 trecut și sigla în scene apare respins editorial (testat).
+- `scripts/foto_test_commons.py` (Wikimedia Commons, licențe CC0 / domeniu public / CC BY / CC BY-SA, JPEG ≥ 800 px, căutări de rezervă, `User-Agent: AMA-test/1.0`, `LICENTE.json` cu sha256). Din sesiune Commons e blocat de proxy (verificat: 403, scriptul a ieșit curat cu `LICENTE.json` gol), deci rularea reală se vede doar în CI.
+- `tests/integration/test_editorial_spita.py` (doar cu `AMA_EDITORIAL_DIR`) și jobul `editorial` din `ci.yml` (paralel cu `check`, 30 min, artefactul `editorial-spita`). A: blocat, cereri pe scenele 1–3, verdict respins cu etapa „material”, nimic pregătit pentru publicare. B: feed `foto_dominanta`, carusel 5 cadre (2 cu fotografie), MP4 1080×1920 cu voce eSpeak/MBROLA și subtitrări sus, storyboard cu fotografia pe scenă, planșă, G6 trece, editorial trece (evaluarea vizuală neverificată), mostra audio. Artefactele sunt copiate exact din biblioteca aplicației.
+- Fișiere: `app/media/{control,compozitor,montaj,fluxuri,sabloane}.py`, `app/panou/aprobari_web.py`, `app/portal/lucru_web.py`, `app/publicare/web.py`, șabloanele `aprobari.html` (panou, portal), `tema.css`, `scripts/foto_test_commons.py`, `.github/workflows/ci.yml`, testele `tests/unit/test_media_editorial.py`, `tests/unit/test_foto_test_commons.py`, `tests/unit/test_media_machete.py`, `tests/integration/test_media_verdict_editorial.py`, `tests/integration/test_media_sabloane.py`, `tests/integration/test_editorial_spita.py`, `docs/specs/F-editorial.md`.
+- Verificat local: `tests/unit`, testele de integrare media (selecție, machete, montaj, G6, poarta F8, format E, regizor), aprobările din panou și portal, verdictul editorial, A/B (B cu imagini procedurale; planșa și feedul privite). Ruff check/format, mypy app, `make guards`, actionlint 1.7.7.
+- Simulat: regizorul (modelul fals din teste alege doar mișcarea), alinierea subtitrărilor, fotografiile din rularea locală (procedurale). Evaluarea vizuală (relevanță, compoziție) rămâne „neverificată”: niciun model cu imagini, niciun operator.
+- Deschis: un export respins editorial rămâne `gata` pentru G6 și apare la aprobare cu verdictul (nu blochează automat `video_verificat`); hook-ul și apelul refolosesc un cadru (permis, notat în storyboard); jobul `editorial` face apeluri reale la Commons (cerut explicit, excepție de la „CI fără rețea”). Rularea CI: se completează după push.
+
+## Corecția CI pentru PR #21 · 20 noiembrie 2026 · Claude
+
+- Rularea 44752194357: `editorial` pica în `foto_dominanta` cu `TextPreaLung` (fotografia reală de pe Commons, 3:2, are subiectul pe aproape toată înălțimea decupajului 4:5, iar banda liberă rămasă nu ținea titlul nici la 64 px). Acum, fără zonă liberă destul de înaltă (sau când singura zonă atinge subiectul), fotografia stă sus și titlul pe o bandă dedesubt (`pozitie_titlu='banda'`), fără să acopere subiectul; test unitar cu o fotografie texturată 3:2.
+- `check` pica de două ori: `test_media_selectie_scene` cerea espeak-ng (lipsește în jobul `check`) — vocea e acum simulată acolo unde espeak-ng lipsește, ca în `test_media_voce`; `test_panou` vedea cererea lăsată în așteptare de `test_media_verdict_editorial` (coada de aprobări e comună), care acum își anulează cererea la final.
+- Verificat local: testele de mai sus (inclusiv selecția scenelor cu espeak-ng ascuns din PATH), `test_editorial_spita` cu imagini procedurale, `test_media_sabloane`, Ruff check/format, mypy app. Commons rămâne blocat din sesiune, deci fotografia reală se verifică doar în CI.
+
+### F-editorial · rularea CI cu artefacte (Claude)
+
+Rularea CI 109 (commit `f8322da`) a trecut toate joburile: check, imagine, editorial.
+- Rularea: https://github.com/ionescugeorgemarian02-web/AMA/actions/runs/44757970925
+- Artefactul `editorial-spita` (23 de fișiere, 41 MB): https://github.com/ionescugeorgemarian02-web/AMA/actions/runs/44757970925/artifacts/14642281609
+
+Fotografiile B, descărcate în CI de pe Wikimedia Commons:
+- transmisie: „Racing bicycle chain (detail)”, CC BY-SA 4.0, Cjp24;
+- frână: „Bike disc break disc pads and caliper”, CC BY-SA 4.0, Alextredz;
+- deviz: factura atelierului Hermann Bauer din Leipzig, din 1921, domeniu public.
+
+A și B au trecut (2 passed).
+
+## F-idee, etapa de idee (fluxul nou 1–4) · 20 noiembrie 2026 · Claude
+
+- Făcut: `app/continut/idei.py` (propune → critica → `probleme_concept` → `alege` → o rescriere → om), migrarea `0143_idei_concepte`, prompturile `continut.idei@1`, `continut.critica_idee@1`, `continut.brief@4`, `continut.postare@2`, `continut.script@3`; integrarea în `pipeline`/`fluxuri`, `brief.text_pentru_autor`, `scripturi` (`cadre`), `regizor.scene_script` și `selectie.alege`. Modelul fals (`tests/onboarding_utile.py`) răspunde implicit la noile prompturi.
+- Verificat: `tests/unit` + `tests/integration/test_continut_*` (inclusiv `test_continut_idei.py`), `test_media_selectie_scene`, `test_editorial_spita`, `test_media_regizor`, `test_media_verdict_editorial`, `test_gateway_prompturi`; Ruff check/format, mypy app, `make guards`.
+- Deschis: `test_poarta_f6` pică local cu epuizarea poolului de conexiuni (21 de fluxuri de producție pornite la aprobarea calendarului, în paralel cu fluxul de briefuri); pică identic și pe `HEAD` fără schimbările mele (verificat într-un worktree separat), deci nu e o regresie F-idee, dar merită investigat. Critica cu alt model e [NEVERIFICAT] cu modele reale (în teste lanțul are un singur model → `autoevaluare`).
+
+## F-idee, demonstrația Spița (test + job CI `idee`) · 20 noiembrie 2026 · Claude
+
+- Făcut: `tests/integration/test_idee_spita.py` (doar cu `AMA_IDEE_DIR`): fundația Spița cu modelul fals (interviu → brief, ghid de ton, fapt de preț, oferta de 120 lei, strategie scrisă direct în Creier, calendar instagram `script_video_scurt` + facebook `postare`), `pipeline.idee_si_brief` + `scriere.scrie`, stock după interogările cadrelor (`furnizori.stock_din_mediu`), montaj, feed, planșă, G6, verdict editorial; artefactele cerute în `AMA_IDEE_DIR`. Sursa creației: punte (`generator/`, `critic/`), Anthropic (`AMA_CHEIE_PILOT`) sau redare din `tests/date/idei/spita.json` (amprentă diferită = avertisment). Jobul CI `idee` (redare, `AMA_STOCK=commons`). `lista.probleme`: formatul A acceptă fotografii (conceptele amestecă cadre video și foto; altfel montajul pica).
+- Verificat: mecanica cap-coadă cu o înregistrare de probă din modelul fals (`AMA_IDEE_FALS=1`, fișier temporar), apoi redarea ei, cu `AMA_STOCK=commons` → Commons 403 din sesiune → `StockSimulat`, marcat „stock simulat”; `tests/unit`, `test_media_regizor`, `test_media_montaj`, `test_media_selectie_scene`, `test_continut_idei`, `test_editorial_spita`, `test_media_verdict_editorial`; Ruff, mypy app, `make guards`, actionlint.
+- Deschis: `tests/date/idei/spita.json` nu există încă (jobul `idee` pică până la înregistrarea prin punte). Cadrele de material propriu primesc o imagine procedurală (marcată). Modul Anthropic e [NEVERIFICAT]. Cu modelul fals verdictul editorial iese „respins” (text despre cafea pe un atelier de biciclete); testul nu îl cere „trece”.
+
+## F-idee, corecții după rularea reală prin punte · 20 noiembrie 2026 · Claude
+
+- Făcut: `idei.alege` ține cont de critică (fezabilitate eliminatorie, cadre de stock obiectate → probleme, regula continuității/reacțiilor jucate pe stock, varianta îmbunătățită candidat); „trece” și „îi arată (cuiva)” contează ca acțiune. Titlul imaginii de feed din concept (`brief.titlu_imagine`), compozitorul scurtează la cuvinte întregi în loc de `TextPreaLung`. Șters `tests/date/idei/spita.json` parțial (necomis).
+- Verificat: pe răspunsurile reale (generator/critic 001) alegerea video devine varianta îmbunătățită a conceptului 5; postarea merge, ca înainte, la rescriere. `tests/unit`, `test_continut_idei`, `test_editorial_spita`, `test_media_sabloane`, `test_media_verdict_editorial`, ruff, mypy, `make guards`.
+- Deschis: înregistrarea `tests/date/idei/spita.json` se reface prin punte (proprietarul).
+
+### F-idee — inventarul în ideație (Claude Opus 5.5, subagent)
+- Problema din demonstrația Spița: conceptul ales avea 4 din 5 cadre `material_propriu`, iar clientul nu are nicio filmare proprie → video din înlocuitori procedurali.
+- Făcut: inventarul în contextul ideii și al criticii (prompturi v2), regula „nerealizabil cu inventarul actual” în validare, alegerea preferă conceptele realizabile, cererile de filmare pentru cadrele proprii ale conceptului ales; modelul fals propune din stock când clientul nu are filmări.
+- Verificat: `tests/unit` (2046 trecute), `test_continut_idei`, `test_editorial_spita`, `test_idee_spita` (`AMA_IDEE_FALS=1`), testele de integrare ale lanțului de conținut, ruff, mypy, `make guards`. `test_poarta_f6` a picat o dată pe timeout de pool (DBOS), trecut la reluare, la fel de lent ca pe baza neschimbată (~120 s).
+- Deschis: `tests/date/idei/spita.json` șters; jobul CI `idee` (redare) pică până la reînregistrarea prin punte.
+
+### Reparația CI după reînregistrarea Spița (rularea 44803503554, Claude Opus 5.5)
+- `check` / gărzi: detect-secrets a semnalat 11 „Hex High Entropy String” în `tests/date/idei/spita.json` — toate sunt `prompt_sha256` (amprente, nu secrete); baseline actualizat.
+- `idee`: API-ul Commons a răspuns 429 (rafală de căutări de pe IP-ul runner-ului; reîncercările de 1,5/3 s nu ajungeau). `http_get` rărește cererile și respectă `Retry-After`; teste unitare noi pe 429/503/403.
+- Verificat local: testele unitare de stock, demonstrația `idee` (stock simulat: Commons e blocat local cu 403), ruff, mypy app, make guards. NEVERIFICAT local: stock-ul real Commons (doar în CI).
+
+### Reparația CI 44809528198 (commit d2fdda4, Claude Opus 5.5, subagent)
+- `test_poarta_f6` (peste 120 s, `QueuePool limit of size 10 overflow 5`): aprobarea calendarului punea 21 de fluxuri `continut.produ` pe coada `io` (24 de locuri), fiecare ținând o sesiune (și lacătul livrabilului, cerut de idee/brief) pe durata apelurilor la model; plus fluxul de briefuri și firul testului → pool epuizat. Reprodus local (119,8 s, 42 de erori de pool). Reparat: coada `continut_productie` (concurență 4, configurabilă) și pool dimensionat după joburile simultane ale workerului. Eliberarea sesiunii înaintea apelurilor la model în `idei.pregateste`/`scriere` nu am făcut-o: lacătul livrabilului e ținut intenționat pe durata ideii (fără dubluri); rămâne propunere.
+- `test_invatare_promovare`: flakiness statistic (rutarea după hash cu id aleator; simulat: 1,6% din rulări sub eșantionul de 20), nu regresie. Testul hrănește loturi până iese din etapă.
+- Verificat local: `test_poarta_f6` de 3 ori (72 s, 72 s, 69 s; zero erori de pool; înainte 119,8 s și eșec), `test_invatare_promovare` de 5 ori, `tests/unit` + `test_continut_*` + `test_motor_*` + `test_productie_*` + `test_invatare_*` + `test_panou*` într-o rulare, ruff check/format, mypy app, make guards.
+- Observat (preexistent, și pe d2fdda4): `test_panou::test_aprobari_fara_cereri_este_stare_goala_onesta` pică dacă rulează DUPĂ `test_productie_*` (cereri rămase în așteptare); în ordinea din CI nu apare. Propunere: fixture de curățare ca `fara_cereri_ramase` în testele de producție.

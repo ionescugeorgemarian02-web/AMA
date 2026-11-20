@@ -111,3 +111,24 @@ def test_limita_de_rata_cere_ambele_valori_pozitive() -> None:
     ):
         with pytest.raises(ValueError, match=r"cereri|perioada"):
             DefinitieCoada("x1", **kw)  # type: ignore[arg-type]
+
+
+# ---- producția de conținut: coada ei și pool-ul de conexiuni -------------------------------------------------------
+
+
+def test_productia_de_continut_are_coada_ei_limitata_din_configurare() -> None:
+    from app.continut import fluxuri
+    from app.operare.motor.executie import cozi_extra
+
+    d = fluxuri._coada_productie(Settings(continut_paralel=3))
+    assert (d.nume, d.paralel_global, d.paralel_worker) == ("continut_productie", 3, 3)
+    assert fluxuri.COADA_PRODUCTIE in {c.nume for c in cozi_extra()}  # declarată la import, citită la pornire
+
+
+def test_poolul_cuprinde_toate_joburile_simultane_ale_workerului() -> None:
+    from app.db.motor import REZERVA_POOL, dimensiuni_pool
+
+    s = Settings(culoare_greu=2, io_paralel=24, invatare_paralel=1, continut_paralel=4, db_pool=10)
+    marime, peste = dimensiuni_pool(s)
+    assert marime == 10 and marime + peste == 2 + 24 + 1 + 4 + REZERVA_POOL
+    assert dimensiuni_pool(Settings(io_paralel=1, culoare_greu=1, continut_paralel=1, db_pool=50)) == (50, 5)
